@@ -131,33 +131,38 @@ WSGI_APPLICATION = 'calsite.wsgi.application'
 ASGI_APPLICATION = 'calsite.asgi.application'
 
 # =====================================================================
-# DATABASE CONFIGURATION - RAILWAY NATIVE (UPDATED)
+# DATABASE CONFIGURATION - RAILWAY READY (UPDATED)
 # =====================================================================
 import dj_database_url
 
-# Get DATABASE_URL from Railway (auto-injected) or fallback
+# Get DATABASE_URL from environment
 DATABASE_URL = config('DATABASE_URL', default='')
 
-if DATABASE_URL:
-    # Production on Railway - use the injected URL
+if DATABASE_URL and DATABASE_URL.startswith('mysql://'):
+    # Use DATABASE_URL if available and valid
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
             conn_max_age=600,
             conn_health_checks=True,
-            ssl_require=False
         )
     }
 else:
-    # Local development - use individual variables
+    # Fallback: Use individual MySQL variables
+    DB_HOST = config('MYSQL_HOST', default='mysql.railway.internal')
+    DB_PORT = config('MYSQL_PORT', default='3306')
+    DB_NAME = config('MYSQL_DATABASE', default='railway')
+    DB_USER = config('MYSQL_USER', default='root')
+    DB_PASSWORD = config('MYSQL_PASSWORD', default='')
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': config('DB_NAME', default='caldan_construction'),
-            'USER': config('DB_USER', default='root'),
-            'PASSWORD': config('DB_PASSWORD', default=''),
-            'HOST': config('DB_HOST', default='localhost'),
-            'PORT': int(config('DB_PORT', default='3306')),
+            'NAME': DB_NAME,
+            'USER': DB_USER,
+            'PASSWORD': DB_PASSWORD,
+            'HOST': DB_HOST,
+            'PORT': int(DB_PORT),
             'OPTIONS': {
                 'charset': 'utf8mb4',
                 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
