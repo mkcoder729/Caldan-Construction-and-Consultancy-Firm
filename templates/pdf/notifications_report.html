@@ -1,0 +1,76 @@
+{% extends "pdf/_base_report.html" %}
+
+{% block badge %}NOTIFICATIONS REPORT{% endblock %}
+
+{% block title %}Notifications <span>Report</span>{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h2>Notifications</h2>
+    {% if notifications %}
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Recipient</th>
+                <th>Read</th>
+                <th>Sent</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for n in notifications %}
+            <tr>
+                <td><strong>{{ n.title|default:"—" }}</strong></td>
+                <td>{{ n.type|default:"—" }}</td>
+                <td>
+                    {% if n.is_read %}
+                        <span class="pill pill-success">Read</span>
+                    {% else %}
+                        <span class="pill pill-warning">Unread</span>
+                    {% endif %}
+                </td>
+                <td>{{ n.created_at|date:"M d, Y H:i"|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No notifications recorded.</div>
+    {% endif %}
+</div>
+
+<div class="section">
+    <h2>Audit Log (Recent)</h2>
+    {% if audit_logs %}
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Action</th>
+                <th>Entity</th>
+                <th>When</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in audit_logs %}
+            <tr>
+                <td>
+                    {% if log.user %}
+                        <strong>{{ log.user.get_full_name|default:log.user.email|default:"—" }}</strong>
+                    {% else %}
+                        <strong>System</strong>
+                    {% endif %}
+                </td>
+                <td>{{ log.get_action_display|default:log.action|default:"—" }}</td>
+                <td>{{ log.entity_type|default:"—" }} {{ log.entity_id|default:"" }}</td>
+                <td>{{ log.created_at|date:"M d, Y H:i"|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No audit log entries.</div>
+    {% endif %}
+</div>
+{% endblock %}

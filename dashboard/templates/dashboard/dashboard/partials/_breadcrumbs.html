@@ -1,0 +1,79 @@
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a href="{% url 'dashboard:overview' %}">
+        <i class="fas fa-home"></i>
+    </a>
+    <span class="separator">/</span>
+    {% for crumb in breadcrumbs %}
+        {% if forloop.last %}
+            <span class="current">{{ crumb.label }}</span>
+        {% else %}
+            <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+            <span class="separator">/</span>
+        {% endif %}
+    {% empty %}
+        <span class="current">Dashboard</span>
+    {% endfor %}
+</nav>
+
+<style>
+/* ================================================================
+   BREADCRUMBS - PREMIUM
+   ================================================================ */
+.breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.breadcrumbs a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--t-fast) var(--ease-standard);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.breadcrumbs a:hover {
+    color: var(--brand-blue);
+}
+
+.breadcrumbs .separator {
+    color: var(--text-tertiary);
+    font-size: 0.6rem;
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+.breadcrumbs .current {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Responsive - hide intermediate crumbs on mobile */
+@media (max-width: 640px) {
+    .breadcrumbs {
+        font-size: 0.75rem;
+    }
+
+    .breadcrumbs .separator {
+        display: none;
+    }
+
+    .breadcrumbs a:not(:last-child) {
+        display: none;
+    }
+
+    .breadcrumbs a:last-child {
+        display: flex;
+    }
+
+    .breadcrumbs .current {
+        display: block;
+    }
+}
+</style>

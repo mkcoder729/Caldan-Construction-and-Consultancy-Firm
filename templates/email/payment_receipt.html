@@ -1,0 +1,59 @@
+{# Customer payment receipt. Slim light-mode design. #}
+{% extends "email/_base.html" %}
+{% load humanize %}
+
+{% block badge %}<span class="badge badge-success" style="margin-top: 14px;">PAYMENT CONFIRMED</span>{% endblock %}
+
+{% block content %}
+  <h1>Payment <span>receipt</span></h1>
+  <p class="subtitle">Receipt for order #{{ order.order_number }}</p>
+
+  <p>Thanks {{ order.client_name|default:"there" }} — your payment landed safely.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Receipt number</dt>
+      <dd>RCP-{{ order.order_number }}</dd>
+      <dt>Order</dt>
+      <dd>{{ order.order_number }}</dd>
+      <dt>Payment date</dt>
+      <dd>{{ order.paid_at|date:"F j, Y"|default:order.created_at|date:"F j, Y" }}</dd>
+      <dt>Method</dt>
+      <dd>Paystack</dd>
+      <dt>Reference</dt>
+      <dd><span class="code-mono" style="font-size: 14px; letter-spacing: 2px; padding: 6px 14px;">{{ order.paystack_reference|default:"N/A" }}</span></dd>
+    </dl>
+  </div>
+
+  <div style="text-align: center; margin: 24px 0;">
+    <div style="display: inline-block; background: linear-gradient(135deg, var(--brand-navy) 0%, #14333F 100%); color: var(--brand-cream); border-radius: 8px; padding: 22px 32px; box-shadow: var(--shadow-medium);">
+      <div style="font-size: 9px; font-weight: 800; letter-spacing: 1.8px; color: var(--brand-gold); text-transform: uppercase; margin-bottom: 4px;">Amount paid</div>
+      <div style="font-size: 30px; font-weight: 800; color: var(--brand-gold); letter-spacing: -.4px; line-height: 1.1;">KES {{ order.total|floatformat:0|intcomma }}</div>
+      <div style="font-size: 9px; color: rgba(246,241,232,.7); margin-top: 6px; letter-spacing: 1px; text-transform: uppercase;">Confirmed</div>
+    </div>
+  </div>
+
+  <h2>Items</h2>
+  <table class="summary">
+    <tbody>
+      {% for item in order.items.all %}
+        <tr>
+          <td>{{ item.quantity }} × {{ item.product.name }}</td>
+          <td style="text-align:right; font-weight:600;">KES {{ item.total_price|floatformat:0|intcomma }}</td>
+        </tr>
+      {% endfor %}
+      <tr>
+        <td style="font-weight:700; color: var(--brand-navy);">Total</td>
+        <td style="text-align:right; font-weight:700; color: var(--brand-gold-deep);">KES {{ order.total|floatformat:0|intcomma }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {% if invoice_url %}
+    <div class="button-row">
+      <a href="{{ site_url|default:'https://caldanconstruction.com' }}{{ invoice_url }}" class="button button-gold">Download PDF receipt</a>
+    </div>
+  {% endif %}
+
+  <p style="text-align:center; color: var(--slate-500); font-size: 13px;">Questions? <a href="mailto:{{ support_email|default:'info.caldanconstruction@gmail.com' }}">{{ support_email|default:'info.caldanconstruction@gmail.com' }}</a>.</p>
+{% endblock %}

@@ -1,0 +1,222 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}{{ admin.full_name }} - Admin Details{% endblock %}
+
+{% block extra_css %}
+<style>
+.admin-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex; flex-direction: column; gap: 22px;
+    padding-bottom: 40px;
+}
+
+.page-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+.page-hero::before {
+    content: ''; position: absolute; top: -100%; right: -10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 65%);
+    border-radius: 50%; pointer-events: none;
+}
+.hero-main {
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    position: relative; z-index: 1;
+}
+.hero-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: rgba(212, 175, 55, 0.2);
+    border: 2px solid rgba(212, 175, 55, 0.4);
+    backdrop-filter: blur(10px);
+    color: var(--brand-gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 800;
+    flex-shrink: 0;
+}
+.hero-info { flex: 1; min-width: 240px; }
+.hero-code {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700; color: var(--brand-gold);
+    background: rgba(212, 175, 55, 0.15);
+    padding: 4px 12px; border-radius: var(--r-pill);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    letter-spacing: 0.5px; text-transform: uppercase;
+    margin-bottom: 12px;
+}
+.hero-title { font-size: 24px; font-weight: 800; color: #fff; margin: 0 0 4px; letter-spacing: -0.3px; }
+.hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.85); }
+.hero-actions { display: flex; gap: 10px; flex-wrap: wrap; position: relative; z-index: 1; }
+
+.detail-card {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-xs);
+}
+.detail-card-header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border-subtle);
+    display: flex; justify-content: space-between; align-items: center;
+}
+.detail-card-header h3 {
+    font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0;
+    display: flex; align-items: center; gap: 10px;
+}
+.detail-card-header h3 i {
+    color: var(--brand-gold); font-size: 13px; width: 28px; height: 28px;
+    background: rgba(212, 175, 55, 0.1); border-radius: var(--r-sm);
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.detail-card-body { padding: 20px; }
+
+.info-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+}
+.info-item {
+    padding: 14px 16px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+}
+.info-label {
+    font-size: 11px; font-weight: 700; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+}
+.info-value { font-size: 14px; font-weight: 600; color: var(--text-primary); word-break: break-word; }
+
+.role-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: var(--r-pill);
+    font-size: 12px; font-weight: 700;
+}
+.role-pill.chief { background: rgba(212, 175, 55, 0.15); color: var(--brand-gold-deep); border: 1px solid rgba(212, 175, 55, 0.3); }
+.role-pill.admin { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); border: 1px solid rgba(11, 102, 195, 0.3); }
+.role-pill.active { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); border: 1px solid rgba(39, 174, 96, 0.3); }
+.role-pill.inactive { background: rgba(185, 52, 43, 0.12); color: var(--sem-danger); border: 1px solid rgba(185, 52, 43, 0.3); }
+
+.btn {
+    padding: 10px 22px; border: none; border-radius: var(--r-sm);
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px; letter-spacing: 0.3px;
+}
+.btn-primary { background: var(--brand-gold); color: var(--brand-navy); box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3); }
+.btn-primary:hover { background: var(--brand-gold-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4); }
+.btn-ghost { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); }
+.btn-ghost:hover { background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.3); }
+.btn-secondary { background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+.btn-secondary:hover { background: var(--bg-secondary); border-color: var(--border-default); color: var(--text-primary); }
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.page-hero, .detail-card { animation: fade-up 0.4s ease both; }
+.detail-card:nth-child(2) { animation-delay: 0.05s; }
+
+@media (max-width: 768px) {
+    .info-grid { grid-template-columns: 1fr; }
+    .page-hero { padding: 22px; }
+    .hero-title { font-size: 20px; }
+    .hero-avatar { width: 56px; height: 56px; font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .page-hero, .detail-card { animation: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="admin-page">
+
+    <div class="page-hero">
+        <div class="hero-main">
+            <div class="hero-avatar">{{ admin.full_name|slice:":1"|upper|default:"A" }}</div>
+            <div class="hero-info">
+                <span class="hero-code"><i class="fas fa-user-shield"></i> Administrator</span>
+                <h1 class="hero-title">{{ admin.full_name }}</h1>
+                <p class="hero-sub">{{ admin.email }}</p>
+            </div>
+        </div>
+        <div class="hero-actions">
+            <a href="{% url 'accounts:admin_list' %}" class="btn btn-ghost">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            {% if can_edit %}
+                <a href="{% url 'accounts:admin_permissions' admin.id %}" class="btn btn-primary">
+                    <i class="fas fa-shield-alt"></i> Permissions
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="detail-card">
+        <div class="detail-card-header">
+            <h3><i class="fas fa-info-circle"></i> Account Information</h3>
+        </div>
+        <div class="detail-card-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Full Name</div>
+                    <div class="info-value">{{ admin.full_name }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Email Address</div>
+                    <div class="info-value">{{ admin.email }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Username</div>
+                    <div class="info-value">{{ admin.username|default:'—' }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Phone</div>
+                    <div class="info-value">{{ admin.phone|default:'—' }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Role</div>
+                    <div class="info-value">
+                        {% if admin.is_chief %}
+                            <span class="role-pill chief"><i class="fas fa-crown"></i> Chief Admin</span>
+                        {% else %}
+                            <span class="role-pill admin"><i class="fas fa-shield-alt"></i> Admin</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Status</div>
+                    <div class="info-value">
+                        {% if admin.is_active %}
+                            <span class="role-pill active"><i class="fas fa-check-circle"></i> Active</span>
+                        {% else %}
+                            <span class="role-pill inactive"><i class="fas fa-pause-circle"></i> Inactive</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Joined</div>
+                    <div class="info-value">{{ admin.date_joined|date:"M d, Y"|default:'—' }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Last Login</div>
+                    <div class="info-value">{{ admin.last_login|date:"M d, Y H:i"|default:'Never' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if can_edit %}
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+            <a href="{% url 'accounts:admin_permissions' admin.id %}" class="btn btn-primary">
+                <i class="fas fa-shield-alt"></i> Manage Permissions
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

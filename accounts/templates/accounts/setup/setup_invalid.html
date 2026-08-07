@@ -1,0 +1,71 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block title %}Setup Unavailable — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-grid">
+
+        <!-- ============ Brand side ============ -->
+        <aside class="auth-brand" aria-hidden="true">
+            <div class="auth-brand-content">
+                <img src="{% static 'images/logo_light.png' %}" alt="Caldan Construction and Consultancy Firm" class="auth-brand-logo">
+                <span class="auth-brand-eyebrow">Setup Unavailable</span>
+                <h1>Setup Is One-Time</h1>
+                <p class="auth-brand-text">
+                    The Caldan Construction platform has already been provisioned. A Chief Admin account is unique and can only be created once.
+                </p>
+
+                <div class="auth-brand-features">
+                    <div class="feature-item"><i class="fas fa-user-shield"></i><span>One Chief Admin</span></div>
+                    <div class="feature-item"><i class="fas fa-fingerprint"></i><span>Unique Account</span></div>
+                    <div class="feature-item"><i class="fas fa-door-open"></i><span>Sign In to Continue</span></div>
+                    <div class="feature-item"><i class="fas fa-life-ring"></i><span>Contact Your Admin</span></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ============ Form side ============ -->
+        <div class="auth-form-wrapper">
+            <div class="auth-form-container">
+
+                <div class="auth-form-header">
+                    <div class="icon-bubble danger" aria-hidden="true">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h2>Setup Already Completed</h2>
+                    <p>This platform has been provisioned.</p>
+                </div>
+
+                <div class="message-box error">
+                    <p><strong>Only one Chief Admin can exist.</strong></p>
+                    <p>
+                        A Chief Admin account was already created during the initial setup. New Chief Admin accounts cannot be created through this link.
+                    </p>
+                    <p>
+                        If you already have credentials, please sign in. If you need access, ask the Chief Admin to invite you from the admin team panel.
+                    </p>
+                </div>
+
+                <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-block">
+                    <span class="btn-text"><i class="fas fa-right-to-bracket" aria-hidden="true"></i> Sign In</span>
+                    <i class="spinner fas fa-circle-notch" aria-hidden="true"></i>
+                </a>
+
+                <a href="{% url 'website:index' %}" class="btn btn-secondary btn-block" style="margin-top: 10px;">
+                    <i class="fas fa-house" aria-hidden="true"></i> Back to Home
+                </a>
+
+                <div class="auth-form-footer" style="border-top: none; padding-top: 18px;">
+                    <p style="font-size: 0.85rem; color: var(--text-tertiary); text-align: center; font-style: italic;">
+                        "Building Kenya's Future, One Project at a Time."
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

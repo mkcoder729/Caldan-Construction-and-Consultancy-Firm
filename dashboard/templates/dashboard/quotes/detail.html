@@ -1,0 +1,444 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Quote from {{ quote.name }} - Caldan{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   QUOTE DETAIL — PREMIUM ADMIN
+   ================================================================ */
+
+.quote-detail {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+.hero {
+    background:
+        radial-gradient(700px 220px at 80% -10%, rgba(212,175,55,0.16), transparent 65%),
+        linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    color: #fff;
+    border-radius: var(--r-xl);
+    padding: 32px 36px;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+.hero::before {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 28px 28px; pointer-events: none;
+    opacity: 0.55;
+}
+.hero > * { position: relative; z-index: 1; }
+
+.hero__breadcrumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 14px;
+}
+.hero__breadcrumb a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    transition: color var(--t-fast) var(--ease-standard);
+}
+.hero__breadcrumb a:hover { color: var(--brand-gold); }
+.hero__breadcrumb i.fa-chevron-right { font-size: 0.55rem; opacity: 0.6; }
+.hero__breadcrumb .current { color: var(--brand-gold); font-weight: 600; }
+
+.hero__title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    font-weight: 800;
+    margin: 0 0 10px;
+    letter-spacing: -0.4px;
+}
+.hero__meta {
+    display: flex; flex-wrap: wrap; gap: 18px;
+    font-size: 0.86rem;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 20px;
+}
+.hero__meta span { display: inline-flex; align-items: center; gap: 6px; }
+.hero__meta i { color: var(--brand-gold); }
+
+.status-pill-lg {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 14px;
+    border-radius: var(--r-pill);
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.14);
+    backdrop-filter: blur(6px);
+}
+.status-pill-lg.replied {
+    background: rgba(39,174,96,0.25);
+    border-color: rgba(39,174,96,0.45);
+}
+.status-pill-lg.unreplied {
+    background: rgba(243,156,18,0.25);
+    border-color: rgba(243,156,18,0.45);
+}
+
+.hero__actions {
+    display: flex; gap: 8px; flex-wrap: wrap;
+}
+.btn-hero {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 18px;
+    border-radius: var(--r-sm);
+    border: 1px solid rgba(255,255,255,0.22);
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.82rem; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+    transition: all var(--t-fast) var(--ease-spring);
+}
+.btn-hero:hover {
+    background: rgba(255,255,255,0.22);
+    transform: translateY(-1px);
+}
+.btn-hero.btn-hero-gold {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    border-color: var(--brand-gold);
+}
+.btn-hero.btn-hero-gold:hover { background: var(--brand-gold-hover); }
+.btn-hero.btn-hero-green {
+    background: rgba(39,174,96,0.85);
+    border-color: rgba(39,174,96,0.95);
+}
+.btn-hero.btn-hero-green:hover { background: #229954; }
+.btn-hero.btn-hero-danger {
+    background: rgba(185,52,43,0.85);
+    border-color: rgba(185,52,43,0.95);
+}
+.btn-hero.btn-hero-danger:hover { background: #A12E26; }
+
+/* Body */
+.body-row {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 20px;
+}
+
+.panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+.panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+.panel__header h3 {
+    font-size: 14px; font-weight: 700;
+    color: var(--text-primary); margin: 0;
+    display: flex; align-items: center; gap: 10px;
+}
+.panel__header h3 i {
+    color: var(--brand-gold);
+    width: 28px; height: 28px;
+    background: rgba(212,175,55,0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px;
+}
+.panel__badge {
+    padding: 3px 12px;
+    background: rgba(212,175,55,0.1);
+    color: var(--brand-gold-deep);
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 700;
+    border: 1px solid rgba(212,175,55,0.18);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.panel__body { padding: 22px; }
+
+.details-block {
+    font-size: 0.96rem;
+    line-height: 1.7;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+}
+
+/* Side info rows */
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 13px;
+    gap: 12px;
+}
+.info-row:last-child { border-bottom: none; }
+.info-row .label { color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.info-row .label i { color: var(--text-tertiary); font-size: 11px; }
+.info-row .value { color: var(--text-primary); font-weight: 600; text-align: right; word-break: break-word; }
+.info-row .value a { color: var(--brand-gold-deep); text-decoration: none; }
+.info-row .value a:hover { text-decoration: underline; }
+
+/* Quick reply */
+.reply-area {
+    width: 100%;
+    min-height: 140px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: inherit;
+    line-height: 1.6;
+    resize: vertical;
+}
+.reply-area:focus {
+    outline: none; border-color: var(--brand-gold);
+    box-shadow: 0 0 0 3px rgba(212,175,55,0.18);
+}
+
+.reply-hint {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.reply-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 14px;
+}
+
+.btn-reply {
+    padding: 10px 22px;
+    background: linear-gradient(135deg, var(--brand-gold) 0%, var(--brand-gold-hover) 100%);
+    color: var(--brand-navy);
+    border: none; border-radius: var(--r-sm);
+    font-weight: 700; font-size: 0.88rem;
+    display: inline-flex; align-items: center; gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(212,175,55,0.34);
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+}
+.btn-reply:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(212,175,55,0.45); }
+.btn-reply:active { transform: translateY(0); }
+
+.back-row {
+    text-align: center;
+}
+.back-row a {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 22px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all var(--t-fast) var(--ease-spring);
+}
+.back-row a:hover {
+    border-color: var(--brand-gold);
+    color: var(--brand-gold-deep);
+    transform: translateY(-1px);
+}
+
+@keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.hero, .panel { animation: fade-up 0.4s ease both; }
+.hero { animation-delay: 0s; }
+.panel:nth-child(2) { animation-delay: 0.07s; }
+
+@media (max-width: 1100px) {
+    .body-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+    .hero { padding: 22px; }
+    .panel__body { padding: 16px; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="quote-detail">
+
+    <!-- HERO -->
+    <div class="hero">
+        <nav class="hero__breadcrumb" aria-label="Breadcrumb">
+            <a href="{% url 'dashboard:overview' %}"><i class="fas fa-house"></i> Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{% url 'dashboard:quote_list' %}">Quotes</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Quote #{{ quote.id }}</span>
+        </nav>
+
+        <h1 class="hero__title">Quote from {{ quote.name }}</h1>
+
+        <div class="hero__meta">
+            <span><i class="fas fa-folder-open"></i> {{ quote.get_project_type_display }}</span>
+            <span><i class="fas fa-coins"></i> {{ quote.get_budget_range_display }}</span>
+            <span><i class="far fa-clock"></i> {{ quote.get_timeline_display }}</span>
+            <span><i class="far fa-calendar-alt"></i> Submitted {{ quote.created_at|date:"M d, Y" }}</span>
+            <span class="status-pill-lg {% if quote.is_replied %}replied{% else %}unreplied{% endif %}">
+                {% if quote.is_replied %}<i class="fas fa-check"></i> Replied {% else %}<i class="fas fa-clock"></i> Awaiting Reply{% endif %}
+            </span>
+        </div>
+
+        <div class="hero__actions">
+            <a href="mailto:{{ quote.email }}?subject=Re: Your quote request to Caldan&body=Hello {{ quote.name }}," class="btn-hero btn-hero-gold">
+                <i class="fas fa-envelope"></i> Email Reply
+            </a>
+            <a href="tel:{{ quote.phone }}" class="btn-hero">
+                <i class="fas fa-phone"></i> Call
+            </a>
+            <form method="POST" action="{% url 'dashboard:quote_toggle_replied' quote.id %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-hero btn-hero-green">
+                    {% if quote.is_replied %}<i class="fas fa-undo"></i> Mark Unreplied{% else %}<i class="fas fa-check"></i> Mark Replied{% endif %}
+                </button>
+            </form>
+            <a href="{% url 'dashboard:quote_delete' quote.id %}" class="btn-hero btn-hero-danger">
+                <i class="fas fa-trash"></i> Delete
+            </a>
+        </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body-row">
+        <div class="panel">
+            <div class="panel__header">
+                <h3><i class="fas fa-comment-dots"></i> Project Details</h3>
+                <span class="panel__badge">Full Brief</span>
+            </div>
+            <div class="panel__body">
+                <div class="details-block">{{ quote.details|linebreaksbr }}</div>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- CONTACT INFO -->
+            <div class="panel">
+                <div class="panel__header">
+                    <h3><i class="fas fa-user"></i> Contact</h3>
+                    <span class="panel__badge">Who</span>
+                </div>
+                <div class="panel__body">
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-user"></i> Name</span>
+                        <span class="value">{{ quote.name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-envelope"></i> Email</span>
+                        <span class="value"><a href="mailto:{{ quote.email }}">{{ quote.email }}</a></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-phone"></i> Phone</span>
+                        <span class="value"><a href="tel:{{ quote.phone }}">{{ quote.phone }}</a></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- METADATA -->
+            <div class="panel">
+                <div class="panel__header">
+                    <h3><i class="fas fa-circle-info"></i> Details</h3>
+                    <span class="panel__badge">Meta</span>
+                </div>
+                <div class="panel__body">
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-folder-open"></i> Project Type</span>
+                        <span class="value">{{ quote.get_project_type_display }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-coins"></i> Budget</span>
+                        <span class="value">{{ quote.get_budget_range_display }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-calendar"></i> Timeline</span>
+                        <span class="value">{{ quote.get_timeline_display }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label"><i class="far fa-calendar-plus"></i> Submitted</span>
+                        <span class="value">{{ quote.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    {% if quote.replied_at %}
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-reply"></i> Replied At</span>
+                        <span class="value">{{ quote.replied_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- QUICK REPLY -->
+            <div class="panel">
+                <div class="panel__header">
+                    <h3><i class="fas fa-reply"></i> Reply</h3>
+                    <span class="panel__badge">Quick</span>
+                </div>
+                <div class="panel__body">
+                    <textarea class="reply-area" id="replyText" placeholder="Type your reply message…"></textarea>
+                    <div class="reply-hint">
+                        <span><i class="fas fa-info-circle"></i> Use the Email Reply button above to send</span>
+                        <span id="charCount">0 chars</span>
+                    </div>
+                    <div class="reply-actions">
+                        <a href="mailto:{{ quote.email }}?subject=Re: Quote request from Caldan" class="btn-reply">
+                            <i class="fas fa-paper-plane"></i> Send Reply
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="back-row">
+        <a href="{% url 'dashboard:quote_list' %}">
+            <i class="fas fa-arrow-left"></i> Back to Quotes
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ta = document.getElementById('replyText');
+    var counter = document.getElementById('charCount');
+    if (ta && counter) {
+        ta.addEventListener('input', function() {
+            counter.textContent = ta.value.length + ' chars';
+        });
+    }
+});
+</script>
+{% endblock %}

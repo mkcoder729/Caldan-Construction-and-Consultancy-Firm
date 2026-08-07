@@ -1,0 +1,46 @@
+# Inventory Views - Caldan Construction
+# "Building Kenya's Future, One Project at a Time."
+
+from inventory.views._admin_views import (
+    materials_list,
+    material_create,
+    material_detail,
+    material_edit,
+    stock_in,
+    stock_out,
+    transactions_list,
+    alerts_list,
+    alert_resolve,
+    suppliers_list,
+    supplier_create,
+    supplier_edit,
+    supplier_detail,
+    supplier_delete,
+    deliveries_list,
+    delivery_create,
+    delivery_detail,
+    delivery_edit,
+    delivery_receive,
+)
+
+__all__ = [
+    'materials_list',
+    'material_create',
+    'material_detail',
+    'material_edit',
+    'stock_in',
+    'stock_out',
+    'transactions_list',
+    'alerts_list',
+    'alert_resolve',
+    'suppliers_list',
+    'supplier_create',
+    'supplier_edit',
+    'supplier_detail',
+    'supplier_delete',
+    'deliveries_list',
+    'delivery_create',
+    'delivery_detail',
+    'delivery_edit',
+    'delivery_receive',
+]

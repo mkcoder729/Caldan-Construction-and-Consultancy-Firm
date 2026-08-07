@@ -1,0 +1,458 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}{{ page_title }} - Caldan Construction{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   DELIVERY RECEIVE — PREMIUM ADMIN
+   ================================================================ */
+
+.receive-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+.project-hero {
+    background: linear-gradient(135deg, var(--sem-success) 0%, #1e8449 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.project-hero::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.hero-main {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.18);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.hero-info { flex: 1; min-width: 240px; }
+
+.hero-number {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.18);
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.hero-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+}
+
+.hero-sub {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.hero-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.3px;
+}
+
+.btn-light {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.btn-light:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn-primary {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary:hover {
+    background: var(--brand-gold-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-success {
+    background: #fff;
+    color: var(--sem-success);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-success:hover {
+    background: #f4faf6;
+    transform: translateY(-1px);
+}
+
+/* ---- Summary card ---- */
+.summary-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-xs);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.summary-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* ---- Items card ---- */
+.items-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.items-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.items-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.items-header h3 i {
+    color: var(--sem-success);
+    font-size: 13px;
+    width: 28px;
+    height: 28px;
+    background: rgba(39, 174, 96, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.items-badge {
+    padding: 4px 12px;
+    background: rgba(39, 174, 96, 0.1);
+    color: var(--sem-success);
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(39, 174, 96, 0.2);
+}
+
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.items-table th {
+    text-align: left;
+    padding: 12px 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: var(--bg-canvas);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.items-table td {
+    padding: 14px 20px;
+    font-size: 13px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.items-table tr:last-child td { border-bottom: none; }
+
+.items-table .amount {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- Confirm card ---- */
+.confirm-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-xs);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.confirm-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--r-md);
+    background: rgba(39, 174, 96, 0.12);
+    color: var(--sem-success);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.confirm-body { flex: 1; min-width: 240px; }
+
+.confirm-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 4px;
+}
+
+.confirm-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.confirm-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.project-hero, .summary-card, .items-card, .confirm-card { animation: fade-up 0.4s ease both; }
+.summary-card { animation-delay: 0.05s; }
+.items-card { animation-delay: 0.1s; }
+.confirm-card { animation-delay: 0.15s; }
+
+@media (max-width: 768px) {
+    .summary-card { grid-template-columns: 1fr; gap: 16px; }
+    .confirm-card { flex-direction: column; align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .project-hero, .summary-card, .items-card, .confirm-card { animation: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="receive-page">
+
+    <!-- Hero -->
+    <div class="project-hero">
+        <div class="hero-main">
+            <div class="hero-icon"><i class="fas fa-truck-loading"></i></div>
+            <div class="hero-info">
+                <span class="hero-number"><i class="fas fa-hashtag"></i>{{ delivery.delivery_number }}</span>
+                <h1 class="hero-title">Receive Delivery</h1>
+                <p class="hero-sub">Confirm and post stock IN for all items in this delivery</p>
+            </div>
+        </div>
+        <div class="hero-actions">
+            <a href="{% url 'inventory:delivery_detail' delivery.id %}" class="btn btn-light">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-card">
+        <div class="summary-item">
+            <div class="summary-label">Supplier</div>
+            <div class="summary-value">
+                <i class="fas fa-truck" style="color:var(--brand-gold);margin-right:6px;"></i>
+                {{ delivery.supplier.name }}
+            </div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Order Date</div>
+            <div class="summary-value">
+                <i class="fas fa-calendar" style="color:var(--brand-blue);margin-right:6px;"></i>
+                {{ delivery.order_date|date:"M d, Y"|default:"—" }}
+            </div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Total Items</div>
+            <div class="summary-value">
+                <i class="fas fa-cubes" style="color:var(--sem-success);margin-right:6px;"></i>
+                {{ delivery.items.count }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Items table -->
+    <div class="items-card">
+        <div class="items-header">
+            <h3><i class="fas fa-list"></i> Items to Receive</h3>
+            <span class="items-badge">{{ delivery.items.count }} items</span>
+        </div>
+
+        {% if delivery.items.exists %}
+            <div style="overflow-x: auto;">
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th style="text-align: right;">Quantity</th>
+                            <th style="text-align: right;">Unit Cost</th>
+                            <th style="text-align: right;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in delivery.items.all %}
+                            <tr>
+                                <td>
+                                    <strong>{{ item.material.name }}</strong>
+                                    {% if item.material.sku %}
+                                        <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">
+                                            <i class="fas fa-barcode"></i> {{ item.material.sku }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: right;">
+                                    {{ item.quantity }} {{ item.material.unit|default:"units" }}
+                                </td>
+                                <td class="amount" style="text-align: right;">
+                                    KES {{ item.unit_cost|floatformat:2|intcomma }}
+                                </td>
+                                <td class="amount" style="text-align: right;">
+                                    KES {{ item.total_cost|floatformat:2|intcomma }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align:center;padding:48px 20px;color:var(--text-tertiary);">
+                <i class="fas fa-box-open" style="font-size:36px;margin-bottom:12px;display:block;color:var(--text-secondary);"></i>
+                <p style="margin:0;">This delivery has no items. Add items before receiving.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Confirm -->
+    {% if delivery.items.exists %}
+        <form method="post" class="confirm-card">
+            {% csrf_token %}
+            <div class="confirm-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="confirm-body">
+                <h3 class="confirm-title">Mark Delivery as Received?</h3>
+                <p class="confirm-text">
+                    This will record stock IN transactions for every item above and mark the delivery as delivered. This action cannot be undone.
+                </p>
+            </div>
+            <div class="confirm-actions">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check"></i> Confirm Receipt
+                </button>
+                <a href="{% url 'inventory:delivery_detail' delivery.id %}" class="btn btn-light" style="background:var(--bg-canvas);color:var(--text-secondary);border:1px solid var(--border-default);">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

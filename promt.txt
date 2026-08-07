@@ -1,0 +1,1114 @@
+================================================================================
+EXTERNAL-AI BRIEF — CALDAN CONSTRUCTION ADMIN DASHBOARD
+"Light-Mode Premium Redesign, Iconic Profile Banners, Modern Hover System"
+================================================================================
+
+Hello external AI. My name is Mukoya Khisa and I am developing a Django-based
+admin dashboard for Caldan Construction and Consultancy Firm — a Kenya-first
+construction management platform. I will upload the full project directory
+alongside this brief, plus agents.md (operating guidelines) and the project
+spec. Your sole job in this engagement is FRONTEND-ONLY work: visual, typographic,
+layout, motion, and interaction polish on the admin dashboard. Do NOT touch
+backend Python, models, views, services, migrations, URLs, or Django settings.
+Treat every change as a template, CSS, and JS edit.
+
+This brief is exhaustive on purpose. Read it fully, then read every file listed
+under "FILES TO READ" before producing a single line of code. If anything is
+ambiguous, resolve it conservatively toward the "premium, light-mode, clean"
+direction described below.
+
+================================================================================
+1. WHAT I'M UPLOADING
+================================================================================
+
+You will receive:
+- The full project directory tree (focus on `dashboard/` and `static/`)
+- agents.md — non-negotiable operating rules for this codebase
+- This file: promt.txt
+- Optionally project_directory.txt and project_directory_structure.md for context
+
+Stack you must respect:
+- Django templates (Jinja-like Django template language, NOT Jinja2)
+- Server-rendered HTML; no SPA framework
+- Vanilla JS only; no React/Vue/Svelte
+- Plain CSS (custom properties, no Tailwind, no preprocessor build step)
+- Inter (display + body) and JetBrains Mono, loaded via Google Fonts
+- Font Awesome 6 via cdnjs (`<link>` in `_head.html`)
+- Static assets served from `static/`; template partials live under
+  `dashboard/templates/dashboard/dashboard/partials/`
+
+================================================================================
+2. THE PROBLEM I'M SOLVING
+================================================================================
+
+The current admin dashboard looks "very traditional" — it reads like a 2018
+admin panel: a navy sidebar (`#0D2B36`) with flat menu items, a plain white
+topbar, a basic user-menu dropdown, and a couple of cards. It does not feel
+premium. It does not feel "Cal­dan". I want the dashboard to give LIGHT-MODE
+VIBES while still using the Caldan brand palette. I want it to look modern,
+clean, iconic, and obviously engineered — something a creative director would
+call "premium tier". Concretely:
+
+- The whole canvas (sidebar, topbar, content, dropdowns) should feel airy,
+  bright, and tactile in light mode. Dark mode is allowed (toggle exists) but
+  the DEFAULT state we are designing FOR is light mode.
+- Brand colours must remain identifiable. We are not repainting the company;
+  we are restyling its admin surface in a premium light-mode treatment that
+  still uses Royal Blue / Gold / Deep Navy as the chromatic anchors.
+- Hover effects must be a DELIBERATE design system, not a `background: gray`
+  fallback. Sidebar items, topbar buttons, dropdown rows, cards, and
+  action tiles all need considered, layered, springy or eased hover states.
+- The sidebar at the bottom and the topbar user dropdown at the top both
+  need a PROFILE BANNER — a small card with avatar, name, role chip, and a
+  one-line bio or status. Iconic, not utilitarian.
+- ICONS: Font Awesome ONLY. No emoji (☀️, 🌙, 💻, 📦, etc.) anywhere. The
+  current `appearance.html` uses ☀️ / 🌙 / 💻 inside `.theme-option` blocks —
+  these MUST be replaced with `<i class="fas fa-sun">` / `fa-moon` /
+  `fa-laptop` (or similar Font Awesome solid icons). Audit the entire
+  dashboard for stray emoji and replace them.
+
+================================================================================
+3. CALDAN BRAND — DO NOT CHANGE THESE
+================================================================================
+
+Source of truth: `static/css/main.css` lines 33-41 and the README brand note
+in `agents.md`. Treat the following as the chromatic and typographic anchors:
+
+Brand colours (USE THESE, do not invent a new palette):
+- Royal Blue:       #0B66C3   (--accent-primary)
+- Royal Blue hover: #0A55A8   (--accent-primary-hover)
+- Gold:             #D4AF37   (--accent-secondary)
+- Gold hover:       #E8C84A   (--accent-secondary-hover)
+- Deep Navy:        #0B172A   (--bg-inverse; also used in sidebars historically)
+
+Semantic accents (keep, but use sparingly):
+- Danger  #B9342B  (light) / #E74C3C (dark)
+- Success #27AE60  (light) / #2ECC71 (dark)
+- Warning #F39C12  (light) / #F1C40F (dark)
+- Info    #2980B9  (light) / #3498DB (dark)
+
+Light-mode surface palette (the canvas the redesign lives on):
+- Page background:  #FAFBFC  (very light cool grey, NOT pure white)
+- Card / surface:   #FFFFFF
+- Card hover:       #F4F7FB
+- Input / search:   #F4F7FB
+- Sidebar:          (see below — "Sidebar treatment")
+- Topbar:           rgba(255, 255, 255, 0.78) with backdrop-filter blur(18px)
+- Border subtle:    #ECEFF3
+- Border default:   #E2E6EC
+- Text primary:     #0F172A
+- Text secondary:   #475569
+- Text tertiary:    #94A3B8
+- Accent text (gold): #B8932A (slightly darker for AAA contrast on white)
+
+Sidebar treatment (the new premium look, replaces the flat navy slab):
+- Base surface: vertical linear gradient from #0F1F3A (top) to #1A2E5C (bottom)
+  OR a soft Royal Blue #0B66C3 with a 12% white overlay gradient — pick ONE,
+  document the choice in code comments, and stay consistent.
+- Subtle inner highlight: a 1px translucent white (rgba(255,255,255,0.06))
+  inset border on the right edge to lift the sidebar off the canvas.
+- Active item: solid Gold (#D4AF37) pill with a 1px #E8C84A inner highlight
+  and a 4px #D4AF37 left-rail marker that protrudes 2px outside the pill.
+- Hover item: rgba(255,255,255,0.08) wash + 2px translateX to the right +
+  120ms ease-out + the icon does a tiny 6° rotate on hover.
+- Section labels: 11px uppercase, 0.14em tracking, JetBrains Mono, 50% white.
+- Section dividers: 1px rgba(255,255,255,0.06).
+
+Typography rules (do not deviate):
+- Display & UI: Inter, weights 400/500/600/700/800
+- Numerals & shortcuts (kbd, version tag, monospace stats): JetBrains Mono 500
+- Base size: 14.5px for sidebar/topbar/dropdowns, 15px for body, 13px for
+  micro labels. Headings scale with `clamp()` like main.css already does.
+- Tracking: -0.01em on display headings, +0.04em uppercase eyebrows.
+
+================================================================================
+4. THE SIX PILLARS OF THE REDESIGN
+================================================================================
+
+(1) LIGHT-MODE PREMIUM CANVAS
+- Page bg #FAFBFC, cards #FFFFFF, very soft shadows.
+- Replace harsh `box-shadow: 0 1px 2px rgba(0,0,0,0.05)` with a layered shadow:
+  `0 1px 2px rgba(15,23,42,0.04), 0 8px 24px -12px rgba(15,23,42,0.08)`.
+- Cards: 14px radius, 1px #ECEFF3 border, gentle hover lift (translateY(-3px)
+  + shadow intensifies + 1px border becomes #D4AF37 with 35% alpha).
+- Topbar: glass effect, 18px backdrop blur, 1px bottom border #ECEFF3, 72px
+  height. Sticky with a soft shadow that appears only after 8px of scroll
+  (use IntersectionObserver or a scroll listener — implement lightly).
+
+(2) ICONIC HOVER SYSTEM
+A single, opinionated set of hover recipes, applied to EVERY interactive
+element. Pick a vocabulary and apply it consistently:
+
+- Buttons (primary): bg shifts to --accent-primary-hover, translateY(-2px),
+  shadow lifts to `0 12px 24px -8px rgba(11,102,195,0.35)`, icon does a
+  4px translateX or a 6° rotate (one or the other, not both).
+- Buttons (gold): same lift, shadow uses gold tint `rgba(212,175,55,0.35)`.
+- Sidebar items: see "Sidebar treatment" above.
+- Topbar icon buttons (search, theme, notification, user): 8px padding,
+  10px radius, default bg transparent. Hover bg rgba(11,102,195,0.06),
+  icon colour shifts to --accent-primary, scale 1.04.
+- Cards: lift 3px, border tint, soft inner glow `inset 0 1px 0 rgba(255,255,255,0.6)`.
+- Dropdown rows: 4px translateX, 2px left-border marker in gold fades in
+  (0% to 100% width over 180ms), bg shifts to rgba(11,102,195,0.04).
+- Quick-action tiles: tilt slightly (`rotate(-1deg)` on hover), icon scales
+  1.15, bg gradient sweep from left-to-right in 320ms.
+- Links: underline expands from left (width 0 -> 100% over 220ms).
+
+(3) SIDEBAR PROFILE BANNER (at the bottom of the sidebar)
+Currently the sidebar footer only has a version chip and a theme toggle. Add
+a profile banner card above the footer (push the existing footer BELOW it
+or fold the version chip into the banner footer). The banner should contain:
+
+- 64px circular avatar (use the existing
+  `{{ request.user.full_name|default:request.user.email|first|upper }}`
+  fallback — but if `request.user.profile.avatar` exists, use that URL).
+- Two-line name + role chip (gold pill: "Platform Admin" / "Chief Admin").
+- One-line status: a small green dot + "Online" OR a custom status if
+  `request.user.profile.status` exists (default to "Online").
+- Three small icon actions inline (do NOT use emojis): envelope (mailto:
+  `{{ user.email }}`), gear (link to appearance), and a chevron that expands
+  a tiny "Sign out" link on hover.
+- The whole card sits on a translucent white surface (rgba(255,255,255,0.04))
+  with a 1px rgba(255,255,255,0.08) border, 12px radius, 16px padding.
+- On hover: the card lifts 2px, the border brightens to rgba(212,175,55,0.45),
+  the chevron rotates 90°.
+
+This profile banner replaces the current `.sidebar-footer` block. The
+theme toggle button can be moved into the banner as one of the three
+inline icon actions OR kept below as a single discrete icon. Pick the
+cleaner option and justify in a code comment.
+
+(4) TOPBAR USER DROPDOWN (iconic)
+Currently the user dropdown is a 280px plain card with header + 5 menu rows.
+Redesign it to feel iconic:
+
+- Width 320px, 16px radius, layered shadow, 1px border #ECEFF3.
+- TOP STRIP: a small gradient banner (16px tall, Royal Blue -> Gold) with
+  no text, just a decorative sheen. Sits inside the dropdown.
+- HEADER (below the strip): 56px avatar + name (15px, weight 600) + email
+  (12px, text-secondary) + role chip (gold pill, 11px uppercase).
+- A "PRO" badge OR a small "Profile completion 80%" progress bar in the
+  header — pick one and document. Use the JetBrains Mono for the percentage.
+- MENU ROWS: each row is 44px tall, 12px horizontal padding, 12px radius on
+  hover, icon in a 28px tinted square (tint = 8% of --accent-primary, icon
+  colour = --accent-primary), label 14px, optional 12px shortcut hint on
+  the right (e.g. `⌘P`, `⌘,`). Dividers: 1px #F1F5F9 with 12px horizontal
+  inset.
+- LOGOUT ROW: red tint, icon in a red 8% square, label in --accent-danger,
+  a tiny "Securely sign out" caption underneath the label in 11px grey.
+- The dropdown opens with a 220ms cubic-bezier(0.16, 1, 0.3, 1) slide+fade
+  (translateY(-8px) scale(0.98) -> translateY(0) scale(1)).
+- A small triangle pointer at the top of the dropdown (10px wide, white,
+  rotated 45°, with a 1px top+left border #ECEFF3 to match the card).
+
+(5) ICON SYSTEM (Font Awesome ONLY)
+- All icons: `fas` (solid) for UI, `far` (regular) for secondary.
+- Replace any `☀️` `🌙` `💻` `📦` `🔔` `✓` `🛒` `💼` etc. with Font Awesome.
+  The audit MUST include:
+  - dashboard/templates/dashboard/dashboard/admin/settings/appearance.html
+    (theme option blocks use ☀️ / 🌙 / 💻 — replace with fa-sun / fa-moon /
+    fa-laptop, render inside a 32px tinted circle)
+  - dashboard/templates/dashboard/dashboard/admin/settings/profile.html
+    (no emoji today, but verify)
+  - dashboard/templates/dashboard/dashboard/partials/_components/__notification_bell.html
+    empty state uses fa-bell-slash already — good
+  - dashboard/templates/dashboard/dashboard/partials/_components/__search_modal.html
+    empty state uses fa-search — good
+  - any `.btn`, `.card-header`, `.activity-empty`, etc. across the admin
+    subtree
+- Never inline an emoji glyph in any new file you create.
+- Icon sizing standard: 14px (xs) / 16px (sm) / 18px (md) / 20px (lg) /
+  24px (xl). Container squares: 28/32/36/40/48. Icon must be vertically
+  and horizontally centred with `display:flex; align-items:center;
+  justify-content:center`.
+
+(6) MICRO-INTERACTIONS & MOTION
+- All transitions: cubic-bezier(0.16, 1, 0.3, 1) for "spring" or
+  cubic-bezier(0.4, 0, 0.2, 1) for "standard". 180-260ms typical.
+- Dropdown open/close: 220ms slide+fade.
+- Sidebar item active: pill slides 4px from the right via transform.
+- Topbar icon buttons: scale 1 -> 1.04 on hover, scale 0.96 on active.
+- Notification badge count: a tiny pop animation (scale 0.6 -> 1.1 -> 1)
+  on count change.
+- Theme switch: cross-fade the body 220ms via opacity, not a flash.
+- Respect `prefers-reduced-motion: reduce` — disable transforms and use
+  opacity-only transitions, and remove the pop animation.
+
+================================================================================
+5. FILES YOU WILL TOUCH (read every one before editing)
+================================================================================
+
+EXISTING FILES — EDIT (frontend-only):
+
+A. Templates (HTML / Django template language)
+1. dashboard/templates/dashboard/base_dashboard.html
+   - Add a `{% block extra_head %}` slot for page-specific font preloads.
+   - Keep the include order: _head.html -> _sidebars/_admin.html ->
+     main-content (_topbars/_admin_topbar.html -> content-area) ->
+     _toast_container.html -> _confirm_modal.html -> _change_password_modal.html
+     -> _javascript_inline/_admin_js.html.
+
+2. dashboard/templates/dashboard/dashboard/partials/_head.html
+   - Add a preconnect for fonts.gstatic.com (already there) and add
+     `display=swap` (already there). Add a `<meta name="color-scheme"
+     content="light dark">` for browser form controls.
+   - No new font CDNs; keep Inter + JetBrains Mono.
+
+3. dashboard/templates/dashboard/dashboard/partials/_sidebars/_admin.html
+   - Replace the current `.sidebar-footer` block with the new PROFILE
+     BANNER (see pillar 3). The version chip can move INTO the banner
+     footer, or stay below as a 10px label. Pick the cleaner option.
+   - Keep the `{% for section in sidebar_menu.sections %}` loop intact.
+   - Add `data-section` and `data-icon` attributes for JS-driven tooltips
+     when collapsed (future-proofing; if you don't implement collapse now,
+     leave the hooks).
+
+4. dashboard/templates/dashboard/dashboard/partials/_topbars/_admin_topbar.html
+   - No structural change needed unless you want to wrap the right cluster
+     in a single `.topbar-cluster` for the new glass background. If so,
+     add the wrapper. The user menu lives at the end of `.topbar-right`
+     — keep that order: search, notification, theme, user.
+
+5. dashboard/templates/dashboard/dashboard/partials/_components/__user_menu.html
+   - REWRITE the dropdown markup to match pillar 4. Keep the trigger button
+     (avatar + name + chevron) but the chevron must rotate 180° on `.open`
+     via a 200ms transition, not the current `transform: rotate(180deg)`
+     without easing.
+   - Keep the same IDs (#userMenuTrigger, #userDropdown) so existing JS
+     keeps working; or update both the markup and the JS together.
+   - Keep the same URL names ({% url 'dashboard:profile_view' %}, etc.).
+   - Move the inline `<style>` and `<script>` out of this file and into
+     the new shared CSS file (see NEW FILES below). Leave a single
+     `{% include %}` to load them OR keep the inline approach if the
+     project's convention is per-partial inline CSS — read 3+ existing
+     partials and follow whichever pattern is dominant. Document the
+     choice.
+
+6. dashboard/templates/dashboard/dashboard/partials/_components/__notification_bell.html
+   - Keep the markup. Tighten the dropdown styling to match the new
+     design system (layered shadow, 16px radius, header strip in Royal
+     Blue/Gold). Replace any emoji glyphs (none today) with Font Awesome.
+   - Move the inline styles to the shared CSS file.
+
+7. dashboard/templates/dashboard/dashboard/partials/_components/__search_modal.html
+   - Keep the markup and the existing JS logic (Cmd-K, arrow nav, escape).
+   - Tighten visual: search-trigger pill becomes a 36px-tall input-look
+     button with a subtle inner shadow; the modal container uses the new
+     shadow recipe. Remove the `fa-spinner` use case (already FA — keep).
+
+8. dashboard/templates/dashboard/dashboard/partials/_components/__theme_toggle.html
+   - Convert to a 36px icon-only button by default; expand to icon+label
+     on hover (reveal a tooltip-style label that slides in 6px from the
+     left over 160ms). Keep the same ID (#themeToggle).
+
+9. dashboard/templates/dashboard/dashboard/partials/_components/__stats_cards.html
+   - Restyle the four stat cards: 16px radius, gradient icon tile (40px
+     square, 10px radius, gradient bg from Royal Blue to a deeper navy
+     for `.projects`, gold gradient for `.revenue`, etc.), lift on hover,
+     subtle 1px gold border on hover for the "primary" stat.
+
+10. dashboard/templates/dashboard/dashboard/partials/_components/__quick_actions.html
+    - Action tiles become 56px-tall cards with a 36px icon in a tinted
+    square on the left and a label on the right; on hover, the icon
+    square fills with the action colour and the icon flips to white,
+    the whole tile translates 2px right and gets a 1px gold-tinted
+    border. Use `transform: translateX(2px)` not `translateY` here.
+
+11. dashboard/templates/dashboard/dashboard/partials/_components/__activity_feed.html
+    - Each item: 12px radius, hover bg `rgba(11,102,195,0.04)`, a 2px
+    left-rail in the activity's colour that grows from 0 to 100% height
+    on hover (use a pseudo-element with `transform: scaleY(0)` default
+    and `scaleY(1)` on hover).
+
+12. dashboard/templates/dashboard/dashboard/partials/_breadcrumbs.html
+    - No structural change. Optionally add a 1px right border between
+    items for premium feel.
+
+13. dashboard/templates/dashboard/dashboard/partials/_modals/_toast_container.html
+    - Toasts get a 4px gold left-rail, a 32px tinted icon square, layered
+    shadow, and a 16px radius. They slide in from the right with a
+    springy 280ms cubic-bezier(0.16, 1, 0.3, 1).
+
+14. dashboard/templates/dashboard/dashboard/partials/_modals/_confirm_modal.html
+    - Restyle: rounded 20px container, 24px padding, icon header
+    (40px gold-tinted square with `fa-exclamation-triangle` or
+    `fa-question-circle`), buttons in primary/outline pairs, the
+    "danger" variant uses red 8% bg + red icon square.
+
+15. dashboard/templates/dashboard/dashboard/partials/_modals/_change_password_modal.html
+    - Same modal styling as _confirm_modal but for forms. Inputs:
+    44px height, 10px radius, 1px #E2E6EC border, focus state is
+    2px gold ring + 1px gold border.
+
+16. dashboard/templates/dashboard/dashboard/partials/_css_inline/_admin_css.html
+    - THIS IS THE BIG ONE. Replace the current rule set with the new
+    design system. Keep the CSS custom properties block but RENAME /
+    REORDER it to match the new surface palette in pillar 1 and brand
+    rules in section 3. Keep both light and dark theme blocks; default
+    to the new light treatment.
+    - Add new component sections: buttons, cards, topbar (glass), sidebar
+    (gradient + active pill), dropdowns, inputs, toasts, modals, profile
+    banner, hover recipes. Use the cubic-bezier easings from pillar 6.
+    - The sidebar gradient decision (navy vs royal blue) must be made
+    HERE, not in the partial, so the rest of the dashboard can theme
+    against it. Add a CSS comment explaining the choice.
+
+17. dashboard/templates/dashboard/dashboard/partials/_css_inline/_overview_css.html
+    - Restyle the welcome banner: 28px radius, layered shadow, a subtle
+    blueprint-grid background image at 3% opacity (use the same grid
+    pattern from main.css preloader, but light), a 1px gold inner border
+    on hover. Welcome text uses 28px Inter 700 with a -0.02em tracking.
+    Date pill becomes 32px tall, 9999px radius, gold tint bg.
+    - Charts row: keep grid, but cards get the new card style.
+    - Add a subtle entrance animation: cards fade-in-up with a 60ms
+    stagger (`.fade-in-up` utility already exists in main.css — reuse).
+
+18. dashboard/templates/dashboard/dashboard/partials/_javascript_inline/_admin_js.html
+    - Refactor the theme toggle: cross-fade the body via a 220ms opacity
+    transition on `<html>` (set opacity 0, set data-theme, requestAnimationFrame
+    -> opacity 1). Do NOT flash.
+    - Add scroll-shadow on the topbar: after 8px of scroll, add `.scrolled`
+    class to `.topbar` (CSS handles the shadow).
+    - Keep `initSidebar`, `initNotifications`, `initModals`, `initToasts`.
+    - Add a small `initUserMenu()` that handles the new dropdown animation
+    (add `.opening` for 220ms then `.open`).
+    - Make sure to attach handlers AFTER `DOMContentLoaded` and to debounce
+    the scroll listener with `requestAnimationFrame`.
+    - Add a `prefers-reduced-motion` check: if the user prefers reduced
+    motion, skip all transform-based animations and use opacity-only.
+
+19. dashboard/templates/dashboard/dashboard/partials/_javascript_inline/_overview_js.html
+    - Keep chart rendering logic. Add a 200ms delay after mount before
+    animating chart reveals (so cards land first).
+    - Replace any emoji that may have slipped in (audit the JS — there
+    should be none, but verify).
+
+20. dashboard/templates/dashboard/dashboard/admin/overview/index.html
+    - Update the welcome banner to use the new class names from
+    _overview_css.html. The h1 should drop to 28px (was 1.3rem scaled).
+    - The two right-side `.card` blocks (Client Summary, Team Overview)
+    should use the new card style and add a "View all" link in the
+    header that hovers to gold.
+
+21. dashboard/templates/dashboard/dashboard/admin/analytics/index.html
+    - Re-skin the page header to match the new design system. If there
+    are inline styles, move them to _admin_css.html or a new
+    _analytics_css.html.
+
+22. dashboard/templates/dashboard/dashboard/admin/activity/index.html
+    - Same as analytics — re-skin to match the new system.
+
+23. dashboard/templates/dashboard/dashboard/admin/settings/*.html
+    - All 16 settings pages. At minimum re-skin the
+    `.settings-header`, `.settings-card`, `.card-header`, `.card-body`,
+    `.form-control`, `.btn`, `.theme-option`, `.profile-header`,
+    `.profile-card`, `.profile-avatar`, `.profile-info`, `.profile-detail`.
+    - In `appearance.html`, REPLACE the three emoji icons
+    (☀️ / 🌙 / 💻) with Font Awesome solid icons inside a 32px tinted
+    circle (gold tint for selected, 8% Royal Blue for unselected).
+    - In `profile.html`, the `.profile-header` should get the new
+    gradient treatment matching the sidebar profile banner (smaller
+    scale: 80px avatar, gold ring 2px, name 22px).
+
+B. Static assets
+24. static/css/main.css
+    - Update the `:root` / `[data-theme="light"]` block to match the
+    new surface palette. The brand colours block (lines 33-41) is
+    CANON — do not change the brand colours. Only update the SURFACE
+    colours (backgrounds, borders, text). Add a comment "// DO NOT
+    CHANGE BRAND COLOURS — see agents.md" at the top of that block.
+    - Update the `prefers-color-scheme: dark` block for the new dark
+    surface palette (cooler greys, deeper navy, gold stays the same).
+    - Leave the preloader, navbar scroll, and responsive sections alone
+    (they're for the public site, not the admin). Add a section comment
+    "// ==== ADMIN OVERRIDES BELOW ====" and add the new admin
+    topbar/sidebar variables there (sidebar gradient, topbar glass).
+
+25. static/css/responsive.css
+    - Adjust the 992px and 768px breakpoints for the new sidebar
+    (slide-in from the left for mobile) and topbar (shorter on mobile:
+    60px instead of 64-72px). The mobile sidebar opens with a 280ms
+    slide+fade.
+
+26. static/js/main.js
+    - The public-site JS. Add a small helper at the bottom:
+    `window.caldan = { prefersReducedMotion: () => matchMedia('(prefers-reduced-motion: reduce)').matches }`
+    so the admin JS can read it. Do NOT alter existing public-site
+    behaviour.
+
+NEW FILES YOU WILL CREATE:
+
+27. static/css/dashboard.css   (NEW)
+    - A single shared admin stylesheet that contains the new design
+    system variables, component classes, and hover recipes that
+    _admin_css.html will reference via `@import` OR that _head.html
+    will load with a `<link rel="stylesheet">`. Pick ONE approach and
+    document it.
+    - This file owns: variables, reset, sidebar (gradient, profile
+    banner, active pill), topbar (glass), dropdowns (user, notification,
+    search), buttons, cards, inputs, toasts, modals, hover recipes,
+    motion utilities, reduced-motion overrides.
+    - Keep it under ~1200 lines if possible; split into
+    `static/css/dashboard/` (a folder) with `tokens.css`, `sidebar.css`,
+    `topbar.css`, `dropdowns.css`, `cards.css`, `modals.css`,
+    `motion.css` and a `dashboard.css` that imports them. Pick one
+    structure; document.
+
+28. static/js/dashboard.js   (NEW)
+    - A single shared admin script. Contains: `initSidebar()`,
+    `initTopbar()` (scroll shadow), `initUserMenu()` (new animation),
+    `initNotifications()` (moved from inline), `initModals()`,
+    `initToasts()`, `initThemeToggle()` (with cross-fade), and a
+    `bootDashboard()` entry point called on DOMContentLoaded.
+    - _admin_js.html and _admin_topbar.html will eventually load this
+    via `<script src="{% static 'js/dashboard.js' %}"></script>`. If
+    you do NOT remove the inline JS in this pass, at least add a
+    comment in _admin_js.html that says "this file is being migrated
+    to static/js/dashboard.js; new code goes there".
+
+29. static/images/avatar-placeholder.svg   (NEW)
+    - A 200x200 neutral grey avatar silhouette for users without a
+    profile picture. The current code uses the first letter of the
+    name as the avatar — keep that as a fallback, but add the SVG as
+    a real image fallback. Reference it from the user menu and
+    profile pages.
+
+30. static/images/caldan-mark.svg   (NEW, OPTIONAL)
+    - A simplified Caldan mark for the topbar if the user collapses
+    the sidebar. The current code uses `static/images/logo_light.png`
+    — keep that. Only add this if you implement collapsed-sidebar
+    behaviour; otherwise skip.
+
+31. dashboard/templates/dashboard/dashboard/partials/_components/__profile_banner.html
+    (NEW)
+    - The sidebar profile banner partial. It will be included from
+    _sidebars/_admin.html. Contains the avatar, name, role chip,
+    status dot, and three icon actions.
+
+FILES YOU WILL NOT TOUCH (read-only — these constrain your work):
+
+- agents.md  (operating rules — DO NOT modify, but obey)
+- dashboard/urls.py
+- dashboard/views/*
+- dashboard/data/sidebar_menu.py   (data only; if you need a new key
+  like `profile_status` in a section, ask first)
+- accounts/models/*
+- All other app directories (blog, clients, finances, etc.)
+- static/vendors/fontawesome/**     (the empty placeholder; we use the
+  CDN, see _head.html)
+- Any file in `staticfiles/` (collected artifacts; do not edit)
+- Any file in `media/` (user uploads)
+- Any file in `.venv/`, `__pycache__/`, `migrations/`
+
+================================================================================
+6. EXACT DESIGN TOKENS (paste-ready, you can copy)
+================================================================================
+
+Paste this block as the canonical token set inside the new
+static/css/dashboard.css (or _admin_css.html if you keep the inline
+approach). Adjust only if you find a stronger Caldan-aligned value:
+
+:root,
+[data-theme="light"] {
+  /* Brand (do not change) */
+  --brand-blue:        #0B66C3;
+  --brand-blue-hover:  #0A55A8;
+  --brand-blue-deep:   #0F1F3A;
+  --brand-blue-mid:    #1A2E5C;
+  --brand-gold:        #D4AF37;
+  --brand-gold-hover:  #E8C84A;
+  --brand-gold-deep:   #B8932A;
+  --brand-navy:        #0B172A;
+
+  /* Semantic */
+  --sem-danger:        #B9342B;
+  --sem-success:       #27AE60;
+  --sem-warning:       #F39C12;
+  --sem-info:          #2980B9;
+
+  /* Surfaces (light) */
+  --bg-canvas:         #FAFBFC;
+  --bg-card:           #FFFFFF;
+  --bg-card-hover:     #F4F7FB;
+  --bg-input:          #F4F7FB;
+  --bg-topbar:         rgba(255, 255, 255, 0.78);
+  --bg-topbar-scrolled:rgba(255, 255, 255, 0.94);
+  --bg-sidebar:        linear-gradient(180deg, #0F1F3A 0%, #1A2E5C 100%);
+  --bg-sidebar-hover:  rgba(255, 255, 255, 0.08);
+  --bg-sidebar-active: var(--brand-gold);
+  --bg-profile-banner: rgba(255, 255, 255, 0.04);
+
+  /* Text */
+  --text-primary:      #0F172A;
+  --text-secondary:    #475569;
+  --text-tertiary:     #94A3B8;
+  --text-inverse:      #FFFFFF;
+  --text-sidebar:      rgba(255, 255, 255, 0.78);
+  --text-sidebar-active:#FFFFFF;
+
+  /* Borders */
+  --border-subtle:     #ECEFF3;
+  --border-default:    #E2E6EC;
+  --border-strong:     #CBD5E1;
+  --border-sidebar:    rgba(255, 255, 255, 0.06);
+  --border-sidebar-hover: rgba(255, 255, 255, 0.12);
+
+  /* Shadows (layered, premium) */
+  --shadow-xs:         0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm:         0 1px 2px rgba(15, 23, 42, 0.04), 0 2px 4px rgba(15, 23, 42, 0.04);
+  --shadow-md:         0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px -12px rgba(15, 23, 42, 0.12);
+  --shadow-lg:         0 4px 6px -2px rgba(15, 23, 42, 0.06), 0 16px 32px -12px rgba(15, 23, 42, 0.16);
+  --shadow-xl:         0 8px 12px -4px rgba(15, 23, 42, 0.08), 0 24px 48px -16px rgba(15, 23, 42, 0.20);
+  --shadow-gold:       0 12px 28px -8px rgba(212, 175, 55, 0.40);
+  --shadow-blue:       0 12px 28px -8px rgba(11, 102, 195, 0.35);
+
+  /* Layout */
+  --sidebar-width:     280px;
+  --topbar-height:     72px;
+  --topbar-height-sm:  60px;
+  --content-max:       1440px;
+  --profile-banner-h:  96px;
+
+  /* Radius */
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+  --r-pill: 9999px;
+
+  /* Motion */
+  --ease-spring:       cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard:     cubic-bezier(0.4, 0, 0.2, 1);
+  --t-fast:            140ms;
+  --t-base:            220ms;
+  --t-slow:            320ms;
+}
+
+[data-theme="dark"] {
+  --bg-canvas:         #0B1220;
+  --bg-card:           #111A2E;
+  --bg-card-hover:     #16213D;
+  --bg-input:          #16213D;
+  --bg-topbar:         rgba(11, 18, 32, 0.78);
+  --bg-topbar-scrolled:rgba(11, 18, 32, 0.94);
+  --bg-sidebar:        linear-gradient(180deg, #060B17 0%, #0B1227 100%);
+  --bg-profile-banner: rgba(255, 255, 255, 0.04);
+
+  --text-primary:      #F1F5F9;
+  --text-secondary:    #94A3B8;
+  --text-tertiary:     #64748B;
+
+  --border-subtle:     #1E293B;
+  --border-default:    #273549;
+  --border-strong:     #334155;
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.4);
+  --shadow-md: 0 1px 2px rgba(0,0,0,0.5), 0 8px 24px -12px rgba(0,0,0,0.6);
+  --shadow-lg: 0 4px 6px -2px rgba(0,0,0,0.5), 0 16px 32px -12px rgba(0,0,0,0.7);
+  --shadow-xl: 0 8px 12px -4px rgba(0,0,0,0.5), 0 24px 48px -16px rgba(0,0,0,0.8);
+}
+
+================================================================================
+7. EXACT COMPONENT RECIPES (paste-ready, you can copy)
+================================================================================
+
+A. Topbar (glass)
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: var(--topbar-height);
+  background: var(--bg-topbar);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background var(--t-base) var(--ease-standard),
+              box-shadow var(--t-base) var(--ease-standard),
+              border-color var(--t-base) var(--ease-standard);
+}
+.topbar.scrolled {
+  background: var(--bg-topbar-scrolled);
+  box-shadow: var(--shadow-md);
+}
+.topbar-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--t-fast) var(--ease-standard),
+              color var(--t-fast) var(--ease-standard),
+              transform var(--t-fast) var(--ease-standard);
+}
+.topbar-icon-btn:hover {
+  background: rgba(11, 102, 195, 0.06);
+  color: var(--brand-blue);
+  transform: scale(1.04);
+}
+.topbar-icon-btn:active { transform: scale(0.96); }
+
+B. Sidebar item (gradient + active pill)
+.sidebar-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 42px;
+  padding: 0 14px;
+  margin: 0 10px;
+  border-radius: var(--r-md);
+  color: var(--text-sidebar);
+  font-size: 14.5px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background var(--t-base) var(--ease-standard),
+              color var(--t-base) var(--ease-standard),
+              transform var(--t-base) var(--ease-standard);
+}
+.sidebar-link::before {
+  content: "";
+  position: absolute;
+  left: -10px; top: 50%;
+  width: 4px; height: 0;
+  background: var(--brand-gold);
+  border-radius: 0 4px 4px 0;
+  transform: translateY(-50%);
+  transition: height var(--t-base) var(--ease-spring);
+}
+.sidebar-link:hover {
+  background: var(--bg-sidebar-hover);
+  color: #FFFFFF;
+  transform: translateX(2px);
+}
+.sidebar-link:hover .sidebar-link-icon {
+  transform: rotate(6deg);
+}
+.sidebar-link-icon { transition: transform var(--t-base) var(--ease-spring); }
+
+.sidebar-item.active .sidebar-link {
+  background: var(--bg-sidebar-active);
+  color: #0B172A;
+  box-shadow: var(--shadow-gold);
+}
+.sidebar-item.active .sidebar-link::before {
+  height: 60%;
+  background: var(--brand-gold);
+}
+
+C. Sidebar profile banner
+.profile-banner {
+  margin: 12px;
+  padding: 14px;
+  background: var(--bg-profile-banner);
+  border: 1px solid var(--border-sidebar);
+  border-radius: var(--r-lg);
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  transition: background var(--t-base) var(--ease-standard),
+              border-color var(--t-base) var(--ease-standard),
+              transform var(--t-base) var(--ease-spring);
+}
+.profile-banner:hover {
+  border-color: rgba(212, 175, 55, 0.45);
+  transform: translateY(-2px);
+}
+.profile-banner-avatar {
+  width: 44px; height: 44px;
+  border-radius: var(--r-pill);
+  background: linear-gradient(135deg, var(--brand-blue), var(--brand-blue-deep));
+  color: #FFFFFF;
+  display: grid; place-items: center;
+  font-weight: 700;
+  font-size: 16px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.profile-banner-name { color: #FFFFFF; font-weight: 600; font-size: 14px; }
+.profile-banner-role {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 1px 8px;
+  border-radius: var(--r-pill);
+  background: rgba(212, 175, 55, 0.18);
+  color: var(--brand-gold);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.profile-banner-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text-sidebar);
+  margin-top: 4px;
+}
+.profile-banner-status::before {
+  content: "";
+  width: 6px; height: 6px; border-radius: var(--r-pill);
+  background: var(--sem-success);
+  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.18);
+}
+.profile-banner-actions { display: flex; gap: 6px; }
+.profile-banner-action {
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  border-radius: var(--r-sm);
+  color: var(--text-sidebar);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background var(--t-fast) var(--ease-standard),
+              color var(--t-fast) var(--ease-standard);
+}
+.profile-banner-action:hover {
+  background: var(--bg-sidebar-hover);
+  color: #FFFFFF;
+}
+
+D. Topbar user dropdown
+.user-dropdown {
+  position: absolute;
+  right: 0; top: calc(100% + 8px);
+  width: 320px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.98);
+  pointer-events: none;
+  transition: opacity var(--t-base) var(--ease-spring),
+              transform var(--t-base) var(--ease-spring);
+  z-index: 1000;
+}
+.user-dropdown.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.user-dropdown::before {
+  content: "";
+  position: absolute;
+  top: -5px; right: 28px;
+  width: 10px; height: 10px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-subtle);
+  border-left: 1px solid var(--border-subtle);
+  transform: rotate(45deg);
+}
+.user-dropdown-strip {
+  height: 6px;
+  background: linear-gradient(90deg, var(--brand-blue), var(--brand-gold), var(--brand-blue));
+  background-size: 200% 100%;
+  animation: stripSheen 6s linear infinite;
+}
+@keyframes stripSheen {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+.user-dropdown-header {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+}
+.user-dropdown-avatar {
+  width: 56px; height: 56px;
+  border-radius: var(--r-pill);
+  background: linear-gradient(135deg, var(--brand-blue), var(--brand-blue-deep));
+  color: #FFFFFF;
+  display: grid; place-items: center;
+  font-weight: 700; font-size: 20px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.user-dropdown-name { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.user-dropdown-email { font-size: 12px; color: var(--text-secondary); }
+.user-dropdown-item {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  height: 44px;
+  padding: 0 12px;
+  margin: 0 6px;
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 14px;
+  position: relative;
+  transition: background var(--t-fast) var(--ease-standard),
+              transform var(--t-fast) var(--ease-spring);
+}
+.user-dropdown-item::before {
+  content: "";
+  position: absolute; left: 0; top: 50%;
+  width: 0; height: 60%;
+  background: var(--brand-gold);
+  border-radius: 0 3px 3px 0;
+  transform: translateY(-50%);
+  transition: width var(--t-base) var(--ease-spring);
+}
+.user-dropdown-item:hover {
+  background: rgba(11, 102, 195, 0.04);
+  transform: translateX(2px);
+}
+.user-dropdown-item:hover::before { width: 2px; }
+.user-dropdown-item-icon {
+  width: 28px; height: 28px;
+  border-radius: var(--r-sm);
+  background: rgba(11, 102, 195, 0.08);
+  color: var(--brand-blue);
+  display: grid; place-items: center;
+  font-size: 13px;
+}
+.user-dropdown-item.logout .user-dropdown-item-icon {
+  background: rgba(185, 52, 43, 0.08);
+  color: var(--sem-danger);
+}
+.user-dropdown-item.logout { color: var(--sem-danger); }
+
+E. Card (lift + gold border on hover)
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-xs);
+  transition: transform var(--t-base) var(--ease-spring),
+              box-shadow var(--t-base) var(--ease-standard),
+              border-color var(--t-base) var(--ease-standard);
+}
+.card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(212, 175, 55, 0.35);
+  box-shadow: var(--shadow-md);
+}
+
+F. Buttons
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  font: 600 14px/1 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background var(--t-fast) var(--ease-standard),
+              color var(--t-fast) var(--ease-standard),
+              transform var(--t-fast) var(--ease-spring),
+              box-shadow var(--t-fast) var(--ease-standard),
+              border-color var(--t-fast) var(--ease-standard);
+}
+.btn-primary {
+  background: var(--brand-blue);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-xs);
+}
+.btn-primary:hover {
+  background: var(--brand-blue-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-blue);
+}
+.btn-gold {
+  background: var(--brand-gold);
+  color: var(--brand-navy);
+}
+.btn-gold:hover {
+  background: var(--brand-gold-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-gold);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--border-default);
+}
+.btn-ghost:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+.btn-icon { width: 40px; padding: 0; justify-content: center; }
+.btn .fa-arrow-right { transition: transform var(--t-base) var(--ease-spring); }
+.btn:hover .fa-arrow-right { transform: translateX(4px); }
+
+G. Inputs
+.form-control {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-md);
+  font: 500 14px 'Inter', sans-serif;
+  color: var(--text-primary);
+  transition: border-color var(--t-fast) var(--ease-standard),
+              box-shadow var(--t-fast) var(--ease-standard),
+              background var(--t-fast) var(--ease-standard);
+}
+.form-control::placeholder { color: var(--text-tertiary); }
+.form-control:hover { border-color: var(--border-strong); }
+.form-control:focus {
+  outline: none;
+  border-color: var(--brand-gold);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.18);
+  background: var(--bg-card);
+}
+
+H. Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transform: none !important;
+  }
+}
+
+================================================================================
+8. ICON AUDIT (specific replacements)
+================================================================================
+
+Run a project-wide grep for these glyphs and replace each match:
+
+- ☀️  ->  <i class="fas fa-sun"></i>       (inside 32px tinted circle)
+- 🌙  ->  <i class="fas fa-moon"></i>
+- 💻  ->  <i class="fas fa-laptop"></i>     OR fa-desktop
+- 📦  ->  <i class="fas fa-box"></i>
+- 🔔  ->  <i class="fas fa-bell"></i>
+- ✓   ->  <i class="fas fa-check"></i>
+- 🛒  ->  <i class="fas fa-shopping-cart"></i>
+- 💼  ->  <i class="fas fa-briefcase"></i>
+- 📊  ->  <i class="fas fa-chart-column"></i>
+- 🏠  ->  <i class="fas fa-house"></i>
+- ⭐  ->  <i class="fas fa-star"></i>
+- 🔍  ->  <i class="fas fa-search"></i>
+- ✏️  ->  <i class="fas fa-pen"></i>       OR fa-pen-to-square
+
+Audit commands (run mentally — DO NOT execute, just know to look):
+
+  grep -rn "☀\|🌙\|💻\|📦\|🔔\|✓\|🛒\|💼\|📊\|🏠\|⭐\|🔍\|✏" dashboard/ static/
+
+Expected hits today:
+- dashboard/templates/dashboard/dashboard/admin/settings/appearance.html
+  (lines around 195-209: three theme-option blocks with emoji icons)
+- possibly some PDF/email templates under templates/email and
+  templates/pdf — these are OUT OF SCOPE for the admin redesign, leave
+  them alone unless they are linked from a dashboard page.
+
+If you find any emoji used as a loading spinner or empty-state icon,
+replace it with `fa-spinner fa-spin` (loading) or the appropriate
+static-state icon.
+
+================================================================================
+9. ACCESSIBILITY CHECKS
+================================================================================
+
+Before you declare any file done, verify:
+
+- Every interactive element has a focus-visible style: 2px gold outline,
+  2px offset. (Already partially in main.css line 603; ensure new
+  components inherit.)
+- Every icon-only button has an `aria-label`.
+- Every dropdown has `role="menu"` (or `role="listbox"` for the search
+  results) and items have `role="menuitem"`. Add `aria-expanded` on
+  triggers.
+- Colour contrast: text-primary on bg-card is AAA; text-secondary on
+  bg-card is AA; the gold text on the active sidebar item is on a gold
+  background — make sure the deep navy text (#0B172A) is used, not white.
+- All form inputs have associated `<label>` elements.
+- The theme toggle is keyboard-operable: Space/Enter to cycle.
+
+================================================================================
+10. WHAT TO DELIVER
+================================================================================
+
+When you finish, in your first reply to me, give me:
+
+(a) A one-paragraph summary of the design direction you settled on
+    (sidebar gradient choice, topbar glass opacity, dark-mode strategy).
+
+(b) A list of EVERY file you changed, with a one-line description per
+    file (e.g. "static/css/dashboard.css (NEW) — full design system,
+    ~1100 lines"). If you split dashboard.css into a folder, list every
+    file in that folder.
+
+(c) A list of EVERY file you DECIDED NOT to touch, with a one-line
+    reason (e.g. "static/vendors/fontawesome/** — CDN dependency, do
+    not modify").
+
+(d) A screenshot or ASCII layout sketch of:
+    - The new sidebar (with the profile banner at the bottom)
+    - The new topbar with the user dropdown open
+    - The new stat card row on the overview page
+    - The new appearance settings page (showing the Font Awesome theme
+      icons)
+
+(e) A list of any DECISIONS you had to make on my behalf (e.g. "I moved
+    the version chip into the profile banner footer because..."). I
+    will review these.
+
+(f) Any BLOCKERS you hit (e.g. "I needed a new context variable
+    `user.profile.avatar` that doesn't exist yet — please add it to
+    dashboard/context_processors.py before I can finish the avatar
+    fallback"). Frontend-only — I will handle any backend additions
+    myself; you just flag them.
+
+DO NOT start writing code until you have read every file listed in
+section 5. If a file is missing, surface it instead of guessing.
+
+================================================================================
+11. NON-NEGOTIABLES (these break review if violated)
+================================================================================
+
+1. No emoji anywhere in the dashboard. Font Awesome only.
+2. No edits to backend Python, models, views, services, migrations,
+   URLs, or Django settings.
+3. No edits to `static/vendors/`, `staticfiles/`, `media/`, `.venv/`,
+   `__pycache__/`, or `migrations/`.
+4. Brand colours (Royal Blue #0B66C3, Gold #D4AF37, Deep Navy #0B172A)
+   are immutable. You may add new tints/shades; you may not replace
+   these three.
+5. Every new CSS class follows the existing naming convention:
+   lowercase, hyphen-separated, BEM-ish but not strict. No `.fooBar`
+   or `.FooBar`.
+6. Every new file has a one-line file-header comment explaining its
+   purpose (mirror the style already in the codebase — most files
+   have a `/* ==== section ==== */` block comment).
+7. No console.log, no console.warn, no console.error in production JS.
+   Use a single `window.caldan.log` helper that no-ops in production
+   if you need logging.
+8. Respect `prefers-reduced-motion: reduce` — see recipe H above.
+9. Don't break existing URL names. The context processor
+   (`dashboard/context_processors.py`) injects `sidebar_menu`,
+   `user_name`, `user_email`, `unread_notifications`, etc. Use the
+   same variable names.
+10. If a view passes `{{ chart_labels|safe }}`, `{{ chart_revenue|safe }}`,
+    etc. (see overview/index.html lines 35-37), don't refactor those
+    into JS module imports — keep the existing data-attribute contract
+    so the chart JS keeps working without backend changes.
+
+================================================================================
+12. CONTACT / REVISION POLICY
+================================================================================
+
+I will give you one round of feedback after the first delivery. If you
+change a file I didn't ask about, flag it explicitly in section 10(e).
+If you need to deviate from a non-negotiable, ask first — don't just
+do it.
+
+Let's go. Read the files, then propose the new component classes in
+plain prose (no code yet), and wait for my green light before you
+write a single CSS rule.
+
+— Mukoya Khisa
+Caldan Construction and Consultancy Firm
+"Building Kenya's Future, One Project at a Time."

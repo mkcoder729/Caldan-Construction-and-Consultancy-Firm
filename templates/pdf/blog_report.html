@@ -1,0 +1,41 @@
+{% extends "pdf/_base_report.html" %}
+
+{% block badge %}BLOG REPORT{% endblock %}
+
+{% block title %}Blog <span>Report</span>{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h2>Blog Posts</h2>
+    {% if posts %}
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Published</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in posts %}
+            <tr>
+                <td><strong>{{ p.title }}</strong></td>
+                <td>
+                    {% if p.is_published %}
+                        <span class="pill pill-success">Published</span>
+                    {% else %}
+                        <span class="pill pill-warning">Draft</span>
+                    {% endif %}
+                </td>
+                <td>{{ p.published_at|date:"M d, Y"|default:"—" }}</td>
+                <td>{{ p.created_at|date:"M d, Y"|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No blog posts recorded.</div>
+    {% endif %}
+</div>
+{% endblock %}

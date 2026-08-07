@@ -1,0 +1,36 @@
+{# Backup completed successfully — admin notification. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-success" style="margin-top: 14px;">BACKUP COMPLETE</span>{% endblock %}
+
+{% block content %}
+  <h1>Backup <span>completed</span></h1>
+  <p class="subtitle">System data snapshot saved</p>
+
+  <p>Your scheduled backup finished successfully. The archive is stored at the location below.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Backup name</dt>
+      <dd>{{ backup_name }}</dd>
+      <dt>Size</dt>
+      <dd>{{ backup_size }}</dd>
+      <dt>Storage</dt>
+      <dd><code style="font-family: 'Courier New', monospace; font-size: 13px; background: var(--slate-100); padding: 2px 8px; border-radius: 4px;">{{ storage_location }}</code></dd>
+      <dt>Started</dt>
+      <dd>{{ started_at|date:"F j, Y H:i" }}</dd>
+      <dt>Completed</dt>
+      <dd>{{ completed_at|date:"F j, Y H:i" }}</dd>
+      <dt>Duration</dt>
+      <dd>{{ duration }}</dd>
+    </dl>
+  </div>
+
+  <div class="callout callout-success">
+    <strong>All systems healthy.</strong> The backup can be restored from the dashboard any time.
+  </div>
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}{{ action_url|default:'/dashboard/admin/reports/' }}" class="button">View backup history</a>
+  </div>
+{% endblock %}

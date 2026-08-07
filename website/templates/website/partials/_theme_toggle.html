@@ -1,0 +1,71 @@
+<button id="themeToggle"
+        aria-label="Toggle theme"
+        style="background: none; border: none; color: var(--text-secondary); font-size: 1.15rem; cursor: pointer; padding: 8px 12px; transition: all 0.25s ease; border-radius: var(--radius-md); display: inline-flex; align-items: center; gap: 6px;"
+        title="Toggle theme">
+
+    <i class="fas fa-moon" id="themeIcon"></i>
+
+    <span style="font-size: 0.75rem; font-weight: 500; color: var(--text-secondary); display: none;">Theme</span>
+
+</button>
+
+<style>
+    #themeToggle:hover {
+        background: var(--bg-secondary);
+        color: var(--accent-secondary);
+    }
+    #themeToggle:active {
+        transform: scale(0.92);
+    }
+
+    @media (max-width: 480px) {
+        #themeToggle { padding: 6px 10px !important; font-size: 1rem !important; }
+        #themeToggle span { display: none !important; }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggle = document.getElementById('themeToggle');
+        const icon = document.getElementById('themeIcon');
+
+        function updateIcon(theme) {
+            if (theme === 'dark') {
+                icon.className = 'fas fa-moon';
+            } else if (theme === 'light') {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-desktop';
+            }
+        }
+
+        const currentTheme = localStorage.getItem('caldan_theme') || 'light';
+        updateIcon(currentTheme);
+
+        toggle.addEventListener('click', function() {
+            const current = localStorage.getItem('caldan_theme') || 'light';
+            let next;
+            if (current === 'light') next = 'dark';
+            else if (current === 'dark') next = 'device';
+            else next = 'light';
+
+            if (window.applyTheme) {
+                window.applyTheme(next);
+            } else {
+                const html = document.documentElement;
+                if (next === 'dark') {
+                    html.setAttribute('data-theme', 'dark');
+                    html.removeAttribute('data-device-theme');
+                } else if (next === 'light') {
+                    html.setAttribute('data-theme', 'light');
+                    html.removeAttribute('data-device-theme');
+                } else {
+                    html.removeAttribute('data-theme');
+                    html.setAttribute('data-device-theme', '');
+                }
+                localStorage.setItem('caldan_theme', next);
+                updateIcon(next);
+            }
+        });
+    });
+</script>

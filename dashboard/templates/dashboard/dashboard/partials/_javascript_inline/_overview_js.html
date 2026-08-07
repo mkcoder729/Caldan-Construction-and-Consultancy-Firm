@@ -1,0 +1,136 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Delay chart rendering slightly for smooth page load
+    setTimeout(function() {
+        if (typeof Chart !== 'undefined') {
+            initRevenueChart();
+            initOrderChart();
+        }
+    }, 200);
+});
+
+function initRevenueChart() {
+    var canvas = document.getElementById('revenueChart');
+    if (!canvas) return;
+
+    var ctx = canvas.getContext('2d');
+    var labels = JSON.parse(canvas.dataset.labels || '[]');
+    var data = JSON.parse(canvas.dataset.data || '[]');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Revenue (KES)',
+                data: data,
+                borderColor: '#D4AF37',
+                backgroundColor: 'rgba(212, 175, 55, 0.08)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 3,
+                pointBackgroundColor: '#D4AF37',
+                pointBorderColor: '#FFFFFF',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'KES ' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 10,
+                            family: 'Inter'
+                        },
+                        color: getComputedStyle(document.documentElement)
+                            .getPropertyValue('--text-tertiary').trim() || '#94A3B8'
+                    }
+                },
+                y: {
+                    grid: {
+                        color: getComputedStyle(document.documentElement)
+                            .getPropertyValue('--border-subtle').trim() || '#ECEFF3'
+                    },
+                    ticks: {
+                        font: {
+                            size: 10,
+                            family: 'Inter'
+                        },
+                        color: getComputedStyle(document.documentElement)
+                            .getPropertyValue('--text-tertiary').trim() || '#94A3B8',
+                        callback: function(value) {
+                            if (value >= 1000) {
+                                return 'K' + (value / 1000);
+                            }
+                            return value;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function initOrderChart() {
+    var canvas = document.getElementById('orderChart');
+    if (!canvas) return;
+
+    var ctx = canvas.getContext('2d');
+    var labels = JSON.parse(canvas.dataset.labels || '[]');
+    var data = JSON.parse(canvas.dataset.data || '[]');
+    var colors = JSON.parse(canvas.dataset.colors ||
+        '["#D4AF37", "#0B66C3", "#27AE60", "#F39C12", "#B9342B"]');
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors,
+                borderWidth: 2,
+                borderColor: getComputedStyle(document.documentElement)
+                    .getPropertyValue('--bg-card').trim() || '#FFFFFF'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 12,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        font: {
+                            size: 11,
+                            family: 'Inter'
+                        },
+                        color: getComputedStyle(document.documentElement)
+                            .getPropertyValue('--text-secondary').trim() || '#475569'
+                    }
+                }
+            }
+        }
+    });
+}
+</script>

@@ -1,0 +1,28 @@
+{# Daily summary — admin digest of the day's key activity. #}
+{% extends "email/_base.html" %}
+{% load humanize %}
+
+{% block badge %}<span class="badge badge-info" style="margin-top: 14px;">DAILY SUMMARY</span>{% endblock %}
+
+{% block content %}
+  <h1>Daily <span>summary</span></h1>
+  <p class="subtitle">{{ date|date:"l, F j, Y" }}</p>
+
+  <p>Here's a quick rundown of today's activity.</p>
+
+  {% if stats %}
+  <h2>Key metrics</h2>
+  <table class="summary">
+    <thead><tr><th>Metric</th><th style="text-align:right;">Value</th></tr></thead>
+    <tbody>
+      {% for k, v in stats.items %}
+      <tr><td>{{ k }}</td><td style="text-align:right; font-weight:600;">{{ v }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}/dashboard/admin/" class="button">Open dashboard</a>
+  </div>
+{% endblock %}

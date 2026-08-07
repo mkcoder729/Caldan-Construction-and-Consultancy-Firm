@@ -1,0 +1,306 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load avatar_tags %}
+
+{% block title %}Admin Details - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+.settings-page {
+    max-width: 720px;
+}
+
+.page-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 20px; flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative; overflow: hidden;
+    margin-bottom: 24px;
+}
+.page-hero::before {
+    content: ''; position: absolute; top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+}
+.page-hero-main {
+    display: flex; align-items: center; gap: 16px;
+    flex: 1; min-width: 240px; position: relative; z-index: 1;
+}
+.page-hero-icon {
+    width: 52px; height: 52px; border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+}
+.page-hero-title {
+    font-size: 22px; font-weight: 800; color: #fff;
+    margin: 0 0 4px; letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 10px;
+}
+.page-hero-title i { color: var(--brand-gold); }
+.page-hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+.settings-card {
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.settings-card .card-body {
+    padding: 24px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.profile-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--r-pill);
+    background: var(--brand-gold);
+    color: var(--text-inverse);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 3px var(--brand-gold), 0 0 0 6px rgba(212, 175, 55, 0.15);
+    overflow: hidden;
+}
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-info h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.profile-info .profile-role {
+    font-size: 0.85rem;
+    color: var(--brand-gold-deep);
+    font-weight: 500;
+}
+
+.profile-info .profile-email {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.profile-detail {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.profile-detail:last-child {
+    border-bottom: none;
+}
+
+.profile-detail .detail-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.profile-detail .detail-value {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.badge-gold {
+    background: rgba(212, 175, 55, 0.15);
+    color: var(--brand-gold-deep);
+}
+.badge-blue {
+    background: rgba(11, 102, 195, 0.12);
+    color: var(--brand-blue);
+}
+.badge-success {
+    background: rgba(39, 174, 96, 0.12);
+    color: var(--sem-success);
+}
+.badge-tertiary {
+    background: var(--bg-secondary);
+    color: var(--text-tertiary);
+}
+
+.profile-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .settings-card .card-body {
+        padding: 16px;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+    }
+
+    .profile-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-page settings-page">
+    <div class="page-hero">
+        <div class="page-hero-main">
+            <div class="page-hero-icon"><i class="fas fa-user-cog"></i></div>
+            <div>
+                <h1 class="page-hero-title">Admin Details</h1>
+                <p class="page-hero-sub">View admin information and manage permissions</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-card">
+        <div class="card-body">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    {% if admin.avatar %}
+                        <img src="{{ admin.avatar.url }}" alt="{{ admin.full_name }}" />
+                    {% else %}
+                        {{ admin.full_name|default:admin.email|first|upper }}
+                    {% endif %}
+                </div>
+                <div class="profile-info">
+                    <h2>{{ admin.full_name|default:admin.email }}</h2>
+                    <div class="profile-role">
+                        <span class="badge badge-gold">
+                            {% if admin.is_chief %}Chief Admin{% else %}Platform Admin{% endif %}
+                        </span>
+                    </div>
+                    <div class="profile-email">{{ admin.email }}</div>
+                </div>
+            </div>
+
+            <div class="profile-detail">
+                <span class="detail-label">Full Name</span>
+                <span class="detail-value">{{ admin.full_name|default:'Not set' }}</span>
+            </div>
+            <div class="profile-detail">
+                <span class="detail-label">Email</span>
+                <span class="detail-value">{{ admin.email }}</span>
+            </div>
+            <div class="profile-detail">
+                <span class="detail-label">Phone</span>
+                <span class="detail-value">{{ admin.phone|default:'Not set' }}</span>
+            </div>
+            <div class="profile-detail">
+                <span class="detail-label">Role</span>
+                <span class="detail-value">
+                    <span class="badge badge-gold">
+                        {% if admin.is_chief %}Chief Admin{% else %}Platform Admin{% endif %}
+                    </span>
+                </span>
+            </div>
+            <div class="profile-detail">
+                <span class="detail-label">Status</span>
+                <span class="detail-value">
+                    <span class="badge {% if admin.is_active %}badge-success{% else %}badge-tertiary{% endif %}">
+                        {% if admin.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </span>
+            </div>
+            <div class="profile-detail">
+                <span class="detail-label">Member Since</span>
+                <span class="detail-value">{{ admin.date_joined|date:"F j, Y" }}</span>
+            </div>
+            <div class="profile-detail">
+                <span class="detail-label">Last Login</span>
+                <span class="detail-value">{{ admin.last_login|date:"F j, Y H:i"|default:'Never' }}</span>
+            </div>
+
+            <div class="profile-actions">
+                {% if not admin.is_chief %}
+                    <a href="{% url 'accounts:admin_permissions' admin.id %}" class="btn btn-gold">
+                        <i class="fas fa-user-cog"></i> Manage Permissions
+                    </a>
+                    <button class="btn btn-danger" onclick="deleteAdmin({{ admin.id }})">
+                        <i class="fas fa-trash"></i> Delete Admin
+                    </button>
+                {% else %}
+                    <span style="font-size:0.8rem;color:var(--text-tertiary);display:flex;align-items:center;gap:6px;">
+                        <i class="fas fa-lock"></i> Chief Admin cannot be deleted or modified
+                    </span>
+                {% endif %}
+                <a href="{% url 'accounts:admins' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteAdmin(id) {
+    confirmDialog({
+        title: 'Delete Admin',
+        message: 'Are you sure you want to delete this admin? This action cannot be undone.',
+        confirmLabel: 'Delete',
+        confirmClass: 'btn-danger',
+        danger: true
+    }).then(function(confirmed) {
+        if (confirmed) {
+            var url = '{% url "accounts:delete_admin" 0 %}'.replace('0', id);
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    showToast('success', 'Admin Deleted', 'Admin has been deleted successfully.');
+                    window.location.href = '{% url "accounts:admins" %}';
+                } else {
+                    showToast('error', 'Error', data.error || 'Failed to delete admin.');
+                }
+            })
+            .catch(function() {
+                showToast('error', 'Error', 'An unexpected error occurred.');
+            });
+        }
+    });
+}
+</script>
+{% endblock %}

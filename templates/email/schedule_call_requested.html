@@ -1,0 +1,39 @@
+{# Admin alert — customer requested a callback. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-warning" style="margin-top: 14px;">CALL REQUEST</span>{% endblock %}
+
+{% block content %}
+  <h1>Call <span>requested</span></h1>
+  <p class="subtitle">Customer is waiting for a callback</p>
+
+  <p>A new callback request just landed. Reach out within the customer's preferred window.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Name</dt>
+      <dd>{{ name }}</dd>
+      <dt>Phone</dt>
+      <dd><a href="tel:{{ phone }}">{{ phone }}</a></dd>
+      <dt>Email</dt>
+      <dd><a href="mailto:{{ email }}">{{ email }}</a></dd>
+      <dt>Preferred time</dt>
+      <dd><span class="badge badge-gold">{{ preferred_call_time|default:"Anytime" }}</span></dd>
+      <dt>Project type</dt>
+      <dd>{{ project_type }}</dd>
+      <dt>Budget</dt>
+      <dd>{{ budget_range|default:"—" }}</dd>
+      <dt>Timeline</dt>
+      <dd>{{ timeline|default:"—" }}</dd>
+    </dl>
+  </div>
+
+  <h2>Project details</h2>
+  <div class="callout callout-info">
+    {{ details }}
+  </div>
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}{{ action_url|default:'/dashboard/quotes/' }}{{ quote_id|default:'' }}/" class="button">Open quote</a>
+  </div>
+{% endblock %}

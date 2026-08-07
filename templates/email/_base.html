@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>{{ subject|default:brand_name|default:"Caldan Construction and Consultancy Firm" }}</title>
+  <style>
+    /* RESET */
+    *, *:before, *:after { box-sizing: border-box; }
+    html, body { margin: 0 !important; padding: 0 !important; height: 100% !important; width: 100% !important; background-color: #FFFFFF; }
+    * { -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
+    div[style*="margin: 16px 0"] { margin: 0 !important; }
+    table, td { mso-table-lspace: 0pt !important; mso-table-rspace: 0pt !important; }
+    table { border-spacing: 0 !important; border-collapse: collapse !important; table-layout: fixed !important; margin: 0 auto !important; }
+    img { -ms-interpolation-mode: bicubic; max-width: 100%; height: auto; border: 0; display: block; }
+    a { text-decoration: none; }
+    *[x-apple-data-detectors], .x-gmail-data-detectors, .x-gmail-data-detectors *, .aBn { border-bottom: 0 !important; cursor: default !important; color: inherit !important; text-decoration: inherit !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
+
+    /* CALDAN BRAND COLORS */
+    :root {
+      --brand-navy:      #0D2B36;
+      --brand-blue:      #0B66C3;
+      --brand-gold:      #D4AF37;
+      --brand-gold-deep: #9C7A1F;
+      --brand-cream:     #F6F1E8;
+      --brand-cream-soft: #FDFBF8;
+
+      /* Slate scale (referenced by child templates) */
+      --slate-50:  #F8FAFC;
+      --slate-75:  #F1F5F9;
+      --slate-200: #E2E8F0;
+      --slate-400: #94A3B8;
+      --slate-500: #64748B;
+      --slate-700: #334155;
+
+      /* Text Colors - ALL BLACK */
+      --text-primary:    #000000;
+      --text-secondary:  #000000;
+      --text-muted:      #000000;
+      --text-body:       #000000;
+
+      /* Borders */
+      --border-gold:     #D4AF37;
+      --border-light:    rgba(0, 0, 0, 0.08);
+      --border-visible:  #C5D0DE;
+      --shadow-card:     0 2px 12px rgba(13, 43, 54, 0.06), 0 8px 32px rgba(13, 43, 54, 0.08);
+    }
+
+    /* CONTAINER - White with visible outline */
+    .email-container {
+      width: 100% !important;
+      max-width: 600px !important;
+      margin: 0 auto !important;
+      background-color: #FFFFFF;
+      border: 2px solid var(--border-visible);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    /* HEADER - Cream gradient with gold accent */
+    .header {
+      padding: 32px 20px 24px;
+      text-align: center;
+      background: linear-gradient(180deg, #F6F1E8 0%, #EDE5D8 100%);
+      border-bottom: 4px solid var(--brand-gold);
+    }
+    .logo-img { width: 120px; height: auto; max-width: 140px; display: block; margin: 0 auto; }
+    .brand-wordmark {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      color: #000000;
+      margin: 10px 0 0;
+    }
+    .brand-tagline {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #000000;
+      margin: 2px 0 0;
+    }
+
+    /* CONTENT - Cream (matches PDF brand language; Gmail-safe table wrapper applies the bg) */
+    .content {
+      padding: 32px 36px 28px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      background-color: #FDFBF8;
+      color: #000000;
+    }
+
+    /* Gmail-safe content cell — actual background lives on the <td> so Gmail doesn't strip it */
+    .content-cell {
+      background-color: #FDFBF8;
+    }
+
+    /* TYPOGRAPHY - ALL BLACK */
+    .content h1 {
+      color: #000000;
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      text-align: center;
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+    .content h1 span { color: #000000; font-weight: 700; }
+
+    .content h2 {
+      color: var(--brand-navy);
+      font-size: 18px;
+      font-weight: 600;
+      margin: 28px 0 10px 0;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      letter-spacing: -0.1px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--brand-gold);
+    }
+
+    .content .subtitle {
+      font-size: 13px;
+      color: #000000;
+      text-align: center;
+      margin: -4px 0 22px 0;
+      font-weight: 400;
+    }
+
+    .content p {
+      margin: 0 0 16px 0;
+      line-height: 1.7;
+      color: #000000;
+    }
+
+    .content a {
+      color: var(--brand-blue);
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .content a:hover { text-decoration: underline; }
+
+    /* META CARD - Hairline border with subtle gold marker */
+    .meta-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      padding: 18px 22px;
+      margin: 18px 0;
+      position: relative;
+    }
+    .meta-card::before {
+      content: '';
+      position: absolute;
+      top: 18px;
+      left: -1px;
+      width: 3px;
+      height: 14px;
+      background: var(--brand-gold);
+    }
+    .meta-card dl { margin: 0; }
+    .meta-card dt {
+      font-weight: 700;
+      color: #000000;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-top: 10px;
+      opacity: 0.7;
+    }
+    .meta-card dt:first-child { margin-top: 0; }
+    .meta-card dd {
+      margin: 1px 0 0 0;
+      color: #000000;
+      font-weight: 500;
+      font-size: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .meta-card dd:last-of-type { border-bottom: 0; padding-bottom: 0; }
+
+    /* BUTTON - Navy */
+    .button {
+      display: inline-block;
+      padding: 14px 32px;
+      background-color: var(--brand-navy);
+      color: #FFFFFF !important;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.3px;
+      margin: 18px 0;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.08);
+      max-width: 100%;
+      text-transform: uppercase;
+    }
+    .button-gold {
+      background: var(--brand-gold);
+      color: #000000 !important;
+      border: 1px solid var(--brand-gold-deep);
+    }
+    .button-row { text-align: center; margin: 20px 0; }
+
+    /* BADGES - No emojis */
+    .badge {
+      display: inline-block;
+      padding: 5px 18px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      border: 1px solid transparent;
+    }
+    .badge-info    { background: #D4E4F7; color: #000000; border-color: #A8C4E8; }
+    .badge-success { background: #DCFCE7; color: #000000; border-color: #B8E6CC; }
+    .badge-warning { background: #FEF3C7; color: #000000; border-color: #F5D99E; }
+    .badge-error   { background: #FEE2E2; color: #000000; border-color: #F5C2C2; }
+    .badge-gold    { background: #F5E9C0; color: #000000; border-color: #E5D09E; }
+    .badge-navy    { background: var(--brand-navy); color: #FFFFFF; border-color: #1A4050; }
+
+    /* TABLES */
+    table.summary {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+      background: #FFFFFF;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-light);
+    }
+    table.summary th, table.summary td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-light);
+      color: #000000;
+    }
+    table.summary th {
+      background: var(--brand-cream);
+      color: #000000;
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      border-bottom: 1px solid var(--brand-gold);
+    }
+    table.summary tr:last-child td { border-bottom: 0; }
+    table.summary tfoot td {
+      background: var(--brand-cream);
+      font-weight: 600;
+      color: #000000;
+      border-top: 1px solid var(--brand-gold);
+    }
+    table.summary td.num,
+    table.summary th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* CODE MONO */
+    .code-mono {
+      font-family: 'Courier New', Courier, monospace;
+      letter-spacing: 4px;
+      font-size: 30px;
+      font-weight: 700;
+      color: #000000;
+      background: #FFFFFF;
+      padding: 14px 24px;
+      border-radius: 6px;
+      display: inline-block;
+      border: 1px solid var(--border-light);
+    }
+
+    /* CALLOUTS */
+    .callout {
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      border: 1px solid;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #000000;
+    }
+    .callout strong { display: inline; font-weight: 700; color: #000000; }
+    .callout-info    { background: #D4E4F7; border-color: #A8C4E8; color: #000000; }
+    .callout-success { background: #DCFCE7; border-color: #B8E6CC; color: #000000; }
+    .callout-warning { background: #FEF3C7; border-color: #F5D99E; color: #000000; }
+    .callout-danger  { background: #FEE2E2; border-color: #F5C2C2; color: #000000; }
+
+    /* DIVIDER */
+    .divider { border-top: 1px solid var(--brand-gold); margin: 24px 0; opacity: 0.5; }
+
+    /* GOLD MARK */
+    .gold-mark {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      background: var(--brand-gold);
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    /* FOOTER - Same as Header (Cream Gradient) */
+    .footer {
+      padding: 24px 24px 20px;
+      text-align: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 12px;
+      background: linear-gradient(180deg, #F6F1E8 0%, #EDE5D8 100%);
+      border-top: 1px solid var(--border-light);
+    }
+    .footer-divider {
+      width: 44px;
+      height: 2px;
+      background: var(--brand-gold);
+      margin: 0 auto 12px;
+      border: 0;
+    }
+    .footer-brand {
+      font-weight: 700;
+      color: #000000;
+      font-size: 12px;
+    }
+    .footer p { margin: 0 0 4px 0; color: #000000; }
+    .footer a { color: var(--brand-blue); font-weight: 500; }
+    .footer a:hover { text-decoration: underline; }
+    .footer-meta {
+      font-size: 10px;
+      color: #000000;
+      margin-top: 6px;
+      opacity: 0.6;
+    }
+
+    /* MOBILE */
+    @media screen and (max-width: 600px) {
+      .email-wrapper { padding: 0 !important; }
+      .content { padding: 24px 20px 20px !important; }
+      .header { padding: 22px 20px 16px !important; }
+      .footer { padding: 16px 20px 14px !important; }
+      .email-container {
+        width: 100% !important;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      .content h1 { font-size: 21px !important; }
+      .code-mono {
+        font-size: 24px !important;
+        letter-spacing: 2px !important;
+        padding: 10px 16px !important;
+      }
+      table.summary th, table.summary td { padding: 8px 10px !important; font-size: 13px !important; }
+      .meta-card { padding: 12px 16px !important; }
+      .button { padding: 11px 22px !important; font-size: 12px !important; }
+    }
+
+    /* DARK MODE */
+    @media (prefers-color-scheme: dark) {
+      html, body { background-color: #0D1F2A !important; }
+      .email-container {
+        background-color: #0F1E2A !important;
+        border: 2px solid #1A2D3B !important;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.3), 0 8px 32px rgba(0,0,0,0.4) !important;
+      }
+      .header {
+        background: linear-gradient(180deg, #0A1620 0%, #162A3A 100%) !important;
+        border-bottom-color: var(--brand-gold) !important;
+      }
+      .brand-wordmark { color: #E8EDF2 !important; }
+      .brand-tagline { color: var(--brand-gold) !important; }
+      .content {
+        background-color: #0F2440 !important;
+        color: #E8EDF2 !important;
+      }
+      .content-cell {
+        background-color: #0F2440 !important;
+      }
+      .content h1 { color: #E8EDF2 !important; }
+      .content h1 span { color: var(--brand-gold) !important; }
+      .content h2 { color: var(--brand-gold) !important; border-bottom-color: var(--brand-gold) !important; }
+      .content p { color: #E8EDF2 !important; }
+      .content a { color: #93C5FD !important; }
+      .content .subtitle { color: #CBD5E1 !important; }
+
+      .meta-card {
+        background: #122432 !important;
+        border-color: #1A2D3B !important;
+      }
+      .meta-card dt { color: var(--brand-gold) !important; }
+      .meta-card dd {
+        color: #E8EDF2 !important;
+        border-bottom-color: #1A2D3B !important;
+      }
+
+      .button {
+        background-color: #1A4050 !important;
+      }
+      .button-gold {
+        background: var(--brand-gold) !important;
+        color: #0F172A !important;
+      }
+
+      table.summary {
+        background: #122432 !important;
+        border-color: #1A2D3B !important;
+      }
+      table.summary th {
+        background: #0A1620 !important;
+        color: #94A3B8 !important;
+      }
+      table.summary td {
+        border-color: #1A2D3B !important;
+        color: #E8EDF2 !important;
+      }
+      table.summary tfoot td {
+        background: #0A1620 !important;
+        color: var(--brand-gold) !important;
+      }
+
+      .code-mono {
+        background: #122432 !important;
+        color: var(--brand-gold) !important;
+        border-color: #1A2D3B !important;
+      }
+
+      .callout-info    { background: #0F2440; color: #BFDBFE; border-color: #1A3D6A; }
+      .callout-success { background: #0F2D1A; color: #BBF7D0; border-color: #1A4D2D; }
+      .callout-warning { background: #2D1F0F; color: #FDE68A; border-color: #4D3D1A; }
+      .callout-danger  { background: #2D0F0F; color: #FECACA; border-color: #4D1A1A; }
+
+      .divider { border-top-color: var(--brand-gold) !important; }
+
+      .footer {
+        background: linear-gradient(180deg, #0A1620 0%, #162A3A 100%) !important;
+        border-top-color: #1A2D3B !important;
+      }
+      .footer-brand { color: #E8EDF2 !important; }
+      .footer p { color: #CBD5E1 !important; }
+      .footer a { color: #93C5FD !important; }
+
+      .badge-info    { background: #0F2440; color: #7AB8F5; border-color: #1A3D6A; }
+      .badge-success { background: #0F2D1A; color: #7AD8A0; border-color: #1A4D2D; }
+      .badge-warning { background: #2D1F0F; color: #F5D99E; border-color: #4D3D1A; }
+      .badge-error   { background: #2D0F0F; color: #F5A0A0; border-color: #4D1A1A; }
+      .badge-gold    { background: #2D240F; color: var(--brand-gold); border-color: #4D3D1A; }
+      .badge-navy    { background: #1A4050; color: #E8EDF2; border-color: #2A5A70; }
+    }
+  </style>
+</head>
+<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #FFFFFF;">
+  <center class="email-wrapper" style="width: 100%; background-color: #FFFFFF; padding: 32px 0;">
+    <!--[if mso | IE]>
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" align="center" style="width:600px;">
+    <tr>
+    <td>
+    <![endif]-->
+    <div class="email-container">
+      <!-- HEADER -->
+      <div class="header">
+        <a href="{{ site_url|default:'https://caldanconstruction.com' }}">
+          <img src="{{ logo_url|default:'https://res.cloudinary.com/nifbnyz2/image/upload/v1786023287/caldan/caldan/logo.png' }}"
+               alt="{{ brand_name|default:'Caldan Construction and Consultancy Firm' }}"
+               class="logo-img"
+               width="120"
+               border="0">
+        </a>
+        <p class="brand-wordmark">{{ brand_name|default:"Caldan Construction and Consultancy Firm" }}</p>
+        <p class="brand-tagline">{{ tagline|default:"Building Kenya's Future, One Project at a Time." }}</p>
+        {% block badge %}{% endblock %}
+      </div>
+
+      <!-- CONTENT - Cream (Gmail-safe table wrapper for the background) -->
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+        <tr>
+          <td class="content-cell" style="background-color: #FDFBF8;" bgcolor="#FDFBF8">
+            <div class="content">
+              {% block content %}{% endblock %}
+
+              <div class="divider"></div>
+              <p style="margin-bottom: 0; color: #000000; font-size: 13px;">
+                Warm regards,<br>
+                <strong style="color: #000000;">Caldan</strong>
+              </p>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- FOOTER - Same as Header (Cream Gradient) -->
+      <div class="footer">
+        <hr class="footer-divider">
+        <p class="footer-brand">{{ brand_name|default:"Caldan Construction and Consultancy Firm" }}</p>
+        <p style="font-size: 11px; color: #000000;">{{ tagline|default:"Building Kenya's Future, One Project at a Time." }}</p>
+        <p style="font-size: 11px; margin-top: 4px; color: #000000;">
+          <a href="mailto:{{ support_email|default:'info.caldanconstruction@gmail.com' }}">
+            {{ support_email|default:'info.caldanconstruction@gmail.com' }}
+          </a>
+        </p>
+        {% block footer_extra %}{% endblock %}
+        <p class="footer-meta">&copy; {{ current_year|default:2026 }} {{ brand_name|default:"Caldan" }} · Nairobi, Kenya</p>
+        <p class="footer-meta" style="margin-top: 2px;">Transactional email</p>
+      </div>
+    </div>
+    <!--[if mso | IE]>
+    </td>
+    </tr>
+    </table>
+    <![endif]-->
+  </center>
+</body>
+</html>

@@ -1,0 +1,200 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}{{ post.title }} — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="{{ post.excerpt|default:post.title }}">
+<meta property="og:title" content="{{ post.title }}">
+<meta property="og:description" content="{{ post.excerpt|default:post.title }}">
+{% if post.image %}<meta property="og:image" content="{{ post.image.url }}">{% endif %}
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta name="twitter:card" content="summary_large_image">
+{% endblock %}
+
+{% block content %}
+
+<!-- Blog Detail Hero -->
+<section class="blog-detail-hero" style="min-height: 45vh; display: flex; align-items: center; position: relative; background: linear-gradient(160deg, rgba(11, 20, 32, 0.82) 0%, rgba(11, 102, 195, 0.65) 100%), url('https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1600&q=80'); background-size: cover; background-position: center; background-attachment: fixed; padding: 120px 0 80px; color: #FFFFFF;">
+    <div class="container" style="position: relative; z-index: 2;">
+        <nav style="font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 20px;">
+            <a href="{% url 'website:index' %}" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.3s ease;">Home</a>
+            <span style="margin: 0 8px; color: rgba(255,255,255,0.4);">/</span>
+            <a href="{% url 'website:blog' %}" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.3s ease;">Blog</a>
+            <span style="margin: 0 8px; color: rgba(255,255,255,0.4);">/</span>
+            <span style="color: rgba(255,255,255,0.8);">{{ post.title|truncatewords:6 }}</span>
+        </nav>
+
+        <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+            <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px;">
+                <span style="font-size: 0.8rem; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 6px; font-family: 'Montserrat', sans-serif;">
+                    <i class="far fa-calendar-alt" style="color: #D4AF37;"></i>
+                    {{ post.published_at|date:"F j, Y" }}
+                </span>
+                <span style="font-size: 0.8rem; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 6px; font-family: 'Montserrat', sans-serif;">
+                    <i class="far fa-clock" style="color: #D4AF37;"></i>
+                    {{ post.reading_time }} min read
+                </span>
+                {% if post.is_recent %}
+                <span style="font-size: 0.7rem; color: #FFFFFF; background: #27AE60; padding: 2px 14px; border-radius: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                    New
+                </span>
+                {% endif %}
+            </div>
+
+            <h1 style="font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 700; line-height: 1.2; margin-bottom: 12px; color: #FFFFFF;">
+                {{ post.title }}
+            </h1>
+
+            {% if post.excerpt %}
+            <p style="color: rgba(255,255,255,0.8); font-size: 1.05rem; line-height: 1.6; max-width: 650px; margin: 0 auto;">
+                {{ post.excerpt }}
+            </p>
+            {% endif %}
+
+            <div style="width: 60px; height: 3px; background: #D4AF37; margin: 16px auto 0;"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Content -->
+<section class="blog-detail-section" style="padding: 60px 0; background: var(--bg-primary);">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px; max-width: 1140px; margin: 0 auto;">
+
+            <!-- Main Content -->
+            <div>
+                <!-- Featured Image -->
+                {% if post.image %}
+                <div style="border-radius: 12px; overflow: hidden; margin-bottom: 32px; box-shadow: var(--shadow-md);">
+                    <img src="{{ post.image.url }}" alt="{{ post.title }}" style="width: 100%; height: auto; display: block;">
+                </div>
+                {% endif %}
+
+                <!-- Content -->
+                <div style="font-size: 1.05rem; line-height: 1.8; color: var(--text-secondary);">
+                    {{ post.content|linebreaks }}
+                </div>
+
+                <!-- Share -->
+                <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border-primary);">
+                    <p style="font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">Share this post:</p>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: #1877F2; color: #FFFFFF; border-radius: 8px; text-decoration: none; font-size: 0.9rem; transition: all 0.3s ease;">
+                            <i class="fab fa-facebook"></i> Facebook
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ post.title }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: #000000; color: #FFFFFF; border-radius: 8px; text-decoration: none; font-size: 0.9rem; transition: all 0.3s ease;">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a>
+                        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: #0A66C2; color: #FFFFFF; border-radius: 8px; text-decoration: none; font-size: 0.9rem; transition: all 0.3s ease;">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </a>
+                        <a href="https://wa.me/?text={{ request.build_absolute_uri }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: #25D366; color: #FFFFFF; border-radius: 8px; text-decoration: none; font-size: 0.9rem; transition: all 0.3s ease;">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <aside>
+                <!-- Recent Posts -->
+                <div style="background: var(--bg-card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-primary); margin-bottom: 24px;">
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0 0 16px; color: var(--text-primary);">
+                        <i class="fas fa-clock" style="color: var(--accent-secondary); margin-right: 8px;"></i>
+                        Recent Posts
+                    </h3>
+
+                    {% if recent_posts %}
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            {% for related in recent_posts %}
+                            <li style="padding: 12px 0; border-bottom: 1px solid var(--border-primary);">
+                                <a href="{% url 'website:blog_detail' related.slug %}" style="color: var(--text-primary); text-decoration: none; font-weight: 500; display: block; transition: color 0.3s ease;">
+                                    {{ related.title }}
+                                </a>
+                                <span style="font-size: 0.8rem; color: var(--text-tertiary);">{{ related.published_at|date:"F j, Y" }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="color: var(--text-secondary);">No recent posts.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Newsletter -->
+                <div style="background: linear-gradient(135deg, #0D2B36 0%, #1A3A45 100%); border-radius: 12px; padding: 24px; color: #FFFFFF;">
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0 0 8px;">
+                        <i class="fas fa-envelope" style="color: var(--accent-secondary); margin-right: 8px;"></i>
+                        Stay Updated
+                    </h3>
+                    <p style="font-size: 0.9rem; color: #D1D5DB; margin-bottom: 16px;">
+                        Subscribe for the latest news and project updates.
+                    </p>
+                    <form method="POST" action="{% url 'website:newsletter_subscribe' %}" class="newsletter-form" data-ajax="true" style="display: flex; flex-direction: column; gap: 8px;">
+                        {% csrf_token %}
+                        <input type="email" name="email" placeholder="Your email address" required style="padding: 10px 14px; border: none; border-radius: 8px; font-size: 0.95rem; background: rgba(255,255,255,0.1); color: #FFFFFF; outline: none;">
+                        <button type="submit" style="padding: 10px 20px; background: var(--accent-secondary); color: #0D2B36; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.3s ease;">
+                            <i class="fas fa-paper-plane"></i> Subscribe
+                        </button>
+                    </form>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+{% include "website/partials/_cta.html" %}
+
+<style>
+    .blog-detail-section .blog-content h2 {
+        font-size: 1.6rem;
+        margin-top: 32px;
+        margin-bottom: 12px;
+        color: var(--text-primary);
+    }
+    .blog-detail-section .blog-content h3 {
+        font-size: 1.3rem;
+        margin-top: 24px;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+    .blog-detail-section .blog-content ul,
+    .blog-detail-section .blog-content ol {
+        margin: 16px 0;
+        padding-left: 24px;
+    }
+    .blog-detail-section .blog-content li {
+        margin-bottom: 6px;
+    }
+    .blog-detail-section .blog-content blockquote {
+        border-left: 4px solid var(--accent-secondary);
+        padding: 16px 24px;
+        margin: 24px 0;
+        background: var(--bg-secondary);
+        border-radius: 0 8px 8px 0;
+        font-style: italic;
+        color: var(--text-secondary);
+    }
+    .share-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Hero responsive */
+    @media (max-width: 768px) {
+        .blog-detail-hero {
+            background-attachment: scroll !important;
+            padding: 100px 0 60px !important;
+            min-height: auto !important;
+        }
+        .blog-detail-section .grid-2 {
+            grid-template-columns: 1fr !important;
+        }
+        .blog-detail-hero h1 {
+            font-size: 1.8rem !important;
+        }
+    }
+</style>
+{% endblock %}

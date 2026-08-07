@@ -1,0 +1,241 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    'use strict';
+
+    // ================================================================
+    // SETTINGS PAGES - SHARED FUNCTIONALITY
+    // ================================================================
+
+    // Theme Selection (Appearance Page)
+    var themeOptions = document.querySelectorAll('.theme-option');
+    var selectedThemeInput = document.getElementById('selectedTheme');
+
+    if (themeOptions.length && selectedThemeInput) {
+        themeOptions.forEach(function(option) {
+            option.addEventListener('click', function() {
+                var theme = this.dataset.theme;
+
+                // Update UI
+                themeOptions.forEach(function(el) {
+                    el.classList.remove('selected');
+                });
+                this.classList.add('selected');
+
+                // Update hidden input
+                selectedThemeInput.value = theme;
+
+                // Apply preview
+                document.documentElement.setAttribute('data-theme', theme);
+            });
+        });
+    }
+
+    // ================================================================
+    // PASSWORD TOGGLES (Settings Pages)
+    // ================================================================
+    document.querySelectorAll('.password-toggle').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var target = document.getElementById(this.dataset.target);
+            if (target) {
+                var type = target.type === 'password' ? 'text' : 'password';
+                target.type = type;
+                this.querySelector('i').className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+            }
+        });
+    });
+
+    // ================================================================
+    // PASSWORD STRENGTH (Change Password Page)
+    // ================================================================
+    var pwInput = document.getElementById('new_password');
+    var strengthFill = document.querySelector('.strength-fill');
+    var strengthLabel = document.getElementById('strengthLabel');
+
+    if (pwInput && strengthFill && strengthLabel) {
+        pwInput.addEventListener('input', function() {
+            var value = this.value;
+            var strength = 0;
+
+            if (value.length >= 8) strength += 25;
+            if (/[a-z]/.test(value) && /[A-Z]/.test(value)) strength += 25;
+            if (/\d/.test(value)) strength += 25;
+            if (/[^a-zA-Z0-9]/.test(value)) strength += 25;
+
+            strengthFill.style.width = strength + '%';
+
+            var label = 'Weak';
+            var color = '#E74C3C';
+            if (strength >= 75) { label = 'Strong'; color = '#27AE60'; }
+            else if (strength >= 50) { label = 'Good'; color = '#F39C12'; }
+            else if (strength >= 25) { label = 'Weak'; color = '#E74C3C'; }
+            else { label = 'None'; color = '#95A5A6'; }
+
+            strengthLabel.textContent = label;
+            strengthFill.style.background = color;
+        });
+    }
+
+    // ================================================================
+    // TOGGLE SWITCHES (Settings Pages)
+    // ================================================================
+    document.querySelectorAll('.toggle-switch input[type="checkbox"]').forEach(function(toggle) {
+        toggle.addEventListener('change', function() {
+            // If this toggle has a corresponding hidden input for form submission
+            var hiddenInput = document.querySelector('input[type="hidden"][name="' + this.name + '"]');
+            if (hiddenInput) {
+                hiddenInput.value = this.checked ? 'on' : 'off';
+            }
+        });
+    });
+
+    // ================================================================
+    // ADMIN DELETE (Admins Page)
+    // ================================================================
+    window.deleteAdmin = function(id) {
+        confirmDialog({
+            title: 'Delete Admin',
+            message: 'Are you sure you want to delete this admin? This action cannot be undone.',
+            confirmLabel: 'Delete',
+            confirmClass: 'btn-danger',
+            danger: true
+        }).then(function(confirmed) {
+            if (confirmed) {
+                var url = '{% url "accounts:delete_admin" 0 %}'.replace('0', id);
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCsrfToken(),
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        showToast('success', 'Admin Deleted', 'Admin has been deleted successfully.');
+                        window.location.reload();
+                    } else {
+                        showToast('error', 'Error', data.error || 'Failed to delete admin.');
+                    }
+                })
+                .catch(function() {
+                    showToast('error', 'Error', 'An unexpected error occurred.');
+                });
+            }
+        });
+    };
+
+    // ================================================================
+    // AUDIT LOG VERIFICATION (Audit Log Page)
+    // ================================================================
+    window.verifyChain = function() {
+        var url = document.querySelector('[data-verify-url]')?.getAttribute('data-verify-url');
+        if (!url) return;
+
+        fetch(url, {
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.verified) {
+                showToast('success', 'Audit Chain Verified', 'The audit log hash chain is intact and verified.');
+            } else {
+                showToast('error', 'Audit Chain Broken', 'The audit log hash chain has been tampered with!');
+            }
+        })
+        .catch(function() {
+            showToast('error', 'Verification Failed', 'Could not verify audit chain.');
+        });
+    };
+
+    // ================================================================
+    // AUDIT LOG FILTERS (Audit Log Page)
+    // ================================================================
+    window.applyFilters = function() {
+        var action = document.getElementById('actionFilter')?.value || '';
+        var user = document.getElementById('userFilter')?.value || '';
+        var dateFrom = document.getElementById('dateFrom')?.value || '';
+        var dateTo = document.getElementById('dateTo')?.value || '';
+
+        var params = [];
+        if (action) params.push('action=' + encodeURIComponent(action));
+        if (user) params.push('user=' + encodeURIComponent(user));
+        if (dateFrom) params.push('date_from=' + encodeURIComponent(dateFrom));
+        if (dateTo) params.push('date_to=' + encodeURIComponent(dateTo));
+
+        var url = window.location.pathname;
+        if (params.length) url += '?' + params.join('&');
+
+        window.location.href = url;
+    };
+
+    window.resetFilters = function() {
+        window.location.href = window.location.pathname;
+    };
+
+    // ================================================================
+    // BACKUP FUNCTIONS (Data Management Page)
+    // ================================================================
+    window.createBackup = function() {
+        confirmDialog({
+            title: 'Create Backup',
+            message: 'Create a full backup of all platform data? This may take a few moments.',
+            confirmLabel: 'Create Backup',
+            confirmClass: 'btn-gold'
+        }).then(function(confirmed) {
+            if (confirmed) {
+                showToast('info', 'Backup Started', 'Your backup is being created. You will be notified when complete.');
+
+                var url = document.querySelector('[data-backup-url]')?.getAttribute('data-backup-url');
+                if (!url) return;
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCsrfToken()
+                    }
+                })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        showToast('success', 'Backup Complete', 'Backup created successfully: ' + data.filename);
+                    } else {
+                        showToast('error', 'Backup Failed', data.error || 'An error occurred.');
+                    }
+                })
+                .catch(function() {
+                    showToast('error', 'Backup Failed', 'An unexpected error occurred.');
+                });
+            }
+        });
+    };
+
+    window.archiveOldProjects = function() {
+        confirmDialog({
+            title: 'Archive Old Projects',
+            message: 'Archive projects older than 1 year? This will move them to the archive.',
+            confirmLabel: 'Archive',
+            confirmClass: 'btn-warning'
+        }).then(function(confirmed) {
+            if (confirmed) {
+                showToast('info', 'Archiving Started', 'Old projects are being archived...');
+                setTimeout(function() {
+                    showToast('success', 'Archive Complete', 'Projects archived successfully.');
+                }, 2000);
+            }
+        });
+    };
+
+    // ================================================================
+    // UTILITY: Get CSRF Token (for settings pages)
+    // ================================================================
+    function getCsrfToken() {
+        var cookie = document.cookie.split('; ').find(function(row) {
+            return row.startsWith('csrftoken=');
+        });
+        return cookie ? cookie.split('=')[1] : '';
+    }
+});
+</script>

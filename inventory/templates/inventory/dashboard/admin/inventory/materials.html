@@ -1,0 +1,782 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}Materials - Inventory - Caldan Construction{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   MATERIALS LIST — PREMIUM ADMIN
+   ================================================================ */
+
+.materials-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+/* ---- Page header (sidebar gradient) ---- */
+.page-header {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.page-header-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+    z-index: 1;
+}
+
+.page-header-icon {
+    width: 52px; height: 52px;
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.page-header-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-header-title i {
+    color: var(--brand-gold);
+    font-size: 22px;
+}
+
+.page-header-sub {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+.page-header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+/* ---- Stat cards ---- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: all var(--t-base) var(--ease-spring);
+    border-top: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 50%, var(--stat-accent, transparent) 130%);
+    opacity: 0;
+    transition: opacity var(--t-base) var(--ease-standard);
+    pointer-events: none;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--stat-accent, var(--border-subtle));
+}
+
+.stat-card:hover::after { opacity: 0.06; }
+
+.stat-card.blue   { --stat-accent: var(--brand-blue); border-top-color: var(--brand-blue); }
+.stat-card.gold   { --stat-accent: var(--brand-gold); border-top-color: var(--brand-gold); }
+.stat-card.green  { --stat-accent: var(--sem-success); border-top-color: var(--sem-success); }
+.stat-card.orange { --stat-accent: var(--sem-warning); border-top-color: var(--sem-warning); }
+.stat-card.red    { --stat-accent: var(--sem-danger); border-top-color: var(--sem-danger); }
+
+.stat-icon {
+    width: 48px; height: 48px;
+    border-radius: var(--r-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: transform var(--t-base) var(--ease-spring);
+}
+
+.stat-card:hover .stat-icon { transform: scale(1.08) rotate(-4deg); }
+
+.stat-icon.blue   { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); }
+.stat-icon.gold   { background: rgba(212, 175, 55, 0.14); color: var(--brand-gold-deep); }
+.stat-icon.green  { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); }
+.stat-icon.orange { background: rgba(243, 156, 18, 0.12); color: var(--sem-warning); }
+.stat-icon.red    { background: rgba(185, 52, 43, 0.12); color: var(--sem-danger); }
+
+.stat-body { flex: 1; min-width: 0; }
+.stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+}
+.stat-value-sm { font-size: 17px; }
+.stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.stat-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+}
+
+/* ---- Filters bar ---- */
+.filters-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 12px 16px;
+    box-shadow: var(--shadow-xs);
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 180px;
+}
+
+.filter-group > i {
+    color: var(--text-tertiary);
+    font-size: 13px;
+}
+
+.filter-group input,
+.filter-group select {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+/* ---- Buttons ---- */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.2px;
+}
+
+.btn-primary {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+.btn-primary:hover {
+    background: var(--brand-gold-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+}
+.btn-secondary:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-default);
+    color: var(--text-primary);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
+}
+.btn-outline:hover {
+    background: var(--bg-secondary);
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+}
+
+.btn-success { background: var(--sem-success); color: #fff; }
+.btn-success:hover { filter: brightness(0.95); transform: translateY(-1px); }
+
+.btn-danger { background: var(--sem-danger); color: #fff; }
+.btn-danger:hover { filter: brightness(0.95); transform: translateY(-1px); }
+
+.btn-sm { padding: 5px 12px; font-size: 11px; }
+
+.btn-ghost {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+}
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.btn-icon {
+    width: 30px; height: 30px;
+    padding: 0;
+    border-radius: var(--r-sm);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+    justify-content: center;
+    font-size: 12px;
+}
+.btn-icon:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+.btn-icon.success { color: var(--sem-success); }
+.btn-icon.danger { color: var(--sem-danger); }
+.btn-icon.primary { color: var(--brand-blue); }
+
+/* ---- Data table ---- */
+.data-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+}
+
+.data-table thead th {
+    background: var(--bg-canvas);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 18px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-subtle);
+    white-space: nowrap;
+}
+
+.data-table tbody td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td { border-bottom: 0; }
+
+.data-table tbody tr {
+    transition: background var(--t-fast) var(--ease-standard);
+}
+
+.data-table tbody tr:hover { background: var(--bg-canvas); }
+
+.cell-title {
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cell-title a { color: inherit; text-decoration: none; }
+.cell-title a:hover { color: var(--brand-gold-deep); }
+
+.cell-icon {
+    width: 34px; height: 34px;
+    border-radius: var(--r-sm);
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.cell-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+.cell-actions {
+    display: flex;
+    gap: 4px;
+    flex-wrap: nowrap;
+}
+
+.muted { color: var(--text-tertiary); }
+
+/* ---- Status badges ---- */
+.stock-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid transparent;
+}
+
+.stock-badge.in_stock  { background: rgba(39,174,96,0.12);  color: var(--sem-success); border-color: rgba(39,174,96,0.2); }
+.stock-badge.low_stock { background: rgba(243,156,18,0.12); color: var(--sem-warning); border-color: rgba(243,156,18,0.2); }
+.stock-badge.out_stock { background: rgba(185,52,43,0.12);  color: var(--sem-danger); border-color: rgba(185,52,43,0.2); }
+
+.shop-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: var(--r-pill);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(11,102,195,0.12);
+    color: var(--brand-blue);
+    border: 1px solid rgba(11,102,195,0.2);
+    margin-left: 4px;
+}
+
+/* ---- Empty state ---- */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-tertiary);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 14px;
+    opacity: 0.3;
+    color: var(--brand-gold);
+}
+
+.empty-state h3 {
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin: 0 0 6px;
+    font-weight: 700;
+}
+
+.empty-state p {
+    font-size: 0.875rem;
+    margin: 0 0 16px;
+    color: var(--text-secondary);
+}
+
+/* ---- Pagination ---- */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 24px;
+    padding: 12px 0;
+    flex-wrap: wrap;
+}
+
+.page-link {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+.page-link:hover {
+    background: var(--bg-secondary);
+    border-color: var(--brand-gold);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+.page-link.active {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    border-color: var(--brand-gold);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+.page-link.disabled { opacity: 0.4; pointer-events: none; }
+
+/* ---- Animations ---- */
+.stat-card { animation: fade-up 0.4s ease both; }
+.stat-card:nth-child(2) { animation-delay: 0.04s; }
+.stat-card:nth-child(3) { animation-delay: 0.08s; }
+.stat-card:nth-child(4) { animation-delay: 0.12s; }
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .page-header { padding: 20px; }
+    .page-header-title { font-size: 18px; }
+    .page-header-icon { width: 44px; height: 44px; font-size: 18px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 18px; }
+    .stat-icon { width: 40px; height: 40px; font-size: 16px; }
+    .filters-bar { flex-direction: column; align-items: stretch; }
+    .filter-group { min-width: 0; }
+    .data-table { font-size: 12px; }
+    .data-table thead th, .data-table tbody td { padding: 10px 12px; }
+    .cell-actions { flex-wrap: wrap; }
+}
+
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .stat-card { animation: none; }
+    .stat-card:hover { transform: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="materials-page">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-main">
+            <div class="page-header-icon">
+                <i class="fas fa-boxes-stacked"></i>
+            </div>
+            <div>
+                <h1 class="page-header-title">Materials</h1>
+                <p class="page-header-sub">Manage your construction materials inventory</p>
+            </div>
+        </div>
+        <div class="page-header-actions">
+            <a href="{% url 'inventory:alerts_list' %}" class="btn btn-ghost">
+                <i class="fas fa-bell"></i> Alerts
+            </a>
+            <a href="{% url 'inventory:stock_in' %}" class="btn btn-ghost">
+                <i class="fas fa-arrow-down"></i> Stock In
+            </a>
+            <a href="{% url 'inventory:material_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> Add Material
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-boxes-stacked"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.total_materials|default:0 }}</div>
+                <div class="stat-label">Total Materials</div>
+                <div class="stat-sub">In catalogue</div>
+            </div>
+        </div>
+        <div class="stat-card orange">
+            <div class="stat-icon orange"><i class="fas fa-triangle-exclamation"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.low_stock_count|default:0 }}</div>
+                <div class="stat-label">Low Stock</div>
+                <div class="stat-sub">Below threshold</div>
+            </div>
+        </div>
+        <div class="stat-card red">
+            <div class="stat-icon red"><i class="fas fa-circle-xmark"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.out_of_stock_count|default:0 }}</div>
+                <div class="stat-label">Out of Stock</div>
+                <div class="stat-sub">Immediate reorder</div>
+            </div>
+        </div>
+        <div class="stat-card gold">
+            <div class="stat-icon gold"><i class="fas fa-coins"></i></div>
+            <div class="stat-body">
+                <div class="stat-value stat-value-sm">KES {{ stats.total_value|floatformat:0|intcomma }}</div>
+                <div class="stat-label">Total Stock Value</div>
+                <div class="stat-sub">Current holdings</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Bar -->
+    <div class="filters-bar">
+        <div class="filter-group">
+            <i class="fas fa-search"></i>
+            <input type="text" name="search" id="searchInput" placeholder="Search by name or SKU..." value="{{ search|default:'' }}" form="filterForm">
+        </div>
+        <div class="filter-group">
+            <i class="fas fa-tag"></i>
+            <select id="categorySelect" form="filterForm" name="category">
+                <option value="">All Categories</option>
+                {% for cat_key, cat_label in categories %}
+                    <option value="{{ cat_key }}" {% if category == cat_key %}selected{% endif %}>{{ cat_label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <i class="fas fa-flag"></i>
+            <select id="stockSelect" form="filterForm" name="low_stock">
+                <option value="">All Stock</option>
+                <option value="true" {% if low_stock == 'true' %}selected{% endif %}>Low Stock</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <i class="fas fa-shop"></i>
+            <select id="shopSelect" form="filterForm" name="in_shop">
+                <option value="">All Availability</option>
+                <option value="true" {% if in_shop == 'true' %}selected{% endif %}>In Shop</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" type="submit" form="filterForm">
+            <i class="fas fa-filter"></i> Apply
+        </button>
+        {% if search or category or low_stock or in_shop %}
+            <a href="{% url 'inventory:materials_list' %}" class="btn btn-outline">
+                <i class="fas fa-times"></i> Clear
+            </a>
+        {% endif %}
+    </div>
+    <form id="filterForm" method="get" style="display:none;"></form>
+
+    <!-- Materials Table -->
+    <div class="data-card">
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Material</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Threshold</th>
+                        <th>Status</th>
+                        <th>Unit Cost</th>
+                        <th>Supplier</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for material in materials %}
+                        <tr>
+                            <td>
+                                <div class="cell-title">
+                                    <div class="cell-icon"><i class="fas fa-cube"></i></div>
+                                    <div>
+                                        <a href="{% url 'inventory:material_detail' material.id %}">{{ material.name }}</a>
+                                        {% if material.is_available_in_shop %}
+                                            <span class="shop-tag"><i class="fas fa-shop"></i> Shop</span>
+                                        {% endif %}
+                                        {% if material.sku %}
+                                            <div class="cell-meta">SKU: {{ material.sku }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ material.get_category_display }}</td>
+                            <td><strong>{{ material.current_quantity }}</strong> {{ material.get_unit_display }}</td>
+                            <td class="muted">{{ material.minimum_threshold }} {{ material.get_unit_display }}</td>
+                            <td>
+                                {% if material.current_quantity == 0 %}
+                                    <span class="stock-badge out_stock"><i class="fas fa-circle-xmark"></i> Out</span>
+                                {% elif material.is_low_stock %}
+                                    <span class="stock-badge low_stock"><i class="fas fa-triangle-exclamation"></i> Low</span>
+                                {% else %}
+                                    <span class="stock-badge in_stock"><i class="fas fa-circle-check"></i> In Stock</span>
+                                {% endif %}
+                            </td>
+                            <td>KES {{ material.unit_cost|floatformat:2|intcomma }}</td>
+                            <td>{{ material.supplier.name|default:"—" }}</td>
+                            <td>
+                                <div class="cell-actions">
+                                    <a href="{% url 'inventory:material_detail' material.id %}" class="btn btn-icon primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'inventory:material_edit' material.id %}" class="btn btn-icon" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'inventory:stock_in' %}?material={{ material.id }}" class="btn btn-icon success" title="Stock In">
+                                        <i class="fas fa-arrow-down"></i>
+                                    </a>
+                                    <a href="{% url 'inventory:stock_out' %}?material={{ material.id }}" class="btn btn-icon danger" title="Stock Out">
+                                        <i class="fas fa-arrow-up"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8">
+                                <div class="empty-state">
+                                    <i class="fas fa-boxes-stacked"></i>
+                                    <h3>No Materials Found</h3>
+                                    <p>Add your first material to get started.</p>
+                                    <a href="{% url 'inventory:material_create' %}" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Add First Material
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if materials.has_other_pages %}
+    <div class="pagination">
+        {% if materials.has_previous %}
+            <a href="?page={{ materials.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if low_stock %}&low_stock={{ low_stock }}{% endif %}{% if in_shop %}&in_shop={{ in_shop }}{% endif %}" class="page-link">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        {% else %}
+            <span class="page-link disabled"><i class="fas fa-chevron-left"></i></span>
+        {% endif %}
+
+        {% for num in materials.paginator.page_range %}
+            {% if materials.number == num %}
+                <span class="page-link active">{{ num }}</span>
+            {% elif num > materials.number|add:'-3' and num < materials.number|add:'3' %}
+                <a href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if low_stock %}&low_stock={{ low_stock }}{% endif %}{% if in_shop %}&in_shop={{ in_shop }}{% endif %}" class="page-link">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if materials.has_next %}
+            <a href="?page={{ materials.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if low_stock %}&low_stock={{ low_stock }}{% endif %}{% if in_shop %}&in_shop={{ in_shop }}{% endif %}" class="page-link">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        {% else %}
+            <span class="page-link disabled"><i class="fas fa-chevron-right"></i></span>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('filterForm').submit();
+            }
+        });
+    }
+    var selects = document.querySelectorAll('#categorySelect, #stockSelect, #shopSelect');
+    selects.forEach(function(sel) {
+        sel.addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+    });
+});
+</script>
+{% endblock %}

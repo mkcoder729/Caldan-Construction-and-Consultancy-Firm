@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="{% if request.user.profile.theme == 'device' %}device{% else %}{{ request.user.profile.theme|default:'light' }}{% endif %}">
+<head>
+    {% include "dashboard/dashboard/partials/_head.html" %}
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar -->
+    {% include "dashboard/dashboard/partials/_sidebars/_admin.html" %}
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        {% include "dashboard/dashboard/partials/_topbars/_admin_topbar.html" %}
+
+        <!-- Content Area -->
+        <div class="content-area">
+            {% block dashboard_content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    {% include "dashboard/dashboard/partials/_modals/_toast_container.html" %}
+
+    <!-- Modals -->
+    {% include "dashboard/dashboard/partials/_modals/_confirm_modal.html" %}
+    {% include "dashboard/dashboard/partials/_modals/_change_password_modal.html" %}
+    {% include "dashboard/dashboard/partials/_modals/_force_change_password_modal.html" %}
+    {# Invite admin is now an inline card on the manage page; no modal. #}
+    {% include "dashboard/dashboard/partials/_modals/_delete_admin_modal.html" %}
+    {% include "dashboard/dashboard/partials/_modals/_edit_permissions_modal.html" %}
+
+    <!-- JavaScript -->
+    {% include "dashboard/dashboard/partials/_javascript_inline/_admin_js.html" %}
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

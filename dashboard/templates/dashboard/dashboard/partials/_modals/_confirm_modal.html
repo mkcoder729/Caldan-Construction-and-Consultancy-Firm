@@ -1,0 +1,273 @@
+<div class="modal" id="confirmModal" role="dialog" aria-modal="true">
+    <div class="modal-overlay"></div>
+    <div class="modal-content modal-sm">
+        <div class="modal-header">
+            <h3 id="confirmTitle">Confirm Action</h3>
+            <button class="modal-close" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="confirm-icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <p class="confirm-message" id="confirmMessage">Are you sure you want to perform this action?</p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="confirmCancel">Cancel</button>
+                <button class="btn btn-danger" id="confirmAction">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ================================================================
+   CONFIRM MODAL - PREMIUM
+   ================================================================ */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9998;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.open {
+    display: flex;
+    animation: modalFade 0.15s var(--ease-standard);
+}
+
+@keyframes modalFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    position: relative;
+    background: var(--bg-card);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-subtle);
+    max-width: 560px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalContentIn 0.22s var(--ease-spring);
+}
+
+@keyframes modalContentIn {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-sm {
+    max-width: 420px;
+}
+.modal-lg {
+    max-width: 720px;
+}
+.modal-xl {
+    max-width: 960px;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 4px;
+    transition: color var(--t-fast) var(--ease-standard);
+}
+
+.modal-close:hover {
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 24px;
+    text-align: center;
+}
+
+.confirm-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--r-pill);
+    background: rgba(212, 175, 55, 0.12);
+    color: var(--brand-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 16px;
+}
+
+.confirm-message {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin: 0 0 24px;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+/* Danger variant */
+.modal.danger .confirm-icon {
+    background: rgba(185, 52, 43, 0.12);
+    color: var(--sem-danger);
+}
+
+.modal.danger .modal-actions .btn-danger {
+    background: var(--sem-danger);
+    color: var(--text-inverse);
+}
+
+.modal.danger .modal-actions .btn-danger:hover {
+    opacity: 0.85;
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+
+    .modal-header {
+        padding: 12px 16px;
+    }
+
+    .modal-body {
+        padding: 16px;
+    }
+
+    .confirm-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.4rem;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+    }
+
+    .modal-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .modal.open {
+        animation: none;
+    }
+    .modal-content {
+        animation: none;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var modal = document.getElementById('confirmModal');
+    var resolveCallback = null;
+
+    window.confirmDialog = function(options) {
+        return new Promise(function(resolve) {
+            var title = document.getElementById('confirmTitle');
+            var message = document.getElementById('confirmMessage');
+            var confirmBtn = document.getElementById('confirmAction');
+            var cancelBtn = document.getElementById('confirmCancel');
+
+            title.textContent = options.title || 'Confirm Action';
+            message.textContent = options.message || 'Are you sure you want to perform this action?';
+            confirmBtn.textContent = options.confirmLabel || 'Confirm';
+            confirmBtn.className = 'btn ' + (options.confirmClass || 'btn-danger');
+
+            if (options.danger) {
+                modal.classList.add('danger');
+            } else {
+                modal.classList.remove('danger');
+            }
+
+            resolveCallback = resolve;
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        });
+    };
+
+    function closeModal(result) {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+        modal.classList.remove('danger');
+        if (resolveCallback) {
+            resolveCallback(result);
+            resolveCallback = null;
+        }
+    }
+
+    document.querySelector('#confirmModal .modal-overlay')?.addEventListener('click', function() {
+        closeModal(false);
+    });
+
+    document.querySelector('#confirmModal .modal-close')?.addEventListener('click', function() {
+        closeModal(false);
+    });
+
+    document.getElementById('confirmCancel')?.addEventListener('click', function() {
+        closeModal(false);
+    });
+
+    document.getElementById('confirmAction')?.addEventListener('click', function() {
+        closeModal(true);
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('open')) {
+            closeModal(false);
+        }
+    });
+});
+</script>

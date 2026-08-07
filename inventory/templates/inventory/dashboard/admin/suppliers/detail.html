@@ -1,0 +1,402 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}{{ supplier.name }} - Suppliers - Caldan Construction{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   SUPPLIER DETAIL — PREMIUM ADMIN
+   ================================================================ */
+
+.supplier-detail {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+.project-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    position: relative; overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+.project-hero::before {
+    content: ''; position: absolute; top: -100%; right: -10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 65%);
+    border-radius: 50%; pointer-events: none;
+}
+.project-hero::after {
+    content: ''; position: absolute; bottom: -50%; left: -5%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(11, 102, 195, 0.25) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+}
+.hero-main { display: flex; align-items: flex-start; gap: 18px; flex-wrap: wrap; position: relative; z-index: 1; }
+.hero-icon {
+    width: 56px; height: 56px;
+    border-radius: var(--r-md);
+    background: rgba(212, 175, 55, 0.18);
+    border: 1.5px solid rgba(212, 175, 55, 0.3);
+    backdrop-filter: blur(10px);
+    color: var(--brand-gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+}
+.hero-info { flex: 1; min-width: 240px; }
+.hero-code {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700;
+    color: var(--brand-gold);
+    background: rgba(212, 175, 55, 0.15);
+    padding: 4px 12px; border-radius: var(--r-pill);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    letter-spacing: 0.5px; text-transform: uppercase;
+    margin-bottom: 12px;
+}
+.hero-title { font-size: 24px; font-weight: 800; color: #fff; margin: 0 0 6px; letter-spacing: -0.3px; line-height: 1.2; }
+.hero-meta { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: rgba(255, 255, 255, 0.85); }
+.hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
+.hero-meta i { color: var(--brand-gold); font-size: 12px; }
+.hero-status { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: var(--r-pill); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.hero-status.active   { background: rgba(39, 174, 96, 0.25); border: 1px solid rgba(39, 174, 96, 0.4); color: #fff; }
+.hero-status.inactive { background: rgba(149, 165, 166, 0.25); border: 1px solid rgba(149, 165, 166, 0.4); color: #fff; }
+.hero-status.preferred { background: rgba(212, 175, 55, 0.25); border: 1px solid rgba(212, 175, 55, 0.4); color: #fff; }
+.hero-actions { display: flex; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; }
+
+.btn { padding: 8px 16px; border: none; border-radius: var(--r-sm); font-size: 12px; font-weight: 600; cursor: pointer; transition: all var(--t-fast) var(--ease-spring); font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.2px; }
+.btn-light { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); }
+.btn-light:hover { background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.3); transform: translateY(-1px); }
+.btn-danger-solid { background: rgba(185, 52, 43, 0.15); color: #fff; border: 1px solid rgba(185, 52, 43, 0.4); backdrop-filter: blur(10px); }
+.btn-danger-solid:hover { background: rgba(185, 52, 43, 0.3); border-color: rgba(185, 52, 43, 0.6); }
+.btn-primary { background: var(--brand-gold); color: var(--brand-navy); box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3); }
+.btn-primary:hover { background: var(--brand-gold-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4); }
+.btn-outline { background: transparent; border: 1px solid var(--border-default); color: var(--text-secondary); }
+.btn-outline:hover { background: var(--bg-secondary); border-color: var(--border-strong); color: var(--text-primary); }
+.btn-sm { padding: 5px 12px; font-size: 11px; }
+
+.breadcrumb-bar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-tertiary); }
+.breadcrumb-bar a { color: var(--text-secondary); text-decoration: none; }
+.breadcrumb-bar a:hover { color: var(--brand-gold-deep); }
+.breadcrumb-bar i.sep { font-size: 9px; }
+.breadcrumb-bar .current { color: var(--text-primary); font-weight: 600; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.stat-card {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg); padding: 20px 22px;
+    display: flex; align-items: flex-start; gap: 16px;
+    transition: all var(--t-base) var(--ease-spring);
+    border-top: 3px solid transparent;
+    position: relative; overflow: hidden;
+}
+.stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--stat-accent, var(--border-subtle)); }
+.stat-card.blue   { --stat-accent: var(--brand-blue); border-top-color: var(--brand-blue); }
+.stat-card.gold   { --stat-accent: var(--brand-gold); border-top-color: var(--brand-gold); }
+.stat-card.green  { --stat-accent: var(--sem-success); border-top-color: var(--sem-success); }
+.stat-card.orange { --stat-accent: var(--sem-warning); border-top-color: var(--sem-warning); }
+.stat-icon { width: 48px; height: 48px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; transition: transform var(--t-base) var(--ease-spring); }
+.stat-card:hover .stat-icon { transform: scale(1.08) rotate(-4deg); }
+.stat-icon.blue   { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); }
+.stat-icon.gold   { background: rgba(212, 175, 55, 0.14); color: var(--brand-gold-deep); }
+.stat-icon.green  { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); }
+.stat-icon.orange { background: rgba(243, 156, 18, 0.12); color: var(--sem-warning); }
+.stat-body { flex: 1; min-width: 0; }
+.stat-value { font-size: 22px; font-weight: 800; color: var(--text-primary); line-height: 1.1; letter-spacing: -0.5px; }
+.stat-value-sm { font-size: 16px; }
+.stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.info-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-xs); }
+.info-card-header { padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 10px; }
+.info-card-header h3 { font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 10px; }
+.info-card-header h3 i { color: var(--brand-gold); font-size: 14px; width: 28px; height: 28px; background: rgba(212, 175, 55, 0.1); border-radius: var(--r-sm); display: inline-flex; align-items: center; justify-content: center; }
+.info-card-header.action-bar { justify-content: space-between; }
+.info-card-body { padding: 18px 20px; }
+
+.dl-row { display: flex; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+.dl-row:last-child { border-bottom: 0; }
+.dl-row dt { flex: 0 0 130px; font-size: 12px; color: var(--text-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-top: 2px; }
+.dl-row dd { flex: 1; margin: 0; font-size: 13px; color: var(--text-primary); }
+.dl-row dd a { color: var(--brand-blue); text-decoration: none; }
+.dl-row dd a:hover { text-decoration: underline; }
+
+.status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: var(--r-pill); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid transparent; }
+.status-badge.active   { background: rgba(39,174,96,0.12);  color: var(--sem-success); border-color: rgba(39,174,96,0.2); }
+.status-badge.inactive { background: rgba(149,165,166,0.15); color: var(--text-tertiary); border-color: var(--border-default); }
+.status-badge.expected   { background: rgba(243,156,18,0.12); color: var(--sem-warning); border-color: rgba(243,156,18,0.2); }
+.status-badge.in_transit { background: rgba(11,102,195,0.12); color: var(--brand-blue); border-color: rgba(11,102,195,0.2); }
+.status-badge.delivered  { background: rgba(39,174,96,0.12);  color: var(--sem-success); border-color: rgba(39,174,96,0.2); }
+.status-badge.cancelled  { background: rgba(185,52,43,0.12);  color: var(--sem-danger); border-color: rgba(185,52,43,0.2); }
+
+.stock-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: var(--r-pill); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.stock-badge.in_stock  { background: rgba(39,174,96,0.12);  color: var(--sem-success); }
+.stock-badge.low_stock { background: rgba(243,156,18,0.12); color: var(--sem-warning); }
+.stock-badge.out_stock { background: rgba(185,52,43,0.12);  color: var(--sem-danger); }
+
+.data-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+.data-table thead th { background: var(--bg-canvas); color: var(--text-secondary); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-subtle); }
+.data-table tbody td { padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); color: var(--text-primary); }
+.data-table tbody tr:last-child td { border-bottom: 0; }
+.data-table tbody tr:hover { background: var(--bg-canvas); }
+.muted { color: var(--text-tertiary); }
+.cell-empty { text-align: center; padding: 30px; color: var(--text-tertiary); }
+
+.btn-icon { width: 30px; height: 30px; padding: 0; border-radius: var(--r-sm); background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-subtle); justify-content: center; font-size: 12px; transition: all var(--t-fast); text-decoration: none; display: inline-flex; align-items: center; }
+.btn-icon:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+.btn-icon.success { color: var(--sem-success); }
+.btn-icon.primary { color: var(--brand-blue); }
+
+.material-link, .delivery-link { color: var(--brand-blue); text-decoration: none; font-weight: 600; }
+.material-link:hover, .delivery-link:hover { text-decoration: underline; color: var(--brand-gold-deep); }
+
+.project-hero, .stat-card, .info-card { animation: fade-up 0.4s ease both; }
+.stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-card:nth-child(2) { animation-delay: 0.1s; }
+.stat-card:nth-child(3) { animation-delay: 0.15s; }
+.stat-card:nth-child(4) { animation-delay: 0.2s; }
+@keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+    .project-hero { padding: 22px; }
+    .hero-title { font-size: 20px; }
+    .hero-icon { width: 44px; height: 44px; font-size: 18px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 18px; }
+    .stat-icon { width: 40px; height: 40px; font-size: 16px; }
+    .dl-row dt { flex: 0 0 110px; }
+    .data-table { font-size: 12px; }
+}
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .hero-actions { width: 100%; }
+    .hero-actions .btn { flex: 1; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .stat-card, .info-card, .project-hero { animation: none; }
+    .stat-card:hover { transform: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="supplier-detail">
+
+    <div class="breadcrumb-bar">
+        <a href="{% url 'inventory:suppliers_list' %}">Suppliers</a>
+        <i class="fas fa-chevron-right sep"></i>
+        <span class="current">{{ supplier.name }}</span>
+    </div>
+
+    <div class="project-hero">
+        <div class="hero-main">
+            <div class="hero-icon"><i class="fas fa-truck"></i></div>
+            <div class="hero-info">
+                <span class="hero-code"><i class="fas fa-building"></i> Supplier</span>
+                <h1 class="hero-title">{{ supplier.name }}</h1>
+                <div class="hero-meta">
+                    <span><i class="fas fa-user"></i> {{ supplier.contact_person|default:"—" }}</span>
+                    <span><i class="fas fa-phone"></i> {{ supplier.phone|default:"—" }}</span>
+                    <span><i class="fas fa-map-marker-alt"></i> {{ supplier.town|default:"—" }}{% if supplier.county %}, {{ supplier.county }}{% endif %}</span>
+                    <span class="hero-status {% if supplier.is_active %}active{% else %}inactive{% endif %}">
+                        {% if supplier.is_active %}<i class="fas fa-circle-check"></i> Active{% else %}<i class="fas fa-pause"></i> Inactive{% endif %}
+                    </span>
+                    {% if supplier.is_preferred %}
+                        <span class="hero-status preferred"><i class="fas fa-star"></i> Preferred</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="hero-actions">
+                <a href="{% url 'inventory:material_create' %}?supplier={{ supplier.id }}" class="btn btn-light">
+                    <i class="fas fa-plus-circle"></i> Add Material
+                </a>
+                <a href="{% url 'inventory:delivery_create' %}?supplier={{ supplier.id }}" class="btn btn-light">
+                    <i class="fas fa-truck-loading"></i> New Delivery
+                </a>
+                <a href="{% url 'inventory:supplier_edit' supplier.id %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-cubes"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ materials.count }}</div>
+                <div class="stat-label">Materials Supplied</div>
+                <div class="stat-sub">In catalogue</div>
+            </div>
+        </div>
+        <div class="stat-card gold">
+            <div class="stat-icon gold"><i class="fas fa-truck-loading"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ deliveries.count }}</div>
+                <div class="stat-label">Total Deliveries</div>
+                <div class="stat-sub">All time</div>
+            </div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ supplier.get_payment_terms_display|default:"—" }}</div>
+                <div class="stat-label">Payment Terms</div>
+                <div class="stat-sub">Standard agreement</div>
+            </div>
+        </div>
+        <div class="stat-card orange">
+            <div class="stat-icon orange"><i class="fas fa-calendar-alt"></i></div>
+            <div class="stat-body">
+                <div class="stat-value stat-value-sm">{{ supplier.created_at|date:"M Y" }}</div>
+                <div class="stat-label">Onboarded</div>
+                <div class="stat-sub">Since {{ supplier.created_at|date:"M d, Y" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <div class="info-card">
+            <div class="info-card-header">
+                <h3><i class="fas fa-address-book"></i> Contact Details</h3>
+            </div>
+            <div class="info-card-body">
+                <dl style="margin:0;">
+                    <div class="dl-row"><dt>Contact Person</dt><dd>{{ supplier.contact_person|default:"—" }}</dd></div>
+                    <div class="dl-row"><dt>Phone</dt><dd><a href="tel:{{ supplier.phone }}">{{ supplier.phone|default:"—" }}</a>{% if supplier.alternative_phone %} <span class="muted">(Alt: {{ supplier.alternative_phone }})</span>{% endif %}</dd></div>
+                    <div class="dl-row"><dt>Email</dt><dd><a href="mailto:{{ supplier.email }}">{{ supplier.email|default:"—" }}</a></dd></div>
+                    <div class="dl-row"><dt>Address</dt><dd>{{ supplier.address|default:"—" }}{% if supplier.town or supplier.county %}<br>{{ supplier.town|default:"" }}{% if supplier.town and supplier.county %}, {% endif %}{{ supplier.county|default:"" }}{% endif %}</dd></div>
+                </dl>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-card-header">
+                <h3><i class="fas fa-file-invoice"></i> Business Details</h3>
+            </div>
+            <div class="info-card-body">
+                <dl style="margin:0;">
+                    <div class="dl-row"><dt>Payment Terms</dt><dd>{{ supplier.get_payment_terms_display|default:"—" }}</dd></div>
+                    <div class="dl-row"><dt>Tax / PIN</dt><dd>{{ supplier.tax_id|default:"—" }}</dd></div>
+                    <div class="dl-row"><dt>Registration</dt><dd>{{ supplier.business_registration|default:"—" }}</dd></div>
+                    <div class="dl-row"><dt>Status</dt><dd>{% if supplier.is_active %}<span class="status-badge active">Active</span>{% else %}<span class="status-badge inactive">Inactive</span>{% endif %} {% if supplier.is_preferred %}<span class="status-badge active" style="background:rgba(212,175,55,0.15);color:var(--brand-gold-deep);border-color:rgba(212,175,55,0.3);"><i class="fas fa-star"></i> Preferred</span>{% endif %}</dd></div>
+                    <div class="dl-row"><dt>Notes</dt><dd>{{ supplier.notes|default:"—" }}</dd></div>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-card">
+        <div class="info-card-header action-bar">
+            <h3><i class="fas fa-cubes"></i> Materials Supplied ({{ materials.count }})</h3>
+            <a href="{% url 'inventory:material_create' %}?supplier={{ supplier.id }}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus"></i> Add Material
+            </a>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Material</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Unit Cost</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for material in materials %}
+                        <tr>
+                            <td><a href="{% url 'inventory:material_detail' material.id %}" class="material-link">{{ material.name }}</a></td>
+                            <td>{{ material.get_category_display }}</td>
+                            <td><strong>{{ material.current_quantity }}</strong> <span class="muted">{{ material.get_unit_display }}</span></td>
+                            <td>KES {{ material.unit_cost|floatformat:2|intcomma }}</td>
+                            <td>
+                                {% if material.current_quantity == 0 %}
+                                    <span class="stock-badge out_stock"><i class="fas fa-circle-xmark"></i> Out</span>
+                                {% elif material.is_low_stock %}
+                                    <span class="stock-badge low_stock"><i class="fas fa-triangle-exclamation"></i> Low</span>
+                                {% else %}
+                                    <span class="stock-badge in_stock"><i class="fas fa-circle-check"></i> In</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'inventory:stock_in' %}?material={{ material.id }}" class="btn-icon success" title="Stock In">
+                                    <i class="fas fa-arrow-down"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="6" class="cell-empty">No materials from this supplier yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="info-card">
+        <div class="info-card-header action-bar">
+            <h3><i class="fas fa-truck-loading"></i> Recent Deliveries ({{ deliveries.count }})</h3>
+            <a href="{% url 'inventory:delivery_create' %}?supplier={{ supplier.id }}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus"></i> New Delivery
+            </a>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Delivery #</th>
+                        <th>Expected Date</th>
+                        <th>Actual Date</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for delivery in deliveries %}
+                        <tr>
+                            <td><a href="{% url 'inventory:delivery_detail' delivery.id %}" class="delivery-link">{{ delivery.delivery_number }}</a></td>
+                            <td>{{ delivery.expected_date|date:"d/m/Y" }}</td>
+                            <td>{{ delivery.actual_date|date:"d/m/Y"|default:"—" }}</td>
+                            <td>
+                                {% if delivery.status == 'EXPECTED' %}
+                                    <span class="status-badge expected">Expected</span>
+                                {% elif delivery.status == 'IN_TRANSIT' %}
+                                    <span class="status-badge in_transit">In Transit</span>
+                                {% elif delivery.status == 'DELIVERED' %}
+                                    <span class="status-badge delivered">Delivered</span>
+                                {% elif delivery.status == 'CANCELLED' %}
+                                    <span class="status-badge cancelled">Cancelled</span>
+                                {% endif %}
+                            </td>
+                            <td>KES {{ delivery.total|floatformat:2|intcomma }}</td>
+                            <td>
+                                <a href="{% url 'inventory:delivery_detail' delivery.id %}" class="btn-icon primary" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="6" class="cell-empty">No deliveries from this supplier yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

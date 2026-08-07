@@ -1,0 +1,278 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Refund Policy — Caldan Construction and Consultancy Firm Kenya{% endblock %}
+
+{% block meta_description %}Caldan Construction and Consultancy Firm's Refund Policy. Understand our policies on cancellations, deposits, and payments for construction services.{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --lg-gold: #D4AF37;
+    --lg-gold-deep: #B8932A;
+    --lg-gold-soft: rgba(212,175,55,0.14);
+    --lg-hero-grad: linear-gradient(135deg, #0B172A 0%, #0F1F3A 50%, #0B66C3 100%);
+}
+.legal-hero { position: relative; background: var(--lg-hero-grad); color: #fff; padding: 140px 0 90px; overflow: hidden; }
+.legal-hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(700px 320px at 18% 14%, rgba(212,175,55,0.20), transparent 70%), radial-gradient(800px 360px at 85% 80%, rgba(11,102,195,0.30), transparent 75%); pointer-events: none; animation: heroGlow 10s ease-in-out infinite alternate; }
+@keyframes heroGlow { from { opacity: 0.85; } to { opacity: 1; } }
+.legal-hero::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 36px 36px; pointer-events: none; mask-image: linear-gradient(120deg, black, transparent 75%); }
+.legal-hero__inner { position: relative; z-index: 2; text-align: center; max-width: 760px; margin: 0 auto; }
+.legal-hero__eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 7px 18px; background: rgba(212,175,55,0.14); border: 1px solid rgba(212,175,55,0.32); color: var(--lg-gold); border-radius: 999px; font-size: 0.74rem; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; margin-bottom: 22px; backdrop-filter: blur(6px); }
+.legal-hero__title { font-family: 'Playfair Display', serif; font-size: clamp(2.4rem, 4.4vw, 3.6rem); font-weight: 700; line-height: 1.12; color: #fff; margin: 0 0 18px; letter-spacing: -0.5px; }
+.legal-hero__title em { font-style: normal; background: linear-gradient(120deg, var(--lg-gold) 0%, #F4D674 60%, var(--lg-gold) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.legal-hero__lead { color: rgba(255,255,255,0.85); font-size: 1.08rem; line-height: 1.7; max-width: 580px; margin: 0 auto 22px; }
+.legal-hero__rule { width: 64px; height: 3px; background: linear-gradient(90deg, transparent, var(--lg-gold), transparent); margin: 0 auto; border-radius: 2px; }
+@media (max-width: 768px) { .legal-hero { padding: 110px 0 70px; } }
+
+.legal-content { padding: 60px 0 50px; background: var(--bg-primary); }
+.legal-grid { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 48px; max-width: 1180px; margin: 0 auto; }
+@media (max-width: 960px) { .legal-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+.legal-meta { background: rgba(255,255,255,0.06); backdrop-filter: blur(12px); border: 1px solid rgba(212,175,55,0.25); border-left: 4px solid var(--lg-gold); padding: 22px 24px; border-radius: 12px; margin-bottom: 36px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+@media (max-width: 600px) { .legal-meta { grid-template-columns: 1fr; gap: 8px; } }
+.legal-meta__label { font-size: 0.7rem; font-weight: 700; color: var(--lg-gold); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 4px; display: block; }
+.legal-meta__value { font-size: 0.92rem; font-weight: 600; color: var(--text-primary); }
+
+.legal-section { margin-bottom: 44px; scroll-margin-top: 100px; }
+.legal-section h2 { font-family: 'Playfair Display', serif; font-size: 1.55rem; font-weight: 700; color: var(--text-primary); margin: 0 0 18px; padding-bottom: 12px; border-bottom: 2px solid rgba(212,175,55,0.35); display: flex; align-items: center; gap: 14px; }
+.legal-section h2::before { content: attr(data-num); width: 32px; height: 32px; background: var(--lg-gold); color: #0B172A; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 800; flex-shrink: 0; }
+.legal-section h3 { font-family: 'Playfair Display', serif; font-size: 1.18rem; font-weight: 700; color: var(--text-primary); margin: 28px 0 12px; }
+.legal-section p { color: var(--text-secondary); line-height: 1.85; margin: 0 0 14px; font-size: 1rem; }
+.legal-section ul, .legal-section ol { padding-left: 0; margin: 0 0 18px; list-style: none; counter-reset: lg-item; }
+.legal-section ul li, .legal-section ol li { position: relative; padding-left: 26px; margin-bottom: 8px; color: var(--text-secondary); line-height: 1.8; }
+.legal-section ul li::before { content: ""; position: absolute; left: 6px; top: 12px; width: 8px; height: 8px; background: var(--lg-gold); border-radius: 2px; transform: rotate(45deg); }
+.legal-section ol li::before { counter-increment: lg-item; content: counter(lg-item); position: absolute; left: 0; top: 1px; width: 22px; height: 22px; background: rgba(212,175,55,0.14); color: var(--lg-gold-deep); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; font-size: 0.74rem; font-weight: 800; }
+.legal-section ul li strong, .legal-section ol li strong { color: var(--text-primary); font-weight: 700; }
+.legal-section a { color: var(--lg-gold-deep); text-decoration: none; border-bottom: 1.5px solid rgba(212,175,55,0.4); transition: border-color 150ms ease; }
+.legal-section a:hover { border-color: var(--lg-gold); }
+
+.legal-toc { position: sticky; top: 88px; align-self: start; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: 14px; padding: 22px 22px 20px; }
+@media (max-width: 960px) { .legal-toc { position: static; } }
+.legal-toc__title { font-size: 0.74rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.4px; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
+.legal-toc__title i { color: var(--lg-gold); }
+.toc-list { list-style: none; padding: 0; margin: 0; border-left: 2px solid var(--border-primary); }
+.toc-list li { margin: 0; }
+.toc-list a { display: block; padding: 7px 0 7px 14px; margin-left: -2px; border-left: 2px solid transparent; color: var(--text-secondary); font-size: 0.86rem; text-decoration: none; transition: color 150ms ease, border-color 150ms ease; line-height: 1.35; }
+.toc-list a:hover { color: var(--text-primary); }
+.toc-list a.is-active { border-left-color: var(--lg-gold); color: var(--lg-gold-deep); font-weight: 600; }
+
+.legal-crosslinks { background: var(--bg-secondary); padding: 60px 0; border-top: 1px solid var(--border-primary); }
+.legal-crosslinks__head { text-align: center; margin-bottom: 30px; }
+.legal-crosslinks__head .eyebrow { color: var(--lg-gold); font-size: 0.78rem; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; display: inline-block; margin-bottom: 8px; }
+.legal-crosslinks__head h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 3vw, 2rem); color: var(--text-primary); margin: 0; }
+.legal-crosslinks__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; max-width: 980px; margin: 0 auto; }
+@media (max-width: 768px) { .legal-crosslinks__grid { grid-template-columns: 1fr; } }
+.legal-crosslink { display: flex; flex-direction: column; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: 14px; padding: 22px 22px 18px; text-decoration: none; color: inherit; transition: all 250ms ease; }
+.legal-crosslink:hover { transform: translateY(-4px); box-shadow: 0 16px 36px -20px rgba(11,23,42,0.4); border-color: rgba(212,175,55,0.5); }
+.legal-crosslink__icon { width: 44px; height: 44px; border-radius: 10px; background: var(--lg-gold-soft); color: var(--lg-gold-deep); display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 14px; }
+.legal-crosslink__title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 6px; }
+.legal-crosslink__desc { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.55; margin: 0 0 14px; flex: 1; }
+.legal-crosslink__cta { font-size: 0.84rem; font-weight: 700; color: var(--lg-gold-deep); display: inline-flex; align-items: center; gap: 4px; }
+
+html[data-theme="dark"] .legal-meta { background: rgba(255,255,255,0.04); border-color: rgba(212,175,55,0.4); }
+html[data-theme="dark"] .legal-section h2 { border-bottom-color: rgba(212,175,55,0.5); }
+html[data-theme="dark"] .toc-list { border-left-color: rgba(255,255,255,0.1); }
+html[data-theme="dark"] .legal-toc, html[data-theme="dark"] .legal-crosslink { border-color: rgba(255,255,255,0.08); }
+@media (prefers-reduced-motion: reduce) { .legal-hero::before { animation: none; } .legal-crosslink { transition: none; } }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="legal-hero">
+    <div class="container">
+        <div class="legal-hero__inner" data-aos="fade-up">
+            <div class="legal-hero__eyebrow"><i class="fas fa-hand-holding-usd"></i> Legal · Refunds</div>
+            <h1 class="legal-hero__title">Refund <em>Policy</em></h1>
+            <p class="legal-hero__lead">Clear, fair and reasonable policies on deposits, cancellations, and refunds — built on trust and Kenyan contract law.</p>
+            <div class="legal-hero__rule"></div>
+        </div>
+    </div>
+</section>
+
+<section class="legal-content">
+    <div class="container">
+        <div class="legal-grid">
+
+            <article id="legalArticle">
+                <div class="legal-meta" data-aos="fade-up">
+                    <div><span class="legal-meta__label">Last Updated</span><span class="legal-meta__value">July 21, 2026</span></div>
+                    <div><span class="legal-meta__label">Effective Date</span><span class="legal-meta__value">July 21, 2026</span></div>
+                    <div><span class="legal-meta__label">Currency</span><span class="legal-meta__value">KES · Kenya Shillings</span></div>
+                </div>
+
+                <div class="legal-section" data-num="01">
+                    <h2>Overview</h2>
+                    <p>At Caldan Construction and Consultancy Firm, we are committed to delivering high-quality construction services and ensuring client satisfaction. This Refund Policy outlines our policies regarding payments, deposits, cancellations, and refunds for our services.</p>
+                    <p>We understand that construction projects can be complex, and circumstances may change. We aim to be fair and reasonable while protecting our business interests and upholding our commitments to our clients.</p>
+                </div>
+
+                <div class="legal-section" data-num="02">
+                    <h2>Deposits and Payments</h2>
+                    <h3>2.1 Deposit Requirements</h3>
+                    <p>A deposit is typically required before work begins on your project. The deposit amount is specified in your formal contract and is calculated as a percentage of the total project cost. This deposit is used to secure materials, schedule our team, and begin preliminary work.</p>
+                    <h3>2.2 Progress Payments</h3>
+                    <p>For larger projects, progress payments may be required at specific milestones. These payments reflect the value of work completed and materials delivered up to that point.</p>
+                    <h3>2.3 Final Payment</h3>
+                    <p>The final payment is due upon project completion and client sign-off. Final payment releases us from obligations and confirms project completion to your satisfaction.</p>
+                </div>
+
+                <div class="legal-section" data-num="03">
+                    <h2>Cancellation Policy</h2>
+                    <h3>3.1 Client-Initiated Cancellation</h3>
+                    <p>If you need to cancel your project, we require written notice. The following applies:</p>
+                    <ul>
+                        <li><strong>Before Work Commences</strong> — If you cancel before any work begins, your deposit will be refunded, less any expenses we have already incurred for materials, permits, or other preparations.</li>
+                        <li><strong>After Work Commences</strong> — If you cancel after work has started, you will be billed for work completed and materials used up to the cancellation date. Any remaining deposit balance will be refunded.</li>
+                        <li><strong>Project-Specific Terms</strong> — Your formal contract may contain specific cancellation terms. In case of conflict, the contract terms take precedence.</li>
+                    </ul>
+                    <h3>3.2 Company-Initiated Cancellation</h3>
+                    <p>We reserve the right to cancel a project if:</p>
+                    <ul>
+                        <li>There is a breach of contract by the client (e.g., non-payment)</li>
+                        <li>We are unable to proceed due to force majeure events</li>
+                        <li>You have provided false or misleading information</li>
+                        <li>We are unable to obtain necessary permits or approvals</li>
+                    </ul>
+                    <p>In the event we cancel, we will refund any unused portion of your payments, less costs already incurred.</p>
+                </div>
+
+                <div class="legal-section" data-num="04">
+                    <h2>Refund Eligibility</h2>
+                    <p>Refunds are considered in the following circumstances:</p>
+                    <ul>
+                        <li><strong>Overpayment</strong> — If you have overpaid, we will refund the excess amount within 14 business days of confirming the overpayment.</li>
+                        <li><strong>Cancellation</strong> — As outlined in Section 3, refunds may be issued for cancellations, subject to deductions for work completed and materials used.</li>
+                        <li><strong>Dissatisfaction</strong> — If you are unsatisfied with our work, we will work to resolve the issue. Refunds are only considered if we are unable to rectify the problem to your reasonable satisfaction.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section" data-num="05">
+                    <h2>Non-Refundable Items</h2>
+                    <p>The following are generally non-refundable:</p>
+                    <ul>
+                        <li><strong>Custom Materials</strong> — Materials ordered specifically for your project</li>
+                        <li><strong>Permits and Fees</strong> — Government permits and fees paid on your behalf</li>
+                        <li><strong>Subcontractor Costs</strong> — Costs incurred for subcontractors already engaged</li>
+                        <li><strong>Administrative Costs</strong> — Costs for project planning, design, and administration</li>
+                        <li><strong>Work Completed</strong> — Work already performed cannot be refunded</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section" data-num="06">
+                    <h2>Refund Process</h2>
+                    <p>To request a refund, please follow these steps:</p>
+                    <ol>
+                        <li><strong>Submit a Request</strong> — Contact us in writing (email or letter) with your project details and reason for the refund request.</li>
+                        <li><strong>Review</strong> — We will review your request within 5 business days and may request additional information or documentation.</li>
+                        <li><strong>Decision</strong> — We will communicate our decision within 10 business days of receiving your complete request.</li>
+                        <li><strong>Processing</strong> — If approved, refunds will be processed within 14 business days of our decision.</li>
+                    </ol>
+                    <p>Refunds will be issued using the same payment method used for the original payment, unless otherwise agreed.</p>
+                </div>
+
+                <div class="legal-section" data-num="07">
+                    <h2>Dispute Resolution</h2>
+                    <p>If you disagree with a refund decision, you may escalate the matter through our dispute resolution process:</p>
+                    <ol>
+                        <li>Contact us to discuss the issue and seek a resolution</li>
+                        <li>If unresolved, you may request a meeting with management</li>
+                        <li>If still unresolved, you may pursue mediation or arbitration as outlined in our Terms of Service</li>
+                    </ol>
+                </div>
+
+                <div class="legal-section" data-num="08">
+                    <h2>Contact Us</h2>
+                    <p>For refund inquiries, please contact us:</p>
+                    <ul>
+                        <li><strong>Email:</strong> <a href="mailto:{{ ADMIN_EMAIL }}">{{ ADMIN_EMAIL }}</a></li>
+                        <li><strong>Phone:</strong> <a href="tel:{{ ADMIN_PHONE }}">{{ ADMIN_PHONE }}</a></li>
+                        <li><strong>Address:</strong> Nairobi, Kenya</li>
+                    </ul>
+                    <p>Please include your project reference number and details of your refund request for faster processing.</p>
+                </div>
+
+                <div class="legal-section" data-num="09">
+                    <h2>Policy Changes</h2>
+                    <p>We reserve the right to update this Refund Policy at any time. Changes become effective immediately upon posting. Please review this policy periodically for any updates.</p>
+                </div>
+            </article>
+
+            <aside class="legal-toc" data-aos="fade-up" data-aos-delay="80">
+                <h3 class="legal-toc__title"><i class="fas fa-list-ul"></i> On this page</h3>
+                <ul class="toc-list" id="tocList"></ul>
+            </aside>
+
+        </div>
+    </div>
+</section>
+
+<section class="legal-crosslinks">
+    <div class="container">
+        <div class="legal-crosslinks__head" data-aos="fade-up">
+            <span class="eyebrow">Related Documents</span>
+            <h2>Other legal documents</h2>
+        </div>
+        <div class="legal-crosslinks__grid">
+            <a href="{% url 'website:legal_privacy' %}" class="legal-crosslink" data-aos="fade-up" data-aos-delay="40">
+                <div class="legal-crosslink__icon"><i class="fas fa-shield-alt"></i></div>
+                <h3 class="legal-crosslink__title">Privacy Policy</h3>
+                <p class="legal-crosslink__desc">How we collect, use, and protect your personal information.</p>
+                <span class="legal-crosslink__cta">Read privacy policy <i class="fas fa-arrow-right"></i></span>
+            </a>
+            <a href="{% url 'website:legal_terms' %}" class="legal-crosslink" data-aos="fade-up" data-aos-delay="80">
+                <div class="legal-crosslink__icon"><i class="fas fa-scroll"></i></div>
+                <h3 class="legal-crosslink__title">Terms of Service</h3>
+                <p class="legal-crosslink__desc">Read the terms and conditions for using our website and services.</p>
+                <span class="legal-crosslink__cta">Read terms <i class="fas fa-arrow-right"></i></span>
+            </a>
+            <a href="{% url 'website:legal_cookies' %}" class="legal-crosslink" data-aos="fade-up" data-aos-delay="120">
+                <div class="legal-crosslink__icon"><i class="fas fa-cookie-bite"></i></div>
+                <h3 class="legal-crosslink__title">Cookie Policy</h3>
+                <p class="legal-crosslink__desc">Learn what cookies we use, how we use them, and how you can manage preferences.</p>
+                <span class="legal-crosslink__cta">Read cookie policy <i class="fas fa-arrow-right"></i></span>
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict';
+    var article = document.getElementById('legalArticle');
+    var tocList = document.getElementById('tocList');
+    if (!article || !tocList) return;
+    var sections = article.querySelectorAll('.legal-section');
+    sections.forEach(function (s, idx) {
+        var h = s.querySelector('h2');
+        if (!h) return;
+        if (!h.id) h.id = 'legal-' + (idx + 1);
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = s.getAttribute('data-num') + ' · ' + h.textContent.replace(/^\d+\s*/, '').trim();
+        a.dataset.target = h.id;
+        li.appendChild(a);
+        tocList.appendChild(li);
+    });
+    if (sections.length) {
+        var tocLinks = tocList.querySelectorAll('a');
+        var onScroll = function () {
+            var scrollY = window.scrollY + 120;
+            var current = sections[0].querySelector('h2').id;
+            sections.forEach(function (s) {
+                var h = s.querySelector('h2');
+                if (h && h.offsetTop <= scrollY) current = h.id;
+            });
+            tocLinks.forEach(function (a) { a.classList.toggle('is-active', a.dataset.target === current); });
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+    }
+})();
+</script>
+{% endblock %}

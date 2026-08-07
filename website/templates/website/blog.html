@@ -1,0 +1,201 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Blog & News — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="Latest news and updates from Caldan Construction and Consultancy Firm. Stay informed about our projects, services, and industry insights.">
+{% endblock %}
+
+{% block content %}
+
+<!-- Blog Hero -->
+<section class="blog-hero" style="min-height: 45vh; display: flex; align-items: center; position: relative; background: linear-gradient(160deg, rgba(11, 20, 32, 0.82) 0%, rgba(11, 102, 195, 0.65) 100%), url('https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1600&q=80'); background-size: cover; background-position: center; background-attachment: fixed; padding: 120px 0 80px; color: #FFFFFF;">
+    <div class="container" style="position: relative; z-index: 2;">
+        <div style="max-width: 700px; margin: 0 auto; text-align: center;">
+            <p class="eyebrow" style="justify-content: center; color: #D4AF37; font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 12px;">
+                <i class="fas fa-newspaper" style="margin-right: 8px;"></i> Blog & News
+            </p>
+            <h1 style="font-size: clamp(2.5rem, 4vw, 3.5rem); font-weight: 700; margin-bottom: 16px; color: #FFFFFF;">
+                <span style="color: #D4AF37;">Blog</span> & News
+            </h1>
+            <p style="color: rgba(255,255,255,0.85); font-size: 1.15rem; line-height: 1.7; max-width: 600px; margin: 0 auto;">
+                Latest updates, project highlights, and industry insights from Caldan Construction and Consultancy Firm.
+            </p>
+            <div style="width: 60px; height: 3px; background: #D4AF37; margin: 16px auto 0;"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Content -->
+<section class="blog-section" style="padding: 60px 0; background: var(--bg-primary);">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px;">
+
+            <!-- Blog Posts -->
+            <div>
+                {% for post in posts %}
+                <article class="blog-post" style="background: var(--bg-card); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 24px; transition: all 0.3s ease; border: 1px solid var(--border-primary);">
+
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 0; min-height: 200px;">
+                        <!-- Image -->
+                        <div style="position: relative; overflow: hidden; min-height: 200px; background: var(--bg-secondary);">
+                            {% if post.image %}
+                            <img src="{{ post.image.url }}" alt="{{ post.title }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; position: absolute; top: 0; left: 0;">
+                            {% else %}
+                            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #0D2B36 0%, #1A3A45 100%); display: flex; align-items: center; justify-content: center; font-size: 3rem; color: rgba(255,255,255,0.2); position: absolute; top: 0; left: 0;">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Content -->
+                        <div style="padding: 24px 28px; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap;">
+                                <span style="font-size: 0.8rem; color: var(--text-tertiary); display: flex; align-items: center; gap: 4px;">
+                                    <i class="far fa-calendar-alt"></i>
+                                    {{ post.published_at|date:"F j, Y" }}
+                                </span>
+                                <span style="font-size: 0.75rem; color: #FFFFFF; background: var(--accent-secondary); padding: 2px 12px; border-radius: 20px; font-weight: 600;">
+                                    {{ post.reading_time }} min read
+                                </span>
+                                {% if post.is_recent %}
+                                <span style="font-size: 0.75rem; color: #FFFFFF; background: #27AE60; padding: 2px 12px; border-radius: 20px; font-weight: 600;">
+                                    New
+                                </span>
+                                {% endif %}
+                            </div>
+
+                            <h2 style="font-size: 1.2rem; font-weight: 600; margin: 0 0 8px; line-height: 1.3;">
+                                <a href="{% url 'blog:detail' post.slug %}" style="color: var(--text-primary); text-decoration: none; transition: color 0.3s ease;">
+                                    {{ post.title }}
+                                </a>
+                            </h2>
+
+                            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5; margin: 0 0 12px;">
+                                {{ post.excerpt|default:post.content|truncatewords:25 }}
+                            </p>
+
+                            <a href="{% url 'blog:detail' post.slug %}" style="display: inline-flex; align-items: center; gap: 6px; color: var(--accent-primary); font-weight: 500; text-decoration: none; transition: all 0.3s ease;">
+                                Read More <i class="fas fa-arrow-right" style="font-size: 0.8rem; transition: transform 0.3s ease;"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                </article>
+                {% empty %}
+                <div style="text-align: center; padding: 60px 20px; background: var(--bg-card); border-radius: 12px;">
+                    <i class="fas fa-newspaper" style="font-size: 3rem; color: var(--border-primary); margin-bottom: 16px; display: block;"></i>
+                    <h3 style="color: var(--text-primary);">No Posts Yet</h3>
+                    <p style="color: var(--text-secondary);">Check back soon for updates.</p>
+                </div>
+                {% endfor %}
+
+                <!-- Pagination -->
+                {% if posts.has_other_pages %}
+                <div style="display: flex; justify-content: center; gap: 8px; margin-top: 32px;">
+                    {% if posts.has_previous %}
+                    <a href="?page={{ posts.previous_page_number }}" style="padding: 10px 16px; border: 1px solid var(--border-primary); border-radius: 8px; color: var(--text-primary); text-decoration: none; transition: all 0.3s ease;">Previous</a>
+                    {% endif %}
+
+                    {% for num in posts.paginator.page_range %}
+                        {% if posts.number == num %}
+                        <span style="padding: 10px 16px; background: var(--accent-primary); color: #FFFFFF; border-radius: 8px; font-weight: 600;">{{ num }}</span>
+                        {% elif num > posts.number|add:'-3' and num < posts.number|add:'3' %}
+                        <a href="?page={{ num }}" style="padding: 10px 16px; border: 1px solid var(--border-primary); border-radius: 8px; color: var(--text-primary); text-decoration: none; transition: all 0.3s ease;">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if posts.has_next %}
+                    <a href="?page={{ posts.next_page_number }}" style="padding: 10px 16px; border: 1px solid var(--border-primary); border-radius: 8px; color: var(--text-primary); text-decoration: none; transition: all 0.3s ease;">Next</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <aside>
+                <!-- Recent Posts -->
+                <div style="background: var(--bg-card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-primary); margin-bottom: 24px;">
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0 0 16px; color: var(--text-primary);">
+                        <i class="fas fa-clock" style="color: var(--accent-secondary); margin-right: 8px;"></i>
+                        Recent Posts
+                    </h3>
+
+                    {% if recent_posts %}
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            {% for post in recent_posts %}
+                            <li style="padding: 12px 0; border-bottom: 1px solid var(--border-primary);">
+                                <a href="{% url 'blog:detail' post.slug %}" style="color: var(--text-primary); text-decoration: none; font-weight: 500; display: block; transition: color 0.3s ease;">
+                                    {{ post.title }}
+                                </a>
+                                <span style="font-size: 0.8rem; color: var(--text-tertiary);">{{ post.published_at|date:"F j, Y" }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="color: var(--text-secondary);">No recent posts.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Newsletter -->
+                <div style="background: linear-gradient(135deg, #0D2B36 0%, #1A3A45 100%); border-radius: 12px; padding: 24px; color: #FFFFFF;">
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0 0 8px;">
+                        <i class="fas fa-envelope" style="color: var(--accent-secondary); margin-right: 8px;"></i>
+                        Stay Updated
+                    </h3>
+                    <p style="font-size: 0.9rem; color: #D1D5DB; margin-bottom: 16px;">
+                        Subscribe for the latest news and project updates.
+                    </p>
+                    <form method="POST" action="{% url 'website:newsletter_subscribe' %}" class="newsletter-form" data-ajax="true" style="display: flex; flex-direction: column; gap: 8px;">
+                        {% csrf_token %}
+                        <input type="email" name="email" placeholder="Your email address" required style="padding: 10px 14px; border: none; border-radius: 8px; font-size: 0.95rem; background: rgba(255,255,255,0.1); color: #FFFFFF; outline: none;">
+                        <button type="submit" style="padding: 10px 20px; background: var(--accent-secondary); color: #0D2B36; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.3s ease;">
+                            <i class="fas fa-paper-plane"></i> Subscribe
+                        </button>
+                    </form>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+{% include "website/partials/_cta.html" %}
+
+<style>
+    .blog-post:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--accent-secondary) !important;
+    }
+    .blog-post:hover img {
+        transform: scale(1.05);
+    }
+    .blog-post:hover .fa-arrow-right {
+        transform: translateX(4px);
+    }
+
+    @media (max-width: 768px) {
+        .blog-post > div {
+            grid-template-columns: 1fr !important;
+        }
+        .blog-post > div > div:first-child {
+            min-height: 180px;
+            position: relative;
+        }
+        .blog-post > div > div:first-child img {
+            position: relative !important;
+            height: 180px;
+        }
+        .blog-post > div > div:first-child > div {
+            position: relative !important;
+            height: 180px;
+        }
+        .blog-section .grid-2 {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,562 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}Payment #{{ payment.id }} - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   PAYMENT DETAIL — PREMIUM ADMIN
+   ================================================================ */
+
+.payment-detail {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+/* ---- Hero (receipt style) ---- */
+.payment-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.payment-hero::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.payment-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -50%;
+    left: -5%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(11, 102, 195, 0.25) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-id {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--brand-gold);
+    background: rgba(212, 175, 55, 0.15);
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+.hero-amount {
+    font-size: 36px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+    margin: 0 0 8px;
+}
+
+.hero-amount-currency {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--brand-gold);
+    margin-right: 6px;
+    letter-spacing: 0;
+}
+
+.hero-project {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.85);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.hero-project i {
+    color: var(--brand-gold);
+    font-size: 12px;
+}
+
+.hero-status-wrap {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.hero-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: var(--r-pill);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.hero-status.pending    { background: rgba(243,156,18,0.25); border-color: rgba(243,156,18,0.4); }
+.hero-status.approved   { background: rgba(11,102,195,0.25); border-color: rgba(11,102,195,0.4); }
+.hero-status.completed  { background: rgba(39,174,96,0.25); border-color: rgba(39,174,96,0.4); }
+.hero-status.cancelled  { background: rgba(185,52,43,0.25); border-color: rgba(185,52,43,0.4); }
+
+.hero-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.hero-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hero-meta i {
+    color: var(--brand-gold);
+    font-size: 11px;
+}
+
+/* ---- Receipt divider (zigzag) ---- */
+.receipt-divider {
+    height: 12px;
+    background: var(--bg-card);
+    -webkit-mask: radial-gradient(circle 6px at 6px 6px, transparent 98%, #000) -6px 0/12px 12px repeat-x;
+    mask: radial-gradient(circle 6px at 6px 6px, transparent 98%, #000) -6px 0/12px 12px repeat-x;
+    margin-top: -1px;
+}
+
+/* ---- Detail card ---- */
+.detail-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.detail-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.detail-card-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.detail-card-header h3 i {
+    color: var(--brand-gold);
+    font-size: 13px;
+    width: 28px;
+    height: 28px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border-subtle);
+}
+
+.detail-item {
+    background: var(--bg-card);
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.detail-item.full {
+    grid-column: 1 / -1;
+}
+
+.detail-item .label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.detail-item .label i {
+    color: var(--brand-gold);
+    font-size: 11px;
+}
+
+.detail-item .value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+.detail-item .value.amount {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--brand-gold-deep);
+    font-variant-numeric: tabular-nums;
+}
+
+.detail-item .value.muted {
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+.receipt-image {
+    max-width: 100%;
+    max-height: 320px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-subtle);
+    margin-top: 8px;
+}
+
+.receipt-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 6px 14px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--t-fast) var(--ease-spring);
+}
+
+.receipt-link:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--brand-gold);
+    color: var(--brand-gold-deep);
+    transform: translateY(-1px);
+}
+
+/* ---- Buttons ---- */
+.btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.3px;
+}
+
+.btn-primary {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary:hover {
+    background: var(--brand-gold-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-default);
+    color: var(--text-primary);
+}
+
+.btn-warning {
+    background: rgba(243, 156, 18, 0.12);
+    color: var(--sem-warning);
+    border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+.btn-warning:hover {
+    background: rgba(243, 156, 18, 0.2);
+    border-color: rgba(243, 156, 18, 0.5);
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background: rgba(39, 174, 96, 0.12);
+    color: var(--sem-success);
+    border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.btn-success:hover {
+    background: rgba(39, 174, 96, 0.2);
+    border-color: rgba(39, 174, 96, 0.5);
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background: rgba(185, 52, 43, 0.12);
+    color: var(--sem-danger);
+    border: 1px solid rgba(185, 52, 43, 0.3);
+}
+
+.btn-danger:hover {
+    background: rgba(185, 52, 43, 0.2);
+    border-color: rgba(185, 52, 43, 0.5);
+    transform: translateY(-1px);
+}
+
+.btn-ghost {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.detail-actions {
+    display: flex;
+    gap: 10px;
+    padding: 18px 20px;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-canvas);
+    flex-wrap: wrap;
+}
+
+.detail-actions form { display: inline; }
+
+/* ---- Animations ---- */
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.payment-hero, .detail-card { animation: fade-up 0.4s ease both; }
+.detail-card { animation-delay: 0.1s; }
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+    .payment-hero { padding: 22px; }
+    .hero-top { flex-direction: column; }
+    .hero-status-wrap { text-align: left; align-items: flex-start; }
+    .hero-amount { font-size: 28px; }
+    .detail-grid { grid-template-columns: 1fr; }
+    .detail-actions { flex-direction: column; }
+    .detail-actions .btn { width: 100%; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .payment-hero, .detail-card { animation: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="payment-detail">
+
+    <!-- Hero (receipt style) -->
+    <div class="payment-hero">
+        <div class="hero-top">
+            <div>
+                <span class="hero-id"><i class="fas fa-receipt"></i> Payment #{{ payment.id }}</span>
+                <h1 class="hero-amount">
+                    <span class="hero-amount-currency">KES</span>{{ payment.amount|floatformat:0|intcomma }}
+                </h1>
+                <div class="hero-project">
+                    <i class="fas fa-building"></i>
+                    <span>{{ payment.project.name|default:"No Project" }}</span>
+                    {% if payment.project.project_code %}
+                        <span style="opacity: 0.7;">·</span>
+                        <span style="font-family: 'SF Mono', monospace; font-size: 12px;">{{ payment.project.project_code }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="hero-status-wrap">
+                <span class="hero-status {{ payment.status|lower }}">
+                    <i class="fas fa-circle" style="font-size: 6px;"></i> {{ payment.get_status_display }}
+                </span>
+                <div class="hero-meta">
+                    <span><i class="fas fa-calendar-alt"></i> {{ payment.payment_date|date:"M d, Y" }}</span>
+                    <span><i class="fas fa-clock"></i> Created: {{ payment.created_at|date:"M d" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Card -->
+    <div class="detail-card">
+        <div class="detail-card-header">
+            <h3><i class="fas fa-info-circle"></i> Payment Information</h3>
+            <a href="{% url 'finances:payment_edit' payment.id %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+        </div>
+
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="label"><i class="fas fa-tag"></i> Payment Type</div>
+                <div class="value">{{ payment.get_type_display }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="label"><i class="fas fa-credit-card"></i> Payment Method</div>
+                <div class="value">{{ payment.get_method_display }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="label"><i class="fas fa-user-tie"></i> Paid To</div>
+                <div class="value">{{ payment.paid_to }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="label"><i class="fas fa-phone"></i> Contact</div>
+                <div class="value {% if not payment.paid_to_contact %}muted{% endif %}">{{ payment.paid_to_contact|default:"—" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="label"><i class="fas fa-hashtag"></i> Reference Number</div>
+                <div class="value {% if not payment.reference %}muted{% endif %}">{{ payment.reference|default:"—" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="label"><i class="fas fa-file-invoice"></i> Invoice Number</div>
+                <div class="value {% if not payment.invoice_number %}muted{% endif %}">{{ payment.invoice_number|default:"—" }}</div>
+            </div>
+            <div class="detail-item full">
+                <div class="label"><i class="fas fa-align-left"></i> Description</div>
+                <div class="value {% if not payment.description %}muted{% endif %}">{{ payment.description|linebreaks|default:"—" }}</div>
+            </div>
+            {% if payment.receipt %}
+            <div class="detail-item full">
+                <div class="label"><i class="fas fa-paperclip"></i> Receipt Attachment</div>
+                <div class="value">
+                    <img src="{{ payment.receipt.url }}" alt="Receipt" class="receipt-image">
+                    <a href="{{ payment.receipt.url }}" target="_blank" class="receipt-link">
+                        <i class="fas fa-external-link-alt"></i> View Full Size
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            <div class="detail-item">
+                <div class="label"><i class="fas fa-calendar-plus"></i> Created</div>
+                <div class="value">{{ payment.created_at|date:"M d, Y H:i" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="label"><i class="fas fa-calendar-check"></i> Last Updated</div>
+                <div class="value">{{ payment.updated_at|date:"M d, Y H:i" }}</div>
+            </div>
+        </div>
+
+        <div class="detail-actions">
+            {% if payment.status == 'PENDING' %}
+            <form method="post" action="{% url 'finances:payment_approve' payment.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning">
+                    <i class="fas fa-check"></i> Approve
+                </button>
+            </form>
+            <form method="post" action="{% url 'finances:payment_complete' payment.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check-double"></i> Mark Complete
+                </button>
+            </form>
+            {% endif %}
+
+            {% if payment.status == 'APPROVED' %}
+            <form method="post" action="{% url 'finances:payment_complete' payment.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check-double"></i> Mark Complete
+                </button>
+            </form>
+            {% endif %}
+
+            {% if payment.status != 'COMPLETED' and payment.status != 'CANCELLED' %}
+            <form method="post" action="{% url 'finances:payment_cancel' payment.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="reason" value="Cancelled by admin">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Cancel this payment?');">
+                    <i class="fas fa-times"></i> Cancel Payment
+                </button>
+            </form>
+            {% endif %}
+
+            <a href="{% url 'finances:payment_list' %}" class="btn btn-secondary" style="margin-left: auto;">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+
+            <form method="post" action="{% url 'finances:payment_delete' payment.id %}" onsubmit="return confirm('Delete this payment permanently?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

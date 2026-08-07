@@ -1,0 +1,550 @@
+{% load static %}
+{% load avatar_tags %}
+
+<div class="user-menu-wrapper">
+    <button class="user-menu-trigger" id="userMenuTrigger" aria-label="User menu" aria-haspopup="true">
+        {% user_avatar request.user size=34 css_class='user-avatar' %}
+        <span class="user-name">{{ request.user.full_name|default:request.user.email }}</span>
+        <i class="fas fa-chevron-down user-chevron"></i>
+    </button>
+
+    <div class="user-dropdown" id="userDropdown" role="menu">
+        <!-- Hero header with branded background -->
+        <div class="user-dropdown-hero">
+            <div class="user-dropdown-hero-bg"></div>
+            {% user_avatar request.user size=56 css_class='user-dropdown-avatar' %}
+            <div class="user-dropdown-info">
+                <span class="user-dropdown-name">{{ request.user.full_name|default:request.user.email }}</span>
+                <span class="user-dropdown-email">{{ request.user.email }}</span>
+            </div>
+            <div class="user-dropdown-chips">
+                <span class="user-dropdown-chip role">
+                    {% if request.user.is_chief %}Chief Admin{% else %}Platform Admin{% endif %}
+                </span>
+                <span class="user-dropdown-chip pro">PRO</span>
+            </div>
+        </div>
+
+        <!-- Quick stats row -->
+        <div class="user-dropdown-stats">
+            <a href="{% url 'dashboard:profile_view' %}" class="user-stat" role="menuitem">
+                <i class="fas fa-id-badge"></i>
+                <span class="user-stat-label">Profile</span>
+            </a>
+            <a href="{% url 'dashboard:security_settings' %}" class="user-stat" role="menuitem">
+                <i class="fas fa-shield-alt"></i>
+                <span class="user-stat-label">Security</span>
+            </a>
+            <a href="{% url 'dashboard:data_management' %}" class="user-stat" role="menuitem">
+                <i class="fas fa-database"></i>
+                <span class="user-stat-label">Data</span>
+            </a>
+        </div>
+
+        <div class="user-dropdown-divider"></div>
+
+        <!-- Primary menu items -->
+        <div class="user-dropdown-section">
+            <a href="{% url 'dashboard:profile_view' %}" class="user-dropdown-item" role="menuitem">
+                <span class="user-dropdown-item-icon"><i class="fas fa-user"></i></span>
+                <div class="user-dropdown-item-text">
+                    <span class="user-dropdown-item-title">My Profile</span>
+                    <span class="user-dropdown-item-sub">View & edit your details</span>
+                </div>
+            </a>
+
+            <a href="{% url 'dashboard:profile_edit' %}" class="user-dropdown-item" role="menuitem">
+                <span class="user-dropdown-item-icon"><i class="fas fa-pen"></i></span>
+                <div class="user-dropdown-item-text">
+                    <span class="user-dropdown-item-title">Edit Profile</span>
+                    <span class="user-dropdown-item-sub">Update info, avatar, password</span>
+                </div>
+            </a>
+
+            <a href="{% url 'dashboard:change_password' %}" class="user-dropdown-item" role="menuitem">
+                <span class="user-dropdown-item-icon"><i class="fas fa-key"></i></span>
+                <div class="user-dropdown-item-text">
+                    <span class="user-dropdown-item-title">Change Password</span>
+                    <span class="user-dropdown-item-sub">Keep your account secure</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="user-dropdown-divider"></div>
+
+        <div class="user-dropdown-section">
+            <a href="{% url 'dashboard:appearance_settings' %}" class="user-dropdown-item" role="menuitem">
+                <span class="user-dropdown-item-icon"><i class="fas fa-palette"></i></span>
+                <div class="user-dropdown-item-text">
+                    <span class="user-dropdown-item-title">Appearance</span>
+                    <span class="user-dropdown-item-sub">Theme, layout, density</span>
+                </div>
+            </a>
+
+            <a href="{% url 'dashboard:notification_settings' %}" class="user-dropdown-item" role="menuitem">
+                <span class="user-dropdown-item-icon"><i class="fas fa-bell"></i></span>
+                <div class="user-dropdown-item-text">
+                    <span class="user-dropdown-item-title">Notifications</span>
+                    <span class="user-dropdown-item-sub">Email & in-app alerts</span>
+                </div>
+            </a>
+
+            <a href="{% url 'dashboard:security_settings' %}" class="user-dropdown-item" role="menuitem">
+                <span class="user-dropdown-item-icon"><i class="fas fa-shield-alt"></i></span>
+                <div class="user-dropdown-item-text">
+                    <span class="user-dropdown-item-title">Security</span>
+                    <span class="user-dropdown-item-sub">Sessions, 2FA, logout-all</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="user-dropdown-divider"></div>
+
+        <a href="{% url 'accounts:logout' %}" class="user-dropdown-item logout" role="menuitem">
+            <span class="user-dropdown-item-icon"><i class="fas fa-sign-out-alt"></i></span>
+            <div class="user-dropdown-item-text">
+                <span class="user-dropdown-item-title">Sign Out</span>
+                <span class="user-dropdown-item-sub">End your current session</span>
+            </div>
+        </a>
+    </div>
+</div>
+
+<style>
+/* ================================================================
+   USER MENU - PREMIUM DROPDOWN
+   ================================================================ */
+.user-menu-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.user-menu-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 1px solid transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px 10px 4px 4px;
+    border-radius: var(--r-pill);
+    transition: all var(--t-fast) var(--ease-standard);
+    font-family: inherit;
+}
+
+.user-menu-trigger:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-subtle);
+    color: var(--text-primary);
+}
+
+.user-menu-trigger:focus-visible {
+    outline: 2px solid var(--brand-gold);
+    outline-offset: 2px;
+}
+
+.user-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--r-pill);
+    background: linear-gradient(135deg, var(--brand-blue), var(--brand-blue-deep));
+    color: var(--text-inverse);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 2px var(--bg-topbar), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    transition: box-shadow var(--t-fast) var(--ease-standard);
+}
+.user-avatar.avatar-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.user-menu-trigger:hover .user-avatar {
+    box-shadow: 0 0 0 2px var(--brand-gold), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.user-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-chevron {
+    font-size: 0.6rem;
+    color: var(--text-tertiary);
+    transition: transform var(--t-base) var(--ease-spring);
+}
+
+.user-menu-trigger.open .user-chevron {
+    transform: rotate(180deg);
+}
+
+/* Dropdown */
+.user-dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px);
+    width: 320px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+    pointer-events: none;
+    transition: opacity var(--t-base) var(--ease-spring),
+                transform var(--t-base) var(--ease-spring);
+    z-index: 1000;
+}
+
+.user-dropdown.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* Dropdown Pointer */
+.user-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: 28px;
+    width: 10px;
+    height: 10px;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-subtle);
+    border-left: 1px solid var(--border-subtle);
+    transform: rotate(45deg);
+}
+
+/* ===== Hero Header ===== */
+.user-dropdown-hero {
+    position: relative;
+    padding: 16px 16px 14px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+}
+
+.user-dropdown-hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.18) 0%, transparent 50%),
+        radial-gradient(circle at 10% 90%, rgba(11, 102, 195, 0.3) 0%, transparent 55%);
+    pointer-events: none;
+}
+
+.user-dropdown-hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+.user-dropdown-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--r-pill);
+    background: linear-gradient(135deg, var(--brand-gold), var(--brand-gold-deep));
+    color: var(--brand-navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 22px;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.user-dropdown-avatar.avatar-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.user-dropdown-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-dropdown-name {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-dropdown-email {
+    display: block;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-dropdown-chips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 2px;
+    flex-wrap: wrap;
+}
+
+.user-dropdown-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 9px;
+    border-radius: var(--r-pill);
+}
+
+.user-dropdown-chip.role {
+    background: rgba(212, 175, 55, 0.18);
+    color: var(--brand-gold);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.user-dropdown-chip.pro {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+}
+
+/* ===== Quick Stats Row ===== */
+.user-dropdown-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: 12px 12px 0;
+}
+
+.user-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 8px;
+    border-radius: var(--r-md);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: all var(--t-fast) var(--ease-standard);
+    min-height: 60px;
+}
+
+.user-stat:hover {
+    background: var(--brand-blue);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(11, 102, 195, 0.25);
+}
+
+.user-stat:hover .user-stat-label {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.user-stat i {
+    font-size: 14px;
+    color: var(--brand-blue);
+    transition: color var(--t-fast) var(--ease-standard);
+}
+
+.user-stat:hover i {
+    color: #fff;
+}
+
+.user-stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* ===== Divider ===== */
+.user-dropdown-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 10px 12px;
+}
+
+/* ===== Sections ===== */
+.user-dropdown-section {
+    padding: 0 6px;
+}
+
+/* ===== Menu Items ===== */
+.user-dropdown-item {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 10px;
+    border-radius: var(--r-md);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 14px;
+    position: relative;
+    transition: background var(--t-fast) var(--ease-standard);
+}
+
+.user-dropdown-item:hover {
+    background: rgba(11, 102, 195, 0.06);
+}
+
+.user-dropdown-item-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--r-md);
+    background: linear-gradient(135deg, rgba(11, 102, 195, 0.1), rgba(11, 102, 195, 0.06));
+    color: var(--brand-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.user-dropdown-item:hover .user-dropdown-item-icon {
+    background: linear-gradient(135deg, var(--brand-blue), var(--brand-blue-deep));
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(11, 102, 195, 0.3);
+}
+
+.user-dropdown-item-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.user-dropdown-item-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.user-dropdown-item-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+    line-height: 1.3;
+}
+
+/* Logout Item */
+.user-dropdown-item.logout {
+    margin: 0 6px 8px;
+}
+
+.user-dropdown-item.logout .user-dropdown-item-icon {
+    background: linear-gradient(135deg, rgba(185, 52, 43, 0.1), rgba(185, 52, 43, 0.06));
+    color: var(--sem-danger);
+}
+
+.user-dropdown-item.logout:hover {
+    background: rgba(185, 52, 43, 0.06);
+}
+
+.user-dropdown-item.logout:hover .user-dropdown-item-icon {
+    background: linear-gradient(135deg, var(--sem-danger), #a02d27);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(185, 52, 43, 0.3);
+}
+
+.user-dropdown-item.logout .user-dropdown-item-title {
+    color: var(--sem-danger);
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .user-name,
+    .user-chevron {
+        display: none;
+    }
+    .user-menu-trigger {
+        padding: 4px;
+    }
+    .user-dropdown {
+        width: 290px;
+        right: -16px;
+    }
+    .user-dropdown::before {
+        right: 20px;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .user-dropdown {
+        transition: opacity 0.01ms, transform 0.01ms;
+    }
+    .user-chevron,
+    .user-dropdown-item,
+    .user-dropdown-item-icon,
+    .user-avatar,
+    .user-stat {
+        transition: none;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var trigger = document.getElementById('userMenuTrigger');
+    var dropdown = document.getElementById('userDropdown');
+
+    if (trigger && dropdown) {
+        trigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var isOpen = dropdown.classList.toggle('open');
+            trigger.classList.toggle('open', isOpen);
+            trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!trigger.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+                trigger.classList.remove('open');
+                trigger.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // Keyboard: Escape closes
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && dropdown.classList.contains('open')) {
+                dropdown.classList.remove('open');
+                trigger.classList.remove('open');
+                trigger.setAttribute('aria-expanded', 'false');
+                trigger.focus();
+            }
+        });
+    }
+});
+</script>

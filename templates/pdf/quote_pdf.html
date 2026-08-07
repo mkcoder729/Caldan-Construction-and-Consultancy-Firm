@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Quote #{{ quote.id }} — Caldan Construction</title>
+  {% load humanize %}
+  <style>
+    @page {
+      size: A4;
+      margin: 2.2cm 2.2cm 2.2cm 2.2cm;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', 'Helvetica Neue', Arial, serif;
+      color: #000000;
+      font-size: 10.5pt;
+      line-height: 1.6;
+      background: #FFFFFF;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .document {
+      max-width: 100%;
+      background: #FDFBF8;
+      padding: 0;
+    }
+
+    /* ===== HEADER ===== */
+    .doc-header {
+      background: #FDFBF8;
+      padding: 16px 0 16px;
+      margin-bottom: 24px;
+      border-bottom: 4px solid #D4AF37;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .doc-header .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .doc-header .logo {
+      width: 200px;
+      height: auto;
+      display: block;
+    }
+    .doc-header .brand-text .name {
+      font-family: 'Georgia', serif;
+      font-size: 14pt;
+      font-weight: 700;
+      color: #0D2B36;
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+    .doc-header .brand-text .tagline {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 7.5pt;
+      font-weight: 500;
+      color: #9C7A1F;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin: 2px 0 0;
+    }
+    .doc-header .badge-right {
+      background: #F5E9C0;
+      border: 1px solid #D4AF37;
+      padding: 6px 18px;
+      border-radius: 4px;
+      color: #0D2B36;
+      font-size: 8pt;
+      font-weight: 700;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* ===== QUOTE HEADER ===== */
+    .quote-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #D4AF37;
+    }
+    .quote-head .left h1 {
+      font-family: 'Georgia', serif;
+      font-size: 22pt;
+      font-weight: 700;
+      color: #0D2B36;
+      letter-spacing: -0.3px;
+      margin: 0;
+    }
+    .quote-head .left h1 span {
+      color: #9C7A1F;
+      font-style: italic;
+    }
+    .quote-head .right {
+      text-align: right;
+    }
+    .quote-head .right .quote-num {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 8.5pt;
+      font-weight: 800;
+      color: #9C7A1F;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      margin-bottom: 4px;
+    }
+    .quote-head .right .label {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 6px;
+    }
+    .quote-head .right .label:first-of-type { margin-top: 0; }
+    .quote-head .right .value {
+      font-family: 'Georgia', serif;
+      font-size: 10.5pt;
+      color: #000000;
+      font-weight: 600;
+    }
+
+    /* ===== SUMMARY ROW ===== */
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .pill-card {
+      background: #F8F5F0;
+      border: 1px solid #E8E0D4;
+      border-left: 4px solid #D4AF37;
+      border-radius: 4px;
+      padding: 14px 16px;
+    }
+    .pill-card .label {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .pill-card .value {
+      font-family: 'Georgia', serif;
+      font-size: 13pt;
+      font-weight: 700;
+      color: #0D2B36;
+      margin-top: 4px;
+      letter-spacing: -0.2px;
+    }
+
+    /* ===== INFO CARD ===== */
+    .info-card {
+      background: #F8F5F0;
+      border: 1px solid #E8E0D4;
+      border-left: 4px solid #D4AF37;
+      border-radius: 4px;
+      padding: 16px 20px;
+      margin-bottom: 18px;
+    }
+    .info-card h3 {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 10pt;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      border-bottom: 1px solid #E8E0D4;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-row .k { color: #475569; }
+    .info-row .v { color: #000000; font-weight: 600; text-align: right; max-width: 60%; word-break: break-word; }
+
+    /* ===== DETAILS ===== */
+    .details {
+      background: #FFFFFF;
+      border: 1px solid #E8E0D4;
+      border-radius: 4px;
+      padding: 16px 20px;
+      margin-bottom: 22px;
+    }
+    .details h3 {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+      border-bottom: 2px solid #D4AF37;
+      padding-bottom: 6px;
+    }
+    .details .body {
+      font-size: 10pt;
+      font-family: 'Georgia', serif;
+      color: #000000;
+      white-space: pre-wrap;
+      line-height: 1.7;
+    }
+
+    .section-title {
+      font-family: 'Georgia', serif;
+      font-size: 13pt;
+      font-weight: 700;
+      color: #0D2B36;
+      border-bottom: 2px solid #D4AF37;
+      padding-bottom: 6px;
+      margin: 22px 0 14px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ===== TABLES ===== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px;
+      font-size: 9.5pt;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #FFFFFF;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid #E8E0D4;
+    }
+    thead th {
+      background: #0D2B36;
+      color: #F6F1E8;
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    tbody td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #E8E0D4;
+      color: #000000;
+    }
+    tbody tr:nth-child(even) { background: #FBF9F6; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+
+    /* ===== TOTALS ===== */
+    .totals {
+      background: linear-gradient(135deg, #0D2B36 0%, #14333F 100%);
+      color: #F6F1E8;
+      border-radius: 6px;
+      padding: 18px 24px;
+      margin: 18px 0 22px;
+      border: 1px solid #1A4050;
+    }
+    .totals .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 10pt;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    .totals .row .label { color: rgba(246, 241, 232, 0.6); }
+    .totals .row .value { font-weight: 600; color: #F6F1E8; }
+    .totals .row.total {
+      border-top: 1px solid rgba(246, 241, 232, 0.15);
+      padding-top: 8px;
+      margin-top: 4px;
+    }
+    .totals .row.total .value {
+      color: #D4AF37;
+      font-size: 13pt;
+      font-weight: 700;
+    }
+
+    /* ===== EMPTY ===== */
+    .empty {
+      text-align: center;
+      padding: 24px 20px;
+      color: #475569;
+      font-style: italic;
+      background: #F8F5F0;
+      border-radius: 4px;
+      border: 1px dashed #D4AF37;
+      font-family: 'Georgia', serif;
+    }
+
+    /* ===== SIGNOFF ===== */
+    .signoff {
+      margin-top: 22px;
+      padding: 16px 20px;
+      background: #F5E9C0;
+      border-left: 4px solid #D4AF37;
+      border-radius: 4px;
+      font-size: 9pt;
+      color: #000000;
+      border: 1px solid #D4AF37;
+    }
+    .signoff strong { color: #0D2B36; }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 12px;
+      border-radius: 3px;
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      border: 1px solid transparent;
+    }
+    .pill-urgent { background: #F5E9C0; color: #000000; border-color: #D4AF37; }
+
+    /* ===== FOOTER ===== */
+    .doc-footer {
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 2px solid #D4AF37;
+      text-align: center;
+      font-family: 'Georgia', serif;
+      color: #0D2B36;
+    }
+    .doc-footer .brand {
+      font-size: 14pt;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .doc-footer .tagline {
+      font-size: 9pt;
+      color: #9C7A1F;
+      font-style: italic;
+      margin-top: 2px;
+    }
+    .doc-footer .meta {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 8pt;
+      color: #64748B;
+      margin-top: 8px;
+    }
+
+    .page-footer {
+      margin-top: 24px;
+      padding-top: 12px;
+      border-top: 1px solid #E8E0D4;
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 7.5pt;
+      color: #94A3B8;
+    }
+    .page-footer .footer-brand {
+      color: #0D2B36;
+      font-weight: 700;
+    }
+
+    @media screen and (max-width: 600px) {
+      .doc-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+        padding: 16px 0;
+      }
+      .doc-header .brand-left { flex-direction: column; }
+      .doc-header .logo { width: 160px; }
+      .quote-head { flex-direction: column; gap: 16px; }
+      .quote-head .right { text-align: left; }
+      .summary-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="document">
+
+    <!-- HEADER -->
+    <div class="doc-header">
+      <div class="brand-left">
+        <img class="logo" src="https://res.cloudinary.com/nifbnyz2/image/upload/w_400,c_scale/v1786023287/caldan/caldan/logo.png" alt="Caldan Construction">
+        <div class="brand-text">
+          <p class="name">{{ brand_name|default:"Caldan Construction and Consultancy Firm" }}</p>
+          <p class="tagline">Building Kenya's Future, One Project at a Time.</p>
+        </div>
+      </div>
+      <div class="badge-right">QUOTE</div>
+    </div>
+
+    <!-- QUOTE HEADER -->
+    <div class="quote-head">
+      <div class="left">
+        <h1>Project <span>quote</span></h1>
+      </div>
+      <div class="right">
+        <div class="quote-num">Quote #{{ quote.id|stringformat:"04d" }}</div>
+        <div class="label">Date</div>
+        <div class="value">{{ quote.created_at|date:"F j, Y" }}</div>
+        <div class="label" style="margin-top:6px;">Valid for</div>
+        <div class="value">30 days</div>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary-row">
+      <div class="pill-card">
+        <div class="label">Project type</div>
+        <div class="value">{{ quote.get_project_type_display|default:"—" }}</div>
+      </div>
+      {% if quote.budget_range %}
+      <div class="pill-card">
+        <div class="label">Budget range</div>
+        <div class="value">{{ quote.get_budget_range_display }}</div>
+      </div>
+      {% endif %}
+      {% if quote.timeline %}
+      <div class="pill-card">
+        <div class="label">Timeline</div>
+        <div class="value">{{ quote.timeline }}</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- CLIENT INFO -->
+    <div class="info-card">
+      <h3>Prepared for</h3>
+      <div class="info-row"><span class="k">Name</span><span class="v">{{ quote.name }}</span></div>
+      <div class="info-row"><span class="k">Email</span><span class="v">{{ quote.email }}</span></div>
+      <div class="info-row"><span class="k">Phone</span><span class="v">{{ quote.phone }}</span></div>
+      {% if quote.location %}<div class="info-row"><span class="k">Location</span><span class="v">{{ quote.location }}</span></div>{% endif %}
+      <div class="info-row"><span class="k">Submitted</span><span class="v">{{ quote.created_at|date:"F j, Y H:i" }}</span></div>
+      {% if quote.schedule_call_requested %}
+        <div class="info-row"><span class="k">Callback</span><span class="v"><span class="pill pill-urgent">Requested</span> {{ quote.preferred_call_time|default:"anytime" }}</span></div>
+      {% endif %}
+    </div>
+
+    <!-- PROJECT DETAILS -->
+    <div class="details">
+      <h3>Project details</h3>
+      <div class="body">{{ quote.details|default:"No additional details supplied." }}</div>
+    </div>
+
+    <!-- LINE ITEMS -->
+    {% if line_items %}
+    <h2 class="section-title">Line items</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th class="text-center">Qty</th>
+          <th class="text-right">Rate</th>
+          <th class="text-right">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for li in line_items %}
+        <tr>
+          <td>{{ li.description }}</td>
+          <td class="text-center">{{ li.qty }}</td>
+          <td class="text-right">KES {{ li.rate|floatformat:0|intcomma }}</td>
+          <td class="text-right" style="font-weight:600;">KES {{ li.total|floatformat:0|intcomma }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <div class="row"><span class="label">Subtotal</span><span class="value">KES {{ subtotal|default:"0"|floatformat:0|intcomma }}</span></div>
+      <div class="row"><span class="label">Tax (16% VAT)</span><span class="value">KES {{ tax|default:"0"|floatformat:0|intcomma }}</span></div>
+      <div class="row total"><span class="label">Total</span><span class="value">KES {{ total|default:"0"|floatformat:0|intcomma }}</span></div>
+    </div>
+    {% else %}
+    <div class="empty">Line items will be added once the scope is confirmed.</div>
+    {% endif %}
+
+    <!-- SIGNOFF -->
+    <div class="signoff">
+      <strong>Confidential:</strong> This quote is valid for 30 days from the date above. Prices are subject to change after the validity period. Reach us at <strong>info.caldanconstruction@gmail.com</strong> to accept or arrange a site visit.
+    </div>
+
+    <!-- FOOTER -->
+    <div class="doc-footer">
+      <div class="brand">{{ brand_name|default:"Caldan Construction" }}</div>
+      <div class="tagline">Building Kenya's Future, One Project at a Time.</div>
+      <div class="meta">
+        {{ generated_at|date:"F j, Y" }} · Nairobi, Kenya
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <span class="footer-brand">Caldan</span>
+      <span>Confidential</span>
+      <span>Page <span class="page-number"></span></span>
+    </div>
+
+  </div>
+</body>
+</html>

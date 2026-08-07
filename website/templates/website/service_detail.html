@@ -1,0 +1,171 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}{{ service.name }} — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="{{ service.description|truncatewords:20 }}">
+<meta property="og:title" content="{{ service.name }} — Caldan Construction and Consultancy Firm">
+<meta property="og:description" content="{{ service.description|truncatewords:20 }}">
+{% if service.image %}<meta property="og:image" content="{{ service.image.url }}">{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Service Detail Hero -->
+<section class="service-detail-hero" style="min-height: 45vh; display: flex; align-items: center; position: relative; background: linear-gradient(160deg, rgba(11, 20, 32, 0.82) 0%, rgba(11, 102, 195, 0.65) 100%), url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80'); background-size: cover; background-position: center; background-attachment: fixed; padding: 120px 0 80px; color: #FFFFFF;">
+    <div class="container" style="position: relative; z-index: 2;">
+        <nav style="font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 20px;">
+            <a href="{% url 'website:index' %}" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.3s ease;">Home</a>
+            <span style="margin: 0 8px; color: rgba(255,255,255,0.4);">/</span>
+            <a href="{% url 'website:services' %}" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.3s ease;">Services</a>
+            <span style="margin: 0 8px; color: rgba(255,255,255,0.4);">/</span>
+            <span style="color: rgba(255,255,255,0.8);">{{ service.name }}</span>
+        </nav>
+
+        <div style="max-width: 700px; margin: 0 auto; text-align: center;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px;">
+                <div style="width: 64px; height: 64px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #D4AF37; border: 1px solid rgba(255,255,255,0.1);">
+                    <i class="{{ service.icon|default:'fas fa-tools' }}"></i>
+                </div>
+            </div>
+
+            <p class="eyebrow" style="justify-content: center; color: #D4AF37; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">
+                <i class="fas fa-tools" style="margin-right: 8px;"></i> Our Service
+            </p>
+
+            <h1 style="font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 700; margin-bottom: 12px; color: #FFFFFF;">
+                {{ service.name }}
+            </h1>
+
+            <p style="color: rgba(255,255,255,0.8); font-size: 1.05rem; line-height: 1.6; max-width: 600px; margin: 0 auto;">
+                {{ service.description }}
+            </p>
+
+            <div style="width: 60px; height: 3px; background: #D4AF37; margin: 16px auto 0;"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Service Details -->
+<section class="service-details" style="padding: 60px 0; background: var(--bg-primary);">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px;">
+
+            <!-- Main Content -->
+            <div>
+                {% if service.image %}
+                <div style="border-radius: 12px; overflow: hidden; margin-bottom: 32px; box-shadow: var(--shadow-md);">
+                    <img src="{{ service.image.url }}" alt="{{ service.name }}" style="width: 100%; height: auto; display: block;">
+                </div>
+                {% endif %}
+
+                <div style="font-size: 1.05rem; line-height: 1.8; color: var(--text-secondary);">
+                    {{ service.long_description|default:service.description|linebreaks }}
+                </div>
+
+                <!-- Features -->
+                {% if service.features %}
+                <div style="margin-top: 32px;">
+                    <h3 style="font-size: 1.3rem; margin-bottom: 16px; color: var(--text-primary);">Key Features</h3>
+                    <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        {% for feature in service.features %}
+                        <li style="display: flex; align-items: center; gap: 8px; color: var(--text-secondary);">
+                            <i class="fas fa-check-circle" style="color: #27AE60;"></i> {{ feature }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- Related Projects -->
+                {% if related_projects %}
+                <div style="margin-top: 40px;">
+                    <h3 style="font-size: 1.3rem; margin-bottom: 16px; color: var(--text-primary);">Related Projects</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                        {% for project in related_projects %}
+                        <a href="{% url 'website:project_detail' project.id %}" style="text-decoration: none; color: var(--text-primary);">
+                            <div style="background: var(--bg-card); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-primary); transition: all 0.3s ease;">
+                                <div style="height: 120px; overflow: hidden;">
+                                    {% if project.cover_photo %}
+                                    <img src="{{ project.cover_photo.url }}" alt="{{ project.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    {% else %}
+                                    <div style="width: 100%; height: 100%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; color: var(--text-tertiary);">
+                                        <i class="fas fa-building" style="font-size: 1.5rem;"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div style="padding: 12px 16px;">
+                                    <p style="font-weight: 600; margin: 0; font-size: 0.9rem;">{{ project.name }}</p>
+                                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">{{ project.town }}</p>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div>
+                <!-- Quick Quote -->
+                <div style="background: var(--bg-card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-primary); margin-bottom: 24px;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 12px; color: var(--text-primary);">Need This Service?</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 16px;">Get a free quote for {{ service.name }}.</p>
+                    <a href="{% url 'website:quote_request' %}?service={{ service.slug }}" class="btn btn-gold" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: var(--accent-secondary); color: #0D2B36; border-radius: 8px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; width: 100%; justify-content: center;">
+                        <i class="fas fa-paper-plane"></i> Request a Quote
+                    </a>
+                </div>
+
+                <!-- Service Categories -->
+                <div style="background: var(--bg-card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-primary);">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 12px; color: var(--text-primary);">All Services</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        {% for cat in categories %}
+                            {% if cat.0 == service.category %}
+                            <li style="padding: 8px 0; border-bottom: 1px solid var(--border-primary);">
+                                <strong style="color: var(--accent-secondary);">{{ cat.1 }}</strong>
+                            </li>
+                            {% else %}
+                            <li style="padding: 8px 0; border-bottom: 1px solid var(--border-primary);">
+                                <a href="{% url 'website:service_detail' cat.0|lower %}" style="color: var(--text-secondary); text-decoration: none; transition: color 0.3s ease;">{{ cat.1 }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+{% include "website/partials/_cta.html" %}
+
+<style>
+    .service-details .related-projects .project-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--accent-secondary) !important;
+    }
+
+    @media (max-width: 992px) {
+        .service-details .grid-2 {
+            grid-template-columns: 1fr !important;
+        }
+        .service-details .features-list {
+            grid-template-columns: 1fr !important;
+        }
+        .service-details .related-projects .grid-3 {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+    }
+    @media (max-width: 576px) {
+        .service-details .related-projects .grid-3 {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+{% endblock %}

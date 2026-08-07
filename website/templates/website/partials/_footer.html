@@ -1,0 +1,203 @@
+{% load static %}
+
+<footer class="site-footer" style="background: #0B172A; color: #D1D5DB; padding: 72px 0 30px; margin-top: auto; transition: background 0.3s ease, color 0.3s ease;">
+    <div class="container">
+        <div class="footer-grid" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 44px;">
+
+            <!-- Column 1: Brand & Newsletter -->
+            <div class="footer-brand">
+                <div style="margin-bottom: 16px;">
+                    <img src="{% static 'images/logo_light.png' %}" alt="{{ SITE_NAME }}" id="footer-logo" style="height: 56px; width: auto;">
+                </div>
+                <p style="color: #9CA3AF; font-size: 0.95rem; line-height: 1.7; margin-bottom: 16px; max-width: 300px;">
+                    {{ SITE_TAGLINE }}
+                </p>
+                <p style="color: #6B7280; font-size: 0.85rem; display: flex; align-items: flex-start; gap: 10px;">
+                    <i class="fas fa-map-marker-alt" style="color: #D4AF37; margin-top: 4px;"></i>
+                    Odera Street, Kaloka Building, Opp. Nildeep, Nakuru
+                </p>
+
+                <!-- Newsletter Signup -->
+                <div style="margin-top: 24px;">
+                    <h4 style="color: #FFFFFF; font-size: 1rem; font-weight: 600; margin-bottom: 6px;">
+                        <i class="fas fa-envelope" style="color: #D4AF37; margin-right: 8px;"></i>
+                        Subscribe
+                    </h4>
+                    <p style="color: #9CA3AF; font-size: 0.85rem; margin-bottom: 12px;">Get updates on projects &amp; offers.</p>
+                    <form method="POST" action="{% url 'website:newsletter_subscribe' %}" class="newsletter-form" data-ajax="true" style="display: flex; gap: 8px; max-width: 360px;">
+                        {% csrf_token %}
+                        <input type="email" name="email" placeholder="Your email address" required style="flex: 1; padding: 11px 14px; border: 1px solid #334155; border-radius: var(--radius-md); background: rgba(255,255,255,0.04); color: #FFFFFF; font-size: 0.9rem; outline: none; transition: border-color 0.3s ease;">
+                        <button type="submit" style="padding: 11px 18px; background: #D4AF37; color: #0B172A; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all 0.3s ease; white-space: nowrap;">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                    <p class="newsletter-status" aria-live="polite" style="min-height: 1.2em; margin: 8px 0 0; font-size: 0.85rem;"></p>
+                </div>
+            </div>
+
+            <!-- Column 2: Quick Links -->
+            <div>
+                <h4 style="color: #FFFFFF; font-size: 1rem; font-weight: 600; margin-bottom: 16px;">Quick Links</h4>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li style="margin-bottom: 10px;"><a href="{% url 'website:index' %}" style="color: #9CA3AF; text-decoration: none; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-chevron-right" style="font-size: 0.55rem; color: #D4AF37;"></i> Home</a></li>
+                    <li style="margin-bottom: 10px;"><a href="{% url 'website:about' %}" style="color: #9CA3AF; text-decoration: none; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-chevron-right" style="font-size: 0.55rem; color: #D4AF37;"></i> About</a></li>
+                    <li style="margin-bottom: 10px;"><a href="{% url 'website:services' %}" style="color: #9CA3AF; text-decoration: none; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-chevron-right" style="font-size: 0.55rem; color: #D4AF37;"></i> Services</a></li>
+                    <li style="margin-bottom: 10px;"><a href="{% url 'website:projects' %}" style="color: #9CA3AF; text-decoration: none; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-chevron-right" style="font-size: 0.55rem; color: #D4AF37;"></i> Projects</a></li>
+                    <li style="margin-bottom: 10px;"><a href="{% url 'website:contact' %}" style="color: #9CA3AF; text-decoration: none; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-chevron-right" style="font-size: 0.55rem; color: #D4AF37;"></i> Contact</a></li>
+                    <li style="margin-bottom: 10px;"><a href="{% url 'shop:index' %}" style="color: #9CA3AF; text-decoration: none; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-chevron-right" style="font-size: 0.55rem; color: #D4AF37;"></i> Shop</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 3: Our Services (FIXED ICONS) -->
+            <div>
+                <h4 style="color: #FFFFFF; font-size: 1rem; font-weight: 600; margin-bottom: 16px;">
+                    <i class="fas fa-tools" style="color: #D4AF37; margin-right: 8px;"></i>
+                    Our Services
+                </h4>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    {% if services_preview %}
+                        {% for service in services_preview|slice:":6" %}
+                        <li style="margin-bottom: 10px;">
+                            <a href="{% url 'website:service_detail' service.slug %}" style="color: #9CA3AF; text-decoration: none; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem;">
+                                <i class="{{ service.icon|default:'fas fa-tools' }}" style="font-size: 0.7rem; color: #D4AF37; width: 16px; text-align: center;"></i>
+                                {{ service.name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li style="color: #6B7280; font-size: 0.9rem;">
+                            <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Loading services...
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <!-- Column 4: Contact Info -->
+            <div>
+                <h4 style="color: #FFFFFF; font-size: 1rem; font-weight: 600; margin-bottom: 16px;">
+                    <i class="fas fa-address-card" style="color: #D4AF37; margin-right: 8px;"></i>
+                    Get in Touch
+                </h4>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li style="margin-bottom: 14px; display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(212, 175, 55, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="fas fa-phone" style="color: #D4AF37; font-size: 0.8rem;"></i>
+                        </div>
+                        <span style="color: #9CA3AF; font-size: 0.9rem;">{{ ADMIN_PHONE|default:"+254 703 653 010" }}</span>
+                    </li>
+                    <li style="margin-bottom: 14px; display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(212, 175, 55, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="fas fa-envelope" style="color: #D4AF37; font-size: 0.8rem;"></i>
+                        </div>
+                        <span style="color: #9CA3AF; font-size: 0.9rem;">{{ ADMIN_EMAIL|default:"ogwokadaniel@gmail.com" }}</span>
+                    </li>
+                    <li style="margin-bottom: 14px; display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(212, 175, 55, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="fas fa-map-marker-alt" style="color: #D4AF37; font-size: 0.8rem;"></i>
+                        </div>
+                        <span style="color: #9CA3AF; font-size: 0.9rem;">P.O. Box 4512-20100, Nakuru</span>
+                    </li>
+                </ul>
+
+                <!-- Social Icons - MODERN HOVER EFFECTS -->
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <a href="#" aria-label="Facebook" class="social-icon" data-color="#1877F2" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255,255,255,0.05); border-radius: 50%; color: #9CA3AF; text-decoration: none; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); border: 1px solid rgba(255,255,255,0.05);">
+                        <i class="fab fa-facebook-f" style="font-size: 0.85rem;"></i>
+                    </a>
+                    <a href="#" aria-label="Twitter" class="social-icon" data-color="#1DA1F2" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255,255,255,0.05); border-radius: 50%; color: #9CA3AF; text-decoration: none; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); border: 1px solid rgba(255,255,255,0.05);">
+                        <i class="fab fa-twitter" style="font-size: 0.85rem;"></i>
+                    </a>
+                    <a href="#" aria-label="LinkedIn" class="social-icon" data-color="#0A66C2" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255,255,255,0.05); border-radius: 50%; color: #9CA3AF; text-decoration: none; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); border: 1px solid rgba(255,255,255,0.05);">
+                        <i class="fab fa-linkedin-in" style="font-size: 0.85rem;"></i>
+                    </a>
+                    <a href="#" aria-label="YouTube" class="social-icon" data-color="#FF0000" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255,255,255,0.05); border-radius: 50%; color: #9CA3AF; text-decoration: none; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); border: 1px solid rgba(255,255,255,0.05);">
+                        <i class="fab fa-youtube" style="font-size: 0.85rem;"></i>
+                    </a>
+                    <a href="#" aria-label="WhatsApp" class="social-icon" data-color="#25D366" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(37, 211, 102, 0.12); border-radius: 50%; color: #25D366; text-decoration: none; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); border: 1px solid rgba(37, 211, 102, 0.1);">
+                        <i class="fab fa-whatsapp" style="font-size: 0.85rem;"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div style="border-top: 1px solid #1A2A35; padding-top: 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 0.8rem; color: #6B7280;">
+            <p style="margin: 0;">&copy; {% now "Y" %} {{ SITE_NAME }}. All rights reserved.</p>
+            <div style="display: flex; gap: 18px; flex-wrap: wrap;">
+                <a href="{% url 'website:legal_privacy' %}" style="color: #6B7280; text-decoration: none; transition: color 0.3s ease;">Privacy</a>
+                <a href="{% url 'website:legal_terms' %}" style="color: #6B7280; text-decoration: none; transition: color 0.3s ease;">Terms</a>
+                <a href="{% url 'website:legal_refunds' %}" style="color: #6B7280; text-decoration: none; transition: color 0.3s ease;">Refunds</a>
+                <a href="{% url 'website:legal_cookies' %}" style="color: #6B7280; text-decoration: none; transition: color 0.3s ease;">Cookies</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+    .footer-links a:hover,
+    .footer-services a:hover,
+    .footer-legal a:hover {
+        color: #D4AF37 !important;
+    }
+
+    /* MODERN SOCIAL ICON HOVER EFFECTS */
+    .social-icon {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .social-icon::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: var(--social-color, #D4AF37);
+        opacity: 0;
+        transform: scale(0);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .social-icon:hover {
+        color: #FFFFFF !important;
+        transform: translateY(-4px) scale(1.05);
+        border-color: var(--social-color, #D4AF37) !important;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    .social-icon:hover::before {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .social-icon:hover i {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Individual social colors on hover */
+    .social-icon[data-color="#1877F2"]:hover { --social-color: #1877F2; }
+    .social-icon[data-color="#1DA1F2"]:hover { --social-color: #1DA1F2; }
+    .social-icon[data-color="#0A66C2"]:hover { --social-color: #0A66C2; }
+    .social-icon[data-color="#FF0000"]:hover { --social-color: #FF0000; }
+    .social-icon[data-color="#25D366"]:hover { --social-color: #25D366; }
+
+    .newsletter-form input:focus {
+        border-color: #D4AF37 !important;
+    }
+    .newsletter-form button:hover {
+        background: #E8C84A !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(212, 175, 55, 0.25);
+    }
+
+    @media (max-width: 992px) {
+        .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 32px !important; }
+    }
+
+    @media (max-width: 576px) {
+        .footer-grid { grid-template-columns: 1fr !important; gap: 28px !important; }
+        .footer-bottom { flex-direction: column !important; text-align: center; }
+        .footer-legal { justify-content: center; }
+        .newsletter-form { max-width: 100% !important; }
+    }
+</style>

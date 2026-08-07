@@ -1,0 +1,191 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block title %}Accept Invitation — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-grid">
+
+        <!-- ============ Brand side ============ -->
+        <aside class="auth-brand" aria-hidden="true">
+            <div class="auth-brand-content">
+                <img src="{% static 'images/logo_light.png' %}" alt="Caldan Construction and Consultancy Firm" class="auth-brand-logo">
+                <span class="auth-brand-eyebrow">Caldan Construction</span>
+                <h1>You're Invited</h1>
+                <p class="auth-brand-text">You've been invited to join Caldan Construction and Consultancy Firm as a Platform Admin. Set your password below to activate your account.</p>
+
+                <div class="auth-brand-features">
+                    <div class="feature-item"><i class="fas fa-shield-halved"></i><span>Secure Access</span></div>
+                    <div class="feature-item"><i class="fas fa-user-shield"></i><span>Platform Admin</span></div>
+                    <div class="feature-item"><i class="fas fa-clock"></i><span>48-Hour Link</span></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ============ Form side ============ -->
+        <div class="auth-form-wrapper">
+            <div class="auth-form-container">
+
+                <div class="auth-form-header">
+                    <h2>Accept Invitation</h2>
+                    <p>Set your password to activate your account.</p>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags|default:'info' }}" role="alert">
+                            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="invitation-info">
+                    <p><strong>Email:</strong> {{ invitation.email }}</p>
+                    <p>
+                        <strong>Invited By:</strong>
+                        {% if invitation.created_by %}
+                            {{ invitation.created_by.full_name|default:invitation.created_by.email|default:"A Caldan admin" }}
+                        {% else %}
+                            A Caldan admin
+                        {% endif %}
+                    </p>
+                    <p><strong>Expires:</strong> {{ invitation.expires_at|date:"M d, Y H:i" }}</p>
+                    {% if invitation.role %}
+                        <p><strong>Role:</strong> {{ invitation.role }}</p>
+                    {% endif %}
+                </div>
+
+                {# Tell the invitee they already have a password in their email #}
+                <div class="alert alert-info" role="note" style="display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; border-radius: 10px; margin: 0 0 18px; font-size: 13px; line-height: 1.5;">
+                    <i class="fas fa-key" style="margin-top: 2px; font-size: 14px; color: #1E40AF;"></i>
+                    <div>
+                        <strong style="color: #1E40AF;">Your temporary password is in your invitation email.</strong><br>
+                        We sent it to <strong>{{ invitation.email }}</strong>.
+                        After activating your account below, you'll sign in with it and be asked to set a new password immediately.
+                    </div>
+                </div>
+
+                <form method="post" class="auth-form" data-loading novalidate>
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="{{ form.email.id_for_label }}">Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope" aria-hidden="true"></i>
+                            {{ form.email }}
+                        </div>
+                        {% if form.email.errors %}
+                            <span class="error-text">{{ form.email.errors.0 }}</span>
+                        {% endif %}
+                        <span class="field-hint">This email is associated with the invitation</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.full_name.id_for_label }}">Full Name</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user" aria-hidden="true"></i>
+                            {{ form.full_name }}
+                        </div>
+                        {% if form.full_name.errors %}
+                            <span class="error-text">{{ form.full_name.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.phone.id_for_label }}">Phone Number</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-phone" aria-hidden="true"></i>
+                            {{ form.phone }}
+                        </div>
+                        {% if form.phone.errors %}
+                            <span class="error-text">{{ form.phone.errors.0 }}</span>
+                        {% endif %}
+                        <span class="field-hint">Kenyan phone number (e.g. 0712345678)</span>
+                    </div>
+
+                    <button type="submit" class="btn-primary-auth">
+                        <i class="fas fa-user-check"></i>
+                        <span>Activate Account</span>
+                    </button>
+
+                    <p class="auth-footer-text">
+                        This invitation will expire in {{ invitation.expiry_hours|default:48 }} hours.
+                    </p>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password toggle buttons (matches the pattern from login.html)
+    document.querySelectorAll('.password-toggle').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var target = document.getElementById(this.dataset.target);
+            if (!target) return;
+            var t = target.type === 'password' ? 'text' : 'password';
+            target.type = t;
+            var icon = this.querySelector('i');
+            if (icon) icon.className = t === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+        });
+    });
+});
+</script>
+
+<style>
+.invitation-info {
+    background: var(--bg-soft, #F8FAFC);
+    border-radius: var(--r-md, 10px);
+    padding: 14px 16px;
+    margin-bottom: 22px;
+    border: 1px solid var(--border-subtle, #E5E7EB);
+}
+.invitation-info p {
+    margin: 4px 0;
+    font-size: 13px;
+    color: var(--text-primary, #1F2937);
+}
+.invitation-info strong {
+    color: var(--brand-navy, #0D2B36);
+    display: inline-block;
+    min-width: 90px;
+}
+.field-hint {
+    display: block;
+    font-size: 12px;
+    color: var(--text-tertiary, #6B7280);
+    margin-top: 6px;
+}
+.error-text {
+    display: block;
+    font-size: 12px;
+    color: var(--sem-danger, #DC2626);
+    margin-top: 4px;
+    font-weight: 600;
+}
+.password-toggle {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-tertiary, #6B7280);
+    cursor: pointer;
+    padding: 6px;
+}
+.password-toggle:hover {
+    color: var(--text-primary, #1F2937);
+}
+.auth-footer-text {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--text-tertiary, #6B7280);
+}
+</style>
+{% endblock %}

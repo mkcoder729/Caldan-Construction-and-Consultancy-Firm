@@ -1,0 +1,180 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Contact Us — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="Get in touch with Caldan Construction and Consultancy Firm. Contact us for construction services, quotes, and consultations.">
+{% endblock %}
+
+{% block content %}
+
+<!-- Contact Hero -->
+<section class="contact-hero" style="min-height: 45vh; display: flex; align-items: center; position: relative; background: linear-gradient(160deg, rgba(11, 20, 32, 0.82) 0%, rgba(11, 102, 195, 0.65) 100%), url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&q=80'); background-size: cover; background-position: center; background-attachment: fixed; padding: 120px 0 80px; color: #FFFFFF;">
+    <div class="container" style="position: relative; z-index: 2;">
+        <div style="max-width: 700px; margin: 0 auto; text-align: center;">
+            <p class="eyebrow" style="justify-content: center; color: #D4AF37; font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 12px;">
+                <i class="fas fa-envelope" style="margin-right: 8px;"></i> Get in Touch
+            </p>
+            <h1 style="font-size: clamp(2.5rem, 4vw, 3.5rem); font-weight: 700; margin-bottom: 16px; color: #FFFFFF;">
+                <span style="color: #D4AF37;">Contact</span> Us
+            </h1>
+            <p style="color: rgba(255,255,255,0.85); font-size: 1.15rem; line-height: 1.7; max-width: 600px; margin: 0 auto;">
+                We'd love to hear from you. Reach out for a quote, consultation, or any questions.
+            </p>
+            <div style="width: 60px; height: 3px; background: #D4AF37; margin: 16px auto 0;"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Content -->
+<section class="contact-section" style="padding: 60px 0; background: var(--bg-primary);">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px;">
+
+            <!-- Contact Form -->
+            <div style="background: var(--bg-card); border-radius: 12px; padding: 32px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-primary);">
+                <h2 style="font-size: 1.5rem; margin-bottom: 8px; color: var(--text-primary);">Send a Message</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">We respond to all inquiries within 24 hours.</p>
+
+                <form method="POST" action="{% url 'website:contact' %}" class="contact-form">
+                    {% csrf_token %}
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label for="id_name" style="display: block; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">Full Name <span style="color: #E74C3C;">*</span></label>
+                            {{ form.name }}
+                        </div>
+                        <div>
+                            <label for="id_email" style="display: block; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">Email <span style="color: #E74C3C;">*</span></label>
+                            {{ form.email }}
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px;">
+                        <label for="id_phone" style="display: block; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">Phone <span style="color: #E74C3C;">*</span></label>
+                        {{ form.phone }}
+                    </div>
+
+                    <div style="margin-top: 16px;">
+                        <label for="id_subject" style="display: block; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">Subject <span style="color: #E74C3C;">*</span></label>
+                        {{ form.subject }}
+                    </div>
+
+                    <div style="margin-top: 16px;">
+                        <label for="id_message" style="display: block; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">Message <span style="color: #E74C3C;">*</span></label>
+                        {{ form.message }}
+                    </div>
+
+                    <button type="submit" style="margin-top: 24px; width: 100%; padding: 14px; background: var(--accent-primary); color: #FFFFFF; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </form>
+            </div>
+
+            <!-- Contact Info -->
+            <div>
+                <!-- Info Cards -->
+                <div style="background: var(--bg-card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-primary); margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(11, 102, 195, 0.1); display: flex; align-items: center; justify-content: center; color: var(--accent-primary);">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.9rem; margin: 0; color: var(--text-primary);">Phone</h4>
+                            <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">{{ ADMIN_PHONE|default:"+254 703 653 010" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-primary); margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(11, 102, 195, 0.1); display: flex; align-items: center; justify-content: center; color: var(--accent-primary);">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.9rem; margin: 0; color: var(--text-primary);">Email</h4>
+                            <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">{{ ADMIN_EMAIL|default:"ogwokadaniel@gmail.com" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-primary); margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(11, 102, 195, 0.1); display: flex; align-items: center; justify-content: center; color: var(--accent-primary);">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.9rem; margin: 0; color: var(--text-primary);">Office</h4>
+                            <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">Odera Street, Kaloka Building, Opp. Nildeep, Nakuru</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-primary);">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(11, 102, 195, 0.1); display: flex; align-items: center; justify-content: center; color: var(--accent-primary);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.9rem; margin: 0; color: var(--text-primary);">Response Time</h4>
+                            <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem;">We respond within 24 hours</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+{% include "website/partials/_cta.html" %}
+
+<style>
+    .contact-form input,
+    .contact-form textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--border-primary);
+        border-radius: 8px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+        font-family: inherit;
+    }
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+        border-color: var(--accent-primary) !important;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(11, 102, 195, 0.1);
+    }
+    .contact-form textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+    .contact-form button:hover {
+        background: #0A55A8 !important;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    @media (max-width: 992px) {
+        .contact-section .grid-2 {
+            grid-template-columns: 1fr !important;
+        }
+    }
+    @media (max-width: 576px) {
+        .contact-section .grid-2 .grid-2 {
+            grid-template-columns: 1fr !important;
+        }
+        .contact-form {
+            padding: 0 !important;
+        }
+        .contact-section .card {
+            padding: 20px 16px !important;
+        }
+    }
+</style>
+{% endblock %}

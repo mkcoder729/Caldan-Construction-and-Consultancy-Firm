@@ -1,0 +1,21 @@
+{# Account activation reminder — gentle nudge to finish signing up. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-info" style="margin-top: 14px;">REMINDER</span>{% endblock %}
+
+{% block content %}
+  <h1>Almost <span>there</span></h1>
+  <p class="subtitle">Activate your {{ brand_name|default:"Caldan" }} account</p>
+
+  <p>Just a quick reminder — your account is one click away from being fully activated. Click the button below to complete setup.</p>
+
+  <div class="callout callout-info">
+    <strong>Why activate?</strong> Activated accounts get full access to the dashboard, project tools, and the ability to track orders, pay invoices, and quote new work.
+  </div>
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}/accounts/activate/" class="button">Activate now</a>
+  </div>
+
+  <p style="text-align:center; color: var(--slate-500); font-size: 13px;">Need help? <a href="mailto:{{ support_email|default:'info.caldanconstruction@gmail.com' }}">{{ support_email|default:'info.caldanconstruction@gmail.com' }}</a></p>
+{% endblock %}

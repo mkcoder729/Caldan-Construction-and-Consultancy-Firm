@@ -1,0 +1,124 @@
+{% load static %}
+
+<div id="newsletterPopup" style="display: none; position: fixed; inset: 0; z-index: 9998; align-items: center; justify-content: center; padding: 20px;">
+
+    <!-- Backdrop -->
+    <div id="newsletterBackdrop" style="position: absolute; inset: 0; background: rgba(11, 20, 32, 0.7); backdrop-filter: blur(4px);"></div>
+
+    <!-- Modal -->
+    <div class="newsletter-modal bp-frame" style="position: relative; max-width: 460px; width: 100%; background: var(--bg-card); border-radius: var(--radius-xl); padding: 40px 36px 36px; box-shadow: var(--shadow-xl); border: 1px solid var(--border-primary); text-align: center;">
+
+        <button id="closeNewsletterPopup" aria-label="Close" style="position: absolute; top: 16px; right: 16px; background: var(--bg-secondary); border: none; width: 32px; height: 32px; border-radius: 50%; color: var(--text-secondary); font-size: 0.95rem; cursor: pointer; transition: all 0.25s ease; display: inline-flex; align-items: center; justify-content: center;">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div style="width: 54px; height: 54px; margin: 0 auto 20px; background: color-mix(in srgb, var(--accent-secondary) 12%, transparent); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: var(--accent-secondary);">
+            <i class="fas fa-drafting-compass"></i>
+        </div>
+
+        <p class="eyebrow" style="justify-content: center;">Stay in the loop</p>
+        <h3 style="font-size: 1.4rem; margin-bottom: 10px; color: var(--text-primary);">Get project updates &amp; offers</h3>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 24px;">
+            Join our newsletter for new project reveals, seasonal offers, and building tips — no spam, ever.
+        </p>
+
+        <form method="POST" action="{% url 'website:newsletter_subscribe' %}" class="newsletter-form" data-ajax="true" style="display: flex; flex-direction: column; gap: 10px;">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Your email address" required style="padding: 13px 16px; border: 1px solid var(--border-primary); border-radius: var(--radius-md); background: var(--bg-primary); color: var(--text-primary); font-size: 0.95rem; outline: none; transition: border-color 0.3s ease; width: 100%;">
+            <button type="submit" class="btn btn-rust" style="width: 100%;">
+                <i class="fas fa-paper-plane"></i> Subscribe
+            </button>
+        </form>
+
+        <button id="dismissNewsletterPopup" style="margin-top: 16px; background: none; border: none; color: var(--text-tertiary); font-size: 0.85rem; cursor: pointer; text-decoration: underline; transition: color 0.25s ease;">
+            No thanks, maybe later
+        </button>
+
+    </div>
+</div>
+
+<style>
+    #newsletterPopup.active {
+        display: flex !important;
+        animation: newsletterFadeIn 0.3s ease;
+    }
+
+    @keyframes newsletterFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .newsletter-modal {
+        animation: newsletterPopIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes newsletterPopIn {
+        from { opacity: 0; transform: scale(0.92) translateY(12px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    #closeNewsletterPopup:hover {
+        background: var(--accent-secondary);
+        color: #FFFFFF;
+    }
+
+    #dismissNewsletterPopup:hover {
+        color: var(--accent-secondary);
+    }
+
+    .newsletter-form input:focus {
+        border-color: var(--accent-secondary) !important;
+    }
+
+    @media (max-width: 480px) {
+        .newsletter-modal { padding: 32px 22px 28px !important; }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const popup = document.getElementById('newsletterPopup');
+        if (!popup) return;
+
+        const backdrop = document.getElementById('newsletterBackdrop');
+        const closeBtn = document.getElementById('closeNewsletterPopup');
+        const dismissBtn = document.getElementById('dismissNewsletterPopup');
+
+        function hidePopup(persist) {
+            popup.classList.remove('active');
+            setTimeout(function() { popup.style.display = 'none'; }, 200);
+            if (persist) {
+                localStorage.setItem('caldan_newsletter_dismissed', Date.now().toString());
+            }
+        }
+
+        function showPopup() {
+            popup.style.display = 'flex';
+            requestAnimationFrame(function() { popup.classList.add('active'); });
+        }
+
+        const dismissedAt = localStorage.getItem('caldan_newsletter_dismissed');
+        const alreadySubscribed = localStorage.getItem('caldan_newsletter_subscribed');
+        const sevenDays = 7 * 24 * 60 * 60 * 1000;
+        const canShow = !alreadySubscribed && (!dismissedAt || (Date.now() - parseInt(dismissedAt, 10)) > sevenDays);
+
+        if (canShow) {
+            setTimeout(showPopup, 12000);
+        }
+
+        if (closeBtn) closeBtn.addEventListener('click', function() { hidePopup(true); });
+        if (dismissBtn) dismissBtn.addEventListener('click', function() { hidePopup(true); });
+        if (backdrop) backdrop.addEventListener('click', function() { hidePopup(true); });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && popup.classList.contains('active')) hidePopup(true);
+        });
+
+        const form = popup.querySelector('.newsletter-form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                localStorage.setItem('caldan_newsletter_subscribed', 'true');
+            });
+        }
+    });
+</script>

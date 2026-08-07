@@ -1,0 +1,16 @@
+{% extends "pdf/_base_report.html" %}
+
+{% block content %}
+  {% if stats %}
+    <div class="stats-grid">
+      {% for label, value in stats.items %}
+        <div class="stat-box">
+          <div class="label">{{ label }}</div>
+          <div class="value">{{ value }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {{ block.super }}
+{% endblock %}

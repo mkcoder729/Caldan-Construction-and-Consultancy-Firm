@@ -1,0 +1,521 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}Backup Manager - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   BACKUP MANAGER — PREMIUM ADMIN
+   ================================================================ */
+
+.report-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+.page-header {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.page-header-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+    z-index: 1;
+}
+
+.page-header-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.page-header-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-header-title i { color: var(--brand-gold); font-size: 22px; }
+.page-header-sub { font-size: 13px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+.page-header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.section-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.section-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.section-title i {
+    color: var(--brand-gold);
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.section-badge {
+    padding: 4px 12px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold-deep);
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.section-body { padding: 22px; }
+
+.form-group { margin-bottom: 16px; }
+.form-group:last-child { margin-bottom: 0; }
+
+.form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.form-group label .req { color: var(--sem-danger); margin-left: 2px; }
+
+.form-control {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+}
+
+textarea.form-control { min-height: 60px; resize: vertical; line-height: 1.5; }
+
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+}
+
+.checkbox-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.checkbox-pill:hover { border-color: var(--brand-gold); background: rgba(212, 175, 55, 0.04); }
+.checkbox-pill input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand-gold); cursor: pointer; }
+.checkbox-pill i { color: var(--brand-gold-deep); }
+.checkbox-pill .hint { font-size: 10px; color: var(--text-tertiary); font-weight: 400; margin-left: 4px; }
+
+.backup-list { padding: 0; }
+
+.backup-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background var(--t-fast) var(--ease-standard);
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.backup-row:last-child { border-bottom: none; }
+.backup-row:hover { background: var(--bg-canvas); }
+
+.backup-info { flex: 1; min-width: 240px; }
+
+.backup-name {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.backup-name i { color: var(--brand-gold-deep); }
+
+.backup-code {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-left: 4px;
+}
+
+.backup-meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.backup-meta span { display: inline-flex; align-items: center; gap: 4px; }
+.backup-meta i { color: var(--text-tertiary); font-size: 10px; }
+
+.backup-meta .notes {
+    font-style: italic;
+    color: var(--text-secondary);
+    background: var(--bg-canvas);
+    padding: 2px 8px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border-subtle);
+}
+
+.backup-meta .restored {
+    color: var(--sem-success);
+    font-weight: 600;
+}
+
+.backup-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.2px;
+}
+
+.btn-primary {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary:hover {
+    background: var(--brand-gold-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-success {
+    background: rgba(39, 174, 96, 0.12);
+    color: var(--sem-success);
+    border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.btn-success:hover {
+    background: var(--sem-success);
+    color: #fff;
+    border-color: var(--sem-success);
+}
+
+.btn-danger {
+    background: rgba(185, 52, 43, 0.12);
+    color: var(--sem-danger);
+    border: 1px solid rgba(185, 52, 43, 0.3);
+}
+
+.btn-danger:hover {
+    background: var(--sem-danger);
+    color: #fff;
+    border-color: var(--sem-danger);
+}
+
+.btn-ghost {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 60px 20px;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 12px;
+    color: var(--text-tertiary);
+    opacity: 0.3;
+}
+
+.empty-state h3 { color: var(--text-primary); font-size: 1.1rem; margin: 0 0 8px; font-weight: 700; }
+
+.section-card { animation: fade-up 0.4s ease both; }
+.section-card:nth-child(2) { animation-delay: 0.05s; }
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .page-header { padding: 20px; }
+    .page-header-title { font-size: 18px; }
+    .page-header-icon { width: 44px; height: 44px; font-size: 18px; }
+    .form-grid-2 { grid-template-columns: 1fr; }
+    .section-body { padding: 18px; }
+    .backup-row { padding: 12px 16px; }
+}
+
+@media (max-width: 480px) {
+    .backup-actions { width: 100%; }
+    .backup-actions .btn { flex: 1; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .section-card { animation: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="report-page">
+
+    <div class="page-header">
+        <div class="page-header-main">
+            <div class="page-header-icon"><i class="fas fa-database"></i></div>
+            <div>
+                <h1 class="page-header-title">Backup Manager</h1>
+                <p class="page-header-sub">Create, restore, and manage project backups</p>
+            </div>
+        </div>
+        <div class="page-header-actions">
+            <a href="{% url 'reports:backup_history' %}" class="btn btn-ghost">
+                <i class="fas fa-history"></i> History
+            </a>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fas fa-plus-circle"></i> Create New Backup</h2>
+            <span class="section-badge">New</span>
+        </div>
+        <div class="section-body">
+            <form method="post" action="{% url 'reports:backup_create' %}">
+                {% csrf_token %}
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label for="project">Project <span class="req">*</span></label>
+                        <select class="form-control" id="project" name="project" required>
+                            <option value="">-- Select a project --</option>
+                            {% for project in form.fields.project.queryset %}
+                            <option value="{{ project.id }}">{{ project.name }} ({{ project.project_code }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="1"
+                                  placeholder="Optional notes about this backup..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Include in Backup</label>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-pill">
+                            <input type="checkbox" name="include_milestones" checked>
+                            <i class="fas fa-flag-checkered"></i> Milestones
+                        </label>
+                        <label class="checkbox-pill">
+                            <input type="checkbox" name="include_payments" checked>
+                            <i class="fas fa-money-bill-wave"></i> Payments
+                        </label>
+                        <label class="checkbox-pill">
+                            <input type="checkbox" name="include_expenses" checked>
+                            <i class="fas fa-receipt"></i> Expenses
+                        </label>
+                        <label class="checkbox-pill">
+                            <input type="checkbox" name="include_materials" checked>
+                            <i class="fas fa-boxes"></i> Materials
+                        </label>
+                        <label class="checkbox-pill">
+                            <input type="checkbox" name="include_gallery">
+                            <i class="fas fa-images"></i> Gallery <span class="hint">(may be large)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-database"></i> Create Backup
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fas fa-history"></i> Existing Backups</h2>
+            <span class="section-badge">{{ backups|length }} backups</span>
+        </div>
+        <div class="backup-list">
+            {% if backups %}
+                {% for backup in backups %}
+                <div class="backup-row">
+                    <div class="backup-info">
+                        <div class="backup-name">
+                            <i class="fas fa-database"></i>
+                            {{ backup.project.name }}
+                            <span class="backup-code">({{ backup.project.project_code }})</span>
+                        </div>
+                        <div class="backup-meta">
+                            <span><i class="fas fa-calendar-alt"></i> {{ backup.created_at|date:"M d, Y H:i" }}</span>
+                            <span><i class="fas fa-database"></i> {{ backup.file_size|filesizeformat }}</span>
+                            <span><i class="fas fa-file-alt"></i> {{ backup.record_count }} records</span>
+                            {% if backup.notes %}
+                            <span class="notes">"{{ backup.notes }}"</span>
+                            {% endif %}
+                            {% if backup.restored_at %}
+                            <span class="restored"><i class="fas fa-check-circle"></i> Restored {{ backup.restored_at|timesince }} ago</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="backup-actions">
+                        <form method="post" action="{% url 'reports:backup_restore' backup.id %}"
+                              onsubmit="return confirm('Restoring this backup will create a new project. Continue?');" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-undo"></i> Restore
+                            </button>
+                        </form>
+                        <form method="post" action="{% url 'reports:backup_delete' backup.id %}"
+                              onsubmit="return confirm('Delete this backup permanently?');" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No Backups Found</h3>
+                    <p>Create your first backup using the form above.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

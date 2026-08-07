@@ -1,0 +1,51 @@
+{% extends "pdf/_base_report.html" %}
+
+{% block badge %}PROJECTS FULL REPORT{% endblock %}
+
+{% block title %}Projects <span>Full Report</span>{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h2>Projects</h2>
+    {% if projects %}
+    <table>
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>County</th>
+                <th>Progress</th>
+                <th>Budget</th>
+                <th>Spent</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in projects %}
+            <tr>
+                <td><strong>{{ p.project_code }}</strong></td>
+                <td>{{ p.name }}</td>
+                <td>
+                    {% if p.status == 'COMPLETED' %}
+                        <span class="pill pill-success">{{ p.get_status_display }}</span>
+                    {% elif p.status == 'IN_PROGRESS' %}
+                        <span class="pill pill-info">{{ p.get_status_display }}</span>
+                    {% elif p.status == 'ON_HOLD' %}
+                        <span class="pill pill-warning">{{ p.get_status_display }}</span>
+                    {% else %}
+                        <span class="pill pill-neutral">{{ p.get_status_display }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ p.county|default:"—" }}</td>
+                <td>{{ p.progress|floatformat:0 }}%</td>
+                <td>KES {{ p.budget|floatformat:0 }}</td>
+                <td>KES {{ p.spent|floatformat:0 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No projects recorded.</div>
+    {% endif %}
+</div>
+{% endblock %}

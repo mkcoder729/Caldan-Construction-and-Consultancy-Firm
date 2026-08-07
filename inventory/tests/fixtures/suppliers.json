@@ -1,0 +1,62 @@
+[
+  {
+    "model": "inventory.supplier",
+    "pk": 1,
+    "fields": {
+      "name": "East African Cement Ltd",
+      "contact_person": "David Mwangi",
+      "phone": "0712345678",
+      "alternative_phone": "0722345678",
+      "email": "info@eacement.co.ke",
+      "address": "Industrial Area, Nairobi",
+      "county": "Nairobi",
+      "town": "Nairobi",
+      "payment_terms": "CREDIT_30",
+      "tax_id": "P001234567A",
+      "business_registration": "1234567",
+      "notes": "Preferred supplier for cement",
+      "is_active": true,
+      "is_preferred": true
+    }
+  },
+  {
+    "model": "inventory.supplier",
+    "pk": 2,
+    "fields": {
+      "name": "Kenya Steel Mills",
+      "contact_person": "Sarah Ochieng",
+      "phone": "0734567890",
+      "alternative_phone": "",
+      "email": "orders@kenysteel.co.ke",
+      "address": "Mombasa Road, Nairobi",
+      "county": "Nairobi",
+      "town": "Nairobi",
+      "payment_terms": "CREDIT_60",
+      "tax_id": "P007654321B",
+      "business_registration": "7654321",
+      "notes": "Structural steel supplier",
+      "is_active": true,
+      "is_preferred": false
+    }
+  },
+  {
+    "model": "inventory.supplier",
+    "pk": 3,
+    "fields": {
+      "name": "Nairobi Construction Supplies",
+      "contact_person": "Peter Njoroge",
+      "phone": "0712345679",
+      "alternative_phone": "0722345679",
+      "email": "info@ncs.co.ke",
+      "address": "Pangani, Nairobi",
+      "county": "Nairobi",
+      "town": "Nairobi",
+      "payment_terms": "CASH",
+      "tax_id": "P009876543C",
+      "business_registration": "9876543",
+      "notes": "General construction supplies",
+      "is_active": true,
+      "is_preferred": false
+    }
+  }
+]

@@ -1,0 +1,28 @@
+{% comment %}
+    _section.html — one sidebar section rendered as a flat group.
+
+    Rendered as a `<div class="sidebar-section">` (not a `<details>`) so
+    every section is always visible — the user explicitly asked to drop
+    the collapsible behaviour and go back to a flat list.
+
+    The section's own label appears as a non-collapsible sub-header at
+    the top of the group. Items (including any in-section `type:'header'`
+    sub-headers, e.g. "Suppliers", "Actions") are rendered as plain
+    `<li>`s below it via `_item.html`.
+
+    Variables passed in by _admin.html:
+      section           — the dict from sidebar_menu.sections
+{% endcomment %}
+
+<div class="sidebar-section"
+     data-section="{{ section.label|lower }}">
+    <div class="sidebar-section-label">
+        {% if section.icon %}<i class="fas {{ section.icon }} sidebar-section-icon"></i>{% endif %}
+        <span class="sidebar-section-text">{{ section.label }}</span>
+    </div>
+    <ul class="sidebar-items">
+        {% spaceless %}{% for item in section.items %}
+            {% include "dashboard/dashboard/partials/_sidebars/_item.html" with item=item section_label=section.label %}
+        {% endfor %}{% endspaceless %}
+    </ul>
+</div>

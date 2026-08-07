@@ -1,0 +1,37 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Caldan Construction and Consultancy Firm — Building Kenya's Future{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="Caldan Construction and Consultancy Firm is a leading construction company in Kenya. We offer design, construction, renovations, interior design, and industrial solutions.">
+<meta property="og:title" content="Caldan Construction and Consultancy Firm — Building Kenya's Future">
+<meta property="og:description" content="Trusted construction company in Kenya. Design, build, renovate, and more.">
+<meta property="og:image" content="{% static 'images/og-image.png' %}">
+<meta name="twitter:card" content="summary_large_image">
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+{% include "website/partials/_hero.html" %}
+
+<!-- Trust Counter -->
+{% include "website/partials/_trust_counter.html" %}
+
+<!-- Services Preview -->
+{% include "website/partials/_services_grid.html" %}
+
+<!-- Projects Showcase -->
+{% include "website/partials/_projects_grid.html" %}
+
+<!-- Testimonials -->
+{% include "website/partials/_testimonials.html" %}
+
+<!-- Stats Bar -->
+{% include "website/partials/_stats_bar.html" %}
+
+<!-- Final CTA -->
+{% include "website/partials/_cta.html" %}
+
+{% endblock %}

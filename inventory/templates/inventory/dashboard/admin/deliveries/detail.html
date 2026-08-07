@@ -1,0 +1,400 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}{{ delivery.delivery_number }} - Delivery - Caldan Construction{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   DELIVERY DETAIL — PREMIUM ADMIN
+   ================================================================ */
+
+.delivery-detail-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+.project-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    position: relative; overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+.project-hero::before {
+    content: ''; position: absolute; top: -100%; right: -10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 65%);
+    border-radius: 50%; pointer-events: none;
+}
+.hero-main { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; position: relative; z-index: 1; }
+.hero-icon {
+    width: 56px; height: 56px;
+    border-radius: var(--r-md);
+    background: rgba(212, 175, 55, 0.18);
+    border: 1.5px solid rgba(212, 175, 55, 0.3);
+    backdrop-filter: blur(10px);
+    color: var(--brand-gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+}
+.hero-info { flex: 1; min-width: 240px; }
+.hero-number { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--brand-gold); background: rgba(212, 175, 55, 0.15); padding: 4px 12px; border-radius: var(--r-pill); border: 1px solid rgba(212, 175, 55, 0.25); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; }
+.hero-title { font-size: 24px; font-weight: 800; color: #fff; margin: 0 0 4px; letter-spacing: -0.3px; }
+.hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.85); margin: 0; }
+.hero-actions { display: flex; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; }
+
+.hero-status-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: var(--r-pill);
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-top: 8px;
+}
+.hero-status-badge.expected   { background: rgba(243,156,18,0.2); color: var(--brand-gold); border: 1px solid rgba(212, 175, 55, 0.3); }
+.hero-status-badge.in_transit { background: rgba(255,255,255,0.18); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
+.hero-status-badge.delivered  { background: rgba(39,174,96,0.25); color: #d4f5e0; border: 1px solid rgba(39,174,96,0.4); }
+.hero-status-badge.cancelled  { background: rgba(185,52,43,0.25); color: #fcd9d6; border: 1px solid rgba(185,52,43,0.4); }
+
+.btn { padding: 8px 16px; border: none; border-radius: var(--r-sm); font-size: 12px; font-weight: 600; cursor: pointer; transition: all var(--t-fast) var(--ease-spring); font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.2px; }
+.btn-light { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); }
+.btn-light:hover { background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.3); transform: translateY(-1px); }
+.btn-primary { background: var(--brand-gold); color: var(--brand-navy); box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3); }
+.btn-primary:hover { background: var(--brand-gold-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4); }
+.btn-success { background: var(--sem-success); color: #fff; box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3); }
+.btn-success:hover { background: #229954; transform: translateY(-1px); }
+
+.breadcrumb-bar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-tertiary); }
+.breadcrumb-bar a { color: var(--text-secondary); text-decoration: none; }
+.breadcrumb-bar a:hover { color: var(--brand-gold-deep); }
+.breadcrumb-bar i.sep { font-size: 9px; }
+.breadcrumb-bar .current { color: var(--text-primary); font-weight: 600; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.stat-card {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg); padding: 20px 22px;
+    display: flex; align-items: flex-start; gap: 16px;
+    transition: all var(--t-base) var(--ease-spring);
+    border-top: 3px solid transparent;
+    position: relative; overflow: hidden;
+}
+.stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--stat-accent, var(--border-subtle)); }
+.stat-card.blue   { --stat-accent: var(--brand-blue); border-top-color: var(--brand-blue); }
+.stat-card.gold   { --stat-accent: var(--brand-gold); border-top-color: var(--brand-gold); }
+.stat-card.green  { --stat-accent: var(--sem-success); border-top-color: var(--sem-success); }
+.stat-card.purple { --stat-accent: #8e44ad; border-top-color: #8e44ad; }
+.stat-icon { width: 48px; height: 48px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; transition: transform var(--t-base) var(--ease-spring); }
+.stat-card:hover .stat-icon { transform: scale(1.08) rotate(-4deg); }
+.stat-icon.blue   { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); }
+.stat-icon.gold   { background: rgba(212, 175, 55, 0.14); color: var(--brand-gold-deep); }
+.stat-icon.green  { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); }
+.stat-icon.purple { background: rgba(142, 68, 173, 0.12); color: #8e44ad; }
+.stat-body { flex: 1; min-width: 0; }
+.stat-value { font-size: 22px; font-weight: 800; color: var(--text-primary); line-height: 1.1; letter-spacing: -0.5px; }
+.stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+.info-section { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-xs); }
+.section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 0; padding: 16px 22px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-canvas); }
+.section-header i { color: var(--brand-gold); width: 30px; height: 30px; background: rgba(212, 175, 55, 0.1); border-radius: var(--r-sm); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; }
+.section-header h3 { font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+.info-row { display: flex; align-items: flex-start; gap: 14px; padding: 12px 14px; background: var(--bg-canvas); border-radius: var(--r-sm); border: 1px solid var(--border-subtle); }
+.info-row + .info-row { margin-top: 10px; }
+.info-row .info-icon { width: 32px; height: 32px; border-radius: var(--r-sm); background: rgba(212, 175, 55, 0.1); color: var(--brand-gold-deep); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+.info-row .info-body { flex: 1; min-width: 0; }
+.info-row .info-label { font-size: 10px; color: var(--text-tertiary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+.info-row .info-value { font-size: 13px; color: var(--text-primary); font-weight: 600; word-break: break-word; }
+
+.financial-summary { padding: 22px; }
+.fin-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; font-size: 13px; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); }
+.fin-row:last-child { border-bottom: 0; }
+.fin-row .fin-label { font-weight: 600; }
+.fin-row .fin-value { font-weight: 700; color: var(--text-primary); }
+.fin-row.total { font-size: 16px; padding: 14px 16px; background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%); color: #fff; border-radius: var(--r-md); margin-top: 8px; border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: var(--shadow-md); }
+.fin-row.total .fin-label { color: #fff; font-weight: 800; }
+.fin-row.total .fin-value { color: var(--brand-gold); font-size: 18px; }
+
+.data-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-xs); }
+.data-card-header { padding: 14px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 10px; background: var(--bg-canvas); }
+.data-card-header i { color: var(--brand-gold); font-size: 14px; }
+.data-card-header h3 { font-size: 13px; font-weight: 700; color: var(--text-primary); margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+.data-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+.data-table thead th { background: var(--bg-canvas); color: var(--text-secondary); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-subtle); }
+.data-table tbody td { padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); color: var(--text-primary); }
+.data-table tbody tr:last-child td { border-bottom: 0; }
+.data-table tbody tr:hover { background: var(--bg-canvas); }
+
+.received-bar { display: flex; align-items: center; gap: 8px; }
+.progress { width: 80px; height: 6px; background: var(--bg-canvas); border-radius: var(--r-pill); overflow: hidden; border: 1px solid var(--border-subtle); }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--brand-gold) 0%, var(--brand-gold-deep) 100%); transition: width var(--t-base) var(--ease-spring); }
+.progress-fill.complete { background: linear-gradient(90deg, var(--sem-success) 0%, #229954 100%); }
+
+.status-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: var(--r-pill);
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.status-pill.complete { background: rgba(39,174,96,0.12); color: var(--sem-success); }
+.status-pill.partial { background: rgba(243,156,18,0.12); color: var(--sem-warning); }
+
+.project-hero, .stats-grid, .info-grid, .data-card { animation: fade-up 0.4s ease both; }
+.stat-card:nth-child(2) { animation-delay: 0.04s; }
+.stat-card:nth-child(3) { animation-delay: 0.08s; }
+.stat-card:nth-child(4) { animation-delay: 0.12s; }
+@keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .info-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+    .project-hero { padding: 22px; }
+    .hero-title { font-size: 20px; }
+    .hero-icon { width: 44px; height: 44px; font-size: 18px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 18px; }
+    .data-table { font-size: 12px; }
+}
+@media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) {
+    .stat-card, .project-hero, .stats-grid, .info-grid, .data-card { animation: none; }
+    .stat-card:hover { transform: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="delivery-detail-page">
+
+    <div class="breadcrumb-bar">
+        <a href="{% url 'inventory:deliveries_list' %}">Deliveries</a>
+        <i class="fas fa-chevron-right sep"></i>
+        <span class="current">{{ delivery.delivery_number }}</span>
+    </div>
+
+    <div class="project-hero">
+        <div class="hero-main">
+            <div class="hero-icon"><i class="fas fa-truck-loading"></i></div>
+            <div class="hero-info">
+                <span class="hero-number"><i class="fas fa-hashtag"></i> {{ delivery.delivery_number }}</span>
+                <h1 class="hero-title">{{ delivery.supplier.name }}</h1>
+                <p class="hero-sub">Expected {% if delivery.expected_date %}{{ delivery.expected_date|date:"d M Y" }}{% else %}TBD{% endif %} from {{ delivery.supplier.name }}</p>
+                {% if delivery.status == 'EXPECTED' %}
+                    <span class="hero-status-badge expected"><i class="fas fa-clock"></i> Expected</span>
+                {% elif delivery.status == 'IN_TRANSIT' %}
+                    <span class="hero-status-badge in_transit"><i class="fas fa-truck"></i> In Transit</span>
+                {% elif delivery.status == 'DELIVERED' %}
+                    <span class="hero-status-badge delivered"><i class="fas fa-check"></i> Delivered</span>
+                {% elif delivery.status == 'CANCELLED' %}
+                    <span class="hero-status-badge cancelled"><i class="fas fa-times"></i> Cancelled</span>
+                {% endif %}
+            </div>
+            <div class="hero-actions">
+                <a href="{% url 'inventory:deliveries_list' %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                {% if delivery.status != 'DELIVERED' and delivery.status != 'CANCELLED' %}
+                    <a href="{% url 'inventory:delivery_receive' delivery.id %}" class="btn btn-success">
+                        <i class="fas fa-check-circle"></i> Receive
+                    </a>
+                {% endif %}
+                <a href="{% url 'inventory:delivery_edit' delivery.id %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-cubes"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ delivery.items.count }}</div>
+                <div class="stat-label">Items</div>
+                <div class="stat-sub">Materials in delivery</div>
+            </div>
+        </div>
+        <div class="stat-card gold">
+            <div class="stat-icon gold"><i class="fas fa-calendar"></i></div>
+            <div class="stat-body">
+                <div class="stat-value" style="font-size: 15px;">{{ delivery.expected_date|date:"d M Y"|default:"TBD" }}</div>
+                <div class="stat-label">Expected</div>
+                <div class="stat-sub">Arrival date</div>
+            </div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-calendar-check"></i></div>
+            <div class="stat-body">
+                <div class="stat-value" style="font-size: 15px;">{{ delivery.actual_date|date:"d M Y"|default:"Not yet" }}</div>
+                <div class="stat-label">Actual</div>
+                <div class="stat-sub">Delivered on</div>
+            </div>
+        </div>
+        <div class="stat-card purple">
+            <div class="stat-icon purple"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">KES {{ delivery.total|floatformat:0|intcomma }}</div>
+                <div class="stat-label">Total Cost</div>
+                <div class="stat-sub">Including fees</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-section">
+            <div class="section-header">
+                <i class="fas fa-info-circle"></i>
+                <h3>Delivery Details</h3>
+            </div>
+            <div style="padding: 18px;">
+                <div class="info-row">
+                    <div class="info-icon"><i class="fas fa-truck"></i></div>
+                    <div class="info-body">
+                        <div class="info-label">Supplier</div>
+                        <div class="info-value">
+                            <a href="{% url 'inventory:supplier_detail' delivery.supplier.id %}" style="color:var(--brand-blue);text-decoration:none;">{{ delivery.supplier.name }}</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-icon"><i class="fas fa-flag"></i></div>
+                    <div class="info-body">
+                        <div class="info-label">Status</div>
+                        <div class="info-value">{{ delivery.get_status_display }}</div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-icon"><i class="fas fa-calendar"></i></div>
+                    <div class="info-body">
+                        <div class="info-label">Expected Date</div>
+                        <div class="info-value">{{ delivery.expected_date|date:"d M Y"|default:"—" }}</div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-icon"><i class="fas fa-calendar-check"></i></div>
+                    <div class="info-body">
+                        <div class="info-label">Actual Date</div>
+                        <div class="info-value">{{ delivery.actual_date|date:"d M Y"|default:"Not delivered yet" }}</div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-icon"><i class="fas fa-shipping-fast"></i></div>
+                    <div class="info-body">
+                        <div class="info-label">Tracking #</div>
+                        <div class="info-value">{{ delivery.tracking_number|default:"—" }}</div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-icon"><i class="fas fa-clock"></i></div>
+                    <div class="info-body">
+                        <div class="info-label">Created</div>
+                        <div class="info-value">{{ delivery.created_at|date:"d M Y" }} by {{ delivery.created_by.full_name|default:"System" }}</div>
+                    </div>
+                </div>
+                {% if delivery.notes %}
+                <div class="info-row">
+                    <div class="info-icon"><i class="fas fa-sticky-note"></i></div>
+                    <div class="info-body">
+                        <div class="info-label">Notes</div>
+                        <div class="info-value">{{ delivery.notes }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="section-header">
+                <i class="fas fa-money-bill-wave"></i>
+                <h3>Financial Summary</h3>
+            </div>
+            <div class="financial-summary">
+                <div class="fin-row">
+                    <span class="fin-label">Items Subtotal</span>
+                    <span class="fin-value">KES {{ delivery.subtotal|floatformat:2|intcomma }}</span>
+                </div>
+                <div class="fin-row">
+                    <span class="fin-label">Delivery Fee</span>
+                    <span class="fin-value">KES {{ delivery.delivery_fee|floatformat:2|intcomma }}</span>
+                </div>
+                <div class="fin-row total">
+                    <span class="fin-label">Total Cost</span>
+                    <span class="fin-value">KES {{ delivery.total|floatformat:2|intcomma }}</span>
+                </div>
+                {% if delivery.receipt %}
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-subtle);">
+                    <a href="{{ delivery.receipt.url }}" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;">
+                        <i class="fas fa-file-download"></i> Download Receipt
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="data-card">
+        <div class="data-card-header">
+            <i class="fas fa-cubes"></i>
+            <h3>Delivery Items ({{ delivery.items.count }})</h3>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Material</th>
+                        <th>Quantity Ordered</th>
+                        <th>Unit Cost</th>
+                        <th>Total Cost</th>
+                        <th>Received</th>
+                        <th>Progress</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in delivery.items.all %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'inventory:material_detail' item.material.id %}" style="color:var(--text-primary);text-decoration:none;font-weight:600;">
+                                    {{ item.material.name }}
+                                </a>
+                            </td>
+                            <td>{{ item.quantity }} {{ item.material.unit|default:"units" }}</td>
+                            <td>KES {{ item.unit_cost|floatformat:2|intcomma }}</td>
+                            <td><strong>KES {{ item.total_cost|floatformat:2|intcomma }}</strong></td>
+                            <td>
+                                {% if item.is_fully_received %}
+                                    <span class="status-pill complete"><i class="fas fa-check"></i> Complete</span>
+                                {% else %}
+                                    <span class="status-pill partial"><i class="fas fa-clock"></i> {{ item.received_quantity }}/{{ item.quantity }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="received-bar">
+                                    <div class="progress"><div class="progress-fill {% if item.is_fully_received %}complete{% endif %}" style="width: {{ item.received_percentage }}%;"></div></div>
+                                    <span style="font-size: 11px; font-weight: 700; color: var(--text-secondary);">{{ item.received_percentage|floatformat:0 }}%</span>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-tertiary);">
+                                <i class="fas fa-cubes" style="font-size: 2rem; opacity: 0.3; display: block; margin-bottom: 8px; color: var(--brand-gold);"></i>
+                                No items in this delivery yet
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

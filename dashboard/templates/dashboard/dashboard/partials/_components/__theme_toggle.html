@@ -1,0 +1,443 @@
+<!--
+    Theme toggle — dropdown now appears BELOW the button instead of above,
+    so it never disappears into the top edge of the screen.
+
+    Behaviour:
+      - Hover the button → dropdown preview slides down (purely visual hint).
+      - Click the button → dropdown opens (stays open until click-out / Escape).
+      - Click a theme option → applied + dropdown closes.
+      - Keyboard users: Tab to focus, Enter/Space to open, ↑/↓ to navigate, Enter to pick.
+
+    Falls back gracefully if the global theme API is unavailable.
+-->
+<div class="theme-picker" id="themePicker">
+    <button class="theme-toggle"
+            id="themeToggle"
+            type="button"
+            aria-label="Change theme"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="themeDropdown">
+        <i class="fas fa-moon theme-toggle-icon" aria-hidden="true"></i>
+        <span class="theme-toggle-tooltip">Theme</span>
+    </button>
+
+    <div class="theme-dropdown"
+         id="themeDropdown"
+         role="menu"
+         aria-label="Theme options"
+         aria-hidden="true">
+        <div class="theme-dropdown-arrow" aria-hidden="true"></div>
+
+        <button class="theme-option" role="menuitemradio" data-theme="light"  aria-checked="false">
+            <span class="theme-icon"><i class="fas fa-sun" aria-hidden="true"></i></span>
+            <span class="theme-text">
+                <span class="theme-label">Light</span>
+                <span class="theme-desc">Bright and clean</span>
+            </span>
+            <span class="theme-check" aria-hidden="true"><i class="fas fa-check"></i></span>
+        </button>
+
+        <button class="theme-option" role="menuitemradio" data-theme="dark"   aria-checked="false">
+            <span class="theme-icon"><i class="fas fa-moon" aria-hidden="true"></i></span>
+            <span class="theme-text">
+                <span class="theme-label">Dark</span>
+                <span class="theme-desc">Easy on the eyes</span>
+            </span>
+            <span class="theme-check" aria-hidden="true"><i class="fas fa-check"></i></span>
+        </button>
+
+        <button class="theme-option" role="menuitemradio" data-theme="device" aria-checked="false">
+            <span class="theme-icon"><i class="fas fa-laptop" aria-hidden="true"></i></span>
+            <span class="theme-text">
+                <span class="theme-label">System</span>
+                <span class="theme-desc">Matches device</span>
+            </span>
+            <span class="theme-check" aria-hidden="true"><i class="fas fa-check"></i></span>
+        </button>
+    </div>
+</div>
+
+<style>
+/* ---------- Wrapper ---------- */
+.theme-picker {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* ---------- Trigger button (kept identical to old .theme-toggle) ---------- */
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--r-md);
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background var(--t-fast) var(--ease-spring),
+                color var(--t-fast) var(--ease-spring),
+                transform var(--t-fast) var(--ease-spring),
+                border-color var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    position: relative;
+}
+
+.theme-toggle:hover {
+    background: rgba(11, 102, 195, 0.08);
+    color: var(--brand-blue);
+    border-color: rgba(11, 102, 195, 0.15);
+    transform: scale(1.05);
+}
+
+.theme-toggle:active {
+    transform: scale(0.94);
+}
+
+.theme-toggle[aria-expanded="true"] {
+    background: rgba(11, 102, 195, 0.12);
+    color: var(--brand-blue);
+    border-color: rgba(11, 102, 195, 0.25);
+}
+
+.theme-toggle-icon {
+    font-size: 1.05rem;
+    transition: transform var(--t-base) var(--ease-spring);
+}
+
+.theme-toggle:hover .theme-toggle-icon {
+    transform: rotate(15deg);
+}
+
+.theme-picker.open .theme-toggle-icon {
+    transform: rotate(0deg);
+}
+
+/* ---------- Tiny tooltip (appears BELOW the button, matching the dropdown) ---------- */
+.theme-toggle-tooltip {
+    position: absolute;
+    top: calc(100% + 10px);   /* below the button, mirroring the dropdown */
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px) scale(0.92);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-md);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--t-fast) var(--ease-standard),
+                transform var(--t-fast) var(--ease-spring);
+    font-family: 'Inter', sans-serif;
+}
+
+.theme-toggle:hover .theme-toggle-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+}
+
+/* Hide the tooltip while the dropdown is open — avoid double UI */
+.theme-picker.open .theme-toggle-tooltip {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px) scale(0.92);
+}
+
+/* ---------- Dropdown — opens BELOW the trigger ---------- */
+.theme-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);     /* below the button */
+    right: 0;                   /* align to button's right edge */
+    min-width: 240px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-xl);
+    padding: 6px;
+    z-index: 1100;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px) scale(0.98);
+    transform-origin: top right;
+    transition: opacity var(--t-fast) var(--ease-standard),
+                transform var(--t-fast) var(--ease-spring),
+                visibility 0s linear var(--t-fast);
+    font-family: 'Inter', sans-serif;
+}
+
+.theme-picker.open .theme-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    transition: opacity var(--t-fast) var(--ease-standard),
+                transform var(--t-fast) var(--ease-spring),
+                visibility 0s linear 0s;
+}
+
+/* Arrow pointing up to the button */
+.theme-dropdown-arrow {
+    position: absolute;
+    top: -7px;
+    right: 14px;
+    width: 12px;
+    height: 12px;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-subtle);
+    border-left: 1px solid var(--border-subtle);
+    transform: rotate(45deg);
+}
+
+/* ---------- Dropdown options ---------- */
+.theme-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: var(--r-sm);
+    text-align: left;
+    transition: background var(--t-fast) var(--ease-standard),
+                color var(--t-fast) var(--ease-standard);
+}
+
+.theme-option:hover,
+.theme-option:focus-visible {
+    background: var(--bg-secondary);
+    outline: none;
+}
+
+.theme-option .theme-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--r-md);
+    background: var(--bg-secondary);
+    color: var(--brand-blue);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+    transition: background var(--t-fast) var(--ease-standard);
+}
+
+.theme-option:hover .theme-icon {
+    background: rgba(11, 102, 195, 0.1);
+}
+
+.theme-option .theme-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.theme-option .theme-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.theme-option .theme-desc {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    line-height: 1.2;
+}
+
+.theme-option .theme-check {
+    width: 18px;
+    height: 18px;
+    color: var(--accent-gold);
+    opacity: 0;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity var(--t-fast) var(--ease-standard);
+}
+
+.theme-option[aria-checked="true"] {
+    background: rgba(11, 102, 195, 0.06);
+}
+
+.theme-option[aria-checked="true"] .theme-check {
+    opacity: 1;
+}
+
+.theme-option[aria-checked="true"] .theme-icon {
+    background: rgba(212, 175, 55, 0.14);
+    color: var(--accent-gold);
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .theme-toggle-icon,
+    .theme-dropdown,
+    .theme-toggle-tooltip {
+        transition: none;
+    }
+}
+
+/* ---------- Mobile: full-width dropdown ---------- */
+@media (max-width: 640px) {
+    .theme-dropdown {
+        min-width: 220px;
+    }
+    .theme-toggle-tooltip {
+        display: none;
+    }
+}
+</style>
+
+<script>
+(function() {
+    'use strict';
+
+    const picker    = document.getElementById('themePicker');
+    const trigger   = document.getElementById('themeToggle');
+    const dropdown  = document.getElementById('themeDropdown');
+    const options   = dropdown ? dropdown.querySelectorAll('.theme-option') : [];
+
+    if (!picker || !trigger || !dropdown) return;
+
+    // ---- Open / close helpers ----
+    function openDropdown() {
+        picker.classList.add('open');
+        trigger.setAttribute('aria-expanded', 'true');
+        dropdown.setAttribute('aria-hidden', 'false');
+        // Focus the currently-selected option
+        const current = picker.querySelector('.theme-option[aria-checked="true"]')
+                     || options[0];
+        if (current) current.focus();
+    }
+
+    function closeDropdown(returnFocus) {
+        if (!picker.classList.contains('open')) return;
+        picker.classList.remove('open');
+        trigger.setAttribute('aria-expanded', 'false');
+        dropdown.setAttribute('aria-hidden', 'true');
+        // Only return focus to the trigger if the caller asked for it
+        // (i.e. the user explicitly closed the dropdown via Escape or by
+        // picking an option — never on a background click, which would
+        // yank focus away from whatever the user just clicked).
+        if (returnFocus) trigger.focus();
+    }
+
+    function toggleDropdown() {
+        if (picker.classList.contains('open')) {
+            closeDropdown(true);   // user clicked trigger to close
+        } else {
+            openDropdown();
+        }
+    }
+
+    // ---- Apply theme ----
+    function applyTheme(theme) {
+        if (window.caldan && window.caldan.theme && typeof window.caldan.theme.set === 'function') {
+            window.caldan.theme.set(theme);
+        } else {
+            // Fallback if global API isn't ready
+            document.documentElement.setAttribute('data-theme', theme);
+            try { localStorage.setItem('caldan_theme', theme); } catch (e) {}
+        }
+        // Update aria-checked + checkmark visibility
+        options.forEach(opt => {
+            const isSelected = opt.dataset.theme === theme;
+            opt.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+        });
+    }
+
+    // ---- Initial selection sync ----
+    function syncSelected() {
+        let current = 'light';
+        try {
+            current = localStorage.getItem('caldan_theme')
+                   || document.documentElement.getAttribute('data-theme')
+                   || 'light';
+        } catch (e) {}
+        options.forEach(opt => {
+            const isSelected = opt.dataset.theme === current;
+            opt.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+        });
+    }
+
+    // Listen for theme changes from outside the dropdown (sidebar toggle,
+    // keyboard shortcut, other tabs). initThemeToggle dispatches this after
+    // each setTheme() call.
+    document.addEventListener('caldan:theme-changed', (e) => {
+        const theme = e && e.detail && e.detail.theme;
+        if (!theme) return;
+        options.forEach(opt => {
+            const isSelected = opt.dataset.theme === theme;
+            opt.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+        });
+    });
+
+    // ---- Wire up ----
+    trigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleDropdown();
+    });
+
+    options.forEach(opt => {
+        opt.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            applyTheme(opt.dataset.theme);
+            closeDropdown(true);   // user picked an option; return focus to trigger
+        });
+    });
+
+    // Click outside closes — but ONLY when the dropdown is actually open.
+    // closeDropdown(returnFocus=true) returns focus to the trigger button,
+    // so calling it on every click anywhere in the page would yank focus
+    // away from any form input the user is trying to click into, making
+    // typing impossible. Pass `false` to close without returning focus.
+    document.addEventListener('click', (e) => {
+        if (picker.classList.contains('open') && !picker.contains(e.target)) {
+            closeDropdown(false);   // background click — keep focus where the user just clicked
+        }
+    });
+
+    // Escape closes + returns focus to trigger
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && picker.classList.contains('open')) {
+            closeDropdown(true);
+        }
+    });
+
+    // Keyboard navigation within the dropdown
+    dropdown.addEventListener('keydown', (e) => {
+        const list = Array.from(options);
+        const idx  = list.indexOf(document.activeElement);
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            list[(idx + 1) % list.length].focus();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            list[(idx - 1 + list.length) % list.length].focus();
+        } else if (e.key === 'Home') {
+            e.preventDefault();
+            list[0].focus();
+        } else if (e.key === 'End') {
+            e.preventDefault();
+            list[list.length - 1].focus();
+        }
+    });
+
+    syncSelected();
+})();
+</script>

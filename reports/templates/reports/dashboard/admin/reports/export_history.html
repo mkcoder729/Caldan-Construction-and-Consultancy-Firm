@@ -1,0 +1,518 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}Export History - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   EXPORT HISTORY — filterable list page
+   ================================================================ */
+
+.report-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+.page-header {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.page-header-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+    z-index: 1;
+}
+
+.page-header-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.page-header-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-header-title i { color: var(--brand-gold); font-size: 22px; }
+.page-header-sub { font-size: 13px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+.page-header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.section-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.section-badge {
+    padding: 4px 12px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold-deep);
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+/* ---- Filter bar ---- */
+.filter-bar {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+    padding: 18px 20px;
+    background: var(--bg-canvas);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.filter-bar label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 6px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+}
+
+.btn {
+    padding: 9px 18px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.2px;
+}
+
+.btn-primary {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary:hover {
+    background: var(--brand-gold-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-ghost {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ---- Table ---- */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: var(--bg-canvas);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.data-table td {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tbody tr { transition: background var(--t-fast) var(--ease-standard); }
+.data-table tbody tr:hover td { background: var(--bg-canvas); }
+
+.format-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.format-badge.csv   { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); border: 1px solid rgba(39,174,96,0.2); }
+.format-badge.excel { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); border: 1px solid rgba(11,102,195,0.2); }
+.format-badge.pdf   { background: rgba(185, 52, 43, 0.12); color: var(--sem-danger);  border: 1px solid rgba(185,52,43,0.2); }
+.format-badge.zip   { background: rgba(142, 68, 173, 0.12); color: #8E44AD; border: 1px solid rgba(142,68,173,0.2); }
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.success { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); border: 1px solid rgba(39,174,96,0.2); }
+.status-badge.failed  { background: rgba(185, 52, 43, 0.12); color: var(--sem-danger);  border: 1px solid rgba(185,52,43,0.2); }
+
+.status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.action-group {
+    display: flex;
+    gap: 6px;
+}
+
+.action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-canvas);
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-standard);
+    text-decoration: none;
+}
+
+.action-btn:hover {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    border-color: var(--brand-gold);
+    transform: translateY(-1px);
+}
+
+.action-btn.danger:hover {
+    background: var(--sem-danger);
+    color: #fff;
+    border-color: var(--sem-danger);
+}
+
+.error-text {
+    color: var(--sem-danger);
+    font-size: 11px;
+    margin-top: 4px;
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 80px 20px;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 12px;
+    color: var(--text-tertiary);
+    opacity: 0.3;
+}
+
+.empty-state h3 { color: var(--text-primary); font-size: 1.1rem; margin: 0 0 8px; font-weight: 700; }
+
+/* ---- Pagination ---- */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-canvas);
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.pagination-info {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.pagination-controls {
+    display: flex;
+    gap: 6px;
+}
+
+.page-link {
+    padding: 6px 12px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.page-link:hover {
+    border-color: var(--brand-gold);
+    color: var(--brand-gold-deep);
+}
+
+.page-link.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.section-card { animation: fade-up 0.4s ease both; }
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .page-header { padding: 20px; }
+    .page-header-title { font-size: 18px; }
+    .page-header-icon { width: 44px; height: 44px; font-size: 18px; }
+    .filter-bar { grid-template-columns: 1fr; }
+    .pagination { flex-direction: column; gap: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .section-card { animation: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="report-page">
+
+    <div class="page-header">
+        <div class="page-header-main">
+            <div class="page-header-icon"><i class="fas fa-clock-rotate-left"></i></div>
+            <div>
+                <h1 class="page-header-title">Export History</h1>
+                <p class="page-header-sub">{{ total|intcomma }} {{ total|pluralize:"record,records" }} — every export you've generated</p>
+            </div>
+        </div>
+        <div class="page-header-actions">
+            <a href="{% url 'reports:export_center' %}" class="btn btn-ghost">
+                <i class="fas fa-plus"></i> New Export
+            </a>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="filter-bar">
+            <form method="get" action="{% url 'reports:export_history' %}" style="display:contents;">
+                <div>
+                    <label for="filter-type">Report Type</label>
+                    <select class="form-control" id="filter-type" name="type">
+                        <option value="">All reports</option>
+                        {% for value, label in report_types %}
+                            <option value="{{ value }}" {% if value == current_type %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="filter-date-from">From</label>
+                    <input type="date" class="form-control" id="filter-date-from" name="date_from"
+                           value="{{ date_from|default:'' }}">
+                </div>
+                <div>
+                    <label for="filter-date-to">To</label>
+                    <input type="date" class="form-control" id="filter-date-to" name="date_to"
+                           value="{{ date_to|default:'' }}">
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {% if records %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Report</th>
+                        <th>Format</th>
+                        <th>Status</th>
+                        <th>By</th>
+                        <th>Size</th>
+                        <th>Date</th>
+                        <th style="text-align:right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in records %}
+                        <tr>
+                            <td style="font-weight: 600;">{{ r.report_label }}</td>
+                            <td><span class="format-badge {{ r.format }}">{{ r.format }}</span></td>
+                            <td>
+                                <span class="status-badge {{ r.status }}">
+                                    <span class="status-dot"></span>
+                                    {{ r.get_status_display }}
+                                </span>
+                                {% if r.is_failed and r.error %}
+                                    <div class="error-text" title="{{ r.error }}">{{ r.error }}</div>
+                                {% endif %}
+                            </td>
+                            <td>{{ r.created_by.get_full_name|default:r.created_by.email|default:"System" }}</td>
+                            <td style="font-size:12px;color:var(--text-secondary);">{{ r.file_size_display }}</td>
+                            <td style="font-size: 12px;">{{ r.created_at|date:"M d, Y H:i" }}</td>
+                            <td>
+                                <div class="action-group" style="justify-content:flex-end;">
+                                    {% if r.is_success %}
+                                        <a href="{{ r.download_url }}"
+                                           class="action-btn" title="Re-download">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    {% endif %}
+                                    <form method="post" action="{% url 'reports:export_history_delete' r.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="action-btn danger" title="Remove from history"
+                                                onclick="return confirm('Remove this entry from export history?');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <div class="pagination-info">
+                    Showing {{ records|length }} of {{ total|intcomma }} {{ total|pluralize:"record,records" }}
+                </div>
+                <div class="pagination-controls">
+                    {% if has_prev %}
+                        <a class="page-link" href="?{% if current_type %}type={{ current_type }}&{% endif %}{% if date_from %}date_from={{ date_from|date:'Y-m-d' }}&{% endif %}{% if date_to %}date_to={{ date_to|date:'Y-m-d' }}&{% endif %}page={{ page|add:'-1' }}">
+                            <i class="fas fa-chevron-left"></i> Prev
+                        </a>
+                    {% else %}
+                        <span class="page-link disabled"><i class="fas fa-chevron-left"></i> Prev</span>
+                    {% endif %}
+                    <span class="page-link" style="pointer-events:none;">Page {{ page }}</span>
+                    {% if has_next %}
+                        <a class="page-link" href="?{% if current_type %}type={{ current_type }}&{% endif %}{% if date_from %}date_from={{ date_from|date:'Y-m-d' }}&{% endif %}{% if date_to %}date_to={{ date_to|date:'Y-m-d' }}&{% endif %}page={{ page|add:'1' }}">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% else %}
+                        <span class="page-link disabled">Next <i class="fas fa-chevron-right"></i></span>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3>No exports match your filters</h3>
+                <p>Try clearing filters or generate a new export from the Export Center.</p>
+                <a href="{% url 'reports:export_center' %}" class="btn btn-primary" style="margin-top:14px;">
+                    <i class="fas fa-plus"></i> Go to Export Center
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

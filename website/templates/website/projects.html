@@ -1,0 +1,121 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Our Projects — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="Explore our portfolio of construction projects across Kenya. Residential, commercial, renovations, hospitality, and industrial projects.">
+{% endblock %}
+
+{% block content %}
+
+<!-- Projects Hero -->
+<section class="projects-hero" style="min-height: 45vh; display: flex; align-items: center; position: relative; background: linear-gradient(160deg, rgba(11, 20, 32, 0.82) 0%, rgba(11, 102, 195, 0.65) 100%), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&q=80'); background-size: cover; background-position: center; background-attachment: fixed; padding: 120px 0 80px; color: #FFFFFF;">
+    <div class="container" style="position: relative; z-index: 2;">
+        <div style="max-width: 700px; margin: 0 auto; text-align: center;">
+            <p class="eyebrow" style="justify-content: center; color: #D4AF37; font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 12px;">
+                <i class="fas fa-building" style="margin-right: 8px;"></i> Our Work
+            </p>
+            <h1 style="font-size: clamp(2.5rem, 4vw, 3.5rem); font-weight: 700; margin-bottom: 16px; color: #FFFFFF;">
+                Our <span style="color: #D4AF37;">Projects</span>
+            </h1>
+            <p style="color: rgba(255,255,255,0.85); font-size: 1.15rem; line-height: 1.7; max-width: 600px; margin: 0 auto;">
+                Explore our portfolio of completed and ongoing construction projects across Kenya.
+            </p>
+            <div style="width: 60px; height: 3px; background: #D4AF37; margin: 16px auto 0;"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Projects Grid -->
+<section class="projects-grid-section" style="padding: 60px 0; background: var(--bg-primary);">
+    <div class="container">
+
+        <!-- Filters -->
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 40px;">
+            <a href="{% url 'website:projects' %}" class="filter-btn {% if not current_category and not current_status %}active{% endif %}" style="padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border-primary); background: {% if not current_category and not current_status %}var(--accent-primary){% else %}var(--bg-card){% endif %}; color: {% if not current_category and not current_status %}#FFFFFF{% else %}var(--text-secondary){% endif %}; text-decoration: none; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 500;">
+                All Projects
+            </a>
+            <a href="{% url 'website:projects' %}?category=Residential" class="filter-btn {% if current_category == 'Residential' %}active{% endif %}" style="padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border-primary); background: {% if current_category == 'Residential' %}var(--accent-primary){% else %}var(--bg-card){% endif %}; color: {% if current_category == 'Residential' %}#FFFFFF{% else %}var(--text-secondary){% endif %}; text-decoration: none; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 500;">
+                Residential
+            </a>
+            <a href="{% url 'website:projects' %}?category=Commercial" class="filter-btn {% if current_category == 'Commercial' %}active{% endif %}" style="padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border-primary); background: {% if current_category == 'Commercial' %}var(--accent-primary){% else %}var(--bg-card){% endif %}; color: {% if current_category == 'Commercial' %}#FFFFFF{% else %}var(--text-secondary){% endif %}; text-decoration: none; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 500;">
+                Commercial
+            </a>
+            <a href="{% url 'website:projects' %}?category=Renovation" class="filter-btn {% if current_category == 'Renovation' %}active{% endif %}" style="padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border-primary); background: {% if current_category == 'Renovation' %}var(--accent-primary){% else %}var(--bg-card){% endif %}; color: {% if current_category == 'Renovation' %}#FFFFFF{% else %}var(--text-secondary){% endif %}; text-decoration: none; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 500;">
+                Renovation
+            </a>
+            <a href="{% url 'website:projects' %}?category=Hospitality" class="filter-btn {% if current_category == 'Hospitality' %}active{% endif %}" style="padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border-primary); background: {% if current_category == 'Hospitality' %}var(--accent-primary){% else %}var(--bg-card){% endif %}; color: {% if current_category == 'Hospitality' %}#FFFFFF{% else %}var(--text-secondary){% endif %}; text-decoration: none; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 500;">
+                Hospitality
+            </a>
+            <a href="{% url 'website:projects' %}?category=Industrial" class="filter-btn {% if current_category == 'Industrial' %}active{% endif %}" style="padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border-primary); background: {% if current_category == 'Industrial' %}var(--accent-primary){% else %}var(--bg-card){% endif %}; color: {% if current_category == 'Industrial' %}#FFFFFF{% else %}var(--text-secondary){% endif %}; text-decoration: none; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 500;">
+                Industrial
+            </a>
+        </div>
+
+        <!-- Projects -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+            {% for project in projects %}
+                {% include "website/partials/_project_card.html" with project=project %}
+            {% empty %}
+                <p style="color: var(--text-secondary); text-align: center; grid-column: 1 / -1; padding: 40px;">
+                    No projects found matching your criteria.
+                </p>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if projects.has_other_pages %}
+        <div style="display: flex; justify-content: center; gap: 8px; margin-top: 40px;">
+            {% if projects.has_previous %}
+            <a href="?page={{ projects.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}" style="padding: 10px 16px; border: 1px solid var(--border-primary); border-radius: 8px; color: var(--text-primary); text-decoration: none; transition: all 0.3s ease;">Previous</a>
+            {% endif %}
+
+            {% for num in projects.paginator.page_range %}
+                {% if projects.number == num %}
+                <span style="padding: 10px 16px; background: var(--accent-primary); color: #FFFFFF; border-radius: 8px; font-weight: 600;">{{ num }}</span>
+                {% elif num > projects.number|add:'-3' and num < projects.number|add:'3' %}
+                <a href="?page={{ num }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}" style="padding: 10px 16px; border: 1px solid var(--border-primary); border-radius: 8px; color: var(--text-primary); text-decoration: none; transition: all 0.3s ease;">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if projects.has_next %}
+            <a href="?page={{ projects.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}" style="padding: 10px 16px; border: 1px solid var(--border-primary); border-radius: 8px; color: var(--text-primary); text-decoration: none; transition: all 0.3s ease;">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+
+<!-- CTA -->
+{% include "website/partials/_cta.html" %}
+
+<style>
+    .filter-btn:hover {
+        border-color: var(--accent-primary) !important;
+        background: var(--accent-primary) !important;
+        color: #FFFFFF !important;
+    }
+    .filter-btn.active {
+        background: var(--accent-primary) !important;
+        color: #FFFFFF !important;
+        border-color: var(--accent-primary) !important;
+    }
+
+    @media (max-width: 992px) {
+        .projects-grid-section .grid-3 {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+    }
+    @media (max-width: 576px) {
+        .projects-grid-section .grid-3 {
+            grid-template-columns: 1fr !important;
+        }
+        .filter-btn {
+            font-size: 0.8rem !important;
+            padding: 6px 14px !important;
+        }
+    }
+</style>
+{% endblock %}

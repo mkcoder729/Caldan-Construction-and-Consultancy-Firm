@@ -1,0 +1,114 @@
+{% load static %}
+
+<nav class="navbar" role="navigation" aria-label="Main navigation" style="position: relative; padding: 0 24px; height: 72px; display: flex; align-items: center;">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0;">
+
+        <!-- Logo -->
+        <a href="{% url 'website:index' %}" class="navbar-brand" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+            <img src="{% static 'images/logo.png' %}" alt="{{ SITE_NAME }}" id="main-logo" style="height: 48px; width: auto; transition: all 0.3s ease;">
+            <span style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--text-primary); display: none; letter-spacing: -0.01em;">{{ SITE_NAME }}</span>
+        </a>
+
+        <!-- Navbar Toggle (Mobile) -->
+        <button id="navbarToggle" class="navbar-toggle" aria-expanded="false" style="display: none; background: none; border: none; font-size: 1.4rem; color: var(--text-primary); cursor: pointer; padding: 8px;">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Navbar Menu -->
+        <ul id="navbarMenu" class="navbar-menu" style="display: flex; align-items: center; gap: 4px; list-style: none; margin: 0; padding: 0;">
+            <li><a href="{% url 'website:index' %}" class="nav-link" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">Home</a></li>
+            <li><a href="{% url 'website:about' %}" class="nav-link" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">About</a></li>
+            <li><a href="{% url 'website:services' %}" class="nav-link" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">Services</a></li>
+            <li><a href="{% url 'website:projects' %}" class="nav-link" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">Projects</a></li>
+            <li><a href="{% url 'website:blog' %}" class="nav-link" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">Blog</a></li>
+            <li><a href="{% url 'shop:index' %}" class="nav-link" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">Shop</a></li>
+            <li>
+                <a href="{% url 'shop:cart_view' %}" aria-label="View cart" id="globalCartLink" style="position: relative; display: inline-flex; align-items: center; justify-content: center; padding: 9px 12px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-size: 1.05rem; transition: all 0.25s ease;">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="globalCartBadge" class="cart-badge {% if not cart_count %}empty{% endif %}" style="position: absolute; top: 2px; right: 0; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent-secondary); color: #0D2B36; font-size: 0.65rem; font-weight: 700; display: flex; align-items: center; justify-content: center; line-height: 1;">{{ cart_count|default:0 }}</span>
+                </a>
+            </li>
+            <li><a href="{% url 'website:contact' %}" class="nav-link" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">Contact</a></li>
+            <li><a href="{% url 'website:quote_request' %}" class="btn btn-gold btn-sm" style="margin-left: 6px; font-family: 'Montserrat', sans-serif;">
+                <i class="fas fa-paper-plane"></i> Get a Quote
+            </a></li>
+
+            <!-- Simple Theme Toggle -->
+            <li>
+                <button id="themeToggle" aria-label="Toggle theme" style="background: none; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; padding: 9px 14px; border-radius: var(--radius-md); transition: all 0.25s ease; display: flex; align-items: center; font-family: 'Montserrat', sans-serif;">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </li>
+        </ul>
+
+    </div>
+</nav>
+
+<style>
+    #themeToggle:hover {
+        background: var(--bg-secondary);
+        color: var(--accent-secondary);
+    }
+    #themeToggle:active {
+        transform: scale(0.9);
+    }
+
+    .nav-link:hover {
+        color: var(--accent-secondary) !important;
+        background: var(--bg-secondary);
+    }
+    .nav-link.active {
+        color: var(--accent-primary) !important;
+        font-weight: 600;
+    }
+
+    /* Global cart icon in main navbar */
+    #globalCartLink:hover {
+        color: var(--accent-secondary);
+        background: var(--bg-secondary);
+    }
+    #globalCartLink:hover .cart-badge:not(.empty) {
+        transform: scale(1.08);
+    }
+    #globalCartBadge {
+        transition: transform 0.2s ease;
+    }
+    #globalCartBadge.empty {
+        display: none;
+    }
+
+    /* Mobile Styles */
+    @media (max-width: 992px) {
+        .navbar-toggle { display: block !important; }
+        .navbar-menu {
+            display: none !important;
+            position: fixed;
+            top: 72px;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            flex-direction: column;
+            padding: 16px 24px;
+            box-shadow: var(--shadow-lg);
+            border-bottom: 1px solid var(--border-primary);
+            gap: 4px !important;
+            max-height: calc(100vh - 72px);
+            overflow-y: auto;
+        }
+        .navbar-menu.active { display: flex !important; }
+        .navbar-menu li { width: 100%; }
+        .navbar-menu li a { display: block; padding: 12px 16px !important; width: 100%; }
+        .navbar-menu .btn-gold { text-align: center; margin-left: 0 !important; margin-top: 8px; }
+        #themeToggle {
+            padding: 12px 16px !important;
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .navbar { padding: 0 16px !important; }
+        .navbar-brand img { height: 40px !important; }
+        .navbar-menu .btn-gold { width: 100%; justify-content: center; }
+    }
+</style>

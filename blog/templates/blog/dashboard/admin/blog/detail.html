@@ -1,0 +1,659 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+{% load blog_extras %}
+
+{% block title %}{{ post.title }} - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   BLOG DETAIL — PREMIUM ADMIN
+   ================================================================ */
+
+.blog-detail {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+/* ----- HERO ----- */
+.hero {
+    position: relative;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    min-height: 320px;
+    display: flex;
+    align-items: flex-end;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-sidebar);
+    isolation: isolate;
+}
+
+.hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+.hero__media img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+}
+.hero__placeholder {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem;
+    color: rgba(212,175,55,0.35);
+}
+.hero__overlay {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(11,20,32,0.4) 0%, rgba(11,20,32,0.92) 100%),
+        radial-gradient(800px 380px at 80% 0%, rgba(212,175,55,0.18), transparent 70%);
+    z-index: 1;
+}
+
+.hero__inner {
+    position: relative;
+    z-index: 2;
+    padding: 32px 36px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+
+.hero__breadcrumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 14px;
+}
+.hero__breadcrumb a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    transition: color var(--t-fast) var(--ease-standard);
+}
+.hero__breadcrumb a:hover { color: var(--brand-gold); }
+.hero__breadcrumb i.fa-chevron-right { font-size: 0.55rem; opacity: 0.6; }
+.hero__breadcrumb .current { color: var(--brand-gold); font-weight: 600; }
+
+.hero__title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 800;
+    line-height: 1.2;
+    color: #fff;
+    margin: 0 0 12px;
+    letter-spacing: -0.5px;
+    text-wrap: balance;
+    max-width: 760px;
+}
+
+.hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 0.86rem;
+    color: rgba(255,255,255,0.85);
+}
+.hero__meta span { display: inline-flex; align-items: center; gap: 6px; }
+.hero__meta i { color: var(--brand-gold); }
+
+.hero__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(255,255,255,0.16);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    backdrop-filter: blur(6px);
+}
+.hero__status.published { background: rgba(39,174,96,0.25); border-color: rgba(39,174,96,0.45); }
+.hero__status.draft { background: rgba(243,156,18,0.25); border-color: rgba(243,156,18,0.45); }
+.hero__status.archived { background: rgba(149,165,166,0.25); border-color: rgba(149,165,166,0.45); }
+
+.hero__actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    padding-top: 6px;
+}
+
+.btn-hero {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border-radius: var(--r-sm);
+    border: 1px solid rgba(255,255,255,0.22);
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+}
+.btn-hero:hover {
+    background: rgba(255,255,255,0.22);
+    border-color: rgba(255,255,255,0.4);
+    transform: translateY(-1px);
+}
+.btn-hero.btn-hero-gold {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    border-color: var(--brand-gold);
+}
+.btn-hero.btn-hero-gold:hover { background: var(--brand-gold-hover); }
+.btn-hero.btn-hero-danger {
+    background: rgba(185,52,43,0.85);
+    border-color: rgba(185,52,43,0.95);
+}
+.btn-hero.btn-hero-danger:hover { background: #A12E26; }
+
+/* ----- STATS ----- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: all var(--t-base) var(--ease-spring);
+    border-top: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--stat-accent, var(--border-subtle));
+}
+
+.stat-card.blue   { --stat-accent: var(--brand-blue); border-top-color: var(--brand-blue); }
+.stat-card.gold   { --stat-accent: var(--brand-gold); border-top-color: var(--brand-gold); }
+.stat-card.green  { --stat-accent: var(--sem-success); border-top-color: var(--sem-success); }
+.stat-card.orange { --stat-accent: var(--sem-warning); border-top-color: var(--sem-warning); }
+
+.stat-icon {
+    width: 48px; height: 48px;
+    border-radius: var(--r-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: transform var(--t-base) var(--ease-spring);
+}
+.stat-card:hover .stat-icon { transform: scale(1.08) rotate(-4deg); }
+.stat-icon.blue   { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); }
+.stat-icon.gold   { background: rgba(212, 175, 55, 0.14); color: var(--brand-gold-deep); }
+.stat-icon.green  { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); }
+.stat-icon.orange { background: rgba(243, 156, 18, 0.12); color: var(--sem-warning); }
+
+.stat-body { flex: 1; min-width: 0; }
+.stat-value { font-size: 22px; font-weight: 800; color: var(--text-primary); line-height: 1.1; letter-spacing: -0.5px; }
+.stat-value-sm { font-size: 16px; word-break: break-all; }
+.stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+/* ----- BODY ----- */
+.body-row {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 20px;
+}
+
+.panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+.panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.panel__header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex; align-items: center; gap: 10px;
+    margin: 0;
+}
+.panel__header h3 i {
+    color: var(--brand-gold);
+    width: 28px; height: 28px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px;
+}
+.panel__badge {
+    padding: 3px 12px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold-deep);
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 700;
+    border: 1px solid rgba(212, 175, 55, 0.18);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.panel__body { padding: 22px; }
+
+.excerpt-block {
+    padding: 14px 18px;
+    background: var(--bg-canvas);
+    border-left: 3px solid var(--brand-gold);
+    border-radius: var(--r-md);
+    font-style: italic;
+    color: var(--text-primary);
+    font-size: 14px;
+    margin-bottom: 18px;
+    line-height: 1.6;
+}
+
+/* Article prose (matches public blog styling) */
+.article-prose {
+    font-size: 14px;
+    line-height: 1.78;
+    color: var(--text-primary);
+}
+.article-prose h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 30px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(212,175,55,0.32);
+    letter-spacing: -0.2px;
+}
+.article-prose h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.18rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 22px 0 10px;
+}
+.article-prose h4 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 18px 0 8px;
+}
+.article-prose p { margin: 0 0 14px; }
+.article-prose ul, .article-prose ol {
+    margin: 0 0 18px;
+    padding-left: 0;
+    list-style: none;
+}
+.article-prose ul li {
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 6px;
+}
+.article-prose ul li::before {
+    content: "";
+    position: absolute; left: 6px; top: 10px;
+    width: 7px; height: 7px;
+    background: var(--brand-gold);
+    border-radius: 2px;
+    transform: rotate(45deg);
+}
+.article-prose blockquote {
+    margin: 18px 0;
+    padding: 14px 18px;
+    background: rgba(212,175,55,0.10);
+    border-left: 4px solid var(--brand-gold);
+    border-radius: 0 var(--r-md) var(--r-md) 0;
+    font-style: italic;
+    color: var(--text-primary);
+}
+.article-prose strong { color: var(--text-primary); font-weight: 700; }
+.article-prose a { color: var(--brand-gold); text-decoration: none; border-bottom: 1.5px solid rgba(212,175,55,0.4); }
+.article-prose a:hover { border-color: var(--brand-gold); }
+.article-prose code {
+    background: var(--bg-canvas);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.86em;
+    color: var(--brand-gold-deep);
+}
+.article-prose pre {
+    background: var(--bg-canvas);
+    padding: 14px 16px;
+    border-radius: var(--r-md);
+    overflow-x: auto;
+    margin: 14px 0;
+}
+.article-prose hr {
+    border: none;
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 22px 0;
+}
+
+/* Side metadata */
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 13px;
+    gap: 12px;
+}
+.info-row:last-child { border-bottom: none; }
+.info-row .label { color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.info-row .label i { color: var(--text-tertiary); font-size: 11px; }
+.info-row .value { color: var(--text-primary); font-weight: 600; text-align: right; word-break: break-word; }
+.info-row .value a { color: var(--brand-gold-deep); text-decoration: none; }
+.info-row .value a:hover { text-decoration: underline; }
+.info-row .value.mono { font-family: 'Courier New', monospace; font-size: 11px; }
+
+.url-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+}
+.url-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+}
+.url-copy-btn {
+    width: 36px; height: 36px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border-subtle);
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-standard);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px;
+}
+.url-copy-btn:hover { background: var(--brand-gold-hover); transform: translateY(-1px); }
+
+.back-row {
+    text-align: center;
+}
+.back-row a {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 22px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all var(--t-fast) var(--ease-spring);
+}
+.back-row a:hover {
+    border-color: var(--brand-gold);
+    color: var(--brand-gold-deep);
+    transform: translateY(-1px);
+}
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hero, .stat-card, .panel { animation: fade-up 0.4s ease both; }
+.hero { animation-delay: 0s; }
+.stat-card:nth-child(2) { animation-delay: 0.05s; }
+.stat-card:nth-child(3) { animation-delay: 0.1s; }
+.stat-card:nth-child(4) { animation-delay: 0.15s; }
+.panel:nth-child(2) { animation-delay: 0.18s; }
+
+@media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .body-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .hero__inner { padding: 22px; }
+    .hero__title { font-size: 1.4rem; }
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 18px; }
+    .stat-icon { width: 40px; height: 40px; font-size: 16px; }
+    .panel__body { padding: 16px; }
+}
+
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .hero__actions { width: 100%; }
+    .hero__actions .btn-hero { flex: 1; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero, .stat-card, .panel { animation: none; }
+    .stat-card:hover { transform: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="blog-detail">
+
+    <!-- HERO with featured image backdrop -->
+    <div class="hero">
+        <div class="hero__media">
+            {% if post.image %}
+                <img src="{{ post.image.url }}" alt="{{ post.title }}">
+            {% else %}
+                <div class="hero__placeholder"><i class="fas fa-newspaper"></i></div>
+            {% endif %}
+        </div>
+        <div class="hero__overlay"></div>
+
+        <div class="hero__inner">
+            <div style="flex: 1; min-width: 240px;">
+                <nav class="hero__breadcrumb" aria-label="Breadcrumb">
+                    <a href="{% url 'blog:admin_list' %}"><i class="fas fa-newspaper"></i> Blog</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span class="current">Post</span>
+                </nav>
+
+                <h1 class="hero__title">{{ post.title }}</h1>
+
+                <div class="hero__meta">
+                    <span><i class="fas fa-user"></i> Caldan Team</span>
+                    <span><i class="far fa-calendar-alt"></i> {{ post.created_at|date:"F j, Y" }}</span>
+                    {% if post.published_at %}<span><i class="fas fa-check-circle"></i> Published {{ post.published_at|date:"F j, Y" }}</span>{% endif %}
+                    <span><i class="far fa-clock"></i> {{ post.reading_time|default:0 }} min read</span>
+                    <span class="hero__status {% if post.is_published %}published{% elif post.is_archived %}archived{% else %}draft{% endif %}">
+                        {% if post.is_published %}<i class="fas fa-circle-check"></i> Published
+                        {% elif post.is_archived %}<i class="fas fa-box-archive"></i> Archived
+                        {% else %}<i class="fas fa-circle-pause"></i> Draft{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="hero__actions">
+                <a href="{% url 'blog:admin_edit' post.id %}" class="btn-hero">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'blog:detail' post.slug %}" target="_blank" class="btn-hero">
+                    <i class="fas fa-external-link-alt"></i> View Public
+                </a>
+                <form method="POST" action="{% url 'blog:admin_toggle' post.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-hero {% if post.is_published %}{% else %}btn-hero-gold{% endif %}">
+                        {% if post.is_published %}<i class="fas fa-undo"></i> Unpublish{% else %}<i class="fas fa-check-circle"></i> Publish{% endif %}
+                    </button>
+                </form>
+                <a href="{% url 'blog:admin_delete' post.id %}" class="btn-hero btn-hero-danger" title="Delete post">
+                    <i class="fas fa-trash"></i> Delete
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card gold">
+            <div class="stat-icon gold"><i class="fas fa-hashtag"></i></div>
+            <div class="stat-body">
+                <div class="stat-value stat-value-sm">/{{ post.slug }}/</div>
+                <div class="stat-label">URL Slug</div>
+                <div class="stat-sub">Public path</div>
+            </div>
+        </div>
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-font"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ post.content|wordcount|default:0 }}</div>
+                <div class="stat-label">Words</div>
+                <div class="stat-sub">In content</div>
+            </div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-clock"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ post.reading_time|default:0 }} min</div>
+                <div class="stat-label">Reading Time</div>
+                <div class="stat-sub">Estimated</div>
+            </div>
+        </div>
+        <div class="stat-card orange">
+            <div class="stat-icon orange"><i class="fas fa-calendar-alt"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ post.updated_at|date:"M d" }}</div>
+                <div class="stat-label">Updated</div>
+                <div class="stat-sub">{{ post.updated_at|date:"Y" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content + metadata -->
+    <div class="body-row">
+        <div class="panel">
+            <div class="panel__header">
+                <h3><i class="fas fa-file-lines"></i> Content</h3>
+                <span class="panel__badge">Rendered</span>
+            </div>
+            <div class="panel__body">
+                {% if post.excerpt %}
+                    <div class="excerpt-block">{{ post.excerpt }}</div>
+                {% endif %}
+                <article class="article-prose">
+                    {{ post.content|render_blog }}
+                </article>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel__header">
+                <h3><i class="fas fa-circle-info"></i> Metadata</h3>
+                <span class="panel__badge">Details</span>
+            </div>
+            <div class="panel__body">
+                <div class="info-row">
+                    <span class="label"><i class="fas fa-link"></i> Slug</span>
+                    <span class="value mono">{{ post.slug }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label"><i class="fas fa-eye"></i> Status</span>
+                    <span class="value">
+                        {% if post.is_published %}Published{% elif post.is_archived %}Archived{% else %}Draft{% endif %}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="label"><i class="fas fa-calendar-plus"></i> Created</span>
+                    <span class="value">{{ post.created_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label"><i class="fas fa-calendar-check"></i> Published</span>
+                    <span class="value">{% if post.published_at %}{{ post.published_at|date:"M d, Y" }}{% else %}—{% endif %}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label"><i class="fas fa-clock-rotate-left"></i> Updated</span>
+                    <span class="value">{{ post.updated_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label"><i class="fas fa-image"></i> Featured Image</span>
+                    <span class="value">{% if post.image %}Yes{% else %}None{% endif %}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label"><i class="fas fa-share-nodes"></i> Public URL</span>
+                </div>
+                <div class="url-row">
+                    <input type="text" id="publicUrl" value="{{ request.scheme }}://{{ request.get_host }}{% url 'blog:detail' post.slug %}" readonly class="url-input">
+                    <button type="button" class="url-copy-btn" onclick="copyURL()" title="Copy URL"><i class="fas fa-copy"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="back-row">
+        <a href="{% url 'blog:admin_list' %}">
+            <i class="fas fa-arrow-left"></i> Back to Posts
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyURL() {
+    var input = document.getElementById('publicUrl');
+    input.select();
+    input.setSelectionRange(0, 99999);
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(input.value).then(function() {
+            var btn = document.querySelector('.url-copy-btn i');
+            btn.className = 'fas fa-check';
+            setTimeout(function() { btn.className = 'fas fa-copy'; }, 2000);
+        });
+    } else {
+        try {
+            document.execCommand('copy');
+            var btn = document.querySelector('.url-copy-btn i');
+            btn.className = 'fas fa-check';
+            setTimeout(function() { btn.className = 'fas fa-copy'; }, 2000);
+        } catch (e) {}
+    }
+}
+</script>
+{% endblock %}

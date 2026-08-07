@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Caldan Construction and Consultancy Firm — Building Kenya's Future{% endblock %}</title>
+    {% block meta_description %}
+    <meta name="description" content="Caldan Construction and Consultancy Firm is a leading construction company in Kenya. We offer design, construction, renovations, interior design, and industrial solutions.">
+    {% endblock %}
+    <meta name="keywords" content="construction Kenya, building contractor, renovations Nairobi, interior design, industrial flooring, concrete products">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Caldan Construction and Consultancy Firm — Building Kenya's Future">
+    <meta property="og:description" content="Trusted construction company in Kenya. Design, build, renovate, and more.">
+    <meta property="og:image" content="{% static 'images/og-image.png' %}">
+    <meta property="og:url" content="https://caldanconstruction.com">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Caldan Construction and Consultancy Firm — Building Kenya's Future">
+    <meta name="twitter:description" content="Trusted construction company in Kenya.">
+    <meta name="twitter:image" content="{% static 'images/og-image.png' %}">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon.png' %}">
+
+    <!-- Fonts: Montserrat + Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome 6 (Free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- AOS (Animate On Scroll) -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- ============================================================ -->
+    <!-- PRELOADER -->
+    <!-- ============================================================ -->
+    {% include "preloader.html" %}
+
+    <!-- ============================================================ -->
+    <!-- NAVBAR (Wrapper for scroll behavior) -->
+    <!-- ============================================================ -->
+    <header id="mainHeader">
+        {% include "website/partials/_navbar.html" %}
+    </header>
+
+    <!-- ============================================================ -->
+    <!-- MAIN CONTENT -->
+    <!-- ============================================================ -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ============================================================ -->
+    <!-- FOOTER & PARTIALS -->
+    <!-- ============================================================ -->
+    {% include "website/partials/_footer.html" %}
+    {% include "website/partials/_whatsapp_button.html" %}
+    {% include "website/partials/_cookie_consent.html" %}
+    {% include "website/partials/_newsletter_popup.html" %}
+
+    <!-- Toast Container -->
+    <div id="toastContainer" style="position: fixed; bottom: 90px; right: 24px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;"></div>
+
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- Main JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out',
+            once: true,
+            offset: 50,
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

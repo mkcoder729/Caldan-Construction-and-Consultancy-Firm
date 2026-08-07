@@ -1,0 +1,1389 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}Dashboard - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   CALDAN DASHBOARD - MODERN OVERVIEW
+   ================================================================ */
+
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+/* ================================================================
+   WELCOME BANNER
+   ================================================================ */
+.welcome-banner {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.welcome-banner:hover {
+    border-color: rgba(212, 175, 55, 0.25);
+}
+
+.welcome-main {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+    z-index: 1;
+}
+
+.welcome-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.welcome-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 6px;
+    letter-spacing: -0.3px;
+}
+
+.welcome-sub {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+.welcome-status {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: var(--sem-success);
+    border-radius: 50%;
+    animation: pulse-dot 2s infinite;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(39, 174, 96, 0); }
+}
+
+.welcome-date {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 8px 18px;
+    border-radius: var(--r-pill);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    position: relative;
+    z-index: 1;
+}
+
+.welcome-date i {
+    color: var(--brand-gold);
+}
+
+/* ================================================================
+   STATS CARDS - 2 ROWS OF 4
+   ================================================================ */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: all var(--t-base) var(--ease-spring);
+    border-top: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 50%, var(--stat-accent, transparent) 130%);
+    opacity: 0;
+    transition: opacity var(--t-base) var(--ease-standard);
+    pointer-events: none;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--stat-accent, var(--border-subtle));
+}
+
+.stat-card:hover::after {
+    opacity: 0.06;
+}
+
+/* Coloured variants */
+.stat-card.blue   { --stat-accent: var(--brand-blue); border-top-color: var(--brand-blue); }
+.stat-card.gold   { --stat-accent: var(--brand-gold); border-top-color: var(--brand-gold); }
+.stat-card.green  { --stat-accent: var(--sem-success); border-top-color: var(--sem-success); }
+.stat-card.orange { --stat-accent: var(--sem-warning); border-top-color: var(--sem-warning); }
+.stat-card.red    { --stat-accent: var(--sem-danger); border-top-color: var(--sem-danger); }
+.stat-card.purple { --stat-accent: #7C3AED; border-top-color: #7C3AED; }
+.stat-card.teal   { --stat-accent: #0891B2; border-top-color: #0891B2; }
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--r-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: transform var(--t-base) var(--ease-spring);
+}
+
+.stat-card:hover .stat-icon {
+    transform: scale(1.08) rotate(-4deg);
+}
+
+.stat-icon.blue   { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); }
+.stat-icon.gold   { background: rgba(212, 175, 55, 0.14); color: var(--brand-gold-deep); }
+.stat-icon.green  { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); }
+.stat-icon.orange { background: rgba(243, 156, 18, 0.12); color: var(--sem-warning); }
+.stat-icon.red    { background: rgba(185, 52, 43, 0.12); color: var(--sem-danger); }
+.stat-icon.purple { background: rgba(124, 58, 237, 0.12); color: #7C3AED; }
+.stat-icon.teal   { background: rgba(8, 145, 178, 0.12); color: #0891B2; }
+
+.stat-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.stat-value {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+.stat-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+}
+
+.stat-trend {
+    font-size: 10px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 4px;
+}
+
+.stat-trend.up   { color: var(--sem-success); }
+.stat-trend.down { color: var(--sem-danger); }
+.stat-trend.warn { color: var(--sem-warning); }
+
+/* ================================================================
+   CHARTS - 3 ROWS
+   ================================================================ */
+.charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.chart-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.chart-card-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.chart-card-header h3 i {
+    color: var(--brand-gold);
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-badge {
+    padding: 4px 12px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold-deep);
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.chart-body {
+    padding: 20px;
+    height: 260px;
+    position: relative;
+}
+
+/* ================================================================
+   TWO COLUMN LAYOUT
+   ================================================================ */
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* ================================================================
+   LISTS
+   ================================================================ */
+.list-container {
+    padding: 4px 0;
+}
+
+.list-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: all var(--t-fast) var(--ease-standard);
+    flex-wrap: wrap;
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+.list-item:hover {
+    background: var(--bg-card-hover);
+}
+
+.list-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--r-md);
+    background: linear-gradient(135deg, var(--brand-blue), var(--brand-blue-deep));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(11, 102, 195, 0.25);
+}
+
+.list-content {
+    flex: 1;
+    min-width: 120px;
+}
+
+.list-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.list-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+.list-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+}
+
+.list-action {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 12px;
+    flex-shrink: 0;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.list-action:hover {
+    background: rgba(11, 102, 195, 0.08);
+    border-color: var(--brand-blue);
+    color: var(--brand-blue);
+    transform: translateY(-1px);
+}
+
+/* ================================================================
+   BADGES & STATUS
+   ================================================================ */
+.status-badge {
+    display: inline-flex;
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.status-badge.pending {
+    background: rgba(243, 156, 18, 0.15);
+    color: var(--sem-warning);
+}
+.status-badge.active,
+.status-badge.approved,
+.status-badge.completed {
+    background: rgba(39, 174, 96, 0.15);
+    color: var(--sem-success);
+}
+.status-badge.inactive,
+.status-badge.rejected,
+.status-badge.failed {
+    background: rgba(185, 52, 43, 0.15);
+    color: var(--sem-danger);
+}
+.status-badge.on-hold,
+.status-badge.processing {
+    background: rgba(41, 128, 185, 0.15);
+    color: var(--sem-info);
+}
+
+.role-badge {
+    display: inline-flex;
+    padding: 3px 9px;
+    border-radius: var(--r-sm);
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.role-badge.admin {
+    background: rgba(11, 102, 195, 0.12);
+    color: var(--brand-blue);
+}
+.role-badge.chief {
+    background: rgba(212, 175, 55, 0.15);
+    color: var(--brand-gold-deep);
+}
+.role-badge.client {
+    background: rgba(39, 174, 96, 0.12);
+    color: var(--sem-success);
+}
+
+/* ================================================================
+   TABLE
+   ================================================================ */
+.table-wrap {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-tertiary);
+    background: var(--bg-canvas);
+    border-bottom: 1.5px solid var(--border-subtle);
+    white-space: nowrap;
+}
+
+.table td {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table tbody tr {
+    transition: background var(--t-fast) var(--ease-standard);
+}
+
+.table tbody tr:hover td {
+    background: var(--bg-card-hover);
+}
+
+.table .text-success {
+    color: var(--sem-success);
+    font-weight: 700;
+}
+
+.table .text-danger {
+    color: var(--sem-danger);
+    font-weight: 700;
+}
+
+.table .nowrap {
+    white-space: nowrap;
+}
+
+/* ================================================================
+   MINI STATS FOOTER
+   ================================================================ */
+.mini-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.mini-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 20px 18px;
+    text-align: center;
+    transition: all var(--t-base) var(--ease-spring);
+    position: relative;
+    overflow: hidden;
+}
+
+.mini-stat::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand-blue), var(--brand-gold));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--t-base) var(--ease-spring);
+}
+
+.mini-stat:hover {
+    transform: translateY(-3px);
+    border-color: rgba(11, 102, 195, 0.2);
+    box-shadow: var(--shadow-md);
+}
+
+.mini-stat:hover::before {
+    transform: scaleX(1);
+}
+
+.mini-value {
+    display: block;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+}
+
+.mini-label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+/* ================================================================
+   EMPTY STATE
+   ================================================================ */
+.empty-mini {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--text-tertiary);
+}
+
+.empty-mini i {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 8px;
+    opacity: 0.35;
+}
+
+.empty-mini p {
+    font-size: 12px;
+    margin: 4px 0;
+}
+
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
+.stat-card,
+.chart-card,
+.mini-stat {
+    animation: fade-up 0.4s ease both;
+}
+
+.stat-card:nth-child(2) { animation-delay: 0.04s; }
+.stat-card:nth-child(3) { animation-delay: 0.08s; }
+.stat-card:nth-child(4) { animation-delay: 0.12s; }
+.stat-card:nth-child(5) { animation-delay: 0.16s; }
+.stat-card:nth-child(6) { animation-delay: 0.20s; }
+.stat-card:nth-child(7) { animation-delay: 0.24s; }
+.stat-card:nth-child(8) { animation-delay: 0.28s; }
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+@media (max-width: 1200px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .charts-row { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+    .mini-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .welcome-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px;
+    }
+
+    .welcome-title { font-size: 18px; }
+    .welcome-icon { width: 44px; height: 44px; font-size: 18px; }
+
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .mini-grid { grid-template-columns: 1fr 1fr; }
+
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 20px; }
+    .stat-icon { width: 40px; height: 40px; font-size: 16px; }
+
+    .chart-body { height: 200px; padding: 16px; }
+    .chart-card-header { padding: 12px 16px; }
+}
+
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .mini-grid { grid-template-columns: 1fr; }
+    .welcome-main { flex-wrap: wrap; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-container">
+
+    <!-- ============================================================
+    WELCOME BANNER
+    ============================================================ -->
+    <div class="welcome-banner">
+        <div class="welcome-main">
+            <div class="welcome-icon">
+                <i class="fas fa-hard-hat"></i>
+            </div>
+            <div>
+                <h1 class="welcome-title">Welcome back, {{ user.full_name|default:user.email }}!</h1>
+                <p class="welcome-sub">Here's what's happening across your construction operations.</p>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <div class="welcome-date">
+                <i class="fas fa-calendar-alt"></i>
+                <span>{{ current_date|date:"l, F j, Y" }}</span>
+            </div>
+            <span class="welcome-status" title="All systems operational"></span>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    PRIMARY STATS - ROW 1
+    ============================================================ -->
+    <div class="stats-grid">
+        <!-- Active Projects -->
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-building"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.projects.active|default:0 }}</div>
+                <div class="stat-label">Active Projects</div>
+                <div class="stat-sub">{{ stats.projects.total|default:0 }} total projects</div>
+                <div class="stat-trend up"><i class="fas fa-arrow-up"></i> {{ stats.projects.this_month|default:0 }} this month</div>
+            </div>
+        </div>
+
+        <!-- Total Revenue -->
+        <div class="stat-card gold">
+            <div class="stat-icon gold"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">KES {{ stats.revenue.total_revenue|floatformat:0|intcomma|default:'0' }}</div>
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-sub">ARR: KES {{ stats.revenue.annual_revenue|floatformat:0|intcomma|default:'0' }}</div>
+                <div class="stat-trend up"><i class="fas fa-arrow-up"></i> {{ stats.revenue.this_month|floatformat:0|intcomma }} this month</div>
+            </div>
+        </div>
+
+        <!-- Total Clients -->
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-users"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.clients.total|default:0 }}</div>
+                <div class="stat-label">Total Clients</div>
+                <div class="stat-sub">Active: {{ stats.clients.active|default:0 }}</div>
+                <div class="stat-trend up"><i class="fas fa-arrow-up"></i> +{{ stats.clients.this_month|default:0 }} this month</div>
+            </div>
+        </div>
+
+        <!-- Orders -->
+        <div class="stat-card orange">
+            <div class="stat-icon orange"><i class="fas fa-shopping-bag"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.orders.total|default:0 }}</div>
+                <div class="stat-label">Total Orders</div>
+                <div class="stat-sub">Pending: {{ stats.orders.pending|default:0 }}</div>
+                <div class="stat-trend {% if stats.orders.pending > 0 %}warn{% else %}up{% endif %}">
+                    {% if stats.orders.pending > 0 %}
+                        <i class="fas fa-clock"></i> {{ stats.orders.pending }} awaiting processing
+                    {% else %}
+                        <i class="fas fa-check"></i> All processed
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    SECONDARY STATS - ROW 2
+    ============================================================ -->
+    <div class="stats-grid">
+        <!-- Inventory -->
+        <div class="stat-card purple">
+            <div class="stat-icon purple"><i class="fas fa-boxes"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.inventory.total_materials|default:0 }}</div>
+                <div class="stat-label">Total Materials</div>
+                <div class="stat-sub">Categories: {{ stats.inventory.categories|default:0 }}</div>
+                <div class="stat-trend {% if stats.inventory.low_stock > 0 %}down{% else %}up{% endif %}">
+                    {% if stats.inventory.low_stock > 0 %}
+                        <i class="fas fa-exclamation-triangle"></i> {{ stats.inventory.low_stock }} low stock alerts
+                    {% else %}
+                        <i class="fas fa-check-circle"></i> All stocked
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Members -->
+        <div class="stat-card teal">
+            <div class="stat-icon teal"><i class="fas fa-user-tie"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.team.total|default:0 }}</div>
+                <div class="stat-label">Team Members</div>
+                <div class="stat-sub">Active: {{ stats.team.active|default:0 }}</div>
+                <div class="stat-trend up"><i class="fas fa-user-plus"></i> {{ stats.team.new_this_month|default:0 }} new</div>
+            </div>
+        </div>
+
+        <!-- Payments This Month -->
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-credit-card"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">KES {{ stats.payments.this_month|floatformat:0|intcomma|default:'0' }}</div>
+                <div class="stat-label">Payments This Month</div>
+                <div class="stat-sub">Total: {{ stats.payments.count|default:0 }} payments</div>
+                <div class="stat-trend up"><i class="fas fa-arrow-up"></i> {{ stats.payments.success_rate|default:0 }}% success rate</div>
+            </div>
+        </div>
+
+        <!-- Pending KYC / Approvals -->
+        <div class="stat-card red">
+            <div class="stat-icon red"><i class="fas fa-id-card"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.pending_approvals|default:0 }}</div>
+                <div class="stat-label">Pending Approvals</div>
+                <div class="stat-sub">KYC: {{ stats.kyc_pending|default:0 }}</div>
+                <div class="stat-trend warn"><i class="fas fa-clock"></i> Awaiting review</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    CHARTS ROW 1: Revenue + Growth
+    ============================================================ -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3><i class="fas fa-chart-line"></i> Revenue Trend</h3>
+                <span class="chart-badge">Last 12 months</span>
+            </div>
+            <div class="chart-body">
+                <canvas id="revenueChart" data-labels='{{ revenue_months|safe }}' data-data='{{ revenue_data|safe }}'></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3><i class="fas fa-chart-bar"></i> User Growth</h3>
+                <span class="chart-badge">Clients &amp; Team</span>
+            </div>
+            <div class="chart-body">
+                <canvas id="growthChart" data-months='{{ growth_months|safe }}' data-clients='{{ growth_clients|safe }}' data-team='{{ growth_team|safe }}'></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    CHARTS ROW 2: Order Status + Project Status
+    ============================================================ -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3><i class="fas fa-chart-pie"></i> Order Status Distribution</h3>
+                <span class="chart-badge">{{ stats.orders.total|default:0 }} total</span>
+            </div>
+            <div class="chart-body">
+                <canvas id="orderStatusChart" data-labels='{{ order_status_labels|safe }}' data-data='{{ order_status_data|safe }}' data-colors='{{ order_status_colors|safe }}'></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3><i class="fas fa-chart-pie"></i> Project Status</h3>
+                <span class="chart-badge">{{ stats.projects.total|default:0 }} projects</span>
+            </div>
+            <div class="chart-body">
+                <canvas id="projectStatusChart" data-labels='{{ project_status_labels|safe }}' data-data='{{ project_status_data|safe }}' data-colors='{{ project_status_colors|safe }}'></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    CHARTS ROW 3: Inventory + Revenue Breakdown
+    ============================================================ -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3><i class="fas fa-chart-bar"></i> Inventory by Category</h3>
+                <span class="chart-badge">{{ stats.inventory.total_materials|default:0 }} items</span>
+            </div>
+            <div class="chart-body">
+                <canvas id="inventoryChart" data-labels='{{ inventory_category_labels|safe }}' data-data='{{ inventory_category_data|safe }}'></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3><i class="fas fa-chart-doughnut"></i> Revenue Breakdown</h3>
+                <span class="chart-badge">By source</span>
+            </div>
+            <div class="chart-body">
+                <canvas id="revenueBreakdownChart" data-labels='{{ revenue_breakdown_labels|safe }}' data-data='{{ revenue_breakdown_data|safe }}' data-colors='{{ revenue_breakdown_colors|safe }}'></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    TWO COLUMN: Recent Activity + Quick Stats
+    ============================================================ -->
+    <div class="two-col">
+        <!-- Recent Activity -->
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                <a href="{% url 'dashboard:activity' %}" class="list-action" style="width:auto;padding:4px 12px;font-size:11px;border:1px solid var(--border-subtle);border-radius:var(--r-sm);color:var(--text-secondary);text-decoration:none;">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="list-container">
+                {% for activity in activities|slice:":5" %}
+                <div class="list-item">
+                    <div class="list-avatar">{{ activity.user_avatar|default:'U' }}</div>
+                    <div class="list-content">
+                        <div class="list-title">{{ activity.label|default:'Action' }}</div>
+                        <div class="list-sub">{{ activity.user|default:'System' }} • {{ activity.time_ago|default:'Just now' }}</div>
+                    </div>
+                    <span class="status-badge {% if activity.color == 'success' %}approved{% elif activity.color == 'danger' %}rejected{% elif activity.color == 'warning' %}pending{% else %}active{% endif %}">
+                        {{ activity.color|default:'info'|title }}
+                    </span>
+                </div>
+                {% empty %}
+                <div class="empty-mini">
+                    <i class="fas fa-inbox"></i>
+                    <p>No recent activity</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Quick Stats Cards -->
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3><i class="fas fa-chart-simple"></i> Quick Stats</h3>
+                <span class="chart-badge">Overview</span>
+            </div>
+            <div style="padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="mini-stat" style="border-radius:var(--r-md);padding:14px;border:1px solid var(--border-subtle);background:var(--bg-canvas);">
+                    <span class="mini-value" style="font-size:20px;">{{ stats.projects.active|default:0 }}</span>
+                    <span class="mini-label" style="font-size:10px;">Active Projects</span>
+                </div>
+                <div class="mini-stat" style="border-radius:var(--r-md);padding:14px;border:1px solid var(--border-subtle);background:var(--bg-canvas);">
+                    <span class="mini-value" style="font-size:20px;color:var(--brand-gold-deep);">KES {{ stats.revenue.this_month|floatformat:0|intcomma|default:'0' }}</span>
+                    <span class="mini-label" style="font-size:10px;">Monthly Revenue</span>
+                </div>
+                <div class="mini-stat" style="border-radius:var(--r-md);padding:14px;border:1px solid var(--border-subtle);background:var(--bg-canvas);">
+                    <span class="mini-value" style="font-size:20px;color:var(--sem-success);">{{ stats.clients.active|default:0 }}</span>
+                    <span class="mini-label" style="font-size:10px;">Active Clients</span>
+                </div>
+                <div class="mini-stat" style="border-radius:var(--r-md);padding:14px;border:1px solid var(--border-subtle);background:var(--bg-canvas);">
+                    <span class="mini-value" style="font-size:20px;color:var(--sem-warning);">{{ stats.inventory.low_stock|default:0 }}</span>
+                    <span class="mini-label" style="font-size:10px;">Low Stock Alerts</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    RECENT PAYMENTS TABLE
+    ============================================================ -->
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <h3><i class="fas fa-money-bill-wave"></i> Recent Payments</h3>
+            <a href="{% url 'finances:payment_list' %}" class="list-action" style="width:auto;padding:4px 12px;font-size:11px;border:1px solid var(--border-subtle);border-radius:var(--r-sm);color:var(--text-secondary);text-decoration:none;">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Client</th>
+                        <th>Project</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in recent_payments %}
+                    <tr>
+                        <td class="nowrap">{{ payment.created_at|date:"d/m/Y" }}</td>
+                        <td>{{ payment.client_name|default:"—"|truncatechars:20 }}</td>
+                        <td>{{ payment.project_name|default:"—"|truncatechars:15 }}</td>
+                        <td class="text-success">KES {{ payment.amount|floatformat:2|intcomma }}</td>
+                        <td><span class="role-badge admin" style="font-size:9px;padding:2px 8px;">{{ payment.method|default:"—" }}</span></td>
+                        <td><span class="status-badge {% if payment.status == 'completed' %}approved{% elif payment.status == 'pending' %}pending{% elif payment.status == 'failed' %}rejected{% else %}active{% endif %}">
+                            {{ payment.status|default:"Pending"|title }}
+                        </span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-tertiary);">No payments found</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    PROJECT MILESTONES - PROGRESS BARS
+    ============================================================ -->
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <h3><i class="fas fa-flag-checkered"></i> Project Milestones</h3>
+            <a href="{% url 'projects:project_list' %}" class="list-action" style="width:auto;padding:4px 12px;font-size:11px;border:1px solid var(--border-subtle);border-radius:var(--r-sm);color:var(--text-secondary);text-decoration:none;">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div style="padding:8px 20px 18px;">
+            {% for project in milestone_overview %}
+            <div style="padding:14px 0;border-bottom:1px solid var(--border-subtle);">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
+                    <div style="flex:1;min-width:180px;">
+                        <div style="font-size:13px;font-weight:600;color:var(--text-primary);">{{ project.project_name }}</div>
+                        <div style="font-size:11px;color:var(--text-tertiary);margin-top:2px;">
+                            {{ project.project_code }}
+                            - {{ project.milestones_completed }}/{{ project.milestones_total }} milestones done
+                            {% if project.milestones_overdue > 0 %}
+                                <span style="color:var(--sem-danger);font-weight:600;">- {{ project.milestones_overdue }} overdue</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div style="font-size:13px;font-weight:700;color:{% if project.progress >= 75 %}var(--sem-success){% elif project.progress >= 40 %}var(--brand-blue){% elif project.progress > 0 %}var(--sem-warning){% else %}var(--text-tertiary){% endif %};">
+                        {{ project.progress }}%
+                    </div>
+                </div>
+                <div style="width:100%;height:8px;background:var(--bg-canvas);border-radius:var(--r-pill);overflow:hidden;border:1px solid var(--border-subtle);">
+                    <div style="height:100%;
+                                width:{{ project.progress }}%;
+                                background:linear-gradient(90deg,
+                                    {% if project.progress >= 75 %}var(--sem-success){% elif project.progress >= 40 %}var(--brand-blue){% else %}var(--sem-warning){% endif %},
+                                    {% if project.progress >= 75 %}#2ECC71{% elif project.progress >= 40 %}var(--brand-blue-deep){% else %}#F59E0B{% endif %});
+                                border-radius:var(--r-pill);
+                                transition:width 0.6s var(--ease-spring);">
+                    </div>
+                </div>
+                <div style="display:flex;gap:14px;margin-top:8px;font-size:10px;color:var(--text-tertiary);flex-wrap:wrap;">
+                    {% if project.milestones_in_progress > 0 %}
+                        <span><i class="fas fa-spinner" style="color:var(--brand-blue);"></i> {{ project.milestones_in_progress }} in progress</span>
+                    {% endif %}
+                    {% if project.milestones_pending > 0 %}
+                        <span><i class="fas fa-clock" style="color:var(--sem-warning);"></i> {{ project.milestones_pending }} pending</span>
+                    {% endif %}
+                    {% if project.milestones_completed > 0 %}
+                        <span><i class="fas fa-check-circle" style="color:var(--sem-success);"></i> {{ project.milestones_completed }} completed</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-mini">
+                <i class="fas fa-flag-checkered"></i>
+                <p>No active projects with milestones yet</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ============================================================
+    MINI STATS FOOTER
+    ============================================================ -->
+    <div class="mini-grid">
+        <div class="mini-stat">
+            <span class="mini-value">{{ stats.total_users|default:0 }}</span>
+            <span class="mini-label">Total Users</span>
+        </div>
+        <div class="mini-stat">
+            <span class="mini-value">{{ stats.projects.completed|default:0 }}</span>
+            <span class="mini-label">Completed Projects</span>
+        </div>
+        <div class="mini-stat">
+            <span class="mini-value">{{ stats.inventory.total_materials|default:0 }}</span>
+            <span class="mini-label">Inventory Items</span>
+        </div>
+        <div class="mini-stat">
+            <span class="mini-value">KES {{ stats.revenue.total_revenue|floatformat:0|intcomma|default:'0' }}</span>
+            <span class="mini-label">Lifetime Revenue</span>
+        </div>
+    </div>
+
+</div>
+
+<!-- ============================================================
+   CHART INITIALIZATIONS
+   (Chart.js itself is loaded globally in _admin_js.html)
+   ============================================================ -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Chart === 'undefined') return;
+
+    var colorPrimary = getComputedStyle(document.documentElement).getPropertyValue('--text-tertiary').trim() || '#94A3B8';
+    var colorBorder = getComputedStyle(document.documentElement).getPropertyValue('--border-subtle').trim() || '#E2E8F0';
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+
+    function getCanvas(id) {
+        var canvas = document.getElementById(id);
+        if (!canvas) return null;
+        var ctx = canvas.getContext('2d');
+        return ctx;
+    }
+
+    function emptyCanvas(id, msg) {
+        var canvas = document.getElementById(id);
+        if (canvas) {
+            var parent = canvas.parentElement;
+            parent.innerHTML = '<div class="empty-mini"><i class="fas fa-chart-simple"></i><p>' + msg + '</p></div>';
+        }
+    }
+
+    // ============================================================
+    // REVENUE CHART (Line)
+    // ============================================================
+    var revenueCtx = getCanvas('revenueChart');
+    if (revenueCtx) {
+        var labels = JSON.parse(revenueCtx.canvas.dataset.labels || '[]');
+        var data = JSON.parse(revenueCtx.canvas.dataset.data || '[]');
+        if (labels.length && data.length) {
+            new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenue (KES)',
+                        data: data,
+                        borderColor: '#D4AF37',
+                        backgroundColor: 'rgba(212, 175, 55, 0.06)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#D4AF37',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    return 'KES ' + ctx.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: gridColor },
+                            ticks: { color: colorPrimary, font: { size: 10 } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: gridColor },
+                            ticks: {
+                                color: colorPrimary,
+                                font: { size: 10 },
+                                callback: function(v) {
+                                    return v >= 1000 ? 'K' + (v / 1000) : v;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            emptyCanvas('revenueChart', 'No revenue data available');
+        }
+    }
+
+    // ============================================================
+    // GROWTH CHART (Bar)
+    // ============================================================
+    var growthCtx = getCanvas('growthChart');
+    if (growthCtx) {
+        var months = JSON.parse(growthCtx.canvas.dataset.months || '[]');
+        var clients = JSON.parse(growthCtx.canvas.dataset.clients || '[]');
+        var team = JSON.parse(growthCtx.canvas.dataset.team || '[]');
+        if (months.length && (clients.length || team.length)) {
+            new Chart(growthCtx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Clients',
+                            data: clients,
+                            backgroundColor: 'rgba(11, 102, 195, 0.7)',
+                            borderColor: '#0B66C3',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                        },
+                        {
+                            label: 'Team',
+                            data: team,
+                            backgroundColor: 'rgba(212, 175, 55, 0.7)',
+                            borderColor: '#D4AF37',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 12,
+                                color: colorPrimary,
+                                font: { size: 11 }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: colorPrimary, font: { size: 10 } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: gridColor },
+                            ticks: {
+                                color: colorPrimary,
+                                font: { size: 10 },
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            emptyCanvas('growthChart', 'No growth data available');
+        }
+    }
+
+    // ============================================================
+    // ORDER STATUS CHART (Pie)
+    // ============================================================
+    var orderCtx = getCanvas('orderStatusChart');
+    if (orderCtx) {
+        var labels = JSON.parse(orderCtx.canvas.dataset.labels || '[]');
+        var data = JSON.parse(orderCtx.canvas.dataset.data || '[]');
+        var colors = JSON.parse(orderCtx.canvas.dataset.colors || '["#0B66C3","#D4AF37","#27AE60","#F39C12","#B9342B"]');
+        if (labels.length && data.length) {
+            new Chart(orderCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                        cutout: '65%',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 12,
+                                color: colorPrimary,
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            emptyCanvas('orderStatusChart', 'No order data available');
+        }
+    }
+
+    // ============================================================
+    // PROJECT STATUS CHART (Pie)
+    // ============================================================
+    var projectCtx = getCanvas('projectStatusChart');
+    if (projectCtx) {
+        var labels = JSON.parse(projectCtx.canvas.dataset.labels || '[]');
+        var data = JSON.parse(projectCtx.canvas.dataset.data || '[]');
+        var colors = JSON.parse(projectCtx.canvas.dataset.colors || '["#0B66C3","#D4AF37","#27AE60","#F39C12","#B9342B"]');
+        if (labels.length && data.length) {
+            new Chart(projectCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                        cutout: '65%',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 12,
+                                color: colorPrimary,
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            emptyCanvas('projectStatusChart', 'No project data available');
+        }
+    }
+
+    // ============================================================
+    // INVENTORY CHART (Bar)
+    // ============================================================
+    var inventoryCtx = getCanvas('inventoryChart');
+    if (inventoryCtx) {
+        var labels = JSON.parse(inventoryCtx.canvas.dataset.labels || '[]');
+        var data = JSON.parse(inventoryCtx.canvas.dataset.data || '[]');
+        if (labels.length && data.length) {
+            new Chart(inventoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Items',
+                        data: data,
+                        backgroundColor: 'rgba(11, 102, 195, 0.65)',
+                        borderColor: '#0B66C3',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: colorPrimary, font: { size: 9 } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: gridColor },
+                            ticks: {
+                                color: colorPrimary,
+                                font: { size: 10 },
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            emptyCanvas('inventoryChart', 'No inventory data available');
+        }
+    }
+
+    // ============================================================
+    // REVENUE BREAKDOWN CHART (Doughnut)
+    // ============================================================
+    var breakdownCtx = getCanvas('revenueBreakdownChart');
+    if (breakdownCtx) {
+        var labels = JSON.parse(breakdownCtx.canvas.dataset.labels || '[]');
+        var data = JSON.parse(breakdownCtx.canvas.dataset.data || '[]');
+        var colors = JSON.parse(breakdownCtx.canvas.dataset.colors || '["#0B66C3","#D4AF37","#27AE60","#7C3AED","#F39C12"]');
+        if (labels.length && data.length) {
+            new Chart(breakdownCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                        cutout: '65%',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 12,
+                                color: colorPrimary,
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            emptyCanvas('revenueBreakdownChart', 'No revenue breakdown data available');
+        }
+    }
+
+});
+</script>
+{% endblock %}

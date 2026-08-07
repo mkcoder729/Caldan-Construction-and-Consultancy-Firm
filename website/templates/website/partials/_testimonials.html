@@ -1,0 +1,95 @@
+{% load static %}
+
+<section class="testimonials-section" style="padding: 96px 0; background: var(--bg-secondary);">
+    <div class="container">
+
+        <div class="section-head" style="text-align: center; margin-bottom: 48px;">
+            <p class="eyebrow" style="color: var(--accent-secondary); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;">
+                <i class="fas fa-quote-left" style="margin-right: 8px;"></i>Testimonials
+            </p>
+            <h2 class="section-title" style="font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
+                What Our Clients Say
+            </h2>
+            <p class="section-subtitle" style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
+                Hear from the clients we've had the privilege to serve.
+            </p>
+        </div>
+
+        <div class="testimonials-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;">
+
+            {% if testimonials %}
+                {% for testimonial in testimonials %}
+                <div class="testimonial-card" style="background: var(--bg-card); border-radius: 16px; padding: 32px 28px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid var(--border-primary); transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);">
+
+                    <!-- Stars -->
+                    <div style="color: var(--accent-secondary); font-size: 0.9rem; margin-bottom: 16px; letter-spacing: 3px;">
+                        {% for i in "12345"|make_list %}
+                            <i class="fas fa-star"></i>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Quote -->
+                    <blockquote style="font-size: 0.95rem; line-height: 1.7; color: var(--text-primary); font-weight: 500; margin-bottom: 20px; font-style: italic;">
+                        "{{ testimonial.content|truncatewords:18 }}"
+                    </blockquote>
+
+                    <!-- Author -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+                        {% if testimonial.author_photo %}
+                        <img src="{{ testimonial.author_photo.url }}" alt="{{ testimonial.author_name }}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-secondary);">
+                        {% else %}
+                        <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-weight: 700; font-size: 1rem;">
+                            {{ testimonial.author_name|first|upper }}
+                        </div>
+                        {% endif %}
+                        <div style="text-align: left;">
+                            <p style="font-weight: 600; margin: 0; color: var(--text-primary); font-size: 0.9rem;">
+                                <i class="fas fa-user" style="font-size: 0.6rem; color: var(--accent-secondary); margin-right: 4px;"></i>
+                                {{ testimonial.author_name }}
+                            </p>
+                            <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">
+                                <i class="fas fa-briefcase" style="font-size: 0.6rem; color: var(--accent-secondary); margin-right: 4px;"></i>
+                                {{ testimonial.author_title }}
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="testimonial-card" style="background: var(--bg-card); border-radius: 16px; padding: 48px; text-align: center; border: 1px solid var(--border-primary); grid-column: 1 / -1;">
+                    <i class="fas fa-comment" style="font-size: 2.5rem; color: var(--border-primary); margin-bottom: 16px; display: block;"></i>
+                    <p style="color: var(--text-secondary); font-size: 1.05rem;">No testimonials available yet.</p>
+                </div>
+            {% endif %}
+
+        </div>
+
+        <!-- View All Link -->
+        {% if testimonials and testimonials|length > 6 %}
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="#" style="display: inline-flex; align-items: center; gap: 8px; color: var(--accent-primary); font-weight: 600; text-decoration: none; transition: all 0.3s ease;">
+                View All Testimonials <i class="fas fa-arrow-right" style="transition: transform 0.3s ease;"></i>
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+
+<style>
+    .testimonial-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 16px 48px rgba(0,0,0,0.08);
+        border-color: var(--accent-secondary) !important;
+    }
+
+    @media (max-width: 992px) {
+        .testimonials-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 20px !important; }
+    }
+    @media (max-width: 576px) {
+        .testimonials-grid { grid-template-columns: 1fr !important; }
+        .testimonial-card { padding: 24px 18px !important; }
+        .testimonial-card blockquote { font-size: 0.9rem !important; }
+    }
+</style>

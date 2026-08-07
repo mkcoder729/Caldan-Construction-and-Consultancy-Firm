@@ -1,0 +1,942 @@
+<!-- Chart.js (global — every admin page can render Chart.js canvases) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+(function() {
+    'use strict';
+
+    // ================================================================
+    // UTILITY: Get CSRF Token
+    // ================================================================
+    function getCsrfToken() {
+        var cookie = document.cookie.split('; ').find(function(row) {
+            return row.startsWith('csrftoken=');
+        });
+        return cookie ? cookie.split('=')[1] : '';
+    }
+
+    // ================================================================
+    // UTILITY: Show Toast
+    // ================================================================
+    window.showToast = function(type, title, message) {
+        var container = document.getElementById('toastContainer');
+        if (!container) return;
+
+        var icons = {
+            success: 'fa-check-circle',
+            error: 'fa-exclamation-circle',
+            warning: 'fa-exclamation-triangle',
+            info: 'fa-info-circle'
+        };
+
+        var toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+        toast.innerHTML =
+            '<div class="toast-icon ' + type + '"><i class="fas ' + (icons[type] || 'fa-bell') + '"></i></div>' +
+            '<div class="toast-content">' +
+            '    <p class="toast-title">' + title + '</p>' +
+            '    <p class="toast-message">' + message + '</p>' +
+            '</div>' +
+            '<button class="toast-close" aria-label="Dismiss"><i class="fas fa-times"></i></button>';
+
+        container.appendChild(toast);
+
+        var dismissTimer = setTimeout(function() {
+            dismissToast(toast);
+        }, 5000);
+
+        toast.querySelector('.toast-close').addEventListener('click', function() {
+            clearTimeout(dismissTimer);
+            dismissToast(toast);
+        });
+
+        toast.addEventListener('click', function(e) {
+            if (!e.target.closest('.toast-close')) {
+                clearTimeout(dismissTimer);
+                dismissToast(toast);
+            }
+        });
+    };
+
+    function dismissToast(toast) {
+        toast.classList.add('fade-out');
+        setTimeout(function() {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 400);
+    }
+
+    // ================================================================
+    // UTILITY: Format Currency (KES)
+    // ================================================================
+    window.formatCurrency = function(amount) {
+        return new Intl.NumberFormat('en-KE', {
+            style: 'currency',
+            currency: 'KES',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(amount);
+    };
+
+    // ================================================================
+    // UTILITY: Time Ago
+    // ================================================================
+    window.timeAgo = function(dateString) {
+        var now = new Date();
+        var past = new Date(dateString);
+        var diff = Math.floor((now - past) / 1000);
+
+        if (diff < 60) return 'Just now';
+        if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+        if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+        if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+        if (diff < 2592000) return Math.floor(diff / 604800) + 'w ago';
+        return past.toLocaleDateString('en-KE', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+
+    // ================================================================
+    // UTILITY: Check Reduced Motion Preference
+    // ================================================================
+    window.caldan = window.caldan || {};
+    window.caldan.prefersReducedMotion = function() {
+        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    };
+
+    // ================================================================
+    // DOM READY - INIT ALL
+    // ================================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        initSidebar();
+        initScrollMemory();
+        initTopbarScroll();
+        initThemeToggle();
+        initUserMenu();
+        initNotifications();
+        initSearchModal();
+        initModals();
+        initToasts();
+    });
+
+    // ================================================================
+    // SIDEBAR
+    // ================================================================
+    function initSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        var toggleBtn = document.getElementById('sidebarToggle');
+        var closeBtn = document.getElementById('sidebarClose');
+
+        if (!sidebar) return;
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                sidebar.classList.toggle('open');
+            });
+        }
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                sidebar.classList.remove('open');
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth <= 1024) {
+                if (sidebar && !sidebar.contains(e.target) &&
+                    toggleBtn && !toggleBtn.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && sidebar && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+    }
+
+    // ================================================================
+    // SCROLL MEMORY
+    //
+    // The browser starts every fresh page-load at scrollY=0, which
+    // means scrolling deep into a long admin list and then clicking
+    // a sidebar link kicks you back to the top of the next page.
+    //
+    // We fix this with two simple pieces:
+    //   1. `history.scrollRestoration = 'manual'` — take the wheel
+    //      from the browser, we restore scroll ourselves.
+    //   2. Save the current scrollY in sessionStorage whenever the
+    //      user navigates away (via sidebar or any same-origin
+    //      internal link) and restore it on the next page load.
+    //
+    // sessionStorage (not localStorage) so each new tab starts
+    // fresh — no surprise scroll positions on unrelated sessions.
+    // ================================================================
+    var SCROLL_KEY = 'caldan.admin.scrollY';
+    var SCROLL_DEBUG = false; // set true in DevTools to log each step
+
+    function scrollLog() {
+        if (!SCROLL_DEBUG || !window.console) return;
+        var args = Array.prototype.slice.call(arguments);
+        args.unshift('[scroll-mem]');
+        console.log.apply(console, args);
+    }
+
+    function saveScroll() {
+        try {
+            var y = window.scrollY || window.pageYOffset || 0;
+            sessionStorage.setItem(SCROLL_KEY, String(y));
+            scrollLog('saved', y);
+        } catch (e) {
+            scrollLog('save failed', e && e.message);
+        }
+    }
+
+    function restoreScroll() {
+        var saved = null;
+        try {
+            saved = sessionStorage.getItem(SCROLL_KEY);
+        } catch (e) {
+            scrollLog('read failed', e && e.message);
+            return;
+        }
+        if (saved === null) {
+            scrollLog('nothing saved');
+            return;
+        }
+
+        var target = parseInt(saved, 10);
+        scrollLog('restoring to', target);
+        if (isNaN(target) || target <= 0) {
+            sessionStorage.removeItem(SCROLL_KEY);
+            return;
+        }
+
+        // Disable smooth-scroll during restoration so the page
+        // doesn't visibly glide. Re-enable afterwards.
+        var html = document.documentElement;
+        var prev = html.style.scrollBehavior;
+        html.style.scrollBehavior = 'auto';
+
+        // Apply scroll instantly, then a second pass after a frame
+        // to handle any layout shift from late-loading images.
+        window.scrollTo(0, target);
+        requestAnimationFrame(function() {
+            window.scrollTo(0, target);
+            html.style.scrollBehavior = prev || '';
+            scrollLog('restore complete at', window.scrollY);
+        });
+
+        // Clear the key so subsequent page reloads at scrollY=0
+        // don't get yanked to the old position by accident.
+        try { sessionStorage.removeItem(SCROLL_KEY); } catch (e) {}
+    }
+
+    function initScrollMemory() {
+        // Pages can opt out by adding `data-no-scroll-memory` to a
+        // wrapper (or to <body>). On those pages we neither save nor
+        // restore — saves prevents an admin console from yanking the
+        // page back to a stale offset when the chief opens the inline
+        // invite form.
+        var noScrollMemory = document.querySelector('[data-no-scroll-memory]');
+        if (noScrollMemory) {
+            scrollLog('skipped: page opted out via data-no-scroll-memory');
+            return;
+        }
+
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
+        // Restore on load.
+        restoreScroll();
+
+        // Save scroll position on any same-origin link click.
+        // We listen on capture so we run BEFORE the browser starts
+        // navigation, and we don't preventDefault so navigation
+        // still happens — we just stash the value.
+        //
+        // SIDEBAR LINKS: the user wants every sidebar click to land
+        // them at the top of the new page (so the new page always
+        // opens "fresh"). So instead of saving the current scroll,
+        // we explicitly clear any saved value and pre-scroll to top
+        // so the next page boots at scrollY=0.
+        document.addEventListener('click', function(e) {
+            // Walk up from e.target to find an anchor. Sometimes
+            // the click target is an <i> inside the <a>.
+            var node = e.target;
+            var anchor = null;
+            while (node && node !== document) {
+                if (node.tagName === 'A' && node.getAttribute('href')) {
+                    anchor = node;
+                    break;
+                }
+                node = node.parentNode;
+            }
+            if (!anchor) return;
+
+            var href = anchor.getAttribute('href') || '';
+            // Ignore: external, modifier-clicks, hash-only anchors,
+            // targets that aren't self, JS-only hrefs.
+            if (!href || href.charAt(0) === '#') return;
+            if (anchor.target && anchor.target !== '_self') return;
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return;
+            if (/^javascript:/i.test(href) || /^mailto:/i.test(href)) return;
+
+            // Sidebar nav links → always start the next page at the top.
+            // Detected by walking up to a .sidebar-item or by checking the
+            // closest .sidebar-link so a click on the icon inside also counts.
+            var inSidebar = anchor.closest && anchor.closest('.sidebar');
+            if (inSidebar) {
+                try {
+                    sessionStorage.removeItem(SCROLL_KEY);
+                    // Pre-scroll the outgoing page so the browser's default
+                    // restoration lands at top even if scrollRestoration is
+                    // 'auto' for some reason on the next page.
+                    window.scrollTo(0, 0);
+                } catch (err) {}
+                return;
+            }
+
+            saveScroll();
+        }, true);
+
+        // Belt + suspenders: also save on `pagehide` (covers
+        // programmatic navigation, form submits, browser back, etc.)
+        window.addEventListener('pagehide', saveScroll);
+        window.addEventListener('beforeunload', saveScroll);
+
+        scrollLog('init complete, current scrollY=', window.scrollY);
+    }
+
+    // Expose a tiny diagnostic so the user (and we) can verify
+    // that this script ran without poking around in DevTools.
+    // Type `caldan.scrollMem.test()` in the browser console to see
+    // whether the save/restore machinery is live.
+    window.caldan = window.caldan || {};
+    window.caldan.scrollMem = {
+        key: SCROLL_KEY,
+        save: saveScroll,
+        restore: restoreScroll,
+        debug: function() {
+            SCROLL_DEBUG = !SCROLL_DEBUG;
+            return 'scroll-mem debug ' + (SCROLL_DEBUG ? 'ON' : 'OFF');
+        },
+        inspect: function() {
+            var stored = null;
+            try { stored = sessionStorage.getItem(SCROLL_KEY); } catch (e) {}
+            return {
+                sessionStorageValue: stored,
+                currentScrollY: window.scrollY,
+                historyScrollRestoration: history.scrollRestoration,
+            };
+        },
+    };
+    scrollLog('script loaded; type caldan.scrollMem.inspect() in DevTools');
+
+    // ================================================================
+    // TOPBAR SCROLL SHADOW
+    // ================================================================
+    function initTopbarScroll() {
+        var topbar = document.querySelector('.topbar');
+        if (!topbar) return;
+
+        var ticking = false;
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                window.requestAnimationFrame(function() {
+                    if (window.scrollY > 8) {
+                        topbar.classList.add('scrolled');
+                    } else {
+                        topbar.classList.remove('scrolled');
+                    }
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        // Initial check
+        if (window.scrollY > 8) {
+            topbar.classList.add('scrolled');
+        }
+    }
+
+    // ================================================================
+    // THEME TOGGLE - TOPBAR + SIDEBAR
+    // ================================================================
+    function initThemeToggle() {
+        var topbarToggle = document.getElementById('themeToggle');
+        var sidebarToggle = document.getElementById('sidebarThemeToggle');
+        var html = document.documentElement;
+
+        function getCurrentTheme() {
+            return html.getAttribute('data-theme') || 'light';
+        }
+
+        // Expose on window so the topbar dropdown can call setTheme directly.
+        if (!window.caldan) window.caldan = {};
+        if (!window.caldan.theme) window.caldan.theme = {};
+        window.caldan.theme.get = getCurrentTheme;
+        window.caldan.theme.set = setTheme;
+        // Notify any listeners (e.g. the topbar dropdown's checkmark state)
+        // when the theme changes — so the dropdown's active option stays in sync
+        // regardless of whether the change came from the dropdown, sidebar, or
+        // keyboard shortcut.
+        document.addEventListener('caldan:theme-changed', function(evt) {
+            try {
+                var theme = evt && evt.detail && evt.detail.theme;
+                if (!theme) return;
+                var opts = document.querySelectorAll('#themeDropdown .theme-option');
+                opts.forEach(function(o) {
+                    o.setAttribute('aria-checked', o.dataset.theme === theme ? 'true' : 'false');
+                });
+            } catch (e) {}
+        });
+
+        function setTheme(theme) {
+            // Apply the theme synchronously. Previously this function
+            // faded <body> to opacity:0 for ~90ms before re-applying
+            // the theme, which fired a `blur` on any focused input and
+            // dropped the user's keystrokes whenever the page loaded
+            // with a saved theme. The <html data-theme="..."> attribute
+            // is already set by the template (line 3 of base_dashboard.html),
+            // so the CSS variables are correct from the very first paint;
+            // no fade is needed at all.
+            html.setAttribute('data-theme', theme);
+            localStorage.setItem('caldan_theme', theme);
+
+            // Broadcast so the topbar dropdown can update its active marker.
+            try {
+                document.dispatchEvent(new CustomEvent('caldan:theme-changed', { detail: { theme: theme } }));
+            } catch (e) {}
+
+            // Update all theme toggle icons
+            var icons = document.querySelectorAll('.theme-toggle-icon');
+            icons.forEach(function(icon) {
+                if (theme === 'dark') {
+                    icon.className = 'fas fa-sun theme-toggle-icon';
+                } else if (theme === 'device') {
+                    icon.className = 'fas fa-laptop theme-toggle-icon';
+                } else {
+                    icon.className = 'fas fa-moon theme-toggle-icon';
+                }
+            });
+
+            // Update labels
+            var labels = document.querySelectorAll('.theme-toggle-label');
+            labels.forEach(function(label) {
+                if (theme === 'dark') {
+                    label.textContent = 'Light Mode';
+                } else if (theme === 'device') {
+                    label.textContent = 'System Default';
+                } else {
+                    label.textContent = 'Dark Mode';
+                }
+            });
+        }
+
+        function toggleTheme() {
+            var current = getCurrentTheme();
+            var next;
+            if (current === 'light') next = 'dark';
+            else if (current === 'dark') next = 'device';
+            else next = 'light';
+            setTheme(next);
+        }
+
+        // Load saved theme. We do NOT re-apply the theme via the fade
+        // path here — the template already set <html data-theme="...">
+        // to the user's saved preference, so the page renders correctly
+        // from the first paint. We only re-apply if the in-DOM theme
+        // somehow doesn't match the persisted value (e.g. tabs were
+        // opened days apart, or a stored theme was updated).
+        var savedTheme = localStorage.getItem('caldan_theme');
+        if (savedTheme && savedTheme !== html.getAttribute('data-theme')) {
+            setTheme(savedTheme);
+        }
+
+        // Attach toggles
+        // NOTE: the topbar (#themeToggle) is owned by the dropdown partial
+        // (__theme_toggle.html) which gives users a proper picker (Light /
+        // Dark / Device) instead of cycling one-by-one. We deliberately do
+        // NOT clone/replace that button here — that would wipe out the
+        // dropdown's event handlers and its child DOM nodes.
+        if (sidebarToggle) {
+            var newSidebarToggle = sidebarToggle.cloneNode(true);
+            sidebarToggle.parentNode.replaceChild(newSidebarToggle, sidebarToggle);
+            newSidebarToggle.addEventListener('click', toggleTheme);
+        }
+    }
+
+    // ================================================================
+    // USER MENU
+    // ================================================================
+    function initUserMenu() {
+        var trigger = document.getElementById('userMenuTrigger');
+        var dropdown = document.getElementById('userDropdown');
+
+        if (!trigger || !dropdown) return;
+
+        var isOpen = false;
+
+        // Remove any existing listeners by cloning
+        var newTrigger = trigger.cloneNode(true);
+        trigger.parentNode.replaceChild(newTrigger, trigger);
+
+        newTrigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            isOpen = !isOpen;
+            dropdown.classList.toggle('open', isOpen);
+            newTrigger.classList.toggle('open', isOpen);
+        });
+
+        document.addEventListener('click', function(e) {
+            if (isOpen && !newTrigger.contains(e.target) && !dropdown.contains(e.target)) {
+                isOpen = false;
+                dropdown.classList.remove('open');
+                newTrigger.classList.remove('open');
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && isOpen) {
+                isOpen = false;
+                dropdown.classList.remove('open');
+                newTrigger.classList.remove('open');
+            }
+        });
+    }
+
+    // ================================================================
+    // NOTIFICATIONS
+    // ================================================================
+    function initNotifications() {
+        var bell = document.getElementById('notificationBell');
+        var dropdown = document.getElementById('notificationDropdown');
+
+        if (bell && dropdown) {
+            // Remove existing listeners
+            var newBell = bell.cloneNode(true);
+            bell.parentNode.replaceChild(newBell, bell);
+
+            newBell.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropdown.classList.toggle('open');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!newBell.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('open');
+                }
+            });
+        }
+
+        // Mark single notification as read
+        document.querySelectorAll('.notification-mark-read').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var url = this.getAttribute('data-url');
+                var item = this.closest('.notification-item');
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCsrfToken()
+                    }
+                })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        if (item) {
+                            item.classList.remove('unread');
+                            item.classList.add('read');
+                        }
+                        var count = document.getElementById('notificationCount');
+                        if (count) {
+                            var current = parseInt(count.textContent) || 0;
+                            if (current > 1) {
+                                count.textContent = current - 1;
+                            } else {
+                                count.textContent = '0';
+                                count.style.display = 'none';
+                            }
+                        }
+                    }
+                })
+                .catch(function() { /* silent fail */ });
+            });
+        });
+
+        // Mark all as read
+        var markAllBtn = document.getElementById('markAllRead');
+        if (markAllBtn) {
+            markAllBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var url = this.getAttribute('data-url');
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCsrfToken()
+                    }
+                })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        document.querySelectorAll('.notification-item.unread').forEach(function(item) {
+                            item.classList.remove('unread');
+                            item.classList.add('read');
+                        });
+                        var count = document.getElementById('notificationCount');
+                        if (count) {
+                            count.textContent = '0';
+                            count.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(function() { /* silent fail */ });
+            });
+        }
+
+        // Refresh unread count periodically
+        setInterval(refreshNotificationCount, 30000);
+    }
+
+    function refreshNotificationCount() {
+        var countEl = document.getElementById('notificationCount');
+        if (!countEl) return;
+
+        var url = countEl.getAttribute('data-refresh-url');
+        if (!url) return;
+
+        fetch(url)
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.unread_count > 0) {
+                    countEl.textContent = data.unread_count;
+                    countEl.style.display = 'inline-flex';
+                } else {
+                    countEl.textContent = '0';
+                    countEl.style.display = 'none';
+                }
+            })
+            .catch(function() { /* silent fail */ });
+    }
+
+    // ================================================================
+    // SEARCH MODAL
+    //
+    // The legacy initSearchModal() here has been removed. The real,
+    // race-free search modal lives in
+    //   dashboard/templates/dashboard/dashboard/partials/_components/__search_modal.html
+    // and wires its own #searchTrigger click + keydown shortcuts inline.
+    //
+    // The old stub below stole the trigger via cloneNode(true) +
+    // replaceChild, which silently broke the new modal's listener —
+    // and worse, did a `body.style.opacity = '0'` style fade during
+    // its init (via the theme toggle) that interfered with typing in
+    // the very first form fields the user clicked.
+    // ================================================================
+    function initSearchModal() {
+        // No-op: real implementation is in __search_modal.html.
+    }
+
+    // ================================================================
+    // MODALS
+    //
+    // We attach global close handlers for any modal that does NOT have
+    // its own `.js-managed="1"` opt-out, because each per-feature modal
+    // (admin invite, delete admin, edit permissions, change password,
+    // force change, etc.) wires up its own overlay/close/Escape handler.
+    // Without this opt-out, the global handler races with the per-modal
+    // handler and can leave the body locked, focus stolen, or the input
+    // field un-editable.
+    // ================================================================
+    function initModals() {
+        document.querySelectorAll('[data-modal]').forEach(function(trigger) {
+            trigger.addEventListener('click', function(e) {
+                e.preventDefault();
+                var modalId = this.getAttribute('data-modal');
+                var modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('open');
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+        });
+
+        document.querySelectorAll('.modal:not([data-js-managed])').forEach(function(modal) {
+            var overlay = modal.querySelector('.modal-overlay');
+            var closeBtn = modal.querySelector('.modal-close');
+            var close = function() {
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+            };
+            if (overlay) overlay.addEventListener('click', close);
+            if (closeBtn) closeBtn.addEventListener('click', close);
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.open').forEach(function(modal) {
+                    modal.classList.remove('open');
+                    document.body.style.overflow = '';
+                });
+            }
+        });
+    }
+
+    // ================================================================
+    // TOASTS
+    // ================================================================
+    function initToasts() {
+        document.querySelectorAll('.toast:not(.toast-sticky)').forEach(function(toast) {
+            setTimeout(function() {
+                dismissToast(toast);
+            }, 5000);
+        });
+
+        document.querySelectorAll('.toast-close').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var toast = this.closest('.toast');
+                if (toast) {
+                    dismissToast(toast);
+                }
+            });
+        });
+    }
+
+    // ================================================================
+    // SIDEBAR NAVIGATION
+    //
+    // Three responsibilities:
+    //   1. Restore the user's previous scroll position across full-page
+    //      navigations so they don't lose their place when they click a
+    //      deep link at the bottom.
+    //   2. Scroll the active item into view on every page load so a
+    //      deep-link landing page never opens with the active link off
+    //      screen.
+    //   3. Wire arrow / Home / End / Enter keyboard navigation so users
+    //      can drive the sidebar without a mouse.
+    // ================================================================
+    function initSidebar() {
+        var nav   = document.querySelector('.sidebar .sidebar-nav');
+        var links = nav ? Array.prototype.slice.call(nav.querySelectorAll('.sidebar-link')) : [];
+        if (!nav) return;
+
+        // Search runs on every page; section-collapse is no longer wired
+        // up because the sidebar is now a flat list (no <details>).
+        initSidebarSearch();
+
+        var STORAGE_KEY  = 'caldan.sidebarScrollTop';
+        var ACTIVE_FOCUS = 'caldan.sidebarActiveFocus';
+
+        // Capture the sidebar scroll position before a full-page nav
+        // happens. Done at click/capture-phase on the LINK itself (so
+        // the position is sampled before the browser tears the DOM
+        // down) and on mousedown (so middle-click / cmd-click, which
+        // do NOT fire a 'click', still persist position). Keyboard
+        // Enter and touchstart cover the remaining input methods.
+        function persistScroll() {
+            try { sessionStorage.setItem(STORAGE_KEY, String(nav.scrollTop)); } catch (e) {}
+        }
+        function persistScrollKey(e) {
+            // Only persist on Enter / Space — other keys just move focus.
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            persistScroll();
+        }
+        links.forEach(function(link) {
+            link.addEventListener('click', persistScroll);
+            link.addEventListener('mousedown', persistScroll);
+            link.addEventListener('keydown', persistScrollKey);
+            link.addEventListener('touchstart', persistScroll, { passive: true });
+        });
+        // Also persist when the user scrolls (debounced) so back/forward
+        // navigation restores a position close to wherever they were.
+        var scrollTimer = null;
+        nav.addEventListener('scroll', function() {
+            if (scrollTimer) clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(persistScroll, 80);
+        });
+
+        // Restore scroll position. The sidebar is now a flat list
+        // (no <details>) so layout is stable from the first frame —
+        // a synchronous restore works. We still re-apply on the next
+        // rAF in case late-loading images shift item positions.
+        //
+        // IMPORTANT: we never auto-scroll the sidebar on page load.
+        // The previous behaviour forced the active item into view via
+        // scrollIntoView({block:'center'}) when no stored scroll existed,
+        // which made the sidebar "jump" on every fresh page visit —
+        // especially noticeable when landing on a deep item like a
+        // Settings sub-page from the topbar or a direct URL.
+        //
+        // Now we only restore from storage. If there is nothing stored
+        // (cold load, first ever visit), the sidebar stays at its
+        // natural top position — which is what users expect.
+        var stored = null;
+        try { stored = sessionStorage.getItem(STORAGE_KEY); } catch (e) {}
+        if (stored !== null && /^\d+$/.test(stored)) {
+            var target = parseInt(stored, 10);
+            if (!isNaN(target) && target > 0) {
+                nav.scrollTop = target;
+                requestAnimationFrame(function() {
+                    nav.scrollTop = target;
+                });
+            }
+        }
+
+        // Keyboard nav — Up/Down walks visible sidebar items, Home/End
+        // jumps to the first/last, Enter follows. We only handle this
+        // when focus is inside the sidebar so we don't hijack forms.
+        var currentIndex = links.findIndex(function(l) {
+            return l === document.activeElement;
+        });
+        function focusLink(idx) {
+            if (idx < 0) idx = 0;
+            if (idx >= links.length) idx = links.length - 1;
+            var link = links[idx];
+            if (!link) return;
+            link.focus();
+            // Keep the focused link visible by scrolling the sidebar
+            // nav, not the page itself.
+            var linkRect = link.getBoundingClientRect();
+            var navRect  = nav.getBoundingClientRect();
+            if (linkRect.top < navRect.top) {
+                nav.scrollTop -= (navRect.top - linkRect.top);
+            } else if (linkRect.bottom > navRect.bottom) {
+                nav.scrollTop += (linkRect.bottom - navRect.bottom);
+            }
+        }
+
+        nav.addEventListener('keydown', function(e) {
+            // Don't interfere with form inputs that might live inside
+            // a sidebar item (e.g. future search field).
+            if (e.target.closest('input, textarea, select, button[role="combobox"]')) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                focusLink(Math.max(0, currentIndex) + 1);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                focusLink(Math.max(0, currentIndex) - 1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                focusLink(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                focusLink(links.length - 1);
+            }
+        });
+
+        // Keep currentIndex in sync as the user moves focus around.
+        document.addEventListener('focusin', function(e) {
+            var idx = links.indexOf(e.target);
+            if (idx !== -1) currentIndex = idx;
+            try {
+                if (idx !== -1) sessionStorage.setItem(ACTIVE_FOCUS, String(idx));
+            } catch (err) {}
+        });
+
+        // On the initial load, if we restored by scroll position, also
+        // restore the previously-focused index so Tab order picks up
+        // where the user left off (matches user expectation when
+        // returning to the dashboard after navigating).
+        var storedFocus = null;
+        try { storedFocus = sessionStorage.getItem(ACTIVE_FOCUS); } catch (e) {}
+        if (storedFocus !== null && /^\d+$/.test(storedFocus)) {
+            currentIndex = parseInt(storedFocus, 10);
+        }
+    }
+
+    // ================================================================
+    // SEARCH — live-filter every section + item by label text. Sub-
+    // headers (and the empty-state) are hidden when no items match.
+    // Restore original visibility on empty input.
+    // ================================================================
+    function initSidebarSearch() {
+        var input = document.getElementById('sidebarSearch');
+        var clear = document.getElementById('sidebarSearchClear');
+        var nav   = document.querySelector('.sidebar .sidebar-nav');
+        var empty = document.getElementById('sidebarEmpty');
+        if (!input || !nav) return;
+
+        // Track implicit state so we don't fight the user's clear button.
+        var restoreAll = function() {
+            nav.querySelectorAll('.sidebar-item').forEach(function(item) {
+                item.hidden = false;
+            });
+            nav.querySelectorAll('.sidebar-section').forEach(function(section) {
+                section.hidden = false;
+            });
+            if (empty) empty.hidden = true;
+        };
+
+        var applyFilter = function() {
+            var q = input.value.trim().toLowerCase();
+            if (!q) {
+                restoreAll();
+                return;
+            }
+            var anyVisible = false;
+            nav.querySelectorAll('.sidebar-section').forEach(function(section) {
+                var visibleInSection = 0;
+                section.querySelectorAll('.sidebar-item').forEach(function(item) {
+                    var label = item.getAttribute('data-label') || '';
+                    var match = label.toLowerCase().indexOf(q) !== -1;
+                    item.hidden = !match;
+                    if (match) visibleInSection++;
+                });
+                section.hidden = (visibleInSection === 0);
+                if (visibleInSection > 0) {
+                    anyVisible = true;
+                    // Auto-open sections while filtering so matches are visible.
+                    section.open = true;
+                }
+            });
+            if (empty) empty.hidden = anyVisible;
+        };
+
+        input.addEventListener('input', applyFilter);
+        input.addEventListener('search', applyFilter);
+
+        // ESC clears the search.
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && input.value) {
+                input.value = '';
+                applyFilter();
+                e.preventDefault();
+            }
+        });
+
+        // Clear button (shown only when there is input).
+        if (clear) {
+            var syncClear = function() {
+                clear.classList.toggle('visible', input.value.length > 0);
+            };
+            input.addEventListener('input', syncClear);
+            syncClear();
+            clear.addEventListener('click', function() {
+                input.value = '';
+                applyFilter();
+                syncClear();
+                input.focus();
+            });
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSidebar, { once: true });
+    } else {
+        initSidebar();
+    }
+
+})();
+</script>

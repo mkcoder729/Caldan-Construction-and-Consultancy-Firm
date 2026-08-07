@@ -1,0 +1,553 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}Contact Messages - Caldan{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   CONTACT MESSAGES LIST — PREMIUM ADMIN
+   ================================================================ */
+.msg-list {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+/* HEADER (same premium pattern) */
+.page-header {
+    background:
+        radial-gradient(700px 220px at 80% -10%, rgba(212,175,55,0.18), transparent 65%),
+        linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    color: #fff;
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 18px;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-lg);
+    position: relative; overflow: hidden;
+}
+.page-header::before {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none; opacity: 0.55;
+}
+.page-header > * { position: relative; z-index: 1; }
+.page-header__title {
+    display: flex; align-items: center; gap: 14px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.6rem; font-weight: 800;
+    margin: 0; letter-spacing: -0.4px;
+}
+.page-header__title .icon-bubble {
+    width: 44px; height: 44px;
+    background: rgba(212,175,55,0.14);
+    border: 1px solid rgba(212,175,55,0.32);
+    border-radius: var(--r-md);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--brand-gold); font-size: 18px;
+}
+.page-header__sub {
+    font-size: 0.84rem;
+    color: rgba(255,255,255,0.78);
+    margin-top: 4px;
+}
+.page-header__actions {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+}
+.btn-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 18px;
+    border-radius: var(--r-pill);
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.82rem; font-weight: 600;
+    transition: all var(--t-fast) var(--ease-spring);
+}
+.btn-pill:hover { background: rgba(255,255,255,0.22); transform: translateY(-1px); }
+
+/* STATS */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
+    display: flex; align-items: flex-start; gap: 16px;
+    transition: all var(--t-base) var(--ease-spring);
+    border-top: 3px solid transparent;
+}
+.stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.stat-card.blue   { --stat-accent: var(--brand-blue); border-top-color: var(--brand-blue); }
+.stat-card.gold   { --stat-accent: var(--brand-gold); border-top-color: var(--brand-gold); }
+.stat-card.green  { --stat-accent: var(--sem-success); border-top-color: var(--sem-success); }
+.stat-card.orange { --stat-accent: var(--sem-warning); border-top-color: var(--sem-warning); }
+
+.stat-icon {
+    width: 48px; height: 48px;
+    border-radius: var(--r-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+}
+.stat-card:hover .stat-icon { transform: scale(1.08) rotate(-4deg); }
+.stat-icon.blue   { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); }
+.stat-icon.gold   { background: rgba(212, 175, 55, 0.14); color: var(--brand-gold-deep); }
+.stat-icon.green  { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); }
+.stat-icon.orange { background: rgba(243, 156, 18, 0.12); color: var(--sem-warning); }
+.stat-body { flex: 1; min-width: 0; }
+.stat-value { font-size: 22px; font-weight: 800; color: var(--text-primary); line-height: 1.1; letter-spacing: -0.5px; }
+.stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+/* FILTER BAR */
+.filter-bar {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 16px 20px;
+    display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap;
+}
+.filter-bar .field {
+    display: flex; flex-direction: column;
+    flex: 1; min-width: 180px;
+}
+.filter-bar .field-label {
+    font-size: 11px; font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+.filter-bar input, .filter-bar select {
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-family: inherit;
+}
+.filter-bar input:focus, .filter-bar select:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    box-shadow: 0 0 0 3px rgba(212,175,55,0.18);
+}
+.filter-bar .actions { display: flex; gap: 8px; }
+.filter-bar .btn-apply {
+    padding: 0 18px; height: 38px;
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    border: none; border-radius: var(--r-sm);
+    font-weight: 700; font-size: 0.82rem;
+    cursor: pointer; font-family: inherit;
+}
+.filter-bar .btn-apply:hover { background: var(--brand-gold-hover); }
+.filter-bar .btn-reset {
+    padding: 0 14px; height: 38px;
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    border-radius: var(--r-sm);
+    font-weight: 600; font-size: 0.78rem;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 4px;
+}
+.filter-bar .btn-reset:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+
+.active-filters {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    padding: 0 4px; margin-top: -6px;
+}
+.chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 11px 5px 12px;
+    background: rgba(212,175,55,0.12);
+    border: 1px solid rgba(212,175,55,0.3);
+    color: var(--brand-gold-deep);
+    border-radius: var(--r-pill);
+    font-size: 0.76rem; font-weight: 600;
+}
+.chip i.fa-xmark {
+    cursor: pointer; color: var(--brand-gold);
+    font-size: 0.7rem; padding: 2px 4px;
+    border-radius: 50%;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+.chip i.fa-xmark:hover { background: var(--brand-gold); color: var(--brand-navy); }
+
+/* PANEL + TABLE */
+.panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden; box-shadow: var(--shadow-xs);
+}
+.panel__header {
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex; justify-content: space-between; align-items: center;
+}
+.panel__header h3 {
+    margin: 0; font-size: 14px; font-weight: 700; color: var(--text-primary);
+    display: flex; align-items: center; gap: 10px;
+}
+.panel__header h3 i {
+    color: var(--brand-gold);
+    width: 28px; height: 28px;
+    background: rgba(212,175,55,0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px;
+}
+.panel__count {
+    font-size: 11px; padding: 3px 10px;
+    background: var(--bg-canvas); color: var(--text-secondary);
+    border-radius: var(--r-pill); font-weight: 600;
+}
+
+.msg-table { width: 100%; border-collapse: collapse; }
+.msg-table thead { background: var(--bg-canvas); }
+.msg-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 11px; font-weight: 700; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.6px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+.msg-table td {
+    padding: 14px 16px;
+    font-size: 0.86rem; color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: top;
+}
+.msg-table tbody tr { transition: background var(--t-fast) var(--ease-standard); }
+.msg-table tbody tr:hover { background: var(--bg-hover); }
+.msg-table tbody tr:last-child td { border-bottom: none; }
+
+.contact-block { min-width: 170px; }
+.contact-name { font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.contact-name a { color: var(--text-primary); text-decoration: none; }
+.contact-name a:hover { color: var(--brand-gold-deep); }
+.contact-email { font-size: 0.78rem; color: var(--text-secondary); }
+.contact-phone { font-size: 0.78rem; color: var(--text-tertiary); margin-top: 2px; display: inline-flex; align-items: center; gap: 4px; }
+
+.subject-cell {
+    font-weight: 600;
+    max-width: 280px;
+    line-height: 1.4;
+}
+.subject-cell a {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+.subject-cell a:hover { color: var(--brand-gold-deep); }
+
+.message-preview {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    max-width: 320px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.status-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 11px;
+    border-radius: var(--r-pill);
+    font-size: 0.74rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.status-pill.replied {
+    background: rgba(39,174,96,0.16);
+    color: var(--sem-success);
+    border: 1px solid rgba(39,174,96,0.3);
+}
+.status-pill.unreplied {
+    background: rgba(243,156,18,0.16);
+    color: var(--sem-warning);
+    border: 1px solid rgba(243,156,18,0.3);
+}
+
+.row-actions { display: flex; gap: 6px; justify-content: flex-end; }
+.btn-icon {
+    width: 32px; height: 32px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    text-decoration: none;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.78rem;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+.btn-icon:hover { color: var(--brand-gold-deep); border-color: var(--brand-gold); transform: translateY(-1px); }
+.btn-icon.danger:hover { color: #C0392B; border-color: #C0392B; }
+
+.date-cell { font-size: 0.84rem; }
+.date-cell .small { display: block; font-size: 0.74rem; color: var(--text-tertiary); margin-top: 1px; }
+
+/* Empty state */
+.empty-state { padding: 60px 20px; text-align: center; }
+.empty-state i {
+    font-size: 3rem; color: var(--text-tertiary);
+    margin-bottom: 14px; opacity: 0.5;
+}
+.empty-state h4 {
+    font-size: 1.05rem; color: var(--text-primary);
+    margin: 0 0 6px;
+}
+.empty-state p {
+    font-size: 0.88rem; color: var(--text-secondary);
+    margin: 0;
+}
+
+.pagination-bar {
+    padding: 14px 22px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--bg-canvas);
+    font-size: 0.82rem; color: var(--text-secondary);
+}
+.pagination {
+    display: flex; gap: 4px;
+    margin: 0; padding: 0; list-style: none;
+}
+.pagination a, .pagination span {
+    min-width: 34px; height: 34px;
+    padding: 0 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-card); color: var(--text-primary);
+    text-decoration: none; font-weight: 600; font-size: 0.82rem;
+}
+.pagination a:hover { background: var(--brand-gold); color: var(--brand-navy); border-color: var(--brand-gold); }
+.pagination .current {
+    background: var(--brand-gold); color: var(--brand-navy);
+    border-color: var(--brand-gold);
+}
+.pagination .disabled { color: var(--text-tertiary); opacity: 0.55; cursor: not-allowed; }
+
+@keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.page-header, .stat-card, .filter-bar, .panel, .active-filters { animation: fade-up 0.4s ease both; }
+.stat-card:nth-child(2) { animation-delay: 0.05s; }
+.stat-card:nth-child(3) { animation-delay: 0.10s; }
+.stat-card:nth-child(4) { animation-delay: 0.15s; }
+
+@media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .msg-table thead { display: none; }
+    .msg-table, .msg-table tbody, .msg-table tr, .msg-table td { display: block; width: 100%; }
+    .msg-table tbody tr { padding: 14px 16px; border-bottom: 1px solid var(--border-subtle); }
+    .msg-table td { padding: 4px 0; border: none !important; }
+    .row-actions { justify-content: flex-start; padding-top: 8px; }
+}
+@media (max-width: 600px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .page-header { padding: 22px; }
+    .page-header__title { font-size: 1.3rem; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="msg-list">
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-header__title">
+                <span class="icon-bubble"><i class="fas fa-envelope"></i></span>
+                Contact Messages
+            </h1>
+            <p class="page-header__sub">Inbound contact form submissions from the public site</p>
+        </div>
+        <div class="page-header__actions">
+            <a href="{% url 'dashboard:overview' %}" class="btn-pill">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-envelope"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.total|intcomma }}</div>
+                <div class="stat-label">Total Messages</div>
+                <div class="stat-sub">All time</div>
+            </div>
+        </div>
+        <div class="stat-card orange">
+            <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.unreplied|intcomma }}</div>
+                <div class="stat-label">Awaiting Reply</div>
+                <div class="stat-sub">Need response</div>
+            </div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.replied|intcomma }}</div>
+                <div class="stat-label">Replied</div>
+                <div class="stat-sub">Closed</div>
+            </div>
+        </div>
+        <div class="stat-card gold">
+            <div class="stat-icon gold"><i class="fas fa-calendar-day"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.today|intcomma }}</div>
+                <div class="stat-label">Today</div>
+                <div class="stat-sub">New today</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <form class="filter-bar" method="get" action="{% url 'dashboard:contact_list' %}">
+        <div class="field" style="flex: 3;">
+            <label class="field-label" for="search">Search</label>
+            <input type="search" id="search" name="search" value="{{ search }}" placeholder="Name, email, subject, or message…">
+        </div>
+        <div class="field" style="flex: 0 0 200px;">
+            <label class="field-label" for="replied">Status</label>
+            <select id="replied" name="replied">
+                <option value="">All</option>
+                <option value="no" {% if replied == 'no' %}selected{% endif %}>Awaiting Reply</option>
+                <option value="yes" {% if replied == 'yes' %}selected{% endif %}>Replied</option>
+            </select>
+        </div>
+        <div class="actions">
+            <button type="submit" class="btn-apply"><i class="fas fa-filter"></i> Apply</button>
+            <a href="{% url 'dashboard:contact_list' %}" class="btn-reset"><i class="fas fa-xmark"></i> Clear</a>
+        </div>
+    </form>
+
+    {% if search or replied %}
+    <div class="active-filters">
+        {% if search %}<span class="chip">Search: "{{ search }}" <a href="?{% if replied %}replied={{ replied }}{% endif %}" style="color:inherit; text-decoration:none;"><i class="fas fa-xmark"></i></a></span>{% endif %}
+        {% if replied %}<span class="chip">Status: {{ replied }} <a href="?{% if search %}search={{ search }}{% endif %}" style="color:inherit; text-decoration:none;"><i class="fas fa-xmark"></i></a></span>{% endif %}
+    </div>
+    {% endif %}
+
+    <!-- TABLE -->
+    <div class="panel">
+        <div class="panel__header">
+            <h3><i class="fas fa-list"></i> Inbox</h3>
+            <span class="panel__count">{{ messages.paginator.count }} total</span>
+        </div>
+
+        {% if messages %}
+        <table class="msg-table">
+            <thead>
+                <tr>
+                    <th>Contact</th>
+                    <th>Subject</th>
+                    <th>Message Preview</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in messages %}
+                <tr>
+                    <td class="contact-block">
+                        <div class="contact-name">
+                            <a href="{% url 'dashboard:contact_detail' m.id %}">{{ m.name }}</a>
+                        </div>
+                        <div class="contact-email"><i class="fas fa-envelope"></i> {{ m.email }}</div>
+                        <div class="contact-phone"><i class="fas fa-phone"></i> {{ m.phone }}</div>
+                    </td>
+                    <td class="subject-cell">
+                        <a href="{% url 'dashboard:contact_detail' m.id %}">{{ m.subject }}</a>
+                    </td>
+                    <td>
+                        <div class="message-preview">{{ m.message }}</div>
+                    </td>
+                    <td>
+                        {% if m.is_replied %}
+                            <span class="status-pill replied"><i class="fas fa-check"></i> Replied</span>
+                        {% else %}
+                            <span class="status-pill unreplied"><i class="fas fa-clock"></i> Awaiting</span>
+                        {% endif %}
+                    </td>
+                    <td class="date-cell">
+                        {{ m.created_at|date:"M d, Y" }}
+                        <span class="small">{{ m.created_at|timesince }} ago</span>
+                    </td>
+                    <td>
+                        <div class="row-actions">
+                            <a href="{% url 'dashboard:contact_detail' m.id %}" class="btn-icon" title="View">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="mailto:{{ m.email }}" class="btn-icon" title="Email">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                            <a href="{% url 'dashboard:contact_delete' m.id %}" class="btn-icon danger" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if messages.has_other_pages %}
+        <div class="pagination-bar">
+            <div>
+                Showing {{ messages.start_index }}–{{ messages.end_index }} of {{ messages.paginator.count }}
+            </div>
+            <ul class="pagination">
+                {% if messages.has_previous %}
+                    <li><a href="?page={{ messages.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if replied %}&replied={{ replied }}{% endif %}"><i class="fas fa-chevron-left"></i></a></li>
+                {% else %}
+                    <li><span class="disabled"><i class="fas fa-chevron-left"></i></span></li>
+                {% endif %}
+                {% for n in messages.paginator.page_range %}
+                    {% if n == messages.number %}
+                        <li><span class="current">{{ n }}</span></li>
+                    {% else %}
+                        <li><a href="?page={{ n }}{% if search %}&search={{ search }}{% endif %}{% if replied %}&replied={{ replied }}{% endif %}">{{ n }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                {% if messages.has_next %}
+                    <li><a href="?page={{ messages.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if replied %}&replied={{ replied }}{% endif %}"><i class="fas fa-chevron-right"></i></a></li>
+                {% else %}
+                    <li><span class="disabled"><i class="fas fa-chevron-right"></i></span></li>
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <h4>No messages yet</h4>
+            <p>When visitors send a message via the contact form, their submissions will appear here.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

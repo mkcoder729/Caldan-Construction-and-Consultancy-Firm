@@ -1,0 +1,46 @@
+{# Admin alert when a new shop order is placed. Fires from shop signals. Uses ADMIN_EMAIL. #}
+{% extends "email/_base.html" %}
+{% load humanize %}
+
+{% block badge %}<span class="badge badge-error" style="margin-top: 14px;">NEW ORDER</span>{% endblock %}
+
+{% block content %}
+  <h1>New <span>order</span> received</h1>
+  <p class="subtitle">Order #{{ order.order_number }} — placed {{ order.created_at|date:"F j, Y H:i" }}</p>
+
+  <p>A new order just landed. Review the details below and process it as soon as possible.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Order number</dt>
+      <dd>{{ order.order_number }}</dd>
+      <dt>Customer</dt>
+      <dd><a href="mailto:{{ order.client_email }}">{{ order.client_name }}</a> · {{ order.client_phone }}</dd>
+      <dt>Delivery</dt>
+      <dd>{{ order.delivery_address }}, {{ order.delivery_town }}, {{ order.delivery_county }}</dd>
+      {% if order.delivery_notes %}<dt>Notes</dt><dd>{{ order.delivery_notes }}</dd>{% endif %}
+      <dt>Total</dt>
+      <dd><span class="badge badge-gold">KES {{ order.total|floatformat:0|intcomma }}</span></dd>
+    </dl>
+  </div>
+
+  <h2>Items</h2>
+  <table class="summary">
+    <thead><tr><th>Item</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Total</th></tr></thead>
+    <tbody>
+      {% for item in order.items.all %}
+        <tr>
+          <td>{{ item.product.name }}</td>
+          <td style="text-align:center;">{{ item.quantity }}</td>
+          <td style="text-align:right; font-weight:600;">KES {{ item.total_price|floatformat:0|intcomma }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}{% url 'shop:order_detail' order.pk %}" class="button">View order in dashboard</a>
+  </div>
+
+  <p style="text-align:center; color: var(--slate-500); font-size: 13px;">This is an automated notification. Process promptly.</p>
+{% endblock %}

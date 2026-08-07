@@ -1,0 +1,199 @@
+<div class="modal" id="inviteAdminModal" role="dialog" aria-modal="true" data-js-managed="1">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-plus" style="color:var(--brand-gold);margin-right:8px;"></i> Invite Admin</h3>
+            <button class="modal-close" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form class="modal-body" id="inviteAdminForm" method="post" action="{% url 'accounts:admin_invite' %}">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="invite_email">Email Address <span style="color:var(--sem-danger);">*</span></label>
+                <input type="email" class="form-control" id="invite_email" name="email"
+                       required placeholder="e.g. newadmin@caldan.com">
+                <span class="form-hint">The invitation will be sent to this email address</span>
+            </div>
+
+            <div class="invitation-info" style="background:var(--bg-canvas);border-radius:var(--r-md);padding:12px 16px;margin-bottom:16px;border:1px solid var(--border-subtle);">
+                <p style="font-size:0.8rem;color:var(--text-secondary);margin:0;">
+                    <i class="fas fa-info-circle" style="color:var(--brand-gold);margin-right:6px;"></i>
+                    The invitation will expire in <strong>48 hours</strong>.
+                    The recipient will be asked to set their password upon acceptance.
+                </p>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="inviteAdminCancel">Cancel</button>
+                <button type="submit" class="btn btn-gold">
+                    <i class="fas fa-paper-plane"></i> Send Invitation
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* Force invite modal above everything else (above other dashboard modals). */
+#inviteAdminModal { z-index: 10050; }
+#inviteAdminModal .modal-content {
+    max-width: 560px;
+    position: relative;
+    z-index: 2;
+    pointer-events: auto;
+}
+#inviteAdminModal .modal-overlay {
+    z-index: 1;
+}
+
+#inviteAdminModal .modal-body {
+    padding: 24px;
+}
+
+#inviteAdminModal .form-group {
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 3;
+}
+
+#inviteAdminModal .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+#inviteAdminModal .form-hint {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    display: block;
+}
+
+#inviteAdminModal .form-control {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: border-color var(--t-fast) var(--ease-standard),
+                box-shadow var(--t-fast) var(--ease-standard),
+                background var(--t-fast) var(--ease-standard);
+    position: relative;
+    z-index: 3;
+    pointer-events: auto;
+}
+
+#inviteAdminModal .form-control:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.12);
+    background: var(--bg-card);
+}
+
+#inviteAdminModal .modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+    justify-content: flex-end;
+    position: relative;
+    z-index: 3;
+}
+
+@media (max-width: 640px) {
+    #inviteAdminModal .modal-body {
+        padding: 16px;
+    }
+
+    #inviteAdminModal .modal-actions {
+        flex-direction: column;
+    }
+
+    #inviteAdminModal .modal-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var modal = document.getElementById('inviteAdminModal');
+    var form = document.getElementById('inviteAdminForm');
+
+    if (!modal || !form) return;
+
+    function focusInput() {
+        var input = document.getElementById('invite_email');
+        if (!input) return;
+        // Disable any focus-trap that may have grabbed focus.
+        input.removeAttribute('readonly');
+        input.removeAttribute('disabled');
+        // Defer to next tick so display:flex has actually taken effect.
+        setTimeout(function() {
+            try { input.focus({ preventScroll: true }); } catch (e) { input.focus(); }
+            // Move caret to end if user typed previously.
+            var v = input.value;
+            try { input.setSelectionRange(v.length, v.length); } catch (e) {}
+        }, 60);
+    }
+
+    window.openInviteAdmin = function() {
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        focusInput();
+    };
+
+    function closeModal() {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+        if (form) form.reset();
+    }
+
+    // Stop overlay clicks on inner elements from being treated as overlay clicks.
+    // Without this, clicks on form rows / labels can bubble to the overlay and
+    // immediately re-close the modal the user just opened.
+    var content = modal.querySelector('.modal-content');
+    if (content) {
+        content.addEventListener('click', function(e) { e.stopPropagation(); });
+    }
+
+    modal.querySelector('.modal-overlay')?.addEventListener('click', closeModal);
+    modal.querySelector('.modal-close')?.addEventListener('click', closeModal);
+    document.getElementById('inviteAdminCancel')?.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('open')) {
+            closeModal();
+        }
+    });
+
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        var email = document.getElementById('invite_email');
+        if (!email.value.trim()) {
+            e.preventDefault();
+            showToast('error', 'Error', 'Please enter an email address.');
+            email.focus();
+            return;
+        }
+
+        var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email.value.trim())) {
+            e.preventDefault();
+            showToast('error', 'Error', 'Please enter a valid email address.');
+            email.focus();
+            return;
+        }
+    });
+});
+</script>

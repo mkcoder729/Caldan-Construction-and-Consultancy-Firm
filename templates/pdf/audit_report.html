@@ -1,0 +1,155 @@
+{% extends "pdf/_base_report.html" %}
+{% load pdf_filters %}
+
+{% block badge %}AUDIT REPORT{% endblock %}
+
+{% block title %}Audit <span>Report</span>{% endblock %}
+
+{% block meta_extra %}
+  {% if period_start and period_end %}
+    <span><strong>Period:</strong> {{ period_start|date:"M d, Y" }} — {{ period_end|date:"M d, Y" }}</span>
+  {% else %}
+    <span><strong>Period:</strong> All Time</span>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="label">Total Actions</div>
+      <div class="value">{{ total_actions|default:0 }}</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Unique Users</div>
+      <div class="value">{{ unique_users|default:0 }}</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Security Events</div>
+      <div class="value">{{ security_events|default:0 }}</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Action Breakdown</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th class="text-right">Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for action in action_breakdown %}
+        <tr>
+          <td>{{ action.action|underscore_to_space|title }}</td>
+          <td class="text-right">{{ action.count }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="2" class="empty">No actions logged.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Security Events</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date &amp; Time</th>
+          <th>User</th>
+          <th>Action</th>
+          <th>IP Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event in security_events_list %}
+        <tr>
+          <td>{{ event.created_at|date:"M d, Y H:i" }}</td>
+          <td>{{ event.user.email|default:"System" }}</td>
+          <td>{{ event.action|underscore_to_space|title }}</td>
+          <td>{{ event.ip_address|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="empty">No security events in this period.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>User Activity</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>User</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in user_activity %}
+        <tr>
+          <td>{{ user.user_full_name|default:user.user_email }}</td>
+          <td class="text-right">{{ user.count }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="2" class="empty">No user activity.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Complete Audit Log Entries (showing {{ logs|length }} of {{ total_actions }})</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date &amp; Time</th>
+          <th>User</th>
+          <th>Action</th>
+          <th>Entity</th>
+          <th>IP</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td>{{ log.created_at|date:"M d, Y H:i" }}</td>
+          <td>{% if log.user %}{{ log.user.email }}{% else %}System{% endif %}</td>
+          <td>{{ log.action|underscore_to_space|title }}</td>
+          <td>{{ log.entity_type|default:"-" }}{% if log.entity_id %} #{{ log.entity_id }}{% endif %}</td>
+          <td>{{ log.ip_address|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="empty">No audit log entries.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Cryptographic Hash Chain</h2>
+    <div class="hash-chain">
+      <div class="label">Previous Hash:</div>
+      <div class="hash">{{ previous_hash|default:"0000000000000000000000000000000000000000000000000000000000000000" }}</div>
+      <div class="hash-arrow"></div>
+      <div class="label">Current Hash:</div>
+      <div class="hash">{{ current_hash|default:"0000000000000000000000000000000000000000000000000000000000000000" }}</div>
+      <div style="margin-top: 8px; font-size: 7pt; color: rgba(255,255,255,.5); font-family: 'Helvetica Neue', Arial, sans-serif;">
+        SHA-256 · Immutable · Tamper-Proof
+      </div>
+    </div>
+    <p style="font-size: 8pt; color: #000000; margin-top: 4px; opacity: 0.6;">
+      <strong>Note:</strong> The hash chain ensures that no audit log entry can be modified without detection.
+      Any change breaks the cryptographic link between entries.
+    </p>
+  </div>
+{% endblock %}

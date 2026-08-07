@@ -1,0 +1,109 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block title %}Sign In — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-grid">
+
+        <!-- ============ Brand side ============ -->
+        <aside class="auth-brand" aria-hidden="true">
+            <div class="auth-brand-content">
+                <img src="{% static 'images/logo_light.png' %}" alt="Caldan Construction and Consultancy Firm" class="auth-brand-logo">
+                <span class="auth-brand-eyebrow">Caldan Construction</span>
+                <h1>Welcome Back</h1>
+                <p class="auth-brand-text">Sign in to manage your construction operations, projects, and team from one place.</p>
+
+                <div class="auth-brand-features">
+                    <div class="feature-item"><i class="fas fa-diagram-project"></i><span>Project Management</span></div>
+                    <div class="feature-item"><i class="fas fa-boxes-stacked"></i><span>Inventory Tracking</span></div>
+                    <div class="feature-item"><i class="fas fa-coins"></i><span>Financial Oversight</span></div>
+                    <div class="feature-item"><i class="fas fa-people-group"></i><span>Team Collaboration</span></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ============ Form side ============ -->
+        <div class="auth-form-wrapper">
+            <div class="auth-form-container">
+
+                <div class="auth-form-header">
+                    <h2>Sign In</h2>
+                    <p>Enter your credentials to access your dashboard.</p>
+                </div>
+
+                {# Django messages #}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags|default:'info' }}" role="alert">
+                            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" action="{% url 'accounts:login' %}" class="auth-form" data-loading novalidate>
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope" aria-hidden="true"></i>
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   placeholder="you@example.com"
+                                   autocomplete="email"
+                                   required
+                                   autofocus
+                                   aria-required="true">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock" aria-hidden="true"></i>
+                            <input type="password"
+                                   id="password"
+                                   name="password"
+                                   placeholder="Enter your password"
+                                   autocomplete="current-password"
+                                   required
+                                   aria-required="true"
+                                   minlength="8">
+                            <button type="button"
+                                    class="password-toggle"
+                                    data-toggle-password
+                                    data-target="password"
+                                    aria-label="Show password">
+                                <i class="fas fa-eye" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remember_me" value="on">
+                            <span>Remember this device</span>
+                        </label>
+                        <a href="{% url 'accounts:password_reset' %}" class="forgot-link">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span class="btn-text"><i class="fas fa-sign-in-alt" aria-hidden="true"></i> Sign In</span>
+                        <i class="spinner fas fa-circle-notch" aria-hidden="true"></i>
+                    </button>
+                </form>
+
+                <div class="auth-form-footer">
+                    <p>Don't have an account? <a href="{% url 'accounts:setup' %}">Create one</a></p>
+                    <p class="auth-back-home"><a href="{% url 'website:index' %}"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Home</a></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

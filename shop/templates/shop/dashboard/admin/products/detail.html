@@ -1,0 +1,807 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+{% load shop_extras %}
+
+{% block title %}{{ product.name }} - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   PRODUCT DETAIL — PREMIUM ADMIN
+   ================================================================ */
+
+.product-detail {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+.page-header {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.page-header-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+    z-index: 1;
+}
+
+.page-header-thumb {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.page-header-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.page-header-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.page-header-title i.featured { color: var(--brand-gold); font-size: 18px; }
+.page-header-sub { font-size: 13px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+.page-header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid transparent;
+}
+.status-badge.active   { background: rgba(39,174,96,0.15); color: var(--sem-success); border-color: rgba(39,174,96,0.3); }
+.status-badge.inactive { background: rgba(120,120,120,0.15); color: var(--text-tertiary); border-color: rgba(120,120,120,0.3); }
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: all var(--t-base) var(--ease-spring);
+    border-top: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 50%, var(--stat-accent, transparent) 130%);
+    opacity: 0;
+    transition: opacity var(--t-base) var(--ease-standard);
+    pointer-events: none;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--stat-accent, var(--border-subtle));
+}
+
+.stat-card:hover::after { opacity: 0.06; }
+
+.stat-card.blue { --stat-accent: var(--brand-blue); border-top-color: var(--brand-blue); }
+.stat-card.gold { --stat-accent: var(--brand-gold); border-top-color: var(--brand-gold); }
+.stat-card.green { --stat-accent: var(--sem-success); border-top-color: var(--sem-success); }
+.stat-card.orange { --stat-accent: var(--sem-warning); border-top-color: var(--sem-warning); }
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--r-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: transform var(--t-base) var(--ease-spring);
+}
+
+.stat-card:hover .stat-icon { transform: scale(1.08) rotate(-4deg); }
+
+.stat-icon.blue { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); }
+.stat-icon.gold { background: rgba(212, 175, 55, 0.14); color: var(--brand-gold-deep); }
+.stat-icon.green { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); }
+.stat-icon.orange { background: rgba(243, 156, 18, 0.12); color: var(--sem-warning); }
+
+.stat-body { flex: 1; min-width: 0; }
+.stat-value { font-size: 22px; font-weight: 800; color: var(--text-primary); line-height: 1.1; letter-spacing: -0.5px; }
+.stat-value-sm { font-size: 16px; }
+.stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+.layout-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 22px;
+    align-items: start;
+}
+
+.gallery-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 22px;
+    box-shadow: var(--shadow-xs);
+}
+
+.gallery-main {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-main img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.gallery-main .placeholder {
+    color: var(--text-tertiary);
+    font-size: 64px;
+    opacity: 0.4;
+}
+
+.chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.chart-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.chart-card-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.chart-card-header h3 i {
+    color: var(--brand-gold);
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-badge {
+    padding: 4px 12px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold-deep);
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.chart-body { padding: 22px; }
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 13px;
+}
+
+.info-row:last-child { border-bottom: none; }
+.info-row .label { color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px; }
+.info-row .label i { color: var(--text-tertiary); font-size: 11px; }
+.info-row .value { color: var(--text-primary); font-weight: 600; text-align: right; }
+.info-row .value .category-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(11, 102, 195, 0.1);
+    color: var(--brand-blue);
+    border: 1px solid rgba(11, 102, 195, 0.2);
+}
+
+.stock-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+.stock-pill.in    { background: rgba(39,174,96,0.15); color: var(--sem-success); border-color: rgba(39,174,96,0.3); }
+.stock-pill.low   { background: rgba(243,156,18,0.15); color: var(--sem-warning); border-color: rgba(243,156,18,0.3); }
+.stock-pill.out   { background: rgba(185,52,43,0.15); color: var(--sem-danger); border-color: rgba(185,52,43,0.3); }
+
+.description-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.description-body {
+    padding: 22px;
+    font-size: 14px;
+    color: var(--text-primary);
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+.description-empty {
+    color: var(--text-tertiary);
+    font-style: italic;
+}
+
+.price-tag {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(212, 175, 55, 0.04));
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: var(--r-md);
+    padding: 18px 22px;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.price-current {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--brand-gold-deep);
+    letter-spacing: -0.5px;
+    font-variant-numeric: tabular-nums;
+}
+
+.price-original {
+    font-size: 16px;
+    color: var(--text-tertiary);
+    text-decoration: line-through;
+    font-weight: 600;
+}
+
+.price-discount {
+    background: var(--sem-success);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: var(--r-pill);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.2px;
+}
+
+.btn-primary {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary:hover {
+    background: var(--brand-gold-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-default);
+    color: var(--text-primary);
+}
+
+.btn-ghost {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.btn-danger {
+    background: var(--sem-danger);
+    color: #fff;
+    border: 1px solid var(--sem-danger);
+}
+
+.btn-danger:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.action-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.items-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: var(--bg-canvas);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.items-table td {
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.items-table tr:last-child td { border-bottom: none; }
+.items-table tbody tr { transition: background var(--t-fast) var(--ease-standard); }
+.items-table tbody tr:hover td { background: var(--bg-canvas); }
+.items-table .order-number { font-family: monospace; font-size: 12px; color: var(--text-tertiary); }
+
+.inventory-warning {
+    background: rgba(243, 156, 18, 0.08);
+    border: 1px solid rgba(243, 156, 18, 0.25);
+    border-left: 3px solid var(--sem-warning);
+    border-radius: var(--r-md);
+    padding: 12px 16px;
+    color: var(--text-primary);
+    font-size: 13px;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.inventory-warning i { color: var(--sem-warning); font-size: 16px; }
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.page-header, .stat-card, .gallery-card, .chart-card, .description-card { animation: fade-up 0.4s ease both; }
+.stat-card:nth-child(2) { animation-delay: 0.05s; }
+.stat-card:nth-child(3) { animation-delay: 0.1s; }
+.stat-card:nth-child(4) { animation-delay: 0.15s; }
+
+@media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .layout-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .page-header { padding: 20px; }
+    .page-header-title { font-size: 18px; }
+    .page-header-thumb { width: 52px; height: 52px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 18px; }
+    .stat-icon { width: 40px; height: 40px; font-size: 16px; }
+    .items-table { font-size: 12px; }
+    .items-table th, .items-table td { padding: 10px 12px; }
+}
+
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .page-header-actions { width: 100%; }
+    .page-header-actions .btn { flex: 1; justify-content: center; }
+    .action-bar { flex-direction: column; }
+    .action-bar .btn { width: 100%; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-header, .stat-card, .gallery-card, .chart-card, .description-card { animation: none; }
+    .stat-card:hover { transform: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="product-detail">
+
+    <div class="page-header">
+        <div class="page-header-main">
+            <div class="page-header-thumb">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                {% else %}
+                    <i class="fas fa-box"></i>
+                {% endif %}
+            </div>
+            <div>
+                <h1 class="page-header-title">
+                    {{ product.name }}
+                    {% if product.is_featured %}<i class="fas fa-star featured" title="Featured"></i>{% endif %}
+                </h1>
+                <p class="page-header-sub">Slug: {{ product.slug }} · Created {{ product.created_at|date:"M d, Y" }}</p>
+            </div>
+        </div>
+        <div class="page-header-actions">
+            {% if product.is_active %}
+                <span class="status-badge active"><i class="fas fa-eye"></i> Active</span>
+            {% else %}
+                <span class="status-badge inactive"><i class="fas fa-eye-slash"></i> Hidden</span>
+            {% endif %}
+            <a href="{% url 'shop:product_list' %}" class="btn btn-ghost">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card gold">
+            <div class="stat-icon gold"><i class="fas fa-coins"></i></div>
+            <div class="stat-body">
+                <div class="stat-value stat-value-sm">KES {{ product.price|floatformat:0|intcomma }}</div>
+                <div class="stat-label">Selling Price</div>
+                <div class="stat-sub">per {{ product.get_unit_display }}</div>
+            </div>
+        </div>
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-warehouse"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ product.stock_quantity|floatformat:0 }}</div>
+                <div class="stat-label">In Stock</div>
+                <div class="stat-sub">{% if product.inventory_material %}Linked to inventory{% else %}Manual stock{% endif %}</div>
+            </div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-shopping-bag"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ recent_order_items|length }}</div>
+                <div class="stat-label">Recent Orders</div>
+                <div class="stat-sub">Last 10 order lines</div>
+            </div>
+        </div>
+        <div class="stat-card orange">
+            <div class="stat-icon orange"><i class="fas fa-tag"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ product.get_category_display }}</div>
+                <div class="stat-label">Category</div>
+                <div class="stat-sub">{% if product.is_featured %}Featured{% else %}Standard{% endif %}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layout-grid">
+
+        <div>
+            <div class="gallery-card">
+                <div class="gallery-main">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <span class="placeholder"><i class="fas fa-image"></i></span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if product.description %}
+            <div class="description-card" style="margin-top: 22px;">
+                <div class="chart-card-header">
+                    <h3><i class="fas fa-align-left"></i> Description</h3>
+                </div>
+                <div class="description-body">{{ product.description }}</div>
+            </div>
+            {% endif %}
+
+            <div class="chart-card" style="margin-top: 22px;">
+                <div class="chart-card-header">
+                    <h3><i class="fas fa-shopping-bag"></i> Recent Orders</h3>
+                    <span class="chart-badge">{{ recent_order_items|length }} order line{% if recent_order_items|length != 1 %}s{% endif %}</span>
+                </div>
+                {% if recent_order_items %}
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>Order</th>
+                                <th>Quantity</th>
+                                <th style="text-align: right;">Unit Price</th>
+                                <th style="text-align: right;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in recent_order_items %}
+                            <tr>
+                                <td>
+                                    <div class="order-number">{{ item.order.order_number }}</div>
+                                    <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 2px;">
+                                        {{ item.created_at|date:"M d, Y" }}
+                                    </div>
+                                </td>
+                                <td>{{ item.quantity }}</td>
+                                <td style="text-align: right;">KES {{ item.unit_price|floatformat:0|intcomma }}</td>
+                                <td style="text-align: right; font-weight: 700;">KES {{ item.total_price|floatformat:0|intcomma }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="chart-body" style="text-align: center; color: var(--text-tertiary); padding: 40px;">
+                        <i class="fas fa-inbox" style="font-size: 32px; opacity: 0.4; display: block; margin-bottom: 10px;"></i>
+                        No orders yet for this product.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <aside>
+            <div class="chart-card">
+                <div class="chart-card-header">
+                    <h3><i class="fas fa-tag"></i> Pricing</h3>
+                </div>
+                <div class="chart-body">
+                    <div class="price-tag">
+                        <div>
+                            <div class="price-current">KES {{ product.price|floatformat:0|intcomma }}</div>
+                            {% if product.has_compare_price %}
+                                <div class="price-original">KES {{ product.compare_price|floatformat:0|intcomma }}</div>
+                            {% endif %}
+                        </div>
+                        {% if product.has_compare_price %}
+                            <span class="price-discount">−{{ product.discount_percentage }}%</span>
+                        {% endif %}
+                    </div>
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-money-bill"></i> Selling Price</span>
+                        <span class="value">KES {{ product.price|floatformat:2|intcomma }}</span>
+                    </div>
+                    {% if product.compare_price %}
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-tag"></i> Compare-at</span>
+                        <span class="value">KES {{ product.compare_price|floatformat:2|intcomma }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-balance-scale"></i> Unit</span>
+                        <span class="value">{{ product.get_unit_display }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-card" style="margin-top: 22px;">
+                <div class="chart-card-header">
+                    <h3><i class="fas fa-info-circle"></i> Details</h3>
+                </div>
+                <div class="chart-body">
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-folder"></i> Category</span>
+                        <span class="value"><span class="category-pill">{{ product.get_category_display }}</span></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-warehouse"></i> Stock</span>
+                        <span class="value">
+                            {% if product.is_out_of_stock %}
+                                <span class="stock-pill out"><i class="fas fa-times-circle"></i> Out</span>
+                            {% elif product.is_low_stock %}
+                                <span class="stock-pill low"><i class="fas fa-exclamation-circle"></i> Low ({{ product.stock_quantity }})</span>
+                            {% else %}
+                                <span class="stock-pill in"><i class="fas fa-check-circle"></i> {{ product.stock_quantity }}</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-link"></i> Slug</span>
+                        <span class="value" style="font-family: monospace; font-size: 11px;">{{ product.slug }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-calendar-plus"></i> Created</span>
+                        <span class="value">{{ product.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-calendar-alt"></i> Updated</span>
+                        <span class="value">{{ product.updated_at|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if inventory_info %}
+            <div class="chart-card" style="margin-top: 22px;">
+                <div class="chart-card-header">
+                    <h3><i class="fas fa-boxes"></i> Linked Inventory</h3>
+                    <span class="chart-badge">{{ inventory_info.unit }}</span>
+                </div>
+                <div class="chart-body">
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-tag"></i> Material</span>
+                        <span class="value">{{ inventory_info.name }}</span>
+                    </div>
+                    {% if inventory_info.sku %}
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-barcode"></i> SKU</span>
+                        <span class="value" style="font-family: monospace; font-size: 11px;">{{ inventory_info.sku }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-warehouse"></i> Current Quantity</span>
+                        <span class="value">{{ inventory_info.current_quantity }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label"><i class="fas fa-exclamation-triangle"></i> Min Threshold</span>
+                        <span class="value">{{ inventory_info.minimum_threshold }}</span>
+                    </div>
+
+                    {% if inventory_info.low_stock %}
+                    <div class="inventory-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Stock is at or below the minimum threshold.</span>
+                    </div>
+                    {% endif %}
+
+                    <form method="POST" action="{% url 'shop:product_sync_stock' product.id %}" style="margin-top: 14px;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-secondary" style="width: 100%; justify-content: center;">
+                            <i class="fas fa-sync"></i> Sync Stock from Inventory
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="action-bar" style="margin-top: 22px;">
+                <a href="{% url 'shop:product_edit' product.id %}" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                    <i class="fas fa-edit"></i> Edit Product
+                </a>
+                <form method="POST" action="{% url 'shop:product_toggle_active' product.id %}" style="flex: 1;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-secondary" style="width: 100%; justify-content: center;">
+                        {% if product.is_active %}
+                            <i class="fas fa-eye-slash"></i> Deactivate
+                        {% else %}
+                            <i class="fas fa-eye"></i> Activate
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+
+            <form method="POST" action="{% url 'shop:product_toggle_featured' product.id %}" style="margin-top: 10px;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="detail">
+                <button type="submit" class="btn btn-secondary" style="width: 100%; justify-content: center;">
+                    {% if product.is_featured %}
+                        <i class="fas fa-star" style="color: var(--brand-gold);"></i> Remove from Featured
+                    {% else %}
+                        <i class="far fa-star"></i> Mark as Featured
+                    {% endif %}
+                </button>
+            </form>
+
+            <button type="button" class="btn btn-danger" style="width: 100%; justify-content: center; margin-top: 10px;"
+                    onclick="if(confirm('Delete &quot;{{ product.name|escapejs }}&quot;? This cannot be undone.')){document.getElementById('deleteForm').submit();}">
+                <i class="fas fa-trash"></i> Delete Product
+            </button>
+            <form id="deleteForm" method="POST" action="{% url 'shop:product_delete' product.id %}" style="display:none;">{% csrf_token %}</form>
+        </aside>
+    </div>
+</div>
+{% endblock %}

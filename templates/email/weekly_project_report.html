@@ -1,0 +1,34 @@
+{# Weekly project report — admin summary of all active projects. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-info" style="margin-top: 14px;">PROJECT REPORT</span>{% endblock %}
+
+{% block content %}
+  <h1>Project <span>report</span></h1>
+  <p class="subtitle">Generated {{ report.generated_at|date:"F j, Y" }}</p>
+
+  <p>Snapshot of all current projects by status.</p>
+
+  <div style="display: block; margin: 22px 0;">
+    <table width="100%" cellpadding="0" cellspacing="6" border="0">
+      <tr>
+        <td align="center" style="background: #FAFBFD; border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px 12px;">
+          <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500);">Total Projects</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--brand-navy); margin-top: 4px;">{{ report.total_projects|default:0 }}</div>
+        </td>
+        <td align="center" style="background: #FAFBFD; border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px 12px;">
+          <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500);">Active</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--brand-blue); margin-top: 4px;">{{ report.by_status.Active|default:0 }}</div>
+        </td>
+        <td align="center" style="background: #FAFBFD; border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px 12px;">
+          <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500);">Completed</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--success); margin-top: 4px;">{{ report.by_status.Completed|default:0 }}</div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}/dashboard/projects/" class="button">View all projects</a>
+  </div>
+{% endblock %}

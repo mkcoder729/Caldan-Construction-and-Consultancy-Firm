@@ -1,0 +1,422 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Audit Log - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 20px; flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative; overflow: hidden;
+    margin-bottom: 24px;
+}
+.page-hero::before {
+    content: ''; position: absolute; top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+}
+.page-hero-main {
+    display: flex; align-items: center; gap: 16px;
+    flex: 1; min-width: 240px; position: relative; z-index: 1;
+}
+.page-hero-icon {
+    width: 52px; height: 52px; border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+}
+.page-hero-title {
+    font-size: 22px; font-weight: 800; color: #fff;
+    margin: 0 0 4px; letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 10px;
+}
+.page-hero-title i { color: var(--brand-gold); }
+.page-hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+.page-hero-actions {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    position: relative; z-index: 1;
+}
+
+.audit-filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.audit-filters .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.audit-filters select,
+.audit-filters input {
+    padding: 6px 12px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-family: inherit;
+    height: 36px;
+}
+
+.audit-filters select:focus,
+.audit-filters input:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+}
+
+.audit-card {
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.audit-card .card-body {
+    padding: 0;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-canvas);
+    white-space: nowrap;
+}
+
+.table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    vertical-align: middle;
+    font-size: 0.8rem;
+}
+
+.table tbody tr {
+    transition: background var(--t-fast) var(--ease-standard);
+}
+.table tbody tr:hover td {
+    background: var(--bg-card-hover);
+}
+
+.hash {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-tertiary);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-tertiary);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.empty-state h3 {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin: 0 0 8px;
+}
+
+.empty-state p {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+}
+
+.pagination .page-link {
+    padding: 6px 12px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.pagination .page-link:hover {
+    background: var(--bg-secondary);
+    border-color: var(--border-strong);
+}
+
+.pagination .page-link.active {
+    background: var(--brand-gold);
+    color: var(--text-inverse);
+    border-color: var(--brand-gold);
+}
+
+.pagination .page-link.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+@media (max-width: 640px) {
+    .page-hero {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .page-hero-actions {
+        width: 100%;
+    }
+
+    .audit-filters {
+        flex-direction: column;
+    }
+
+    .audit-filters .filter-group {
+        width: 100%;
+    }
+
+    .audit-filters select,
+    .audit-filters input {
+        flex: 1;
+        width: 100%;
+    }
+
+    .table {
+        font-size: 0.7rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 6px 10px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-page">
+    <!-- Header -->
+    <div class="page-hero">
+        <div class="page-hero-main">
+            <div class="page-hero-icon"><i class="fas fa-history"></i></div>
+            <div>
+                <h1 class="page-hero-title">Audit Log
+                    <span style="font-size:0.75rem;font-weight:500;color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.12);padding:3px 10px;border-radius:var(--r-pill);">
+                        {{ total_entries|default:0 }} entries
+                    </span>
+                </h1>
+                <p class="page-hero-sub">View and verify all system activity</p>
+            </div>
+        </div>
+        <div class="page-hero-actions">
+            <a href="{% url 'dashboard:audit_export' %}" class="btn btn-gold btn-sm">
+                <i class="fas fa-file-csv"></i> CSV
+            </a>
+            <a href="{% url 'dashboard:audit_export' %}?format=pdf" class="btn btn-gold btn-sm">
+                <i class="fas fa-file-pdf"></i> PDF
+            </a>
+            <button class="btn btn-secondary btn-sm" onclick="verifyChain()">
+                <i class="fas fa-shield-alt"></i> Verify Chain
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="audit-filters">
+        <div class="filter-group">
+            <select id="actionFilter">
+                <option value="">All Actions</option>
+                {% for action in actions %}
+                    <option value="{{ action }}" {% if request.GET.action == action %}selected{% endif %}>
+                        {{ action|title }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <select id="userFilter">
+                <option value="">All Users</option>
+                {% for user in users %}
+                    <option value="{{ user.id }}" {% if request.GET.user == user.id|stringformat:'s' %}selected{% endif %}>
+                        {{ user.full_name|default:user.email }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <input type="date" id="dateFrom" value="{{ request.GET.date_from|default:'' }}">
+        </div>
+        <div class="filter-group">
+            <input type="date" id="dateTo" value="{{ request.GET.date_to|default:'' }}">
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="applyFilters()">
+            <i class="fas fa-filter"></i> Filter
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="resetFilters()">
+            <i class="fas fa-undo"></i> Reset
+        </button>
+    </div>
+
+    <!-- Audit Table -->
+    <div class="audit-card">
+        <div class="card-body">
+            {% if page_obj.paginator.count %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Entity</th>
+                            <th>IP Address</th>
+                            <th>Hash</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                            <tr>
+                                <td style="font-size:0.75rem;color:var(--text-secondary);">
+                                    {{ log.created_at|date:"M d, Y H:i:s" }}
+                                </td>
+                                <td>
+                                    {% if log.user %}{{ log.user.full_name|default:log.user.email }}{% else %}System{% endif %}
+                                </td>
+                                <td>
+                                    <span style="font-weight:500;">{{ log.get_action_display|default:log.action }}</span>
+                                </td>
+                                <td>
+                                    <span style="font-size:0.75rem;color:var(--text-secondary);">
+                                        {{ log.entity_type|title }}
+                                        {% if log.entity_id %}#{{ log.entity_id }}{% endif %}
+                                    </span>
+                                </td>
+                                <td style="font-size:0.75rem;color:var(--text-secondary);">
+                                    {{ log.ip_address|default:'-' }}
+                                </td>
+                                <td>
+                                    <span class="hash">{{ log.hash_current|slice:":8" }}...</span>
+                                    <span class="badge badge-success" style="font-size:0.55rem;padding:1px 6px;">
+                                        <i class="fas fa-check-circle"></i>
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-history"></i>
+                    <h3>No Audit Logs Found</h3>
+                    <p>No audit entries match your filters.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}"
+                   class="page-link">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            {% else %}
+                <span class="page-link disabled"><i class="fas fa-chevron-left"></i></span>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="page-link active">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}"
+                       class="page-link">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}"
+                   class="page-link">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            {% else %}
+                <span class="page-link disabled"><i class="fas fa-chevron-right"></i></span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function applyFilters() {
+    var action = document.getElementById('actionFilter').value;
+    var user = document.getElementById('userFilter').value;
+    var dateFrom = document.getElementById('dateFrom').value;
+    var dateTo = document.getElementById('dateTo').value;
+
+    var params = [];
+    if (action) params.push('action=' + encodeURIComponent(action));
+    if (user) params.push('user=' + encodeURIComponent(user));
+    if (dateFrom) params.push('date_from=' + encodeURIComponent(dateFrom));
+    if (dateTo) params.push('date_to=' + encodeURIComponent(dateTo));
+
+    var url = window.location.pathname;
+    if (params.length) url += '?' + params.join('&');
+
+    window.location.href = url;
+}
+
+function resetFilters() {
+    window.location.href = window.location.pathname;
+}
+
+function verifyChain() {
+    fetch('{% url "dashboard:audit_verify" %}', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        if (data.verified) {
+            showToast('success', 'Audit Chain Verified', 'The audit log hash chain is intact and verified.');
+        } else {
+            showToast('error', 'Audit Chain Broken', 'The audit log hash chain has been tampered with!');
+        }
+    })
+    .catch(function() {
+        showToast('error', 'Verification Failed', 'Could not verify audit chain.');
+    });
+}
+</script>
+{% endblock %}

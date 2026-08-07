@@ -1,0 +1,317 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Broadcast: {{ post.title }} - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   BLOG BROADCAST CONFIRM — PREMIUM ADMIN
+   Mirrors the delete-confirm card layout, repainted with gold accents
+   since the action is constructive (re-sending a marketing email) but
+   still affects every active subscriber.
+   ================================================================ */
+
+.broadcast-confirm {
+    max-width: 720px;
+    margin: 0 auto;
+    padding-bottom: 40px;
+    animation: fade-up 0.4s ease both;
+}
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.confirm-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.confirm-header {
+    background:
+        radial-gradient(700px 220px at 50% 0%, rgba(212,175,55,0.18), transparent 70%),
+        linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    padding: 32px 36px;
+    text-align: center;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+.confirm-header::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.5;
+}
+.confirm-header > * { position: relative; z-index: 1; }
+
+.confirm-icon-wrap {
+    width: 84px; height: 84px;
+    margin: 0 auto 16px;
+    background: rgba(212,175,55,0.18);
+    border: 1px solid rgba(212,175,55,0.35);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #D4AF37;
+    font-size: 32px;
+    box-shadow: 0 8px 24px rgba(212,175,55,0.32);
+}
+
+.confirm-header h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.65rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    letter-spacing: -0.5px;
+}
+.confirm-header p {
+    margin: 0;
+    font-size: 0.92rem;
+    color: rgba(255,255,255,0.82);
+}
+
+.confirm-body { padding: 32px 36px; }
+
+.post-preview {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 18px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 18px;
+    margin-bottom: 24px;
+}
+.post-preview__image {
+    width: 130px; height: 90px;
+    border-radius: var(--r-md);
+    background: linear-gradient(135deg, var(--brand-navy), var(--brand-blue-deep));
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(212,175,55,0.5);
+    font-size: 32px;
+    overflow: hidden;
+}
+.post-preview__image img { width: 100%; height: 100%; object-fit: cover; }
+.post-preview__info { min-width: 0; }
+.post-preview__title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 6px;
+    line-height: 1.3;
+}
+.post-preview__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+.post-preview__meta span {
+    display: inline-flex; align-items: center; gap: 4px;
+}
+.post-preview__meta i { color: var(--brand-gold-deep); font-size: 0.72rem; }
+.post-preview__excerpt {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.info-block {
+    padding: 14px 18px;
+    background: rgba(212,175,55,0.08);
+    border: 1px solid rgba(212,175,55,0.22);
+    border-radius: var(--r-md);
+    margin-bottom: 24px;
+}
+.info-block h4 {
+    margin: 0 0 10px;
+    color: #9C7A1F;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex; align-items: center; gap: 6px;
+}
+.info-block ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.7;
+}
+.info-block ul li { padding-left: 4px; }
+.info-block ul li::marker { color: #D4AF37; font-weight: 700; }
+
+.subscriber-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: linear-gradient(135deg, rgba(212,175,55,0.18) 0%, rgba(212,175,55,0.08) 100%);
+    border: 1px solid rgba(212,175,55,0.4);
+    border-radius: 999px;
+    color: #9C7A1F;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 18px;
+}
+.subscriber-pill i { color: #D4AF37; }
+
+.action-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.btn-cancel {
+    padding: 12px 26px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: inherit;
+}
+.btn-cancel:hover {
+    border-color: var(--text-secondary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-broadcast {
+    padding: 12px 26px;
+    background: linear-gradient(135deg, #D4AF37 0%, #E8C84A 100%);
+    border: 1px solid #B8902A;
+    border-radius: var(--r-sm);
+    color: #0D2B36;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    display: inline-flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 14px rgba(212,175,55,0.34);
+    font-family: inherit;
+}
+.btn-broadcast:hover {
+    background: linear-gradient(135deg, #E8C84A 0%, #D4AF37 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(212,175,55,0.45);
+}
+.btn-broadcast:active { transform: translateY(0); }
+
+@media (max-width: 600px) {
+    .confirm-header { padding: 22px; }
+    .confirm-body { padding: 22px; }
+    .post-preview { grid-template-columns: 1fr; }
+    .post-preview__image { width: 100%; height: 140px; }
+    .action-row { flex-direction: column-reverse; }
+    .action-row .btn-cancel, .action-row .btn-broadcast { width: 100%; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .broadcast-confirm { animation: none; }
+    .btn-cancel:hover, .btn-broadcast:hover { transform: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="broadcast-confirm">
+
+    <div class="confirm-card">
+
+        <div class="confirm-header">
+            <div class="confirm-icon-wrap">
+                <i class="fas fa-paper-plane"></i>
+            </div>
+            <h1>Email this post to subscribers?</h1>
+            <p>Re-broadcast "{{ post.title }}" to every active newsletter subscriber.</p>
+        </div>
+
+        <div class="confirm-body">
+
+            <div class="post-preview">
+                <div class="post-preview__image">
+                    {% if post.image %}
+                        <img src="{{ post.image.url }}" alt="{{ post.title }}">
+                    {% else %}
+                        <i class="fas fa-newspaper"></i>
+                    {% endif %}
+                </div>
+                <div class="post-preview__info">
+                    <h3 class="post-preview__title">{{ post.title }}</h3>
+                    <div class="post-preview__meta">
+                        <span><i class="fas fa-user"></i> Caldan Team</span>
+                        <span><i class="far fa-calendar-alt"></i> {{ post.created_at|date:"M d, Y" }}</span>
+                        <span>
+                            {% if post.is_published %}<i class="fas fa-circle-check" style="color: var(--sem-success);"></i> Published
+                            {% else %}<i class="fas fa-circle-pause" style="color: var(--sem-warning);"></i> Draft{% endif %}
+                        </span>
+                    </div>
+                    {% if post.excerpt %}
+                        <p class="post-preview__excerpt">{{ post.excerpt|truncatewords:25 }}</p>
+                    {% else %}
+                        <p class="post-preview__excerpt">{{ post.content|striptags|truncatewords:25 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if not post.is_published %}
+                <div class="info-block" style="background: rgba(217,119,6,0.08); border-color: rgba(217,119,6,0.22);">
+                    <h4 style="color:#9a3412;"><i class="fas fa-circle-exclamation"></i> Post is not published</h4>
+                    <ul>
+                        <li>This post is currently a <strong>draft</strong>. Refusing to broadcast — drafts are not visible to readers.</li>
+                        <li>Publish the post first; the first-publish broadcast will fire automatically.</li>
+                    </ul>
+                </div>
+            {% else %}
+                <div class="subscriber-pill">
+                    <i class="fas fa-users"></i>
+                    {{ subscriber_count|default:"All active" }} subscribers will receive this email
+                </div>
+
+                <div class="info-block">
+                    <h4><i class="fas fa-circle-info"></i> What this will do</h4>
+                    <ul>
+                        <li>Send the published version of this post to every active newsletter subscriber</li>
+                        <li>Each subscriber gets the standard "New Blog Post: …" email with a link to <code>/blog/{{ post.slug }}/</code></li>
+                        <li>Log an audit entry tagged <code>BLOG_POST_BROADCAST</code> with the sent / failed counts</li>
+                        <li>Will NOT touch admin notifications (those fire only on the first publish transition)</li>
+                    </ul>
+                </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'blog:admin_broadcast' post.id %}">
+                {% csrf_token %}
+                <div class="action-row">
+                    <a href="{% url 'blog:admin_edit' post.id %}" class="btn-cancel">
+                        <i class="fas fa-arrow-left"></i> Cancel
+                    </a>
+                    {% if post.is_published %}
+                        <button type="submit" class="btn-broadcast">
+                            <i class="fas fa-paper-plane"></i> Email Subscribers
+                        </button>
+                    {% endif %}
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

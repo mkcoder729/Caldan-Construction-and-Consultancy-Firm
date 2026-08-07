@@ -1,0 +1,56 @@
+{# Daily stock summary — admin digest of inventory health. #}
+{% extends "email/_base.html" %}
+{% load humanize %}
+
+{% block badge %}<span class="badge badge-info" style="margin-top: 14px;">STOCK SUMMARY</span>{% endblock %}
+
+{% block content %}
+  <h1>Daily stock <span>summary</span></h1>
+  <p class="subtitle">{{ date|date:"l, F j, Y" }}</p>
+
+  <p>Here's where inventory stands today.</p>
+
+  <div style="display: block; margin: 22px 0;">
+    <table width="100%" cellpadding="0" cellspacing="6" border="0">
+      <tr>
+        <td align="center" style="background: #FAFBFD; border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px 12px;">
+          <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500);">Total Materials</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--brand-navy); margin-top: 4px;">{{ summary.total_materials|default:0 }}</div>
+        </td>
+        <td align="center" style="background: #FAFBFD; border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px 12px;">
+          <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500);">Low Stock</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--warning); margin-top: 4px;">{{ summary.low_stock_count|default:0 }}</div>
+        </td>
+        <td align="center" style="background: #FAFBFD; border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px 12px;">
+          <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500);">Out of Stock</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--danger); margin-top: 4px;">{{ summary.out_of_stock_count|default:0 }}</div>
+        </td>
+        <td align="center" style="background: #FAFBFD; border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px 12px;">
+          <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500);">Total Value</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--brand-gold-deep); margin-top: 4px;">KES {{ summary.total_value|floatformat:0|intcomma|default:0 }}</div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  {% if summary.low_stock %}
+  <h2>Low stock items</h2>
+  <table class="summary">
+    <thead><tr><th>Material</th><th style="text-align:right;">Current</th><th style="text-align:right;">Threshold</th><th style="text-align:center;">Status</th></tr></thead>
+    <tbody>
+      {% for item in summary.low_stock %}
+      <tr>
+        <td>{{ item.name }}</td>
+        <td style="text-align:right; font-weight:600; color: var(--warning);">{{ item.current_quantity }} {{ item.unit }}</td>
+        <td style="text-align:right;">{{ item.minimum_threshold }}</td>
+        <td style="text-align:center;"><span class="badge badge-warning">Low</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}/dashboard/inventory/" class="button">Open inventory</a>
+  </div>
+{% endblock %}

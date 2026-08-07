@@ -1,0 +1,306 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Terms of Service — Caldan Construction and Consultancy Firm Kenya{% endblock %}
+
+{% block meta_description %}Terms of Service for Caldan Construction and Consultancy Firm. Read our terms and conditions for website use, construction services, and client agreements.{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --lg-gold: #D4AF37;
+    --lg-gold-deep: #B8932A;
+    --lg-gold-soft: rgba(212,175,55,0.14);
+    --lg-hero-grad: linear-gradient(135deg, #0B172A 0%, #0F1F3A 50%, #0B66C3 100%);
+}
+.legal-hero { position: relative; background: var(--lg-hero-grad); color: #fff; padding: 140px 0 90px; overflow: hidden; }
+.legal-hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(700px 320px at 18% 14%, rgba(212,175,55,0.20), transparent 70%), radial-gradient(800px 360px at 85% 80%, rgba(11,102,195,0.30), transparent 75%); pointer-events: none; animation: heroGlow 10s ease-in-out infinite alternate; }
+@keyframes heroGlow { from { opacity: 0.85; } to { opacity: 1; } }
+.legal-hero::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 36px 36px; pointer-events: none; mask-image: linear-gradient(120deg, black, transparent 75%); }
+.legal-hero__inner { position: relative; z-index: 2; text-align: center; max-width: 760px; margin: 0 auto; }
+.legal-hero__eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 7px 18px; background: rgba(212,175,55,0.14); border: 1px solid rgba(212,175,55,0.32); color: var(--lg-gold); border-radius: 999px; font-size: 0.74rem; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; margin-bottom: 22px; backdrop-filter: blur(6px); }
+.legal-hero__title { font-family: 'Playfair Display', serif; font-size: clamp(2.4rem, 4.4vw, 3.6rem); font-weight: 700; line-height: 1.12; color: #fff; margin: 0 0 18px; letter-spacing: -0.5px; }
+.legal-hero__title em { font-style: normal; background: linear-gradient(120deg, var(--lg-gold) 0%, #F4D674 60%, var(--lg-gold) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.legal-hero__lead { color: rgba(255,255,255,0.85); font-size: 1.08rem; line-height: 1.7; max-width: 580px; margin: 0 auto 22px; }
+.legal-hero__rule { width: 64px; height: 3px; background: linear-gradient(90deg, transparent, var(--lg-gold), transparent); margin: 0 auto; border-radius: 2px; }
+@media (max-width: 768px) { .legal-hero { padding: 110px 0 70px; } }
+
+.legal-content { padding: 60px 0 50px; background: var(--bg-primary); }
+.legal-grid { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 48px; max-width: 1180px; margin: 0 auto; }
+@media (max-width: 960px) { .legal-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+.legal-meta { background: rgba(255,255,255,0.06); backdrop-filter: blur(12px); border: 1px solid rgba(212,175,55,0.25); border-left: 4px solid var(--lg-gold); padding: 22px 24px; border-radius: 12px; margin-bottom: 36px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+@media (max-width: 600px) { .legal-meta { grid-template-columns: 1fr; gap: 8px; } }
+.legal-meta__label { font-size: 0.7rem; font-weight: 700; color: var(--lg-gold); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 4px; display: block; }
+.legal-meta__value { font-size: 0.92rem; font-weight: 600; color: var(--text-primary); }
+
+.legal-section { margin-bottom: 44px; scroll-margin-top: 100px; }
+.legal-section h2 { font-family: 'Playfair Display', serif; font-size: 1.55rem; font-weight: 700; color: var(--text-primary); margin: 0 0 18px; padding-bottom: 12px; border-bottom: 2px solid rgba(212,175,55,0.35); display: flex; align-items: center; gap: 14px; }
+.legal-section h2::before { content: attr(data-num); width: 32px; height: 32px; background: var(--lg-gold); color: #0B172A; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 800; flex-shrink: 0; }
+.legal-section h3 { font-family: 'Playfair Display', serif; font-size: 1.18rem; font-weight: 700; color: var(--text-primary); margin: 28px 0 12px; }
+.legal-section p { color: var(--text-secondary); line-height: 1.85; margin: 0 0 14px; font-size: 1rem; }
+.legal-section ul { list-style: none; padding: 0; margin: 0 0 18px; }
+.legal-section ul li { position: relative; padding-left: 26px; margin-bottom: 8px; color: var(--text-secondary); line-height: 1.8; }
+.legal-section ul li::before { content: ""; position: absolute; left: 6px; top: 12px; width: 8px; height: 8px; background: var(--lg-gold); border-radius: 2px; transform: rotate(45deg); }
+.legal-section ul li strong { color: var(--text-primary); font-weight: 700; }
+.legal-section a { color: var(--lg-gold-deep); text-decoration: none; border-bottom: 1.5px solid rgba(212,175,55,0.4); transition: border-color 150ms ease; }
+.legal-section a:hover { border-color: var(--lg-gold); }
+
+.legal-toc { position: sticky; top: 88px; align-self: start; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: 14px; padding: 22px 22px 20px; }
+@media (max-width: 960px) { .legal-toc { position: static; } }
+.legal-toc__title { font-size: 0.74rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.4px; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
+.legal-toc__title i { color: var(--lg-gold); }
+.toc-list { list-style: none; padding: 0; margin: 0; border-left: 2px solid var(--border-primary); }
+.toc-list li { margin: 0; }
+.toc-list a { display: block; padding: 7px 0 7px 14px; margin-left: -2px; border-left: 2px solid transparent; color: var(--text-secondary); font-size: 0.86rem; text-decoration: none; transition: color 150ms ease, border-color 150ms ease; line-height: 1.35; }
+.toc-list a:hover { color: var(--text-primary); }
+.toc-list a.is-active { border-left-color: var(--lg-gold); color: var(--lg-gold-deep); font-weight: 600; }
+
+.legal-crosslinks { background: var(--bg-secondary); padding: 60px 0; border-top: 1px solid var(--border-primary); }
+.legal-crosslinks__head { text-align: center; margin-bottom: 30px; }
+.legal-crosslinks__head .eyebrow { color: var(--lg-gold); font-size: 0.78rem; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; display: inline-block; margin-bottom: 8px; }
+.legal-crosslinks__head h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 3vw, 2rem); color: var(--text-primary); margin: 0; }
+.legal-crosslinks__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; max-width: 980px; margin: 0 auto; }
+@media (max-width: 768px) { .legal-crosslinks__grid { grid-template-columns: 1fr; } }
+.legal-crosslink { display: flex; flex-direction: column; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: 14px; padding: 22px 22px 18px; text-decoration: none; color: inherit; transition: all 250ms ease; }
+.legal-crosslink:hover { transform: translateY(-4px); box-shadow: 0 16px 36px -20px rgba(11,23,42,0.4); border-color: rgba(212,175,55,0.5); }
+.legal-crosslink__icon { width: 44px; height: 44px; border-radius: 10px; background: var(--lg-gold-soft); color: var(--lg-gold-deep); display: inline-flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 14px; }
+.legal-crosslink__title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0 0 6px; }
+.legal-crosslink__desc { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.55; margin: 0 0 14px; flex: 1; }
+.legal-crosslink__cta { font-size: 0.84rem; font-weight: 700; color: var(--lg-gold-deep); display: inline-flex; align-items: center; gap: 4px; }
+
+html[data-theme="dark"] .legal-meta { background: rgba(255,255,255,0.04); border-color: rgba(212,175,55,0.4); }
+html[data-theme="dark"] .legal-section h2 { border-bottom-color: rgba(212,175,55,0.5); }
+html[data-theme="dark"] .toc-list { border-left-color: rgba(255,255,255,0.1); }
+html[data-theme="dark"] .legal-toc, html[data-theme="dark"] .legal-crosslink { border-color: rgba(255,255,255,0.08); }
+@media (prefers-reduced-motion: reduce) { .legal-hero::before { animation: none; } .legal-crosslink { transition: none; } }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="legal-hero">
+    <div class="container">
+        <div class="legal-hero__inner" data-aos="fade-up">
+            <div class="legal-hero__eyebrow"><i class="fas fa-scroll"></i> Legal · Terms</div>
+            <h1 class="legal-hero__title">Terms of <em>Service</em></h1>
+            <p class="legal-hero__lead">The rules of the road for using our website and engaging our construction services — fair, transparent and built on Kenyan law.</p>
+            <div class="legal-hero__rule"></div>
+        </div>
+    </div>
+</section>
+
+<section class="legal-content">
+    <div class="container">
+        <div class="legal-grid">
+
+            <article id="legalArticle">
+                <div class="legal-meta" data-aos="fade-up">
+                    <div><span class="legal-meta__label">Last Updated</span><span class="legal-meta__value">July 21, 2026</span></div>
+                    <div><span class="legal-meta__label">Effective Date</span><span class="legal-meta__value">July 21, 2026</span></div>
+                    <div><span class="legal-meta__label">Governing Law</span><span class="legal-meta__value">Republic of Kenya</span></div>
+                </div>
+
+                <div class="legal-section" data-num="01">
+                    <h2>Acceptance of Terms</h2>
+                    <p>By accessing and using the Caldan Construction and Consultancy Firm website ("our site") and services, you agree to comply with and be bound by these Terms of Service. If you do not agree to these terms, please do not use our site or services.</p>
+                    <p>These terms apply to all visitors, users, and clients of Caldan Construction and Consultancy Firm. By continuing to use our site, you confirm your acceptance of these terms and any future modifications.</p>
+                </div>
+
+                <div class="legal-section" data-num="02">
+                    <h2>Definitions</h2>
+                    <ul>
+                        <li><strong>"Company"</strong> — Caldan Construction and Consultancy Firm, the operator of this website</li>
+                        <li><strong>"Client"</strong> — Any individual or entity that engages our services</li>
+                        <li><strong>"Services"</strong> — Construction, design, renovations, and related professional services</li>
+                        <li><strong>"Website"</strong> — The Caldan Construction and Consultancy Firm website</li>
+                        <li><strong>"User"</strong> — Any person accessing or using our website</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section" data-num="03">
+                    <h2>Use of the Website</h2>
+                    <h3>3.1 Eligibility</h3>
+                    <p>You must be at least 18 years old to use our website and services. By using our site, you represent and warrant that you are at least 18 years old.</p>
+                    <h3>3.2 Permitted Use</h3>
+                    <p>You may use our website for lawful purposes only. You agree not to:</p>
+                    <ul>
+                        <li>Violate any applicable laws or regulations</li>
+                        <li>Interfere with or disrupt the operation of our website</li>
+                        <li>Transmit any harmful or malicious code</li>
+                        <li>Attempt to gain unauthorized access to our systems</li>
+                        <li>Use our site to transmit unsolicited communications or spam</li>
+                        <li>Scrape or extract data without our written permission</li>
+                    </ul>
+                    <h3>3.3 Intellectual Property</h3>
+                    <p>All content on this website, including text, graphics, logos, icons, images, and software, is the property of Caldan Construction and Consultancy Firm and is protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, or create derivative works without our express written consent.</p>
+                </div>
+
+                <div class="legal-section" data-num="04">
+                    <h2>Services and Quotes</h2>
+                    <h3>4.1 Quote Requests</h3>
+                    <p>All quote requests submitted through our website are expressions of interest and do not constitute a binding contract. We will respond to your request within 24 hours with a preliminary estimate.</p>
+                    <h3>4.2 Binding Agreements</h3>
+                    <p>A binding agreement for construction services is only formed when both parties sign a formal contract. Our standard contract includes detailed scope of work, payment terms, timelines, and other conditions specific to your project.</p>
+                    <h3>4.3 Estimate Accuracy</h3>
+                    <p>All estimates provided are based on the information you supply. We strive for accuracy, but actual costs may vary based on site conditions, materials availability, and other factors. Any changes to the scope of work will be documented and may affect the final cost.</p>
+                </div>
+
+                <div class="legal-section" data-num="05">
+                    <h2>Payment Terms</h2>
+                    <p>Payment terms are outlined in our formal contracts and may include:</p>
+                    <ul>
+                        <li><strong>Deposit</strong> — A percentage of the total project cost paid before work begins</li>
+                        <li><strong>Progress Payments</strong> — Payments made at specific project milestones</li>
+                        <li><strong>Final Payment</strong> — Remaining balance paid upon project completion</li>
+                        <li><strong>Payment Methods</strong> — M-Pesa, Bank Transfer, Cash, or Cheque</li>
+                    </ul>
+                    <p>All prices are in <strong>Kenya Shillings (KES)</strong> and are subject to applicable taxes as required by Kenyan law. Late payments may incur interest charges as specified in your contract.</p>
+                </div>
+
+                <div class="legal-section" data-num="06">
+                    <h2>Client Responsibilities</h2>
+                    <p>As a client, you agree to:</p>
+                    <ul>
+                        <li>Provide accurate and complete information about your project</li>
+                        <li>Obtain all necessary permits and approvals (unless otherwise agreed)</li>
+                        <li>Provide reasonable access to the site for construction work</li>
+                        <li>Pay all amounts due on time as specified in your contract</li>
+                        <li>Communicate promptly about any changes or concerns</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section" data-num="07">
+                    <h2>Warranties and Liability</h2>
+                    <h3>7.1 Services</h3>
+                    <p>We provide our services with reasonable skill and care, in accordance with industry standards. Our work is subject to warranties as specified in your formal contract.</p>
+                    <h3>7.2 Website</h3>
+                    <p>Our website is provided on an "as is" and "as available" basis. We make no warranties about the accuracy, reliability, or availability of our website. We are not liable for any errors, interruptions, or technical issues beyond our reasonable control.</p>
+                    <h3>7.3 Limitation of Liability</h3>
+                    <p>To the fullest extent permitted by law, Caldan Construction and Consultancy Firm shall not be liable for any indirect, incidental, or consequential damages arising from your use of our website or services. Our total liability is limited to the amount paid for the specific service giving rise to the claim.</p>
+                </div>
+
+                <div class="legal-section" data-num="08">
+                    <h2>Force Majeure</h2>
+                    <p>We are not liable for delays or failures in performance caused by events beyond our reasonable control, including but not limited to: natural disasters, war, civil unrest, government actions, pandemics, supply chain disruptions, or labor disputes. We will notify you promptly of any such events and work to minimize their impact.</p>
+                </div>
+
+                <div class="legal-section" data-num="09">
+                    <h2>Third-Party Links</h2>
+                    <p>Our website may contain links to third-party websites. We do not endorse or assume responsibility for the content or practices of these external sites. Any reliance on third-party content is at your own risk.</p>
+                </div>
+
+                <div class="legal-section" data-num="10">
+                    <h2>Termination</h2>
+                    <p>We reserve the right to terminate or suspend your access to our website or services at any time, without notice, for conduct that we believe violates these Terms of Service or is harmful to our business, users, or third parties.</p>
+                    <p>Clients may terminate a service contract in accordance with the termination provisions specified in their formal agreement.</p>
+                </div>
+
+                <div class="legal-section" data-num="11">
+                    <h2>Dispute Resolution</h2>
+                    <h3>11.1 Mediation</h3>
+                    <p>In the event of a dispute, both parties agree to first attempt to resolve the matter through informal negotiation or mediation before pursuing legal action.</p>
+                    <h3>11.2 Jurisdiction</h3>
+                    <p>These Terms of Service are governed by the laws of the Republic of Kenya. Any legal action arising from these terms shall be brought in the courts of Nairobi, Kenya.</p>
+                    <h3>11.3 Arbitration</h3>
+                    <p>If mediation fails, disputes shall be resolved through binding arbitration conducted in accordance with the Arbitration Act of Kenya, with the arbitrator appointed by mutual agreement.</p>
+                </div>
+
+                <div class="legal-section" data-num="12">
+                    <h2>Governing Law</h2>
+                    <p>These Terms of Service are governed by and construed in accordance with the laws of the Republic of Kenya. You agree to submit to the exclusive jurisdiction of the Kenyan courts.</p>
+                </div>
+
+                <div class="legal-section" data-num="13">
+                    <h2>Changes to Terms</h2>
+                    <p>We reserve the right to modify these Terms of Service at any time. Changes will become effective immediately upon posting. Your continued use of our website and services constitutes your acceptance of any modifications.</p>
+                </div>
+
+                <div class="legal-section" data-num="14">
+                    <h2>Contact Information</h2>
+                    <p>For questions about these Terms of Service, please contact us:</p>
+                    <ul>
+                        <li><strong>Email:</strong> <a href="mailto:{{ ADMIN_EMAIL }}">{{ ADMIN_EMAIL }}</a></li>
+                        <li><strong>Phone:</strong> <a href="tel:{{ ADMIN_PHONE }}">{{ ADMIN_PHONE }}</a></li>
+                        <li><strong>Address:</strong> Nairobi, Kenya</li>
+                    </ul>
+                </div>
+            </article>
+
+            <aside class="legal-toc" data-aos="fade-up" data-aos-delay="80">
+                <h3 class="legal-toc__title"><i class="fas fa-list-ul"></i> On this page</h3>
+                <ul class="toc-list" id="tocList"></ul>
+            </aside>
+
+        </div>
+    </div>
+</section>
+
+<section class="legal-crosslinks">
+    <div class="container">
+        <div class="legal-crosslinks__head" data-aos="fade-up">
+            <span class="eyebrow">Related Documents</span>
+            <h2>Other legal documents</h2>
+        </div>
+        <div class="legal-crosslinks__grid">
+            <a href="{% url 'website:legal_privacy' %}" class="legal-crosslink" data-aos="fade-up" data-aos-delay="40">
+                <div class="legal-crosslink__icon"><i class="fas fa-shield-alt"></i></div>
+                <h3 class="legal-crosslink__title">Privacy Policy</h3>
+                <p class="legal-crosslink__desc">How we collect, use, and protect your personal information.</p>
+                <span class="legal-crosslink__cta">Read privacy policy <i class="fas fa-arrow-right"></i></span>
+            </a>
+            <a href="{% url 'website:legal_refunds' %}" class="legal-crosslink" data-aos="fade-up" data-aos-delay="80">
+                <div class="legal-crosslink__icon"><i class="fas fa-hand-holding-usd"></i></div>
+                <h3 class="legal-crosslink__title">Refund Policy</h3>
+                <p class="legal-crosslink__desc">Understand our policies on cancellations, deposits, and payment refunds.</p>
+                <span class="legal-crosslink__cta">Read refund policy <i class="fas fa-arrow-right"></i></span>
+            </a>
+            <a href="{% url 'website:legal_cookies' %}" class="legal-crosslink" data-aos="fade-up" data-aos-delay="120">
+                <div class="legal-crosslink__icon"><i class="fas fa-cookie-bite"></i></div>
+                <h3 class="legal-crosslink__title">Cookie Policy</h3>
+                <p class="legal-crosslink__desc">Learn what cookies we use, how we use them, and how you can manage preferences.</p>
+                <span class="legal-crosslink__cta">Read cookie policy <i class="fas fa-arrow-right"></i></span>
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict';
+    var article = document.getElementById('legalArticle');
+    var tocList = document.getElementById('tocList');
+    if (!article || !tocList) return;
+    var sections = article.querySelectorAll('.legal-section');
+    sections.forEach(function (s, idx) {
+        var h = s.querySelector('h2');
+        if (!h) return;
+        if (!h.id) h.id = 'legal-' + (idx + 1);
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = s.getAttribute('data-num') + ' · ' + h.textContent.replace(/^\d+\s*/, '').trim();
+        a.dataset.target = h.id;
+        li.appendChild(a);
+        tocList.appendChild(li);
+    });
+    if (sections.length) {
+        var tocLinks = tocList.querySelectorAll('a');
+        var onScroll = function () {
+            var scrollY = window.scrollY + 120;
+            var current = sections[0].querySelector('h2').id;
+            sections.forEach(function (s) {
+                var h = s.querySelector('h2');
+                if (h && h.offsetTop <= scrollY) current = h.id;
+            });
+            tocLinks.forEach(function (a) { a.classList.toggle('is-active', a.dataset.target === current); });
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+    }
+})();
+</script>
+{% endblock %}

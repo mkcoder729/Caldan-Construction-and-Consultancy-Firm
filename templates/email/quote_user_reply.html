@@ -1,0 +1,36 @@
+{# Customer-facing — reply from Caldan to a quote request. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-info" style="margin-top: 14px;">QUOTE REPLY</span>{% endblock %}
+
+{% block content %}
+  <h1>Thanks for <span>reaching out</span></h1>
+  <p class="subtitle">Your {{ project_type }} project</p>
+
+  <p>Hi {{ name }} — thanks for the {{ project_type|lower }} enquiry. Here's how we'd suggest moving forward.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Project type</dt>
+      <dd>{{ project_type }}</dd>
+      <dt>Timeline</dt>
+      <dd>{{ timeline|default:"—" }}</dd>
+    </dl>
+  </div>
+
+  <h2>Next steps</h2>
+  <div class="callout callout-info">
+    {{ details }}
+  </div>
+
+  {% if schedule_call %}
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}/dashboard/quotes/schedule" class="button">Schedule a call</a>
+  </div>
+  <p style="text-align:center; color: var(--text-muted); font-size: 13px;">Preferred time: <strong>{{ preferred_call_time|default:"Anytime" }}</strong></p>
+  {% endif %}
+
+  <p style="margin-top: 24px; color: var(--text-muted); font-size: 13px;">
+    <strong style="color: var(--text-primary);">Caldan</strong> · Building Kenya's Future, One Project at a Time.
+  </p>
+{% endblock %}

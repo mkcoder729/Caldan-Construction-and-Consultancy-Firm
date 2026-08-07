@@ -1,0 +1,796 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}Analytics - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   ANALYTICS DASHBOARD — PREMIUM (matches overview aesthetic)
+   ================================================================ */
+
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+/* ================================================================
+   PAGE HEADER
+   ================================================================ */
+.analytics-header {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.analytics-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.analytics-header:hover {
+    border-color: rgba(212, 175, 55, 0.25);
+}
+
+.analytics-header-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+    z-index: 1;
+}
+
+.analytics-header-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.analytics-header-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.analytics-header-title i {
+    color: var(--brand-gold);
+    font-size: 22px;
+}
+
+.analytics-header-sub {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+.analytics-header-period {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 8px 16px;
+    border-radius: var(--r-pill);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    position: relative;
+    z-index: 1;
+}
+
+.analytics-header-period i {
+    color: var(--brand-gold);
+}
+
+/* ================================================================
+   STATS GRID — reuses overview vocabulary
+   ================================================================ */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: all var(--t-base) var(--ease-spring);
+    border-top: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 50%, var(--stat-accent, transparent) 130%);
+    opacity: 0;
+    transition: opacity var(--t-base) var(--ease-standard);
+    pointer-events: none;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--stat-accent, var(--border-subtle));
+}
+
+.stat-card:hover::after {
+    opacity: 0.06;
+}
+
+.stat-card.blue   { --stat-accent: var(--brand-blue); border-top-color: var(--brand-blue); }
+.stat-card.gold   { --stat-accent: var(--brand-gold); border-top-color: var(--brand-gold); }
+.stat-card.green  { --stat-accent: var(--sem-success); border-top-color: var(--sem-success); }
+.stat-card.orange { --stat-accent: var(--sem-warning); border-top-color: var(--sem-warning); }
+.stat-card.red    { --stat-accent: var(--sem-danger); border-top-color: var(--sem-danger); }
+.stat-card.purple { --stat-accent: #7C3AED; border-top-color: #7C3AED; }
+.stat-card.teal   { --stat-accent: #0891B2; border-top-color: #0891B2; }
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--r-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: transform var(--t-base) var(--ease-spring);
+}
+
+.stat-card:hover .stat-icon {
+    transform: scale(1.08) rotate(-4deg);
+}
+
+.stat-icon.blue   { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); }
+.stat-icon.gold   { background: rgba(212, 175, 55, 0.14); color: var(--brand-gold-deep); }
+.stat-icon.green  { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); }
+.stat-icon.orange { background: rgba(243, 156, 18, 0.12); color: var(--sem-warning); }
+.stat-icon.red    { background: rgba(185, 52, 43, 0.12); color: var(--sem-danger); }
+.stat-icon.purple { background: rgba(124, 58, 237, 0.12); color: #7C3AED; }
+.stat-icon.teal   { background: rgba(8, 145, 178, 0.12); color: #0891B2; }
+
+.stat-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+}
+
+.stat-trend {
+    font-size: 10px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 6px;
+}
+
+.stat-trend.up   { color: var(--sem-success); }
+.stat-trend.down { color: var(--sem-danger); }
+.stat-trend.warn { color: var(--sem-warning); }
+
+/* ================================================================
+   CHARTS — same vocabulary as overview
+   ================================================================ */
+.charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.chart-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.chart-card-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.chart-card-header h3 i {
+    color: var(--brand-gold);
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-badge {
+    padding: 4px 12px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold-deep);
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.chart-body {
+    padding: 20px;
+    height: 280px;
+    position: relative;
+}
+
+/* ================================================================
+   ACTIVITY SUMMARY
+   ================================================================ */
+.summary-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.summary-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.summary-header h3 i {
+    color: var(--brand-gold);
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.summary-body {
+    padding: 20px;
+}
+
+.activity-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.summary-item {
+    background: var(--bg-canvas);
+    border-radius: var(--r-md);
+    padding: 16px 14px;
+    text-align: center;
+    border: 1px solid var(--border-subtle);
+    transition: all var(--t-base) var(--ease-spring);
+    position: relative;
+    overflow: hidden;
+}
+
+.summary-item::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand-blue), var(--brand-gold));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--t-base) var(--ease-spring);
+}
+
+.summary-item:hover {
+    transform: translateY(-3px);
+    border-color: rgba(11, 102, 195, 0.2);
+    box-shadow: var(--shadow-md);
+}
+
+.summary-item:hover::before {
+    transform: scaleX(1);
+}
+
+.summary-label {
+    display: block;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.summary-value {
+    display: block;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-top: 6px;
+    letter-spacing: -0.5px;
+}
+
+/* Action Tags */
+.action-tags-section {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.action-tags-title {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.action-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.action-tag {
+    font-size: 11px;
+    background: var(--bg-canvas);
+    padding: 6px 12px;
+    border-radius: var(--r-pill);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border-subtle);
+    transition: all var(--t-fast) var(--ease-standard);
+    cursor: default;
+}
+
+.action-tag:hover {
+    border-color: var(--brand-gold);
+    background: rgba(212, 175, 55, 0.05);
+    transform: translateY(-1px);
+}
+
+.action-tag .tag-count {
+    font-weight: 700;
+    color: var(--brand-gold-deep);
+    background: rgba(212, 175, 55, 0.12);
+    padding: 1px 7px;
+    border-radius: var(--r-sm);
+    font-size: 10px;
+}
+
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
+.stat-card,
+.chart-card,
+.summary-card,
+.summary-item {
+    animation: fade-up 0.4s ease both;
+}
+
+.stat-card:nth-child(2) { animation-delay: 0.04s; }
+.stat-card:nth-child(3) { animation-delay: 0.08s; }
+.stat-card:nth-child(4) { animation-delay: 0.12s; }
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+@media (max-width: 1200px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .charts-row { grid-template-columns: 1fr; }
+    .activity-summary-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .analytics-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px;
+    }
+    .analytics-header-title { font-size: 18px; }
+    .analytics-header-icon { width: 44px; height: 44px; font-size: 18px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 20px; }
+    .stat-icon { width: 40px; height: 40px; font-size: 16px; }
+    .chart-body { height: 220px; padding: 16px; }
+    .chart-card-header { padding: 12px 16px; }
+}
+
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .activity-summary-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-container">
+
+    <!-- ============================================================
+    PAGE HEADER
+    ============================================================ -->
+    <div class="analytics-header">
+        <div class="analytics-header-main">
+            <div class="analytics-header-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div>
+                <h1 class="analytics-header-title">Analytics</h1>
+                <p class="analytics-header-sub">Detailed insights into your construction operations</p>
+            </div>
+        </div>
+        <div class="analytics-header-period">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Last 12 months</span>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    STATS GRID
+    ============================================================ -->
+    <div class="stats-grid">
+        <!-- Total Revenue -->
+        <div class="stat-card gold">
+            <div class="stat-icon gold"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">KES {{ stats.revenue.total_revenue|floatformat:0|intcomma|default:'0' }}</div>
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-sub">ARR: KES {{ stats.revenue.annual_revenue|floatformat:0|intcomma|default:'0' }}</div>
+                <div class="stat-trend up"><i class="fas fa-arrow-up"></i> {{ stats.revenue.this_month|floatformat:0|intcomma }} this month</div>
+            </div>
+        </div>
+
+        <!-- Active Projects -->
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-building"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.projects.active|default:0 }}</div>
+                <div class="stat-label">Active Projects</div>
+                <div class="stat-sub">{{ stats.projects.total|default:0 }} total projects</div>
+                <div class="stat-trend up"><i class="fas fa-plus"></i> {{ stats.projects.this_month|default:0 }} started this month</div>
+            </div>
+        </div>
+
+        <!-- Total Orders -->
+        <div class="stat-card orange">
+            <div class="stat-icon orange"><i class="fas fa-shopping-bag"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.orders.total|default:0 }}</div>
+                <div class="stat-label">Total Orders</div>
+                <div class="stat-sub">Pending: {{ stats.orders.pending|default:0 }}</div>
+                <div class="stat-trend {% if stats.orders.pending > 0 %}warn{% else %}up{% endif %}">
+                    {% if stats.orders.pending > 0 %}
+                        <i class="fas fa-clock"></i> {{ stats.orders.pending }} pending
+                    {% else %}
+                        <i class="fas fa-check"></i> All processed
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Clients -->
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-users"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.clients.total|default:0 }}</div>
+                <div class="stat-label">Total Clients</div>
+                <div class="stat-sub">Active: {{ stats.clients.active|default:0 }}</div>
+                <div class="stat-trend up"><i class="fas fa-user-plus"></i> {{ stats.clients.this_month|default:0 }} new</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    CHARTS
+    ============================================================ -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3><i class="fas fa-chart-bar"></i> Revenue Trend</h3>
+                <span class="chart-badge">12 months</span>
+            </div>
+            <div class="chart-body">
+                <canvas id="revenueChart"
+                        data-labels='{{ months|safe }}'
+                        data-data='{{ revenue_data|safe }}'></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3><i class="fas fa-chart-line"></i> Orders &amp; Projects</h3>
+                <span class="chart-badge">Trend</span>
+            </div>
+            <div class="chart-body">
+                <canvas id="ordersProjectsChart"
+                        data-labels='{{ months|safe }}'
+                        data-orders='{{ orders_data|safe }}'
+                        data-projects='{{ projects_data|safe }}'></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    ACTIVITY SUMMARY
+    ============================================================ -->
+    <div class="summary-card">
+        <div class="summary-header">
+            <h3><i class="fas fa-history"></i> Activity Summary</h3>
+            <span class="chart-badge">Overview</span>
+        </div>
+        <div class="summary-body">
+            <div class="activity-summary-grid">
+                <div class="summary-item">
+                    <span class="summary-label">Total Actions</span>
+                    <span class="summary-value">{{ activity_summary.total_actions|default:0 }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Today</span>
+                    <span class="summary-value">{{ activity_summary.today|default:0 }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">This Week</span>
+                    <span class="summary-value">{{ activity_summary.this_week|default:0 }}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Unique Users</span>
+                    <span class="summary-value">{{ activity_summary.unique_users|default:0 }}</span>
+                </div>
+            </div>
+
+            {% if activity_summary.most_active_actions %}
+            <div class="action-tags-section">
+                <div class="action-tags-title">Most Common Actions</div>
+                <div class="action-tags">
+                    {% for action in activity_summary.most_active_actions %}
+                        <span class="action-tag">
+                            {{ action.action|title }}
+                            <span class="tag-count">{{ action.count }}</span>
+                        </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Chart === 'undefined') return;
+
+    var colorPrimary = getComputedStyle(document.documentElement).getPropertyValue('--text-tertiary').trim() || '#94A3B8';
+    var colorBorder  = getComputedStyle(document.documentElement).getPropertyValue('--border-subtle').trim() || '#E2E8F0';
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+
+    // Revenue Chart
+    var revenueCanvas = document.getElementById('revenueChart');
+    if (revenueCanvas) {
+        var labels = JSON.parse(revenueCanvas.dataset.labels || '[]');
+        var data = JSON.parse(revenueCanvas.dataset.data || '[]');
+        new Chart(revenueCanvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Revenue (KES)',
+                    data: data,
+                    backgroundColor: 'rgba(212, 175, 55, 0.75)',
+                    borderColor: '#D4AF37',
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    hoverBackgroundColor: 'rgba(212, 175, 55, 0.95)',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                return 'KES ' + ctx.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: 10, family: 'Inter' },
+                            color: colorPrimary
+                        }
+                    },
+                    y: {
+                        grid: { color: gridColor },
+                        ticks: {
+                            font: { size: 10, family: 'Inter' },
+                            color: colorPrimary,
+                            callback: function(v) {
+                                return v >= 1000 ? 'K' + (v / 1000) : v;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Orders & Projects Chart
+    var opCanvas = document.getElementById('ordersProjectsChart');
+    if (opCanvas) {
+        var labels = JSON.parse(opCanvas.dataset.labels || '[]');
+        var orders = JSON.parse(opCanvas.dataset.orders || '[]');
+        var projects = JSON.parse(opCanvas.dataset.projects || '[]');
+        new Chart(opCanvas, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Orders',
+                        data: orders,
+                        borderColor: '#2980B9',
+                        backgroundColor: 'rgba(41, 128, 185, 0.08)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#2980B9',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                    },
+                    {
+                        label: 'Projects',
+                        data: projects,
+                        borderColor: '#27AE60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.08)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#27AE60',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 16,
+                            font: { size: 11, family: 'Inter' },
+                            color: colorPrimary
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: 10, family: 'Inter' },
+                            color: colorPrimary
+                        }
+                    },
+                    y: {
+                        grid: { color: gridColor },
+                        beginAtZero: true,
+                        ticks: {
+                            font: { size: 10, family: 'Inter' },
+                            color: colorPrimary,
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

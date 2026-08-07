@@ -1,0 +1,821 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="{{ page_description }}">
+<meta property="og:title" content="{{ page_title }}">
+<meta property="og:description" content="{{ page_description }}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta name="twitter:card" content="summary_large_image">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* =================================================================
+   PUBLIC BLOG LIST — VERTICAL · PREMIUM
+   ================================================================= */
+
+:root {
+    --cal-hero-grad: linear-gradient(160deg, rgba(11,20,32,0.88) 0%, rgba(11,102,195,0.62) 100%);
+    --cal-card-grad: linear-gradient(135deg, rgba(11,23,42,0.92) 0%, rgba(11,102,195,0.65) 100%);
+    --cal-gold: #D4AF37;
+    --cal-gold-soft: rgba(212,175,55,0.14);
+    --cal-gold-glow: rgba(212,175,55,0.30);
+    --cal-border: rgba(11,23,42,0.08);
+}
+html[data-theme="dark"] {
+    --cal-border: rgba(255,255,255,0.08);
+}
+
+/* ------- HERO ------- */
+.blog-hero {
+    position: relative;
+    background: var(--cal-hero-grad), url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1800&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #fff;
+    padding: 130px 0 90px;
+    overflow: hidden;
+}
+@media (max-width: 768px) {
+    .blog-hero { background-attachment: scroll; padding: 100px 0 64px; }
+}
+
+.blog-hero::before {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+        radial-gradient(900px 380px at 75% 18%, rgba(212,175,55,0.18), transparent 70%),
+        radial-gradient(700px 360px at 18% 85%, rgba(11,102,195,0.30), transparent 75%);
+    pointer-events: none;
+    animation: heroGlow 12s ease-in-out infinite alternate;
+}
+@keyframes heroGlow { from { opacity: 0.85; } to { opacity: 1; } }
+
+.blog-hero__inner { position: relative; z-index: 2; text-align: center; max-width: 760px; margin: 0 auto; }
+
+.blog-hero__eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 18px;
+    background: rgba(212,175,55,0.14);
+    border: 1px solid rgba(212,175,55,0.32);
+    color: var(--cal-gold);
+    border-radius: 999px;
+    font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 1.6px; text-transform: uppercase;
+    margin-bottom: 22px;
+    backdrop-filter: blur(6px);
+}
+
+.blog-hero__title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 4.4vw, 3.6rem);
+    font-weight: 700; line-height: 1.1;
+    color: #fff;
+    margin: 0 0 16px;
+    letter-spacing: -0.5px;
+}
+.blog-hero__title em {
+    font-style: normal;
+    background: linear-gradient(120deg, var(--cal-gold) 0%, #F4D674 60%, var(--cal-gold) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.blog-hero__lead {
+    color: rgba(255,255,255,0.86);
+    font-size: 1.1rem; line-height: 1.7;
+    max-width: 580px; margin: 0 auto 28px;
+}
+
+.blog-hero__rule {
+    width: 64px; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--cal-gold), transparent);
+    margin: 0 auto 26px;
+    border-radius: 2px;
+}
+
+.blog-hero__stats {
+    display: inline-flex;
+    align-items: center;
+    gap: 22px;
+    padding: 14px 24px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 999px;
+    font-size: 0.9rem; color: rgba(255,255,255,0.92);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.blog-hero__stat { display: inline-flex; align-items: center; gap: 6px; }
+.blog-hero__stat i { color: var(--cal-gold); }
+.blog-hero__divider { width: 1px; height: 16px; background: rgba(255,255,255,0.18); }
+
+/* ------- FILTER RAIL ------- */
+.filter-rail {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--cal-border);
+    padding: 18px 0;
+    position: sticky; top: 64px; z-index: 50;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+.filter-rail__inner {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    justify-content: space-between;
+}
+.filter-rail__label {
+    font-size: 0.78rem; font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 1px;
+}
+.filter-rail__pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--cal-border);
+    border-radius: 999px;
+    font-size: 0.85rem; font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 200ms ease;
+}
+.filter-pill:hover {
+    color: var(--cal-gold);
+    border-color: var(--cal-gold);
+    background: var(--cal-gold-soft);
+}
+.filter-pill.is-active {
+    background: linear-gradient(135deg, var(--cal-gold), #B8932A);
+    color: #0B172A;
+    border-color: var(--cal-gold);
+}
+.filter-pill__count {
+    background: rgba(0,0,0,0.08);
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+}
+.filter-pill.is-active .filter-pill__count { background: rgba(11,23,42,0.18); color: #0B172A; }
+
+/* ------- LAYOUT ------- */
+.blog-section {
+    padding: 64px 0 96px;
+    background: var(--bg-primary);
+}
+.blog-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 48px;
+    align-items: start;
+}
+@media (max-width: 1024px) { .blog-layout { grid-template-columns: 1fr; gap: 48px; } }
+
+.blog-feed { display: flex; flex-direction: column; gap: 36px; }
+
+/* ------- FEATURED POST (first card, hero-style) ------- */
+.feature-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--cal-border);
+    border-radius: 22px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 20px 60px -28px rgba(11,23,42,0.25);
+    transition: transform 350ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                box-shadow 350ms ease;
+}
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 30px 80px -32px rgba(11,23,42,0.35);
+}
+@media (max-width: 768px) {
+    .feature-card { grid-template-columns: 1fr; }
+}
+
+.feature-card__media {
+    position: relative;
+    min-height: 360px;
+    overflow: hidden;
+    background: var(--cal-card-grad);
+}
+.feature-card__media img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.feature-card:hover .feature-card__media img { transform: scale(1.06); }
+@media (max-width: 768px) {
+    .feature-card__media { min-height: 240px; }
+}
+
+.feature-card__media-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(11,23,42,0.55) 100%);
+}
+
+.feature-card__body {
+    padding: 44px 44px 44px;
+    display: flex; flex-direction: column; justify-content: center;
+}
+@media (max-width: 768px) { .feature-card__body { padding: 28px 24px 32px; } }
+
+.feature-card__chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    width: max-content;
+    padding: 5px 14px;
+    background: linear-gradient(135deg, var(--cal-gold), #B8932A);
+    color: #0B172A;
+    border-radius: 999px;
+    font-size: 0.7rem; font-weight: 800;
+    letter-spacing: 1.4px; text-transform: uppercase;
+    margin-bottom: 18px;
+}
+
+.feature-card__title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.7rem, 2.4vw, 2.15rem);
+    font-weight: 700; line-height: 1.18;
+    color: var(--text-primary);
+    margin: 0 0 16px;
+    letter-spacing: -0.4px;
+}
+
+.feature-card__excerpt {
+    color: var(--text-secondary);
+    font-size: 1.02rem; line-height: 1.7;
+    margin: 0 0 24px;
+}
+
+.feature-card__meta {
+    display: flex; flex-wrap: wrap;
+    align-items: center; gap: 14px;
+    font-size: 0.82rem; color: var(--text-tertiary);
+    padding-top: 20px;
+    border-top: 1px solid var(--cal-border);
+    margin-bottom: 22px;
+}
+.feature-card__meta span { display: inline-flex; align-items: center; gap: 6px; }
+.feature-card__meta i { color: var(--cal-gold); }
+
+.feature-card__cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--cal-gold);
+    font-size: 0.92rem; font-weight: 700;
+    text-decoration: none;
+    width: max-content;
+}
+.feature-card__cta i { transition: transform 200ms ease; }
+.feature-card:hover .feature-card__cta i { transform: translateX(4px); }
+
+/* ------- VERTICAL POST ROW ------- */
+.post-row {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--cal-border);
+    border-radius: 18px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease;
+}
+.post-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 50px -24px rgba(11,23,42,0.22);
+    border-color: var(--cal-gold-soft);
+}
+@media (max-width: 768px) {
+    .post-row { grid-template-columns: 1fr; }
+}
+
+.post-row__media {
+    position: relative;
+    min-height: 220px;
+    overflow: hidden;
+    background: var(--cal-card-grad);
+}
+.post-row__media img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.post-row:hover .post-row__media img { transform: scale(1.06); }
+@media (max-width: 768px) {
+    .post-row__media { min-height: 200px; }
+}
+
+.post-row__placeholder {
+    position: absolute; inset: 0;
+    background: var(--cal-card-grad);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.6rem;
+    color: rgba(255,255,255,0.18);
+}
+
+.post-row__badge {
+    position: absolute; top: 14px; left: 14px;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px;
+    background: var(--cal-gold);
+    color: #0B172A;
+    border-radius: 6px;
+    font-size: 0.68rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1px;
+    box-shadow: 0 4px 12px -4px rgba(212,175,55,0.5);
+}
+
+.post-row__body {
+    padding: 28px 30px;
+    display: flex; flex-direction: column; justify-content: center;
+}
+@media (max-width: 768px) {
+    .post-row__body { padding: 22px 22px 26px; }
+}
+
+.post-row__meta {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 12px;
+    font-size: 0.76rem; color: var(--text-tertiary);
+}
+.post-row__meta span { display: inline-flex; align-items: center; gap: 5px; }
+.post-row__meta i { color: var(--cal-gold); }
+.post-row__meta-dot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: 0.5; }
+
+.post-row__title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.32rem;
+    font-weight: 700; line-height: 1.3;
+    color: var(--text-primary);
+    margin: 0 0 10px;
+    letter-spacing: -0.2px;
+}
+.post-row:hover .post-row__title { color: var(--cal-gold); }
+.post-row__title a {
+    color: inherit; text-decoration: none;
+    transition: color 200ms ease;
+}
+
+.post-row__excerpt {
+    color: var(--text-secondary);
+    font-size: 0.92rem; line-height: 1.65;
+    margin: 0 0 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.post-row__footer {
+    margin-top: auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px dashed var(--cal-border);
+}
+.post-row__author {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.82rem; color: var(--text-secondary); font-weight: 600;
+}
+.post-row__author-avatar {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--cal-gold) 0%, #B8932A 100%);
+    color: #0B172A;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.68rem; font-weight: 800;
+    letter-spacing: 0.5px;
+}
+.post-row__cta {
+    display: inline-flex; align-items: center; gap: 4px;
+    color: var(--cal-gold); font-size: 0.84rem; font-weight: 700;
+    text-decoration: none;
+    transition: gap 200ms ease;
+}
+.post-row:hover .post-row__cta { gap: 10px; }
+
+/* ------- EMPTY STATE ------- */
+.empty-state {
+    text-align: center;
+    padding: 96px 24px;
+    background: var(--bg-card);
+    border: 1px dashed var(--cal-border);
+    border-radius: 22px;
+}
+.empty-state__icon {
+    width: 92px; height: 92px;
+    margin: 0 auto 22px;
+    background: var(--cal-gold-soft);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.4rem;
+    color: var(--cal-gold);
+}
+.empty-state__title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem; font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 10px;
+}
+.empty-state__lead {
+    color: var(--text-secondary);
+    max-width: 420px; margin: 0 auto 24px;
+}
+
+/* ------- SIDEBAR ------- */
+.blog-sidebar { display: flex; flex-direction: column; gap: 24px; }
+@media (min-width: 1025px) { .blog-sidebar { position: sticky; top: 110px; } }
+
+.sidebar-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid var(--cal-border);
+    box-shadow: 0 6px 24px -14px rgba(11,23,42,0.12);
+}
+.sidebar-card__head {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--cal-border);
+}
+.sidebar-card__head i {
+    width: 32px; height: 32px;
+    background: var(--cal-gold-soft);
+    color: var(--cal-gold);
+    border-radius: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+}
+.sidebar-card__title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem; font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.recent-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px; }
+.recent-list__item { display: flex; gap: 12px; align-items: flex-start; }
+.recent-list__thumb {
+    flex-shrink: 0;
+    width: 60px; height: 60px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--cal-card-grad);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.9rem;
+}
+.recent-list__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.recent-list__title {
+    font-size: 0.86rem; font-weight: 700;
+    line-height: 1.35;
+    color: var(--text-primary);
+    text-decoration: none;
+    margin: 0 0 4px;
+    display: block;
+}
+.recent-list__title:hover { color: var(--cal-gold); }
+.recent-list__date { font-size: 0.74rem; color: var(--text-tertiary); }
+
+.newsletter-card {
+    background: linear-gradient(135deg, #0B172A 0%, #0F1F3A 60%, #0B66C3 100%);
+    color: #fff;
+    padding: 28px 24px;
+    border-radius: 18px;
+    position: relative;
+    overflow: hidden;
+}
+.newsletter-card::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(400px 200px at 80% 20%, rgba(212,175,55,0.25), transparent 70%);
+    pointer-events: none;
+}
+.newsletter-card__title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.18rem; font-weight: 700;
+    margin: 0 0 6px;
+    color: #fff;
+    position: relative;
+}
+.newsletter-card__lead {
+    color: rgba(255,255,255,0.78);
+    font-size: 0.86rem; line-height: 1.55;
+    margin: 0 0 16px;
+    position: relative;
+}
+.newsletter-card__form {
+    display: flex; gap: 8px;
+    position: relative;
+}
+.newsletter-card__input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+.newsletter-card__input::placeholder { color: rgba(255,255,255,0.5); }
+.newsletter-card__input:focus { outline: none; border-color: var(--cal-gold); }
+.newsletter-card__btn {
+    padding: 10px 18px;
+    background: var(--cal-gold);
+    color: #0B172A;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700; font-size: 0.85rem;
+    cursor: pointer;
+    transition: transform 150ms ease;
+}
+.newsletter-card__btn:hover { transform: translateY(-1px); }
+
+/* ------- PAGINATION ------- */
+.pagination {
+    display: flex; justify-content: center;
+    gap: 6px; margin-top: 56px;
+    flex-wrap: wrap;
+}
+.pagination a, .pagination span {
+    min-width: 40px; height: 40px;
+    padding: 0 12px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-weight: 600; font-size: 0.88rem;
+    text-decoration: none;
+    border: 1px solid var(--cal-border);
+    transition: all 200ms ease;
+}
+.pagination a:hover {
+    background: var(--cal-gold);
+    color: #0B172A;
+    border-color: var(--cal-gold);
+}
+.pagination .is-current {
+    background: var(--cal-gold);
+    color: #0B172A;
+    border-color: var(--cal-gold);
+}
+.pagination .is-disabled {
+    opacity: 0.45;
+    pointer-events: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ============================================
+     HERO
+     ============================================ -->
+<section class="blog-hero">
+    <div class="blog-hero__inner" data-aos="fade-up">
+        <span class="blog-hero__eyebrow">
+            <i class="fas fa-feather-alt"></i> Insights & Updates
+        </span>
+        <h1 class="blog-hero__title">The Caldan <em>Journal</em></h1>
+        <p class="blog-hero__lead">
+            Field notes, technical guides, and project stories from Kenya's
+            construction frontier — written by the team that builds it.
+        </p>
+        <div class="blog-hero__rule"></div>
+        <div class="blog-hero__stats">
+            <span class="blog-hero__stat"><i class="fas fa-newspaper"></i> {{ total_posts|default:posts.paginator.count }} stories</span>
+            <span class="blog-hero__divider"></span>
+            <span class="blog-hero__stat"><i class="fas fa-clock"></i> Updated weekly</span>
+            <span class="blog-hero__divider"></span>
+            <span class="blog-hero__stat"><i class="fas fa-shield-halved"></i> Kenya · East Africa</span>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     FILTER RAIL
+     ============================================ -->
+<div class="filter-rail">
+    <div class="container">
+        <div class="filter-rail__inner">
+            <span class="filter-rail__label">Filter</span>
+            <div class="filter-rail__pills" id="filterPills">
+                <a class="filter-pill {% if not active_category %}is-active{% endif %}"
+                   href="{% url 'blog:list' %}">
+                    All <span class="filter-pill__count">{{ total_posts }}</span>
+                </a>
+                <a class="filter-pill {% if active_category == 'construction' %}is-active{% endif %}"
+                   href="?category=construction">
+                    Construction <span class="filter-pill__count">{{ construction_count }}</span>
+                </a>
+                <a class="filter-pill {% if active_category == 'consultancy' %}is-active{% endif %}"
+                   href="?category=consultancy">
+                    Consultancy <span class="filter-pill__count">{{ consultancy_count }}</span>
+                </a>
+                <a class="filter-pill {% if active_category == 'news' %}is-active{% endif %}"
+                   href="?category=news">
+                    News <span class="filter-pill__count">{{ news_count }}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     LIST + SIDEBAR
+     ============================================ -->
+<section class="blog-section">
+    <div class="container">
+        <div class="blog-layout">
+
+            <!-- ============ MAIN FEED ============ -->
+            <div class="blog-feed" id="blogFeed">
+
+                {% if posts %}
+                    {% with first_post=posts|first %}
+                    <!-- Featured (first / newest post) -->
+                    <a href="{% url 'blog:detail' first_post.slug %}"
+                       class="feature-card"
+                       data-tag="{{ first_post.category|default:'all' }}"
+                       data-aos="fade-up">
+                        <div class="feature-card__media">
+                            {% if first_post.image %}
+                                <img src="{{ first_post.image.url }}" alt="{{ first_post.title }}" loading="eager">
+                            {% else %}
+                                <div class="post-row__placeholder" style="position:absolute;inset:0;"><i class="fas fa-newspaper"></i></div>
+                            {% endif %}
+                            <div class="feature-card__media-overlay"></div>
+                        </div>
+                        <div class="feature-card__body">
+                            <span class="feature-card__chip">
+                                <i class="fas fa-star"></i> Latest Story
+                            </span>
+                            <h2 class="feature-card__title">{{ first_post.title }}</h2>
+                            <p class="feature-card__excerpt">
+                                {{ first_post.excerpt|default:first_post.content|truncatewords:38 }}
+                            </p>
+                            <div class="feature-card__meta">
+                                <span><i class="far fa-calendar"></i> {{ first_post.published_at|date:"M j, Y"|default:first_post.created_at|date:"M j, Y" }}</span>
+                                <span><i class="far fa-clock"></i> {{ first_post.reading_time }} min read</span>
+                                <span><i class="fas fa-user"></i> Caldan Team</span>
+                            </div>
+                            <span class="feature-card__cta">
+                                Read the full article <i class="fas fa-arrow-right"></i>
+                            </span>
+                        </div>
+                    </a>
+                    {% endwith %}
+
+                    <!-- Vertical list of remaining posts -->
+                    {% for post in posts %}
+                        {% if not forloop.first %}
+                        <a href="{% url 'blog:detail' post.slug %}"
+                           class="post-row"
+                           data-tag="{{ post.category|default:'all' }}"
+                           data-aos="fade-up">
+                            <div class="post-row__media">
+                                {% if post.image %}
+                                    <img src="{{ post.image.url }}" alt="{{ post.title }}" loading="lazy">
+                                {% else %}
+                                    <div class="post-row__placeholder"><i class="fas fa-newspaper"></i></div>
+                                {% endif %}
+                                {% if post.is_recent %}<span class="post-row__badge">New</span>{% endif %}
+                            </div>
+                            <div class="post-row__body">
+                                <div class="post-row__meta">
+                                    <span><i class="far fa-calendar"></i> {{ post.published_at|date:"M j, Y"|default:post.created_at|date:"M j, Y" }}</span>
+                                    <span class="post-row__meta-dot"></span>
+                                    <span><i class="far fa-clock"></i> {{ post.reading_time }} min read</span>
+                                </div>
+                                <h3 class="post-row__title">{{ post.title }}</h3>
+                                <p class="post-row__excerpt">
+                                    {{ post.excerpt|default:post.content|truncatewords:34 }}
+                                </p>
+                                <div class="post-row__footer">
+                                    <span class="post-row__author">
+                                        <span class="post-row__author-avatar">CT</span>
+                                        Caldan Team
+                                    </span>
+                                    <span class="post-row__cta">
+                                        Read article <i class="fas fa-arrow-right"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state__icon"><i class="fas fa-feather-alt"></i></div>
+                        <h2 class="empty-state__title">
+                            {% if active_category %}
+                                No {{ active_category }} stories yet
+                            {% else %}
+                                No stories yet
+                            {% endif %}
+                        </h2>
+                        <p class="empty-state__lead">
+                            {% if active_category %}
+                                Nothing has been published under {{ active_category }} yet.
+                                Browse the other categories or check back soon.
+                            {% else %}
+                                We're polishing the first piece. Check back soon for field notes, technical guides, and project stories from the Caldan team.
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'website:index' %}" class="feature-card__cta">
+                            Back to home <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                {% endif %}
+
+                <!-- ============ PAGINATION ============ -->
+                {% if posts and posts.paginator.num_pages > 1 %}
+                <nav class="pagination" aria-label="Pagination">
+                    {% if posts.has_previous %}
+                        <a href="?page={{ posts.previous_page_number }}{% if active_category %}&category={{ active_category }}{% endif %}"><i class="fas fa-chevron-left"></i></a>
+                    {% else %}
+                        <span class="is-disabled"><i class="fas fa-chevron-left"></i></span>
+                    {% endif %}
+
+                    {% for n in posts.paginator.page_range %}
+                        {% if posts.number == n %}
+                            <span class="is-current">{{ n }}</span>
+                        {% else %}
+                            <a href="?page={{ n }}{% if active_category %}&category={{ active_category }}{% endif %}">{{ n }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if posts.has_next %}
+                        <a href="?page={{ posts.next_page_number }}{% if active_category %}&category={{ active_category }}{% endif %}"><i class="fas fa-chevron-right"></i></a>
+                    {% else %}
+                        <span class="is-disabled"><i class="fas fa-chevron-right"></i></span>
+                    {% endif %}
+                </nav>
+                {% endif %}
+            </div>
+
+            <!-- ============ SIDEBAR ============ -->
+            <aside class="blog-sidebar">
+                <div class="sidebar-card">
+                    <div class="sidebar-card__head">
+                        <i class="fas fa-clock-rotate-left"></i>
+                        <h3 class="sidebar-card__title">Recent Posts</h3>
+                    </div>
+                    <ul class="recent-list">
+                        {% for r in recent_posts|slice:5 %}
+                            <li class="recent-list__item">
+                                <div class="recent-list__thumb">
+                                    {% if r.image %}<img src="{{ r.image.url }}" alt="{{ r.title }}">{% else %}<i class="fas fa-newspaper"></i>{% endif %}
+                                </div>
+                                <div>
+                                    <a href="{% url 'blog:detail' r.slug %}" class="recent-list__title">{{ r.title|truncatewords:9 }}</a>
+                                    <div class="recent-list__date"><i class="far fa-calendar"></i> {{ r.published_at|date:"M j"|default:r.created_at|date:"M j" }}</div>
+                                </div>
+                            </li>
+                        {% empty %}
+                            <li style="font-size:0.86rem;color:var(--text-tertiary);">No recent posts yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="sidebar-card">
+                    <div class="sidebar-card__head">
+                        <i class="fas fa-tags"></i>
+                        <h3 class="sidebar-card__title">Topics</h3>
+                    </div>
+                    <div class="filter-rail__pills" style="margin-top:6px;">
+                        <a class="filter-pill {% if not active_category %}is-active{% endif %}"
+                           href="{% url 'blog:list' %}">All</a>
+                        <a class="filter-pill {% if active_category == 'construction' %}is-active{% endif %}"
+                           href="?category=construction">Construction</a>
+                        <a class="filter-pill {% if active_category == 'consultancy' %}is-active{% endif %}"
+                           href="?category=consultancy">Consultancy</a>
+                        <a class="filter-pill {% if active_category == 'news' %}is-active{% endif %}"
+                           href="?category=news">News</a>
+                    </div>
+                </div>
+
+                <div class="newsletter-card">
+                    <h3 class="newsletter-card__title">The Caldan Brief</h3>
+                    <p class="newsletter-card__lead">Monthly field notes, project stories, and construction insights — straight to your inbox.</p>
+                    <form class="newsletter-card__form" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Subscribed ✓';">
+                        <input type="email" class="newsletter-card__input" placeholder="you@example.com" required>
+                        <button type="submit" class="newsletter-card__btn">Join</button>
+                    </form>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

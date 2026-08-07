@@ -1,0 +1,51 @@
+{% extends "pdf/_base_report.html" %}
+
+{% block badge %}PAYMENTS REPORT{% endblock %}
+
+{% block title %}Payments <span>Report</span>{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h2>Payments</h2>
+    {% if payments %}
+    <table>
+        <thead>
+            <tr>
+                <th>Reference</th>
+                <th>Description</th>
+                <th>Type</th>
+                <th>Method</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in payments %}
+            <tr>
+                <td><strong>{{ p.reference }}</strong></td>
+                <td>{{ p.description|truncatechars:50|default:"—" }}</td>
+                <td>{{ p.get_type_display|default:p.type|default:"—" }}</td>
+                <td>{{ p.get_method_display|default:p.method|default:"—" }}</td>
+                <td>KES {{ p.amount|floatformat:2 }}</td>
+                <td>
+                    {% if p.status == 'COMPLETED' or p.status == 'CONFIRMED' %}
+                        <span class="pill pill-success">{{ p.get_status_display|default:p.status }}</span>
+                    {% elif p.status == 'PENDING' %}
+                        <span class="pill pill-warning">{{ p.get_status_display|default:p.status }}</span>
+                    {% elif p.status == 'FAILED' or p.status == 'CANCELLED' %}
+                        <span class="pill pill-danger">{{ p.get_status_display|default:p.status }}</span>
+                    {% else %}
+                        <span class="pill pill-neutral">{{ p.get_status_display|default:p.status }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ p.payment_date|date:"M d, Y"|default:p.created_at|date:"M d, Y"|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No payments recorded.</div>
+    {% endif %}
+</div>
+{% endblock %}

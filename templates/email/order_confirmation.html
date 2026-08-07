@@ -1,0 +1,56 @@
+{# Customer-facing order confirmation. Light-mode-first slim design. #}
+{% extends "email/_base.html" %}
+{% load humanize %}
+
+{% block badge %}<span class="badge badge-success" style="margin-top: 14px;">ORDER CONFIRMED</span>{% endblock %}
+
+{% block content %}
+  <h1>Thank you, <span>{{ order.client_name }}</span></h1>
+  <p class="subtitle">Your order #{{ order.order_number }} is in the queue.</p>
+
+  <p>We've received your order. Below is a quick recap — you can track its status anytime using the order number.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Order number</dt>
+      <dd>{{ order.order_number }}</dd>
+      <dt>Date</dt>
+      <dd>{{ order.created_at|date:"F j, Y" }}</dd>
+      <dt>Status</dt>
+      <dd><span class="badge badge-gold">{{ order.get_status_display }}</span></dd>
+      <dt>Delivery to</dt>
+      <dd>{{ order.delivery_address }}, {{ order.delivery_town }}, {{ order.delivery_county }}</dd>
+      {% if order.delivery_notes %}<dt>Notes</dt><dd>{{ order.delivery_notes }}</dd>{% endif %}
+    </dl>
+  </div>
+
+  <h2>Order summary</h2>
+  <table class="summary">
+    <thead><tr><th>Item</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Total</th></tr></thead>
+    <tbody>
+      {% for item in order.items.all %}
+        <tr>
+          <td>{{ item.product.name }}</td>
+          <td style="text-align:center;">{{ item.quantity }}</td>
+          <td style="text-align:right; font-weight:600;">KES {{ item.total_price|floatformat:0|intcomma }}</td>
+        </tr>
+      {% endfor %}
+      {% if order.subtotal %}
+        <tr><td colspan="2" style="text-align:right; color: var(--slate-500);">Subtotal</td><td style="text-align:right;">KES {{ order.subtotal|floatformat:0|intcomma }}</td></tr>
+      {% endif %}
+      {% if order.delivery_fee %}
+        <tr><td colspan="2" style="text-align:right; color: var(--slate-500);">Delivery</td><td style="text-align:right;">KES {{ order.delivery_fee|floatformat:0|intcomma }}</td></tr>
+      {% endif %}
+      <tr>
+        <td colspan="2" style="text-align:right; font-weight:700; color: var(--brand-navy);">Grand total</td>
+        <td style="text-align:right; font-weight:700; color: var(--brand-gold-deep); font-size:15px;">KES {{ order.total|floatformat:0|intcomma }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}{% url 'shop:order_tracking' %}?order_number={{ order.order_number }}" class="button">Track your order</a>
+  </div>
+
+  <p style="text-align:center; color: var(--slate-500); font-size: 13px;">Reference: <strong>{{ order.order_number }}</strong>. Questions? <a href="mailto:{{ support_email|default:'info.caldanconstruction@gmail.com' }}">{{ support_email|default:'info.caldanconstruction@gmail.com' }}</a>.</p>
+{% endblock %}

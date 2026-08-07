@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Receipt {{ order.order_number }}</title>
+    {% load humanize %}
+    <style>
+        @page {
+            size: A5;
+            margin: 1.5cm 1.5cm 1.5cm 1.5cm;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', 'Helvetica Neue', Arial, serif;
+            color: #000000;
+            font-size: 10pt;
+            line-height: 1.6;
+            background: #FFFFFF;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .document {
+            max-width: 100%;
+            background: #FDFBF8;
+            padding: 0;
+        }
+
+        /* ===== HEADER ===== */
+        .receipt-header {
+            background: #FDFBF8;
+            padding: 16px 0 16px;
+            margin-bottom: 20px;
+            border-bottom: 4px solid #D4AF37;
+            text-align: center;
+        }
+        .receipt-header .logo {
+            width: 120px;
+            height: auto;
+            display: block;
+            margin: 0 auto 10px;
+        }
+        .receipt-header .brand {
+            font-family: 'Georgia', serif;
+            font-size: 14pt;
+            font-weight: 700;
+            color: #0D2B36;
+            letter-spacing: 0.5px;
+        }
+        .receipt-header .tagline {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 7.5pt;
+            font-weight: 500;
+            color: #9C7A1F;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+        .receipt-header .meta {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 8pt;
+            color: #475569;
+            margin-top: 6px;
+        }
+        .receipt-header .meta strong { color: #0D2B36; }
+
+        /* ===== DETAIL ROWS ===== */
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #E8E0D4;
+            font-size: 9.5pt;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        .detail-row .label { color: #475569; }
+        .detail-row .value { font-weight: 600; color: #000000; }
+
+        /* ===== ITEMS ===== */
+        .items {
+            margin: 14px 0;
+            padding: 12px 16px;
+            background: #FFFFFF;
+            border-radius: 4px;
+            border: 1px solid #E8E0D4;
+        }
+        .items .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 9.5pt;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            border-bottom: 1px solid #E8E0D4;
+        }
+        .items .item:last-child { border-bottom: none; }
+        .items .item .qty { color: #475569; }
+
+        /* ===== TOTAL BOX ===== */
+        .total-box {
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #0D2B36 0%, #14333F 100%);
+            color: #F6F1E8;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12pt;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+            border: 1px solid #1A4050;
+        }
+        .total-box .amount { color: #D4AF37; }
+
+        /* ===== STATUS ===== */
+        .status-box {
+            margin-top: 12px;
+            padding: 8px 12px;
+            text-align: center;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 8.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            border: 1px solid transparent;
+        }
+        .status-box.paid { background: #F5E9C0; color: #000000; border-color: #D4AF37; }
+        .status-box.pending { background: #FEF3C7; color: #000000; border-color: #F5D99E; }
+
+        /* ===== FOOTER ===== */
+        .receipt-footer {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 2px solid #D4AF37;
+            text-align: center;
+            font-family: 'Georgia', serif;
+            color: #0D2B36;
+        }
+        .receipt-footer .brand {
+            font-size: 12pt;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .receipt-footer .tagline {
+            font-size: 8pt;
+            color: #9C7A1F;
+            font-style: italic;
+            margin-top: 2px;
+        }
+        .receipt-footer .thanks {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 8pt;
+            color: #475569;
+            margin-top: 4px;
+        }
+
+        .page-footer {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #E8E0D4;
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 7pt;
+            color: #94A3B8;
+        }
+        .page-footer .footer-brand {
+            color: #0D2B36;
+            font-weight: 700;
+        }
+
+        @media screen and (max-width: 600px) {
+            .receipt-header .logo { width: 100px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="document">
+
+        <!-- HEADER -->
+        <div class="receipt-header">
+            <img class="logo" src="https://res.cloudinary.com/nifbnyz2/image/upload/w_400,c_scale/v1786023287/caldan/caldan/logo.png" alt="Caldan Construction">
+            <div class="brand">{{ brand_name|default:"Caldan Construction and Consultancy Firm" }}</div>
+            <div class="tagline">{{ tagline|default:"Building Kenya's Future, One Project at a Time." }}</div>
+            <div class="meta">
+                Receipt #: <strong>RCP-{{ order.order_number }}</strong> &nbsp;|&nbsp; Order #: <strong>{{ order.order_number }}</strong>
+            </div>
+            <div class="meta">Date: {{ order.created_at|date:"F j, Y" }}</div>
+        </div>
+
+        <!-- CLIENT DETAILS -->
+        <div class="detail-row">
+            <span class="label">Client</span>
+            <span class="value">{{ order.client_name }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="label">Email</span>
+            <span class="value">{{ order.client_email }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="label">Phone</span>
+            <span class="value">{{ order.client_phone }}</span>
+        </div>
+
+        <!-- ITEMS -->
+        <div class="items">
+            {% for item in order.items.all %}
+            <div class="item">
+                <span>{{ item.product.name }} <span class="qty">(×{{ item.quantity }})</span></span>
+                <span>KES {{ item.total_price|floatformat:2 }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- TOTALS -->
+        <div class="detail-row">
+            <span class="label">Subtotal</span>
+            <span class="value">KES {{ order.subtotal|floatformat:2 }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="label">Delivery Fee</span>
+            <span class="value">KES {{ order.delivery_fee|floatformat:2 }}</span>
+        </div>
+
+        <div class="total-box">
+            <span>Total Paid</span>
+            <span class="amount">KES {{ order.total|floatformat:2 }}</span>
+        </div>
+
+        <!-- STATUS -->
+        <div class="status-box {% if order.paid_at %}paid{% else %}pending{% endif %}">
+            {% if order.paid_at %}Paid on {{ order.paid_at|date:"F j, Y" }}{% else %}Pending Payment{% endif %}
+        </div>
+
+        <!-- FOOTER -->
+        <div class="receipt-footer">
+            <div class="brand">{{ brand_name|default:"Caldan Construction" }}</div>
+            <div class="tagline">{{ tagline|default:"Building Kenya's Future, One Project at a Time." }}</div>
+            <div class="thanks">Thank you for your business!</div>
+        </div>
+
+        <div class="page-footer">
+            <span class="footer-brand">Caldan</span>
+            <span>Receipt</span>
+            <span>Page <span class="page-number"></span></span>
+        </div>
+
+    </div>
+</body>
+</html>

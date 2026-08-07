@@ -1,0 +1,31 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block title %}Account Locked — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-grid single-column">
+        <div class="auth-card-single">
+
+            <div class="auth-form-header">
+                <div class="icon-bubble danger" aria-hidden="true"><i class="fas fa-lock"></i></div>
+                <h2>Account Temporarily Locked</h2>
+                <p>For your security, your account has been locked.</p>
+            </div>
+
+            <div class="message-box error">
+                <p>Your account has been locked due to too many failed login attempts.</p>
+                <p>Please wait <strong>15 minutes</strong> before trying again, or contact an admin to unlock your account immediately.</p>
+            </div>
+
+            <div class="auth-form-footer" style="border-top: none; padding-top: 0;">
+                <p><a href="{% url 'accounts:login' %}"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Login</a></p>
+                <p style="margin-top: 6px; font-size: 0.85rem;">
+                    <a href="{% url 'accounts:password_reset' %}">Forgot your password?</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

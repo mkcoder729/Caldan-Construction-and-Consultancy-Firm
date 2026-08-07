@@ -1,0 +1,214 @@
+{% load static %}
+
+<div class="quick-actions">
+    <div class="quick-actions-title">
+        <i class="fas fa-bolt"></i>
+        <span>Quick Actions</span>
+    </div>
+    <div class="quick-actions-grid">
+        {% for action in quick_actions %}
+            <a href="{% url action.url %}" class="action-card action-{{ action.color|default:'primary' }}">
+                <i class="fas {{ action.icon }}"></i>
+                <span>{{ action.label }}</span>
+            </a>
+        {% empty %}
+            <div class="action-card empty">
+                <i class="fas fa-plus-circle"></i>
+                <span>No actions available</span>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+/* ================================================================
+   QUICK ACTIONS - PREMIUM
+   ================================================================ */
+.quick-actions {
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    padding: 20px 24px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
+    transition: border-color var(--t-base) var(--ease-standard);
+}
+
+.quick-actions:hover {
+    border-color: rgba(212, 175, 55, 0.15);
+}
+
+.quick-actions-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.quick-actions-title i {
+    color: var(--brand-gold);
+}
+
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+}
+
+.action-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: var(--r-md);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all var(--t-base) var(--ease-spring);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.action-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    transition: opacity var(--t-base) var(--ease-standard);
+    z-index: 0;
+}
+
+.action-card:hover::before {
+    opacity: 1;
+}
+
+.action-card i {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+    transition: transform var(--t-base) var(--ease-spring);
+    position: relative;
+    z-index: 1;
+}
+
+.action-card span {
+    position: relative;
+    z-index: 1;
+}
+
+.action-card:hover {
+    transform: translateX(3px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+.action-card:hover i {
+    transform: scale(1.15);
+}
+
+/* Coloured variants */
+.action-card.action-primary::before {
+    background: linear-gradient(135deg, var(--brand-blue), var(--brand-blue-deep));
+}
+.action-card.action-primary:hover {
+    color: var(--text-inverse);
+    border-color: var(--brand-blue);
+}
+
+.action-card.action-success::before {
+    background: linear-gradient(135deg, var(--sem-success), #1E8449);
+}
+.action-card.action-success:hover {
+    color: var(--text-inverse);
+    border-color: var(--sem-success);
+}
+
+.action-card.action-warning::before {
+    background: linear-gradient(135deg, var(--sem-warning), #D68910);
+}
+.action-card.action-warning:hover {
+    color: var(--text-inverse);
+    border-color: var(--sem-warning);
+}
+
+.action-card.action-info::before {
+    background: linear-gradient(135deg, var(--sem-info), #1A5276);
+}
+.action-card.action-info:hover {
+    color: var(--text-inverse);
+    border-color: var(--sem-info);
+}
+
+.action-card.action-danger::before {
+    background: linear-gradient(135deg, var(--sem-danger), #922B21);
+}
+.action-card.action-danger:hover {
+    color: var(--text-inverse);
+    border-color: var(--sem-danger);
+}
+
+.action-card.action-secondary::before {
+    background: linear-gradient(135deg, var(--text-secondary), #2C3E50);
+}
+.action-card.action-secondary:hover {
+    color: var(--text-inverse);
+    border-color: var(--text-secondary);
+}
+
+.action-card.empty {
+    color: var(--text-tertiary);
+    cursor: default;
+    border-color: var(--border-subtle);
+}
+
+.action-card.empty::before {
+    display: none;
+}
+
+.action-card.empty:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: var(--border-subtle);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .quick-actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+}
+
+@media (max-width: 640px) {
+    .quick-actions {
+        padding: 16px;
+    }
+
+    .quick-actions-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .action-card {
+        padding: 10px 12px;
+        font-size: 0.75rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 4px;
+    }
+
+    .action-card i {
+        font-size: 1.2rem;
+        width: auto;
+    }
+}
+</style>

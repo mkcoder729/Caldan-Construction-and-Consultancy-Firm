@@ -1,0 +1,14 @@
+{% comment %}
+Single permission row used by _edit_permissions_modal.html.
+Renders a label + toggle switch bound to a `key` POST field.
+{% endcomment %}
+<div class="permission-item">
+    <span class="permission-label">
+        {{ label }}
+        {% if desc %}<span class="permission-desc">{{ desc }}</span>{% endif %}
+    </span>
+    <label class="toggle-switch">
+        <input type="checkbox" name="{{ key }}" checked>
+        <span class="slider"></span>
+    </label>
+</div>

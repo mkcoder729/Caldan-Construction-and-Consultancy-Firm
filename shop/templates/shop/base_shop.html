@@ -1,0 +1,570 @@
+{% extends "website/base.html" %}
+{% load static %}
+{% load humanize %}
+{% load shop_extras %}
+
+{% block title %}Shop — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================================
+       SHOP HERO — Modern with Parallax
+       ============================================================ */
+    .shop-hero {
+        min-height: 45vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        padding: 120px 0 60px;
+        color: #FFFFFF;
+    }
+    .shop-hero .overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(160deg, rgba(11, 20, 32, 0.82) 0%, rgba(11, 102, 195, 0.65) 100%);
+        z-index: 1;
+    }
+    .shop-hero .container {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+    .shop-hero .breadcrumb {
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.6);
+        margin-bottom: 20px;
+    }
+    .shop-hero .breadcrumb a {
+        color: rgba(255,255,255,0.6);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    .shop-hero .breadcrumb a:hover {
+        color: #D4AF37;
+    }
+    .shop-hero .breadcrumb .sep {
+        margin: 0 8px;
+        color: rgba(255,255,255,0.3);
+    }
+    .shop-hero .breadcrumb .current {
+        color: rgba(255,255,255,0.9);
+    }
+    .shop-hero .icon-wrap {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 16px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #D4AF37;
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(4px);
+        transition: all 0.4s ease;
+    }
+    .shop-hero .icon-wrap:hover {
+        transform: scale(1.05);
+        background: rgba(212, 175, 55, 0.15);
+        border-color: rgba(212, 175, 55, 0.3);
+    }
+    .shop-hero .eyebrow {
+        color: #D4AF37;
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+    .shop-hero .eyebrow i {
+        margin-right: 8px;
+    }
+    .shop-hero h1 {
+        font-size: clamp(2.2rem, 4vw, 3.2rem);
+        font-weight: 800;
+        margin-bottom: 12px;
+        color: #FFFFFF;
+        text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        letter-spacing: -0.02em;
+    }
+    .shop-hero .subtitle {
+        color: rgba(255,255,255,0.85);
+        font-size: 1.05rem;
+        line-height: 1.6;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .shop-hero .gold-line {
+        width: 60px;
+        height: 3px;
+        background: #D4AF37;
+        margin: 16px auto 24px;
+        border-radius: 2px;
+    }
+    .shop-hero .hero-search {
+        max-width: 520px;
+        margin: 0 auto;
+        display: flex;
+        gap: 8px;
+        background: rgba(255,255,255,0.12);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 50px;
+        padding: 4px;
+        border: 1px solid rgba(255,255,255,0.15);
+        transition: all 0.3s ease;
+    }
+    .shop-hero .hero-search:focus-within {
+        background: rgba(255,255,255,0.2);
+        border-color: rgba(212, 175, 55, 0.4);
+        box-shadow: 0 0 30px rgba(212, 175, 55, 0.08);
+    }
+    .shop-hero .hero-search input {
+        flex: 1;
+        padding: 14px 22px;
+        border: none;
+        background: transparent;
+        color: #FFFFFF;
+        font-size: 0.95rem;
+        outline: none;
+        min-width: 100px;
+    }
+    .shop-hero .hero-search input::placeholder {
+        color: rgba(255,255,255,0.5);
+    }
+    .shop-hero .hero-search .search-btn {
+        padding: 12px 28px;
+        background: #D4AF37;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #0D2B36;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .shop-hero .hero-search .search-btn:hover {
+        background: #E8C84A;
+        transform: scale(1.02);
+    }
+    .shop-hero .hero-cart-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 18px;
+        margin-top: 16px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 50px;
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+    .shop-hero .hero-cart-link:hover {
+        background: rgba(255,255,255,0.15);
+        color: #FFFFFF;
+        transform: translateY(-2px);
+    }
+    .shop-hero .hero-cart-link .badge {
+        background: #D4AF37;
+        color: #0D2B36;
+        padding: 0 10px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.7rem;
+    }
+
+    /* ============================================================
+       SHOP LAYOUT
+       ============================================================ */
+    .shop-layout {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        gap: 32px;
+        padding: 40px 0 60px;
+    }
+
+    /* ============================================================
+       SIDEBAR — CONSISTENT ACROSS ALL PAGES
+       ============================================================ */
+    .shop-sidebar {
+        position: sticky;
+        top: 100px;
+        align-self: start;
+    }
+    .shop-sidebar .widget {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        border: 1px solid var(--border-primary);
+        margin-bottom: 16px;
+        transition: all 0.3s ease;
+    }
+    .shop-sidebar .widget:hover {
+        border-color: var(--accent-secondary);
+        box-shadow: var(--shadow-sm);
+    }
+    .shop-sidebar .widget h4 {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-tertiary);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .shop-sidebar .widget h4 i {
+        color: var(--accent-secondary);
+    }
+    .shop-sidebar .widget ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .shop-sidebar .widget ul li {
+        padding: 3px 0;
+    }
+    .shop-sidebar .widget ul li a {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        padding: 4px 10px;
+        border-radius: var(--radius-sm);
+        transition: all 0.2s ease;
+    }
+    .shop-sidebar .widget ul li a:hover {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+    .shop-sidebar .widget ul li a.active {
+        background: rgba(11, 102, 195, 0.08);
+        color: var(--accent-primary);
+        font-weight: 600;
+    }
+    .shop-sidebar .widget ul li a .count {
+        color: var(--text-tertiary);
+        font-size: 0.75rem;
+        background: var(--bg-secondary);
+        padding: 0 8px;
+        border-radius: 10px;
+        font-weight: 500;
+    }
+
+    /* Need Help Widget */
+    .shop-sidebar .widget.cta {
+        background: linear-gradient(135deg, #0D2B36 0%, #1A3A45 100%);
+        border: none;
+        color: #FFFFFF;
+        padding: 24px 20px;
+    }
+    .shop-sidebar .widget.cta h4 {
+        color: rgba(255,255,255,0.7);
+    }
+    .shop-sidebar .widget.cta h4 i {
+        color: #D4AF37;
+    }
+    .shop-sidebar .widget.cta p {
+        color: rgba(255,255,255,0.6);
+        font-size: 0.85rem;
+        margin-bottom: 16px;
+        line-height: 1.5;
+    }
+    .shop-sidebar .widget.cta .btn-cta {
+        width: 100%;
+        justify-content: center;
+        background: #D4AF37;
+        color: #0D2B36;
+        padding: 10px 16px;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+    }
+    .shop-sidebar .widget.cta .btn-cta:hover {
+        background: #E8C84A;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
+    }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width: 992px) {
+        .shop-layout {
+            grid-template-columns: 1fr;
+        }
+        .shop-sidebar {
+            position: static;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .shop-sidebar .widget {
+            margin-bottom: 0;
+        }
+        .shop-sidebar .widget.cta {
+            grid-column: 1 / -1;
+        }
+        .shop-hero {
+            min-height: 35vh;
+            padding: 100px 0 40px;
+            background-attachment: scroll;
+        }
+    }
+    @media (max-width: 768px) {
+        .shop-hero {
+            min-height: 30vh;
+            padding: 80px 0 32px;
+        }
+        .shop-hero .hero-search {
+            flex-direction: column;
+            border-radius: var(--radius-lg);
+            background: rgba(255,255,255,0.08);
+            padding: 6px;
+        }
+        .shop-hero .hero-search input {
+            padding: 12px 16px;
+            text-align: center;
+        }
+        .shop-hero .hero-search .search-btn {
+            justify-content: center;
+            padding: 12px;
+            border-radius: var(--radius-md);
+        }
+        .shop-sidebar {
+            grid-template-columns: 1fr;
+        }
+        .shop-layout {
+            padding: 24px 0 40px;
+            gap: 20px;
+        }
+    }
+    @media (max-width: 480px) {
+        .shop-hero {
+            padding: 60px 0 24px;
+            min-height: 25vh;
+        }
+        .shop-hero h1 {
+            font-size: 1.6rem;
+        }
+        .shop-hero .subtitle {
+            font-size: 0.9rem;
+        }
+        .shop-hero .hero-cart-link span:not(.badge) {
+            display: none;
+        }
+        .shop-sidebar .widget {
+            padding: 16px;
+        }
+        .shop-sidebar .widget.cta {
+            padding: 18px 16px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     SHOP HERO — Block so each page can override
+     ============================================================ -->
+{% block shop_hero %}
+<section class="shop-hero" style="background-image: url('https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1600&q=80');">
+    <div class="overlay"></div>
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="{% url 'website:index' %}">Home</a>
+            <span class="sep">/</span>
+            <span class="current">Shop</span>
+        </nav>
+
+        <div class="icon-wrap">
+            <i class="fas fa-shopping-cart"></i>
+        </div>
+
+        <p class="eyebrow">
+            <i class="fas fa-tools"></i> Construction Materials
+        </p>
+
+        <h1>{% block shop_hero_title %}Construction Materials Shop{% endblock %}</h1>
+
+        <p class="subtitle">
+            {% block shop_hero_subtitle %}Quality materials for your construction projects. Order online and get delivery across Kenya.{% endblock %}
+        </p>
+
+        <div class="gold-line"></div>
+
+        <form method="GET" action="{% url 'shop:index' %}" class="hero-search">
+            {% if current_category %}<input type="hidden" name="category" value="{{ current_category }}">{% endif %}
+            {% if current_sort and current_sort != 'newest' %}<input type="hidden" name="sort" value="{{ current_sort }}">{% endif %}
+            <input type="text" name="search" placeholder="Search products..." value="{{ search_query|default:'' }}" aria-label="Search products">
+            <button type="submit" class="search-btn">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </form>
+
+        <a href="{% url 'shop:cart_view' %}" class="hero-cart-link">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+            <span class="badge" id="heroCartBadge">{{ cart_count|default:0 }}</span>
+        </a>
+    </div>
+</section>
+{% endblock %}
+
+<!-- ============================================================
+     SHOP LAYOUT — SIDEBAR + CONTENT
+     ============================================================ -->
+<section class="shop-layout container" id="shopContent">
+
+    <!-- ✅ SIDEBAR — CONSISTENT ACROSS ALL PUBLIC SHOP PAGES -->
+    <aside class="shop-sidebar">
+        <!-- Categories Widget -->
+        <div class="widget">
+            <h4><i class="fas fa-tags"></i> Categories</h4>
+            <ul>
+                <li>
+                    <a href="{% url 'shop:index' %}" {% if not current_category %}class="active"{% endif %}>
+                        All Products
+                        <span class="count">{{ total_products|default:0 }}</span>
+                    </a>
+                </li>
+                {% for cat in categories %}
+                <li>
+                    <a href="{% url 'shop:index' %}?category={{ cat.0 }}" {% if current_category == cat.0 %}class="active"{% endif %}>
+                        {{ cat.1 }}
+                        <span class="count">{{ category_counts|get_item:cat.0|default:0 }}</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Need Help Widget -->
+        <div class="widget cta">
+            <h4><i class="fas fa-headset"></i> Need Help?</h4>
+            <p>Have questions about products or orders? We're here to help.</p>
+            <a href="{% url 'website:contact' %}" class="btn-cta">
+                <i class="fas fa-envelope"></i> Contact Us
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="shop-content">
+        {% block shop_content %}{% endblock %}
+    </main>
+
+</section>
+
+<!-- ============================================================
+     TOAST CONTAINER
+     ============================================================ -->
+<div id="toastContainer" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999;"></div>
+
+<!-- ============================================================
+     SHOP JAVASCRIPT
+     ============================================================ -->
+<script>
+    function getCookie(name) {
+        const m = document.cookie.match('(^|;)\\s*' + name + '=([^;]+)');
+        return m ? decodeURIComponent(m.pop()) : '';
+    }
+
+    function updateCartBadge(count) {
+        const heroBadge = document.getElementById('heroCartBadge');
+        if (heroBadge) heroBadge.textContent = count;
+
+        const globalBadge = document.getElementById('globalCartBadge');
+        if (globalBadge) {
+            globalBadge.textContent = count;
+            globalBadge.classList.toggle('empty', !count);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.add-to-cart-form').forEach(function(form) {
+            if (form.dataset.ajaxWired === '1') return;
+            form.dataset.ajaxWired = '1';
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const btn = form.querySelector('button[type="submit"]');
+                const original = btn ? btn.innerHTML : '';
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+                    btn.disabled = true;
+                }
+
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Accept': 'application/json',
+                    },
+                })
+                .then(function(res) {
+                    return res.json().then(function(d) {
+                        return { ok: res.ok, data: d };
+                    });
+                })
+                .then(function(result) {
+                    if (result.ok && result.data.success) {
+                        updateCartBadge(result.data.cart_count);
+                        if (typeof showToast === 'function') {
+                            showToast(result.data.message || 'Added to cart!', 'success');
+                        }
+                        if (btn) {
+                            btn.innerHTML = '<i class="fas fa-check"></i> Added';
+                            setTimeout(function() {
+                                btn.innerHTML = original;
+                                btn.disabled = false;
+                            }, 2000);
+                        }
+                    } else {
+                        const err = (result.data && (result.data.error || result.data.message)) || 'Could not add item';
+                        if (typeof showToast === 'function') showToast(err, 'error');
+                        if (btn) {
+                            btn.innerHTML = original;
+                            btn.disabled = false;
+                        }
+                    }
+                })
+                .catch(function() {
+                    if (typeof showToast === 'function') showToast('Network error. Please try again.', 'error');
+                    if (btn) {
+                        btn.innerHTML = original;
+                        btn.disabled = false;
+                    }
+                });
+            });
+        });
+    });
+</script>
+
+{% endblock %}

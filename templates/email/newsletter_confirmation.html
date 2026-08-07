@@ -1,0 +1,21 @@
+{# Newsletter subscription confirmation — sent when a user subscribes to the blog. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-success" style="margin-top: 14px;">SUBSCRIBED</span>{% endblock %}
+
+{% block content %}
+  <h1>You're <span>in</span></h1>
+  <p class="subtitle">Welcome to the {{ brand_name|default:"Caldan" }} newsletter</p>
+
+  <p>Thanks — we just added <strong>{{ email }}</strong> to the list. You'll get our latest blog posts, project updates, and industry insights straight to your inbox.</p>
+
+  <div class="callout callout-success">
+    <strong>What to expect:</strong> One curated email per week. No spam, ever. Unsubscribe any time with one click.
+  </div>
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}/blog" class="button">Read the latest posts</a>
+  </div>
+
+  <p style="text-align:center; color: var(--slate-500); font-size: 13px;">Changed your mind? <a href="{{ unsubscribe_url|default:site_url|default:'https://caldanconstruction.com' }}/newsletter/unsubscribe/">Unsubscribe</a>.</p>
+{% endblock %}

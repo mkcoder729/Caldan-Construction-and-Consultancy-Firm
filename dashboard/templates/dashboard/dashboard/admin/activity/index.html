@@ -1,0 +1,590 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}Activity Feed - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   ACTIVITY FEED PAGE - PREMIUM
+   ================================================================ */
+
+.activity-page-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 22px;
+    animation: fade-up 0.4s ease both;
+}
+.activity-page-hero::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+.activity-page-hero .hero-main {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+.activity-page-hero .hero-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--r-md);
+    background: rgba(212, 175, 55, 0.18);
+    border: 1.5px solid rgba(212, 175, 55, 0.3);
+    backdrop-filter: blur(10px);
+    color: var(--brand-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+.activity-page-hero .hero-info { flex: 1; min-width: 240px; }
+.activity-page-hero .hero-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.activity-page-hero .hero-title i { color: var(--brand-gold); }
+.activity-page-hero .hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.85); }
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .activity-page-hero { animation: none; }
+}
+
+.activity-filters {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.activity-filters .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.activity-filters select,
+.activity-filters input {
+    padding: 6px 12px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-family: inherit;
+    height: 36px;
+    transition: border-color var(--t-fast) var(--ease-standard),
+                box-shadow var(--t-fast) var(--ease-standard);
+}
+
+.activity-filters select:focus,
+.activity-filters input:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+}
+
+/* Summary Bar */
+.activity-summary-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.summary-stat {
+    background: var(--bg-card);
+    padding: 14px 18px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-subtle);
+    text-align: center;
+    transition: transform var(--t-base) var(--ease-spring),
+                box-shadow var(--t-base) var(--ease-standard),
+                border-color var(--t-base) var(--ease-standard);
+}
+
+.summary-stat:hover {
+    transform: translateY(-2px);
+    border-color: rgba(212, 175, 55, 0.20);
+    box-shadow: var(--shadow-sm);
+}
+
+.summary-stat .stat-number {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.summary-stat .stat-label {
+    font-size: 0.65rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+/* Activity List */
+.activity-list-full {
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.activity-list-full .activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: all var(--t-base) var(--ease-standard);
+    position: relative;
+}
+
+.activity-list-full .activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-list-full .activity-item:hover {
+    background: var(--bg-card-hover);
+}
+
+.activity-list-full .activity-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--r-pill);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+}
+
+.activity-list-full .activity-icon.success {
+    background: rgba(39, 174, 96, 0.12);
+    color: var(--sem-success);
+}
+.activity-list-full .activity-icon.danger {
+    background: rgba(185, 52, 43, 0.12);
+    color: var(--sem-danger);
+}
+.activity-list-full .activity-icon.warning {
+    background: rgba(243, 156, 18, 0.12);
+    color: var(--sem-warning);
+}
+.activity-list-full .activity-icon.info {
+    background: rgba(41, 128, 185, 0.12);
+    color: var(--sem-info);
+}
+.activity-list-full .activity-icon.primary {
+    background: rgba(11, 102, 195, 0.12);
+    color: var(--brand-blue);
+}
+.activity-list-full .activity-icon.gold {
+    background: rgba(212, 175, 55, 0.12);
+    color: var(--brand-gold-deep);
+}
+
+.activity-list-full .activity-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.activity-list-full .activity-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.activity-list-full .activity-user .avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--r-pill);
+    background: linear-gradient(135deg, var(--brand-blue), var(--brand-blue-deep));
+    color: var(--text-inverse);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.activity-list-full .activity-action {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 2px 0 0;
+}
+
+.activity-list-full .activity-action strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.activity-list-full .activity-time {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    display: block;
+    margin-top: 2px;
+}
+
+.activity-list-full .activity-time i {
+    margin-right: 4px;
+}
+
+.activity-list-full .activity-details {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    background: var(--bg-canvas);
+    padding: 4px 12px;
+    border-radius: var(--r-sm);
+    display: inline-block;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-tertiary);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.empty-state h3 {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin: 0 0 8px;
+}
+
+.empty-state p {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+}
+
+.pagination .page-link {
+    padding: 6px 12px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.pagination .page-link:hover {
+    background: var(--bg-secondary);
+    border-color: var(--border-strong);
+}
+
+.pagination .page-link.active {
+    background: var(--brand-gold);
+    color: var(--text-inverse);
+    border-color: var(--brand-gold);
+}
+
+.pagination .page-link.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .activity-summary-bar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .activity-page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .activity-filters {
+        flex-direction: column;
+    }
+
+    .activity-filters .filter-group {
+        width: 100%;
+    }
+
+    .activity-filters select,
+    .activity-filters input {
+        flex: 1;
+        width: 100%;
+    }
+
+    .activity-list-full .activity-item {
+        padding: 12px 14px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .activity-list-full .activity-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.7rem;
+    }
+
+    .activity-list-full .activity-action {
+        font-size: 0.8rem;
+    }
+
+    .summary-stat {
+        padding: 10px 12px;
+    }
+
+    .summary-stat .stat-number {
+        font-size: 1.1rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-page">
+    <!-- Hero header -->
+    <div class="activity-page-hero">
+        <div class="hero-main">
+            <div class="hero-icon"><i class="fas fa-history"></i></div>
+            <div class="hero-info">
+                <h1 class="hero-title">Activity Feed
+                    <span style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.7);">
+                        {{ total|default:0 }} entries
+                    </span>
+                </h1>
+                <p class="hero-sub">Real-time log of admin actions across the platform</p>
+            </div>
+        </div>
+        <div style="position:relative;z-index:1;display:flex;gap:8px;">
+            <a href="{% url 'dashboard:activity_export_pdf' %}{% if user_filter %}?user={{ user_filter }}{% endif %}{% if action_filter %}{% if user_filter %}&{% else %}?{% endif %}action={{ action_filter }}{% endif %}"
+               class="btn btn-ghost btn-sm"
+               style="background:rgba(212,175,55,0.18);color:#fff;border:1px solid rgba(212,175,55,0.4);"
+               title="Export activity feed as PDF">
+                <i class="fas fa-file-pdf"></i> Export PDF
+            </a>
+            <button class="btn btn-ghost btn-sm" id="refreshActivity" style="background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters bar -->
+    <div class="activity-filters" style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--r-lg);padding:14px 18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;">
+        <div class="filter-group" style="flex:1;min-width:200px;display:flex;align-items:center;gap:8px;background:var(--bg-canvas);border:1px solid var(--border-subtle);border-radius:var(--r-md);padding:8px 12px;">
+            <i class="fas fa-search" style="color:var(--text-tertiary);font-size:0.8rem;"></i>
+            <input type="text" placeholder="Search activity..." id="activitySearch" value="{{ search|default:'' }}" style="border:none;background:transparent;outline:none;font-size:13px;flex:1;color:var(--text-primary);">
+        </div>
+        <div class="filter-group">
+            <select id="userFilter" style="padding:8px 12px;border:1px solid var(--border-subtle);border-radius:var(--r-md);background:var(--bg-canvas);color:var(--text-primary);font-size:13px;">
+                <option value="">All Users</option>
+                {% for user in users %}
+                    <option value="{{ user.id }}" {% if user_filter == user.id|stringformat:'s' %}selected{% endif %}>
+                        {{ user.full_name|default:user.email }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="activity-summary-bar">
+        <div class="summary-stat">
+            <div class="stat-number">{{ total|default:0 }}</div>
+            <div class="stat-label">Total Actions</div>
+        </div>
+        <div class="summary-stat">
+            <div class="stat-number">{{ summary.today|default:0 }}</div>
+            <div class="stat-label">Today</div>
+        </div>
+        <div class="summary-stat">
+            <div class="stat-number">{{ summary.this_week|default:0 }}</div>
+            <div class="stat-label">This Week</div>
+        </div>
+        <div class="summary-stat">
+            <div class="stat-number">{{ summary.unique_users|default:0 }}</div>
+            <div class="stat-label">Unique Users</div>
+        </div>
+    </div>
+
+    <!-- Activity List -->
+    <div class="activity-list-full" id="activityList">
+        {% if activities %}
+            {% for activity in activities %}
+                <div class="activity-item">
+                    <div class="activity-icon {{ activity.color }}">
+                        <i class="fas {{ activity.icon }}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-user">
+                            <span class="avatar">{{ activity.user_avatar }}</span>
+                            {{ activity.user }}
+                        </div>
+                        <p class="activity-action">
+                            <strong>{{ activity.label }}</strong>
+                            {% if activity.details %}
+                                <span class="activity-details">
+                                    {{ activity.details|safe }}
+                                </span>
+                            {% endif %}
+                        </p>
+                        <span class="activity-time">
+                            <i class="far fa-clock"></i> {{ activity.time_ago }}
+                            {% if activity.ip_address %}
+                                <span style="margin-left:12px;">IP: {{ activity.ip_address }}</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3>No Activity Found</h3>
+                <p>There are no activity logs matching your filters.</p>
+            </div>
+        {% endif %}
+
+        <!-- Pagination -->
+        {% if total > limit %}
+        <div class="pagination">
+            <a href="?page=1{% if user_filter %}&user={{ user_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}"
+               class="page-link {% if page == 1 %}disabled{% endif %}">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+
+            {% for p in page_range %}
+                <a href="?page={{ p }}{% if user_filter %}&user={{ user_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}"
+                   class="page-link {% if p == page %}active{% endif %}">
+                    {{ p }}
+                </a>
+            {% endfor %}
+
+            <a href="?page={{ total_pages }}{% if user_filter %}&user={{ user_filter }}{% endif %}{% if search %}&search={{ search }}{% endif %}"
+               class="page-link {% if page == total_pages %}disabled{% endif %}">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var searchInput = document.getElementById('activitySearch');
+    var userFilter = document.getElementById('userFilter');
+    var refreshBtn = document.getElementById('refreshActivity');
+    var searchTimeout;
+
+    function applyFilters() {
+        var search = searchInput.value.trim();
+        var user = userFilter.value;
+        var url = '{% url "dashboard:activity" %}?';
+        var params = [];
+        if (search) params.push('search=' + encodeURIComponent(search));
+        if (user) params.push('user=' + encodeURIComponent(user));
+        if (params.length) url += params.join('&');
+        window.location.href = url;
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(applyFilters, 500);
+        });
+
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                clearTimeout(searchTimeout);
+                applyFilters();
+            }
+        });
+    }
+
+    if (userFilter) {
+        userFilter.addEventListener('change', applyFilters);
+    }
+
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function() {
+            window.location.reload();
+        });
+    }
+
+    // Auto-refresh every 30 seconds
+    setInterval(function() {
+        var hasFilters = window.location.search.length > 0;
+        if (!hasFilters) {
+            fetch(window.location.href)
+                .then(function(response) { return response.text(); })
+                .then(function(html) {
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, 'text/html');
+                    var newList = doc.getElementById('activityList');
+                    var currentList = document.getElementById('activityList');
+                    if (newList && currentList) {
+                        currentList.innerHTML = newList.innerHTML;
+                    }
+                })
+                .catch(function() { /* silent fail */ });
+        }
+    }, 30000);
+});
+</script>
+{% endblock %}

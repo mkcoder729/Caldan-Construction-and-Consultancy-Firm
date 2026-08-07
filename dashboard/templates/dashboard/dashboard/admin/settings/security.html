@@ -1,0 +1,278 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Security Settings - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+.settings-page {
+    max-width: 720px;
+}
+
+.page-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 20px; flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative; overflow: hidden;
+    margin-bottom: 24px;
+}
+.page-hero::before {
+    content: ''; position: absolute; top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+}
+.page-hero-main {
+    display: flex; align-items: center; gap: 16px;
+    flex: 1; min-width: 240px; position: relative; z-index: 1;
+}
+.page-hero-icon {
+    width: 52px; height: 52px; border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+}
+.page-hero-title {
+    font-size: 22px; font-weight: 800; color: #fff;
+    margin: 0 0 4px; letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 10px;
+}
+.page-hero-title i { color: var(--brand-gold); }
+.page-hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+.settings-card {
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.settings-card .card-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.settings-card .card-header h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-card .card-header h3 i {
+    color: var(--brand-gold);
+}
+
+.settings-card .card-body {
+    padding: 20px;
+}
+
+.security-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.security-item:last-child {
+    border-bottom: none;
+}
+
+.security-item .item-info .item-title {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.security-item .item-info .item-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.security-item .item-status {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.security-item .item-status.enabled {
+    color: var(--sem-success);
+}
+
+.security-item .item-status.disabled {
+    color: var(--text-tertiary);
+}
+
+.security-item .item-action {
+    padding: 4px 14px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-standard);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.security-item .item-action.btn-success {
+    background: var(--sem-success);
+    color: var(--text-inverse);
+}
+.security-item .item-action.btn-success:hover {
+    opacity: 0.85;
+}
+
+.security-item .item-action.btn-danger {
+    background: var(--sem-danger);
+    color: var(--text-inverse);
+}
+.security-item .item-action.btn-danger:hover {
+    opacity: 0.85;
+}
+
+.security-item .item-action.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+.security-item .item-action.btn-secondary:hover {
+    background: var(--border-primary);
+}
+
+.security-item .item-action.btn-gold {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+}
+.security-item .item-action.btn-gold:hover {
+    opacity: 0.85;
+}
+
+@media (max-width: 640px) {
+    .security-item {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .settings-card .card-body {
+        padding: 16px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-page settings-page">
+    <div class="page-hero">
+        <div class="page-hero-main">
+            <div class="page-hero-icon"><i class="fas fa-shield-alt"></i></div>
+            <div>
+                <h1 class="page-hero-title">Security Settings</h1>
+                <p class="page-hero-sub">Manage your account security and authentication</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h3><i class="fas fa-lock"></i> Authentication</h3>
+        </div>
+        <div class="card-body">
+            <div class="security-item">
+                <div class="item-info">
+                    <div class="item-title">Two-Factor Authentication</div>
+                    <div class="item-desc">8-digit OTP sent to your email on every login</div>
+                </div>
+                <span class="item-status enabled">Enabled</span>
+            </div>
+
+            <div class="security-item">
+                <div class="item-info">
+                    <div class="item-title">Trusted Devices</div>
+                    <div class="item-desc">Remember devices for 30 days</div>
+                </div>
+                <span class="item-status enabled">Enabled</span>
+            </div>
+
+            <div class="security-item">
+                <div class="item-info">
+                    <div class="item-title">Session Timeout</div>
+                    <div class="item-desc">Automatically log out after inactivity</div>
+                </div>
+                <span class="item-status enabled">24 hours</span>
+            </div>
+
+            <div class="security-item">
+                <div class="item-info">
+                    <div class="item-title">Account Lockout</div>
+                    <div class="item-desc">Lock account after failed attempts</div>
+                </div>
+                <span class="item-status enabled">5 attempts, 15 minutes</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h3><i class="fas fa-key"></i> Password</h3>
+        </div>
+        <div class="card-body">
+            <div class="security-item">
+                <div class="item-info">
+                    <div class="item-title">Password Strength</div>
+                    <div class="item-desc">Minimum 8 characters with letters and numbers</div>
+                </div>
+                <span class="item-status enabled">Enforced</span>
+            </div>
+
+            <div class="security-item">
+                <div class="item-info">
+                    <div class="item-title">Last Changed</div>
+                    <div class="item-desc">{{ user.password_changed_at|date:"F j, Y H:i"|default:'Never' }}</div>
+                </div>
+                <a href="{% url 'dashboard:change_password' %}" class="item-action btn-gold">
+                    <i class="fas fa-key"></i> Change Password
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sessions -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h3><i class="fas fa-wifi"></i> Active Sessions</h3>
+        </div>
+        <div class="card-body">
+            <div class="security-item">
+                <div class="item-info">
+                    <div class="item-title">Current Session</div>
+                    <div class="item-desc">You are logged in from this device</div>
+                </div>
+                <span class="item-status enabled">Active</span>
+            </div>
+
+            <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn btn-secondary" onclick="if(confirm('Log out of all other sessions?')){ window.location.href='{% url "accounts:logout_all" %}'; }">
+                    <i class="fas fa-sign-out-alt"></i> Logout All Other Devices
+                </button>
+            </div>
+
+            <div style="margin-top:8px;font-size:0.7rem;color:var(--text-tertiary);">
+                <i class="fas fa-info-circle"></i> This will sign you out from all other browsers and devices.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

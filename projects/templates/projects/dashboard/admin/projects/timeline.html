@@ -1,0 +1,510 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}{{ project.name }} - Timeline{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   PROJECT TIMELINE — PREMIUM ADMIN
+   ================================================================ */
+
+.project-timeline {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+/* ---- Hero ---- */
+.project-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.project-hero::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.hero-main {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--r-md);
+    background: rgba(212, 175, 55, 0.18);
+    border: 1.5px solid rgba(212, 175, 55, 0.3);
+    backdrop-filter: blur(10px);
+    color: var(--brand-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.hero-info { flex: 1; min-width: 240px; }
+
+.hero-code {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--brand-gold);
+    background: rgba(212, 175, 55, 0.15);
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.hero-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+}
+
+.hero-sub {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.hero-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+/* ---- Tabs ---- */
+.project-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 6px;
+    box-shadow: var(--shadow-xs);
+    overflow-x: auto;
+}
+
+.tab {
+    flex: 1;
+    min-width: 110px;
+    padding: 10px 18px;
+    border-radius: var(--r-md);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    transition: all var(--t-fast) var(--ease-spring);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.tab:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.tab.active {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+/* ---- Date range bar ---- */
+.range-bar {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    box-shadow: var(--shadow-xs);
+}
+
+.range-item {
+    text-align: center;
+    padding: 12px;
+    background: var(--bg-canvas);
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-subtle);
+}
+
+.range-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.range-date {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.range-days {
+    font-size: 11px;
+    color: var(--brand-gold-deep);
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+/* ---- Timeline ---- */
+.timeline-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-xs);
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.timeline-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.timeline-header h3 i {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--r-sm);
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+}
+
+.timeline-badge {
+    padding: 4px 12px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold-deep);
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+/* ---- Vertical timeline rail ---- */
+.timeline-rail {
+    position: relative;
+    padding-left: 36px;
+}
+
+.timeline-rail::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 12px;
+    bottom: 12px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--brand-gold) 0%, var(--brand-blue) 100%);
+    border-radius: 2px;
+}
+
+.timeline-event {
+    position: relative;
+    padding-bottom: 24px;
+    animation: fade-up 0.4s ease both;
+}
+
+.timeline-event:nth-child(1) { animation-delay: 0.05s; }
+.timeline-event:nth-child(2) { animation-delay: 0.1s; }
+.timeline-event:nth-child(3) { animation-delay: 0.15s; }
+.timeline-event:nth-child(4) { animation-delay: 0.2s; }
+.timeline-event:nth-child(5) { animation-delay: 0.25s; }
+
+.timeline-event:last-child { padding-bottom: 0; }
+
+.timeline-event::before {
+    content: '';
+    position: absolute;
+    left: -29px;
+    top: 6px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--brand-gold);
+    border: 3px solid var(--bg-card);
+    box-shadow: 0 0 0 2px var(--brand-gold);
+    z-index: 1;
+}
+
+.timeline-event.start::before { background: var(--sem-success); box-shadow: 0 0 0 2px var(--sem-success); }
+.timeline-event.end::before { background: var(--sem-danger); box-shadow: 0 0 0 2px var(--sem-danger); }
+.timeline-event.deadline::before { background: var(--sem-warning); box-shadow: 0 0 0 2px var(--sem-warning); }
+
+.event-card {
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    padding: 14px 16px;
+    transition: all var(--t-fast) var(--ease-spring);
+}
+
+.event-card:hover {
+    transform: translateX(4px);
+    border-color: var(--brand-gold);
+    box-shadow: var(--shadow-sm);
+    background: var(--bg-card);
+}
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.event-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.event-date {
+    font-size: 11px;
+    color: var(--brand-gold-deep);
+    background: rgba(212, 175, 55, 0.1);
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    font-weight: 700;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    white-space: nowrap;
+}
+
+.event-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ---- Animations ---- */
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.project-hero, .timeline-card { animation: fade-up 0.4s ease both; }
+.range-bar { animation: fade-up 0.45s ease both; animation-delay: 0.05s; }
+
+/* ---- Buttons ---- */
+.btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.3px;
+}
+
+.btn-ghost {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ---- Empty ---- */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin-bottom: 16px;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+    .project-hero { padding: 22px; }
+    .hero-title { font-size: 20px; }
+    .hero-icon { width: 44px; height: 44px; font-size: 18px; }
+    .range-bar { grid-template-columns: 1fr; }
+    .timeline-card { padding: 20px; }
+    .project-tabs { flex-wrap: nowrap; }
+    .tab { min-width: 90px; padding: 8px 12px; font-size: 11px; }
+    .timeline-rail { padding-left: 28px; }
+    .timeline-rail::before { left: 10px; }
+    .timeline-event::before { left: -23px; width: 12px; height: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .project-hero, .timeline-card, .range-bar, .timeline-event { animation: none; }
+    .event-card:hover { transform: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="project-timeline">
+
+    <!-- Hero -->
+    <div class="project-hero">
+        <div class="hero-main">
+            <div class="hero-icon"><i class="fas fa-calendar-alt"></i></div>
+            <div class="hero-info">
+                <span class="hero-code"><i class="fas fa-hashtag"></i>{{ project.project_code }}</span>
+                <h1 class="hero-title">{{ project.name }} — Timeline</h1>
+                <p class="hero-sub">Chronological view of all project events and deadlines</p>
+            </div>
+        </div>
+        <div class="hero-actions">
+            <a href="{% url 'admin_projects:project_detail' project.id %}" class="btn btn-ghost">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="project-tabs">
+        <a href="{% url 'admin_projects:project_detail' project.id %}" class="tab">
+            <i class="fas fa-info-circle"></i> Overview
+        </a>
+        <a href="{% url 'admin_projects:project_progress' project.id %}" class="tab">
+            <i class="fas fa-chart-bar"></i> Progress
+        </a>
+        <a href="{% url 'admin_projects:project_milestones' project.id %}" class="tab">
+            <i class="fas fa-flag-checkered"></i> Milestones
+        </a>
+        <a href="{% url 'admin_projects:project_timeline' project.id %}" class="tab active">
+            <i class="fas fa-calendar-alt"></i> Timeline
+        </a>
+        <a href="{% url 'admin_projects:project_budget' project.id %}" class="tab">
+            <i class="fas fa-money-bill-wave"></i> Budget
+        </a>
+    </div>
+
+    <!-- Date range -->
+    <div class="range-bar">
+        <div class="range-item">
+            <div class="range-label"><i class="fas fa-play"></i> Start Date</div>
+            <div class="range-date">{{ project.start_date|date:"M d, Y"|default:'—' }}</div>
+        </div>
+        <div class="range-item">
+            <div class="range-label"><i class="fas fa-flag-checkered"></i> Target End</div>
+            <div class="range-date">{{ project.end_date|date:"M d, Y"|default:'—' }}</div>
+        </div>
+        <div class="range-item">
+            <div class="range-label"><i class="fas fa-hourglass-half"></i> Duration</div>
+            <div class="range-date">{{ total_days|default:0 }} days</div>
+            <div class="range-days">{{ days_remaining|default:0 }} days remaining</div>
+        </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline-card">
+        <div class="timeline-header">
+            <h3><i class="fas fa-stream"></i> Project Events</h3>
+            <span class="timeline-badge">{{ timeline|length|default:0 }} events</span>
+        </div>
+
+        {% if timeline %}
+            <div class="timeline-rail">
+                {% for event in timeline %}
+                    <div class="timeline-event {{ event.type|default:'' }}">
+                        <div class="event-card">
+                            <div class="event-header">
+                                <h4 class="event-title">{{ event.title }}</h4>
+                                <span class="event-date">{{ event.date|date:"M d, Y" }}</span>
+                            </div>
+                            {% if event.description %}
+                                <p class="event-desc">{{ event.description }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="fas fa-calendar-times"></i></div>
+                <p>No timeline events recorded yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

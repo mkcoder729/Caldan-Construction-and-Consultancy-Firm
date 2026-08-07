@@ -1,0 +1,41 @@
+{% extends "pdf/_base_report.html" %}
+
+{% block badge %}ORDERS REPORT{% endblock %}
+
+{% block title %}Orders <span>Report</span>{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h2>Orders</h2>
+    {% if orders %}
+    <table>
+        <thead>
+            <tr>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in orders %}
+            <tr>
+                <td><strong>{{ o.order_number }}</strong></td>
+                <td>{{ o.client_name|default:"—" }}</td>
+                <td>{{ o.items.count|default:0 }}</td>
+                <td>KES {{ o.total|floatformat:2|default:"—" }}</td>
+                <td>
+                    <span class="pill pill-info">{{ o.get_status_display|default:o.status }}</span>
+                </td>
+                <td>{{ o.created_at|date:"M d, Y"|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No orders recorded.</div>
+    {% endif %}
+</div>
+{% endblock %}

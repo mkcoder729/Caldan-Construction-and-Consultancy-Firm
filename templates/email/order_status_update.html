@@ -1,0 +1,41 @@
+{# Order status update — sent to the customer when the order moves between states. #}
+{% extends "email/_base.html" %}
+{% load humanize %}
+
+{% block badge %}<span class="badge badge-info" style="margin-top: 14px;">ORDER UPDATE</span>{% endblock %}
+
+{% block content %}
+  <h1>Order <span>{{ order.get_status_display }}</span></h1>
+  <p class="subtitle">Order #{{ order.order_number }} — updated {{ updated_at|date:"F j, Y H:i" }}</p>
+
+  <p>Your order status has moved. Here's the latest snapshot.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Order number</dt>
+      <dd>{{ order.order_number }}</dd>
+      <dt>Status</dt>
+      <dd><span class="badge badge-gold">{{ order.get_status_display }}</span></dd>
+      {% if order.tracking_number %}<dt>Tracking</dt><dd><span class="code-mono" style="font-size: 14px; letter-spacing: 2px; padding: 4px 12px;">{{ order.tracking_number }}</span></dd>{% endif %}
+      {% if order.estimated_delivery %}<dt>Estimated delivery</dt><dd>{{ order.estimated_delivery|date:"F j, Y" }}</dd>{% endif %}
+    </dl>
+  </div>
+
+  <h2>Items in this order</h2>
+  <table class="summary">
+    <thead><tr><th>Item</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Total</th></tr></thead>
+    <tbody>
+      {% for item in order.items.all %}
+      <tr>
+        <td>{{ item.product.name }}</td>
+        <td style="text-align:center;">{{ item.quantity }}</td>
+        <td style="text-align:right; font-weight:600;">KES {{ item.total_price|floatformat:0|intcomma }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}{% url 'shop:order_tracking' %}?order_number={{ order.order_number }}" class="button">Track your order</a>
+  </div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{# Stock alert — fires when a material falls below its minimum threshold. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-error" style="margin-top: 14px;">STOCK ALERT</span>{% endblock %}
+
+{% block content %}
+  <h1>Low <span>stock</span> detected</h1>
+  <p class="subtitle">Action required to avoid stockout</p>
+
+  <p>The following material has dropped below its minimum threshold. Reorder as soon as possible to keep projects on track.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Material</dt>
+      <dd><strong>{{ material.name }}</strong></dd>
+      <dt>Category</dt>
+      <dd>{{ material.category.name }}</dd>
+      <dt>Supplier</dt>
+      <dd>{{ material.supplier.name|default:"—" }}</dd>
+      <dt>Current quantity</dt>
+      <dd><span class="badge badge-warning">{{ current_quantity }} {{ material.get_unit_display }}</span></dd>
+      <dt>Minimum threshold</dt>
+      <dd>{{ minimum_threshold }} {{ material.get_unit_display }}</dd>
+    </dl>
+  </div>
+
+  <div class="callout callout-danger">
+    <strong>Reorder recommended.</strong> Current stock is below the safe threshold for active projects.
+  </div>
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}/dashboard/inventory/" class="button">Open inventory</a>
+  </div>
+{% endblock %}

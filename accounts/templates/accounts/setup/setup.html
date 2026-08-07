@@ -1,0 +1,252 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block title %}Setup — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-grid">
+
+        <!-- ============ Brand side ============ -->
+        <aside class="auth-brand" aria-hidden="true">
+            <div class="auth-brand-content">
+                <img src="{% static 'images/logo_light.png' %}" alt="Caldan Construction and Consultancy Firm" class="auth-brand-logo">
+                <span class="auth-brand-eyebrow">One-Time Setup</span>
+                <h1>Welcome to Caldan</h1>
+                <p class="auth-brand-text">
+                    Set up your Chief Admin account to start managing projects, inventory, and operations across the entire company.
+                </p>
+
+                <div class="auth-brand-features">
+                    <div class="feature-item"><i class="fas fa-shield-halved"></i><span>Full Admin Access</span></div>
+                    <div class="feature-item"><i class="fas fa-users-gear"></i><span>Team Management</span></div>
+                    <div class="feature-item"><i class="fas fa-diagram-project"></i><span>Project Oversight</span></div>
+                    <div class="feature-item"><i class="fas fa-chart-line"></i><span>Reports &amp; Analytics</span></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ============ Form side ============ -->
+        <div class="auth-form-wrapper">
+            <div class="auth-form-container">
+
+                <div class="auth-form-header">
+                    <h2>Create Chief Admin</h2>
+                    <p>Fill in your details to get started.</p>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags|default:'info' }}" role="alert">
+                            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-error" role="alert">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>{{ form.non_field_errors.0 }}</span>
+                    </div>
+                {% endif %}
+
+                <form method="post" class="auth-form" id="setup-form" data-loading novalidate>
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="{{ form.email.id_for_label }}">Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope" aria-hidden="true"></i>
+                            {{ form.email }}
+                        </div>
+                        {% if form.email.errors %}
+                            <div class="field-error">{{ form.email.errors.0 }}</div>
+                        {% else %}
+                            <small class="form-hint">This will be your login email.</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.full_name.id_for_label }}">Full Name</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user" aria-hidden="true"></i>
+                            {{ form.full_name }}
+                        </div>
+                        {% if form.full_name.errors %}
+                            <div class="field-error">{{ form.full_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.phone.id_for_label }}">Phone Number</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-phone" aria-hidden="true"></i>
+                            {{ form.phone }}
+                        </div>
+                        {% if form.phone.errors %}
+                            <div class="field-error">{{ form.phone.errors.0 }}</div>
+                        {% else %}
+                            <small class="form-hint">Kenyan phone number (e.g. 0712345678 or 0112345678).</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.password.id_for_label }}">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock" aria-hidden="true"></i>
+                            {{ form.password }}
+                            <button type="button"
+                                    class="password-toggle"
+                                    data-toggle-password
+                                    data-target="{{ form.password.id_for_label }}"
+                                    aria-label="Show password">
+                                <i class="fas fa-eye" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <div class="strength-meter" id="strength-meter" aria-hidden="true">
+                            <span class="seg"></span><span class="seg"></span><span class="seg"></span><span class="seg"></span>
+                        </div>
+                        <small class="strength-label" id="strength-label">
+                            Use 8+ characters with letters, numbers &amp; symbols.
+                        </small>
+                        {% if form.password.errors %}
+                            <div class="field-error">{{ form.password.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.confirm_password.id_for_label }}">Confirm Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-circle-check" aria-hidden="true"></i>
+                            {{ form.confirm_password }}
+                            <button type="button"
+                                    class="password-toggle"
+                                    data-toggle-password
+                                    data-target="{{ form.confirm_password.id_for_label }}"
+                                    aria-label="Show password">
+                                <i class="fas fa-eye" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <small class="form-hint" id="match-hint" style="display:none;">&nbsp;</small>
+                        {% if form.confirm_password.errors %}
+                            <div class="field-error">{{ form.confirm_password.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span class="btn-text"><i class="fas fa-shield-halved" aria-hidden="true"></i> Create Chief Admin Account</span>
+                        <i class="spinner fas fa-circle-notch" aria-hidden="true"></i>
+                    </button>
+                </form>
+
+                <div class="auth-form-footer" style="border-top: none; padding-top: 18px;">
+                    <p style="font-size: 0.85rem; color: var(--text-tertiary); text-align: center; font-style: italic;">
+                        "Building Kenya's Future, One Project at a Time."
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+(function() {
+    'use strict';
+
+    const password    = document.getElementById('id_password');
+    const confirmPw   = document.getElementById('id_confirm_password');
+    const meter       = document.getElementById('strength-meter');
+    const label       = document.getElementById('strength-label');
+    const matchHint   = document.getElementById('match-hint');
+    const form        = document.getElementById('setup-form');
+
+    if (!password || !confirmPw) return;
+
+    function scorePassword(pw) {
+        if (!pw) return 0;
+        let score = 0;
+        if (pw.length >= 8) score += 1;
+        if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score += 1;
+        if (/\d/.test(pw)) score += 1;
+        if (/[^A-Za-z0-9]/.test(pw)) score += 1;
+        if (pw.length >= 12) score = Math.min(4, score + 1);
+        return score;
+    }
+
+    const labels = {
+        0: { text: 'Use 8+ characters with letters, numbers & symbols.', cls: '' },
+        1: { text: 'Weak — add length and variety.', cls: 'weak' },
+        2: { text: 'Fair — try mixing in symbols.', cls: 'fair' },
+        3: { text: 'Good — solid password.', cls: 'good' },
+        4: { text: 'Strong — excellent password.', cls: 'strong' },
+    };
+
+    function updateStrength() {
+        if (!meter || !label) return;
+        const score = scorePassword(password.value);
+        meter.classList.remove('weak', 'fair', 'good', 'strong');
+        if (score > 0) {
+            meter.classList.add(
+                score === 1 ? 'weak' :
+                score === 2 ? 'fair' :
+                score === 3 ? 'good' : 'strong'
+            );
+        }
+        const info = labels[score] || labels[0];
+        label.textContent = info.text;
+        label.classList.remove('weak', 'fair', 'good', 'strong');
+        if (info.cls) label.classList.add(info.cls);
+    }
+
+    function updateMatch() {
+        if (!matchHint) return;
+        if (!confirmPw.value) {
+            matchHint.style.display = 'none';
+            confirmPw.classList.remove('is-invalid', 'is-valid');
+            return;
+        }
+        matchHint.style.display = 'block';
+        if (password.value === confirmPw.value) {
+            matchHint.textContent = '✓ Passwords match';
+            matchHint.classList.remove('error');
+            matchHint.classList.add('success');
+            confirmPw.classList.remove('is-invalid');
+            confirmPw.classList.add('is-valid');
+        } else {
+            matchHint.textContent = '✗ Passwords do not match';
+            matchHint.classList.add('error');
+            matchHint.classList.remove('success');
+            confirmPw.classList.add('is-invalid');
+            confirmPw.classList.remove('is-valid');
+        }
+    }
+
+    password.addEventListener('input', () => {
+        updateStrength();
+        updateMatch();
+    });
+    confirmPw.addEventListener('input', updateMatch);
+
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            if (password.value !== confirmPw.value) {
+                e.preventDefault();
+                confirmPw.classList.add('is-invalid');
+                if (matchHint) {
+                    matchHint.textContent = '✗ Passwords do not match';
+                    matchHint.classList.add('error');
+                    matchHint.classList.remove('success');
+                }
+                form.classList.add('shake');
+                setTimeout(() => form.classList.remove('shake'), 400);
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

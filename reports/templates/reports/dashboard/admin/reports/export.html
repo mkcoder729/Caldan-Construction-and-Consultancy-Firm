@@ -1,0 +1,793 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}Export Center - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   EXPORT CENTER — PREMIUM ADMIN
+   ================================================================ */
+
+.report-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+.page-header {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.page-header-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+    z-index: 1;
+}
+
+.page-header-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.page-header-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-header-title i { color: var(--brand-gold); font-size: 22px; }
+.page-header-sub { font-size: 13px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+.page-header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.section-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.section-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.section-title i {
+    color: var(--brand-gold);
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.section-badge {
+    padding: 4px 12px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold-deep);
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.section-body { padding: 22px; }
+
+/* ---- Quick downloads grid ---- */
+.quick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+.quick-card {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    padding: 16px;
+    background: var(--bg-canvas);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all var(--t-fast) var(--ease-spring);
+}
+
+.quick-card:hover {
+    border-color: var(--brand-gold);
+    background: rgba(212, 175, 55, 0.04);
+    transform: translateY(-2px);
+}
+
+.quick-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quick-card-head i {
+    width: 32px; height: 32px;
+    border-radius: var(--r-sm);
+    background: rgba(212, 175, 55, 0.12);
+    color: var(--brand-gold-deep);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.quick-card-name { font-weight: 700; font-size: 13px; color: var(--text-primary); }
+.quick-card-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+
+.quick-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: auto;
+}
+
+.format-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 7px 10px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.format-btn:hover {
+    border-color: var(--brand-gold);
+    color: var(--brand-gold-deep);
+    background: rgba(212, 175, 55, 0.06);
+}
+
+.format-btn i { font-size: 11px; }
+
+/* ---- Custom export form ---- */
+.form-group { margin-bottom: 16px; }
+.form-group:last-child { margin-bottom: 0; }
+
+.form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.form-group label .req { color: var(--sem-danger); margin-left: 2px; }
+
+.form-control {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+}
+
+.form-hint { font-size: 11px; color: var(--text-tertiary); margin-top: 5px; display: block; }
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.date-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+/* Conditional groups — JS toggles the .is-hidden class */
+.form-group.is-hidden { display: none; }
+
+.checkbox-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.checkbox-pill:hover { border-color: var(--brand-gold); background: rgba(212, 175, 55, 0.04); }
+.checkbox-pill input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand-gold); cursor: pointer; }
+.checkbox-pill i { color: var(--brand-gold-deep); }
+
+/* Field + form errors */
+.field-error {
+    color: var(--sem-danger);
+    font-size: 12px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.field-error::before {
+    content: '\f06a';      /* fa-exclamation-circle */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 11px;
+}
+
+.form-errors {
+    background: rgba(185, 52, 43, 0.08);
+    border: 1px solid rgba(185, 52, 43, 0.2);
+    color: var(--sem-danger);
+    border-radius: var(--r-sm);
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.form-errors i { font-size: 16px; margin-top: 1px; }
+.form-errors ul { margin: 4px 0 0; padding-left: 18px; }
+
+/* ---- History table ---- */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: var(--bg-canvas);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.data-table td {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tbody tr { transition: background var(--t-fast) var(--ease-standard); }
+.data-table tbody tr:hover td { background: var(--bg-canvas); }
+
+.format-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 700;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.format-badge.csv   { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); border-color: rgba(39,174,96,0.2); }
+.format-badge.excel { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); border-color: rgba(11,102,195,0.2); }
+.format-badge.pdf   { background: rgba(185, 52, 43, 0.12); color: var(--sem-danger); border-color: rgba(185,52,43,0.2); }
+.format-badge.zip   { background: rgba(142, 68, 173, 0.12); color: #8E44AD; border-color: rgba(142,68,173,0.2); }
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.success { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); border: 1px solid rgba(39,174,96,0.2); }
+.status-badge.failed  { background: rgba(185, 52, 43, 0.12); color: var(--sem-danger);  border: 1px solid rgba(185,52,43,0.2); }
+
+.status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.action-group {
+    display: flex;
+    gap: 6px;
+}
+
+.action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-canvas);
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-standard);
+    text-decoration: none;
+}
+
+.action-btn:hover {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    border-color: var(--brand-gold);
+    transform: translateY(-1px);
+}
+
+.action-btn.danger:hover {
+    background: var(--sem-danger);
+    color: #fff;
+    border-color: var(--sem-danger);
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 60px 20px;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 12px;
+    color: var(--text-tertiary);
+    opacity: 0.3;
+}
+
+.empty-state h3 { color: var(--text-primary); font-size: 1.1rem; margin: 0 0 8px; font-weight: 700; }
+
+/* ---- Buttons ---- */
+.btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.2px;
+}
+
+.btn-primary {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+    position: relative;
+}
+
+.btn-primary:hover {
+    background: var(--brand-gold-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-primary:disabled,
+.btn-primary.is-loading {
+    opacity: 0.7;
+    cursor: wait;
+    transform: none;
+}
+
+.btn-ghost {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.btn .spinner {
+    display: none;
+    width: 12px;
+    height: 12px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-left: 4px;
+}
+
+.btn-primary.is-loading .spinner { display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.section-card { animation: fade-up 0.4s ease both; }
+.section-card:nth-child(2) { animation-delay: 0.05s; }
+.section-card:nth-child(3) { animation-delay: 0.10s; }
+.section-card:nth-child(4) { animation-delay: 0.15s; }
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .page-header { padding: 20px; }
+    .page-header-title { font-size: 18px; }
+    .page-header-icon { width: 44px; height: 44px; font-size: 18px; }
+    .form-row, .date-grid { grid-template-columns: 1fr; }
+    .section-body { padding: 18px; }
+    .quick-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .section-card { animation: none; }
+    .btn .spinner { animation: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="report-page">
+
+    <div class="page-header">
+        <div class="page-header-main">
+            <div class="page-header-icon"><i class="fas fa-file-export"></i></div>
+            <div>
+                <h1 class="page-header-title">Export Center</h1>
+                <p class="page-header-sub">Download reports in CSV, Excel, or PDF format</p>
+            </div>
+        </div>
+        <div class="page-header-actions">
+            <a href="#quickDownloads" class="btn btn-ghost">
+                <i class="fas fa-bolt"></i> Quick Downloads
+            </a>
+            <a href="{% url 'reports:export_history' %}" class="btn btn-ghost">
+                <i class="fas fa-clock-rotate-left"></i> Full History
+            </a>
+        </div>
+    </div>
+
+    {# ============================================================== #}
+    {# SECTION 1 — Quick downloads panel                              #}
+    {# ============================================================== #}
+    <div class="section-card" id="quickDownloads">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fas fa-bolt"></i> Quick Downloads</h2>
+            <span class="section-badge">{{ quick_types|length }} sections</span>
+        </div>
+        <div class="section-body">
+            <div class="quick-grid">
+                {% for t, label, icon, desc in quick_meta %}
+                    <div class="quick-card">
+                        <div class="quick-card-head">
+                            <i class="fas {{ icon }}"></i>
+                            <div>
+                                <div class="quick-card-name">{{ label }}</div>
+                            </div>
+                        </div>
+                        <div class="quick-card-desc">{{ desc }}</div>
+                        <div class="quick-actions">
+                            <a class="format-btn" href="{% url 'reports:export' %}?type={{ t }}&format=csv"
+                               title="Download {{ label }} as CSV">
+                                <i class="fas fa-file-csv"></i> CSV
+                            </a>
+                            <a class="format-btn" href="{% url 'reports:export' %}?type={{ t }}&format=excel"
+                               title="Download {{ label }} as Excel">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </a>
+                            <a class="format-btn" href="{% url 'reports:export' %}?type={{ t }}&format=pdf"
+                               title="Download {{ label }} as PDF">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {# ============================================================== #}
+    {# SECTION 2 — Custom export form                                 #}
+    {# ============================================================== #}
+    <div class="section-card">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fas fa-sliders"></i> Custom Export</h2>
+            <span class="section-badge">Filters &amp; options</span>
+        </div>
+        <div class="section-body">
+            <form method="post" action="{% url 'reports:export_download' %}" id="exportForm">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <div>
+                            <strong>Please correct the errors below.</strong>
+                            <ul>{% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}</ul>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_report_type">Report Type<span class="req">*</span></label>
+                        {{ form.report_type }}
+                        {% if form.report_type.errors %}<div class="field-error">{{ form.report_type.errors|join:" " }}</div>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_format">Export Format<span class="req">*</span></label>
+                        {{ form.format }}
+                        {% if form.format.errors %}<div class="field-error">{{ form.format.errors|join:" " }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group" id="projectFieldGroup">
+                    <label for="id_project">{{ form.project.label }}</label>
+                    {{ form.project }}
+                    {% if form.project.errors %}<div class="field-error">{{ form.project.errors|join:" " }}</div>{% endif %}
+                    <span class="form-hint">{{ form.project.help_text }}</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Date Range</label>
+                    <div class="date-grid">
+                        <div>
+                            {{ form.date_from }}
+                            <span class="form-hint">From</span>
+                            {% if form.date_from.errors %}<div class="field-error">{{ form.date_from.errors|join:" " }}</div>{% endif %}
+                        </div>
+                        <div>
+                            {{ form.date_to }}
+                            <span class="form-hint">To</span>
+                            {% if form.date_to.errors %}<div class="field-error">{{ form.date_to.errors|join:" " }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="includeArchivedGroup">
+                    <label class="checkbox-pill">
+                        {{ form.include_archived }}
+                        <i class="fas fa-box-archive"></i> Include Archived Projects
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="exportSubmit">
+                    <i class="fas fa-download"></i>
+                    <span class="label">Generate Export</span>
+                    <span class="spinner" aria-hidden="true"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {# ============================================================== #}
+    {# SECTION 3 — Recent exports (last 8)                            #}
+    {# ============================================================== #}
+    <div class="section-card">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fas fa-clock-rotate-left"></i> Recent Exports</h2>
+            <a href="{% url 'reports:export_history' %}" class="section-badge" style="text-decoration:none;">
+                View all <i class="fas fa-arrow-right" style="font-size:9px;margin-left:4px;"></i>
+            </a>
+        </div>
+        <div class="section-body" style="padding: 0;">
+            {% if recent_exports %}
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Report</th>
+                            <th>Format</th>
+                            <th>Status</th>
+                            <th>By</th>
+                            <th>Size</th>
+                            <th>Date</th>
+                            <th style="text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for export in recent_exports %}
+                            <tr>
+                                <td style="font-weight: 600;">{{ export.report_label }}</td>
+                                <td><span class="format-badge {{ export.format }}">{{ export.format }}</span></td>
+                                <td>
+                                    <span class="status-badge {{ export.status }}">
+                                        <span class="status-dot"></span>
+                                        {{ export.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ export.created_by.get_full_name|default:export.created_by.email|default:"System" }}</td>
+                                <td style="font-size:12px;color:var(--text-secondary);">{{ export.file_size_display }}</td>
+                                <td style="font-size: 12px;">{{ export.created_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    <div class="action-group" style="justify-content:flex-end;">
+                                        {% if export.is_success %}
+                                            <a href="{{ export.download_url }}"
+                                               class="action-btn" title="Re-download">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                        {% endif %}
+                                        <form method="post" action="{% url 'reports:export_history_delete' export.id %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="action-btn danger" title="Remove from history"
+                                                    onclick="return confirm('Remove this entry from export history?');">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No exports yet</h3>
+                    <p>Use Quick Downloads or the Custom Export form above to generate your first file.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict';
+
+    // ---------------------------------------------------------------
+    // Conditional field groups — show project picker only for
+    // "Single Project Report"; show "include archived" only for
+    // project-related exports.
+    // ---------------------------------------------------------------
+    var reportTypeSelect = document.getElementById('id_report_type');
+    var projectGroup     = document.getElementById('projectFieldGroup');
+    var includeArchived  = document.getElementById('includeArchivedGroup');
+
+    // Sets come from the form's REQUIRES_PROJECT / SUPPORTS_ARCHIVED
+    // class attrs — kept in sync via the [supports archived] filter
+    // exposed on the form class.
+    var REQUIRES_PROJECT  = {{ requires_project_js|safe }};
+    var SUPPORTS_ARCHIVED = {{ supports_archived_js|safe }};
+
+    function syncConditionalFields() {
+        if (!reportTypeSelect) return;
+        var v = reportTypeSelect.value;
+        toggleGroup(projectGroup,    REQUIRES_PROJECT.indexOf(v)  !== -1);
+        toggleGroup(includeArchived, SUPPORTS_ARCHIVED.indexOf(v) !== -1);
+    }
+
+    function toggleGroup(el, show) {
+        if (!el) return;
+        el.classList.toggle('is-hidden', !show);
+    }
+
+    if (reportTypeSelect) {
+        reportTypeSelect.addEventListener('change', syncConditionalFields);
+        syncConditionalFields();  // run once on first paint
+    }
+
+    // ---------------------------------------------------------------
+    // Loading state — disable submit + show spinner while Django
+    // generates the file (PDFs in particular take a few seconds).
+    // ---------------------------------------------------------------
+    var form    = document.getElementById('exportForm');
+    var submit  = document.getElementById('exportSubmit');
+    if (form && submit) {
+        form.addEventListener('submit', function () {
+            submit.classList.add('is-loading');
+            submit.disabled = true;
+        });
+    }
+})();
+</script>
+{% endblock %}

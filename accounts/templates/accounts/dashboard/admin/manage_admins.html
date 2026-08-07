@@ -1,0 +1,1470 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}Manage Admins - Caldan{% endblock %}
+
+{% block extra_css %}
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<style>
+/* =====================================================================
+   MANAGE ADMINS — Admin Command Center.
+
+   Distinct from the invite page (which is a focused wizard): this
+   page is the operational dashboard. Slate + sapphire + brushed gold
+   with a card-grid directory instead of a table.
+
+   Layout:
+     • Aurora hero with live counters
+     • Command bar (search + filter + primary CTA)
+     • KPI strip (count-up)
+     • Pending invitations outbox
+     • Admin directory (cards)
+   ===================================================================== */
+
+.admin-page {
+    --ad-navy: #061327;
+    --ad-navy-mid: #0B2540;
+    --ad-blue: #0B66C3;
+    --ad-blue-deep: #10355E;
+    --ad-gold: #D4AF37;
+    --ad-gold-deep: #B08C28;
+    --ad-radius-lg: 22px;
+    --ad-radius-md: 14px;
+    --ad-radius-sm: 10px;
+
+    max-width: 1440px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding-bottom: 64px;
+    animation: ad-rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes ad-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =====================================================================
+   AURORA HERO
+   ===================================================================== */
+.ad-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--ad-radius-lg);
+    color: #fff;
+    padding: 38px 44px;
+    background:
+        radial-gradient(900px 280px at 0% 0%, rgba(212, 175, 55, 0.22), transparent 60%),
+        radial-gradient(700px 240px at 100% 100%, rgba(11, 102, 195, 0.38), transparent 65%),
+        linear-gradient(135deg, var(--ad-navy) 0%, var(--ad-blue-deep) 60%, var(--ad-navy-mid) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.30);
+    box-shadow: 0 30px 60px -16px rgba(6, 19, 39, 0.55),
+                0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}
+/* Slow aurora ribbon */
+.ad-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 38px 38px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 30%, transparent 80%);
+    pointer-events: none;
+    opacity: 0.55;
+}
+.ad-hero::after {
+    content: '';
+    position: absolute;
+    top: -160px; right: -200px;
+    width: 580px; height: 580px;
+    background: conic-gradient(from 200deg at 50% 50%,
+        rgba(212, 175, 55, 0.28) 0deg,
+        rgba(11, 102, 195, 0.22) 120deg,
+        rgba(212, 175, 55, 0.28) 240deg,
+        rgba(11, 102, 195, 0.22) 360deg);
+    border-radius: 50%;
+    filter: blur(50px);
+    opacity: 0.5;
+    pointer-events: none;
+    animation: ad-ribbon 24s linear infinite;
+}
+@keyframes ad-ribbon {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+.ad-hero-row {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+.ad-hero-icon {
+    width: 76px; height: 76px;
+    border-radius: 20px;
+    background: rgba(212, 175, 55, 0.20);
+    border: 1.5px solid rgba(212, 175, 55, 0.40);
+    color: var(--ad-gold);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 30px;
+    flex-shrink: 0;
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.28);
+    backdrop-filter: blur(10px);
+}
+.ad-hero-info { flex: 1; min-width: 240px; }
+.ad-hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--ad-gold);
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    margin: 0 0 10px;
+    padding: 5px 12px;
+    border: 1px solid rgba(212, 175, 55, 0.32);
+    border-radius: 999px;
+    background: rgba(212, 175, 55, 0.06);
+}
+.ad-hero-eyebrow i { font-size: 9px; }
+.ad-hero-title {
+    margin: 0 0 8px;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    line-height: 1.1;
+    color: #fff;
+}
+.ad-hero-title .accent {
+    background: linear-gradient(135deg, #FFE082 0%, var(--ad-gold) 50%, var(--ad-gold-deep) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.ad-hero-sub {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 14px;
+    line-height: 1.55;
+    max-width: 60ch;
+}
+.ad-hero-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 6px 14px;
+    background: rgba(212, 175, 55, 0.14);
+    border: 1px solid rgba(212, 175, 55, 0.32);
+    border-radius: 999px;
+    color: var(--ad-gold);
+    font-size: 12px;
+    font-weight: 700;
+}
+.ad-hero-meta i { font-size: 11px; }
+.ad-hero-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; flex-shrink: 0; }
+
+/* Buttons */
+.ad-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    height: 46px;
+    padding: 0 22px;
+    border: none;
+    border-radius: var(--ad-radius-md);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 180ms ease,
+                background 180ms ease,
+                border-color 180ms ease,
+                color 180ms ease;
+    text-decoration: none;
+    font-family: inherit;
+}
+.ad-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ad-btn-primary {
+    background: linear-gradient(135deg, #F5D675 0%, var(--ad-gold) 50%, var(--ad-gold-deep) 100%);
+    color: var(--ad-navy);
+    box-shadow: 0 8px 22px -6px rgba(212, 175, 55, 0.55),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+.ad-btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+    transition: left 600ms ease;
+}
+.ad-btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px -6px rgba(212, 175, 55, 0.65),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.ad-btn-primary:hover:not(:disabled)::after { left: 100%; }
+.ad-btn-ghost {
+    background: rgba(255, 255, 255, 0.10);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    backdrop-filter: blur(10px);
+}
+.ad-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.20);
+    border-color: rgba(255, 255, 255, 0.36);
+    transform: translateY(-1px);
+}
+.ad-btn i { font-size: 13px; }
+
+/* =====================================================================
+   COMMAND BAR
+   ===================================================================== */
+.ad-command {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--ad-radius-lg);
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) auto auto;
+    gap: 14px;
+    align-items: center;
+    box-shadow: 0 14px 38px -18px rgba(11, 37, 64, 0.16),
+                0 1px 3px rgba(11, 37, 64, 0.04);
+}
+@media (max-width: 880px) {
+    .ad-command { grid-template-columns: minmax(0, 1fr); }
+}
+
+.ad-search {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border-subtle);
+    border-radius: var(--ad-radius-md);
+    background: var(--bg-canvas);
+    font-size: 13px;
+    color: var(--text-secondary);
+    transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    min-width: 0;
+}
+.ad-search:focus-within {
+    border-color: var(--ad-gold);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.16);
+}
+.ad-search i.lead { color: var(--text-tertiary); font-size: 14px; }
+.ad-search input {
+    border: none; background: transparent; outline: none;
+    font: inherit; color: var(--text-primary); flex: 1; min-width: 0;
+    padding: 0;
+}
+.ad-search input::placeholder { color: var(--text-tertiary); }
+.ad-search .kbd {
+    font-family: 'SF Mono', ui-monospace, monospace;
+    font-size: 10.5px;
+    padding: 2px 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    color: var(--text-tertiary);
+}
+
+.ad-filters {
+    display: inline-flex;
+    background: var(--bg-canvas);
+    border: 1.5px solid var(--border-subtle);
+    border-radius: var(--ad-radius-md);
+    padding: 4px;
+    gap: 2px;
+    flex-wrap: wrap;
+}
+.ad-filter {
+    border: none;
+    background: transparent;
+    padding: 8px 14px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 160ms ease, color 160ms ease;
+}
+.ad-filter:hover { background: var(--bg-card); color: var(--text-primary); }
+.ad-filter[aria-pressed="true"] {
+    background: linear-gradient(135deg, var(--ad-gold) 0%, var(--ad-gold-deep) 100%);
+    color: var(--ad-navy);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.30);
+}
+.ad-filter .count {
+    font-size: 10.5px;
+    background: rgba(11, 102, 195, 0.10);
+    color: var(--text-secondary);
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-weight: 700;
+}
+.ad-filter[aria-pressed="true"] .count {
+    background: rgba(11, 23, 42, 0.18);
+    color: var(--ad-navy);
+}
+
+/* =====================================================================
+   KPI STRIP
+   ===================================================================== */
+.ad-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+@media (max-width: 1100px) { .ad-kpis { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .ad-kpis { grid-template-columns: 1fr; } }
+
+.ad-kpi {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--ad-radius-md);
+    padding: 18px 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px -12px rgba(11, 37, 64, 0.12),
+                0 1px 3px rgba(11, 37, 64, 0.04);
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 200ms ease,
+                border-color 200ms ease;
+}
+.ad-kpi:hover { transform: translateY(-3px); box-shadow: 0 18px 36px -14px rgba(11, 37, 64, 0.18); }
+.ad-kpi::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--kpi-accent, transparent);
+}
+.ad-kpi.blue   { --kpi-accent: var(--ad-blue); }
+.ad-kpi.gold   { --kpi-accent: var(--ad-gold); }
+.ad-kpi.green  { --kpi-accent: #27AE60; }
+.ad-kpi.orange { --kpi-accent: #F39C12; }
+
+.ad-kpi-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+}
+.ad-kpi-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ad-kpi:hover .ad-kpi-icon { transform: scale(1.06) rotate(-4deg); }
+.ad-kpi-icon.blue   { background: rgba(11, 102, 195, 0.12); color: var(--ad-blue); }
+.ad-kpi-icon.gold   { background: rgba(212, 175, 55, 0.16); color: var(--ad-gold-deep); }
+.ad-kpi-icon.green  { background: rgba(39, 174, 96, 0.12); color: #1E8449; }
+.ad-kpi-icon.orange { background: rgba(243, 156, 18, 0.14); color: #B9750F; }
+.ad-kpi-body { flex: 1; min-width: 0; }
+.ad-kpi-value {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    line-height: 1.05;
+    color: var(--text-primary);
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+.ad-kpi-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-top: 4px;
+}
+
+/* =====================================================================
+   SECTION CARDS
+   ===================================================================== */
+.ad-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--ad-radius-lg);
+    overflow: hidden;
+    box-shadow: 0 14px 38px -18px rgba(11, 37, 64, 0.14),
+                0 1px 3px rgba(11, 37, 64, 0.04);
+}
+.ad-card-head {
+    padding: 20px 26px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-canvas) 100%);
+}
+.ad-card-head-left { display: flex; align-items: center; gap: 12px; }
+.ad-card-head i.icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(212, 175, 55, 0.12);
+    color: var(--ad-gold-deep);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    border: 1px solid rgba(212, 175, 55, 0.18);
+}
+.ad-card-head h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.ad-card-head .count {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 700;
+    padding: 4px 10px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+}
+
+/* =====================================================================
+   OUTBOX — Pending invitations as horizontal cards
+   ===================================================================== */
+.ad-outbox-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+    padding: 20px 26px;
+}
+.ad-outbox-item {
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--ad-radius-md);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 180ms ease, background 180ms ease, transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+.ad-outbox-item:hover { border-color: rgba(212, 175, 55, 0.40); transform: translateY(-2px); }
+.ad-outbox-item::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--ad-gold) 0%, var(--ad-blue) 100%);
+    opacity: 0;
+    transition: opacity 180ms ease;
+}
+.ad-outbox-item:hover::before { opacity: 1; }
+.ad-outbox-row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.ad-outbox-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(11, 102, 195, 0.16) 0%, rgba(212, 175, 55, 0.16) 100%);
+    color: var(--ad-blue);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+.ad-outbox-info { flex: 1; min-width: 0; }
+.ad-outbox-email {
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13.5px;
+}
+.ad-outbox-meta {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.ad-outbox-meta i { color: var(--ad-gold); font-size: 10px; }
+.ad-outbox-meta .countdown {
+    font-weight: 700;
+    color: var(--ad-gold-deep);
+}
+.ad-outbox-channels { display: inline-flex; gap: 6px; }
+.ad-channel-pill {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex; align-items: center; gap: 4px;
+}
+.ad-channel-pill.email { background: rgba(11, 102, 195, 0.10); color: var(--ad-blue); border: 1px solid rgba(11, 102, 195, 0.2); }
+.ad-channel-pill.sms   { background: rgba(212, 175, 55, 0.12); color: var(--ad-gold-deep); border: 1px solid rgba(212, 175, 55, 0.24); }
+.ad-channel-pill.pending { background: var(--bg-card); color: var(--text-tertiary); border: 1px solid var(--border-subtle); }
+.ad-channel-pill i { font-size: 9px; }
+
+.ad-outbox-actions { display: flex; gap: 8px; padding-top: 8px; border-top: 1px dashed var(--border-subtle); }
+.ad-outbox-actions .ad-mini-btn {
+    flex: 1;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+.ad-outbox-actions .ad-mini-btn:hover:not(:disabled) {
+    background: var(--ad-blue); color: #fff; border-color: var(--ad-blue);
+}
+.ad-outbox-actions .ad-mini-btn:disabled,
+.ad-outbox-actions .ad-mini-btn[disabled] {
+    opacity: 0.4; cursor: not-allowed;
+}
+.ad-outbox-actions .ad-mini-btn i { font-size: 10px; }
+
+/* =====================================================================
+   DIRECTORY — Admin cards (3-col grid)
+   ===================================================================== */
+.ad-directory {
+    padding: 22px 26px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+.ad-person {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--ad-radius-md);
+    overflow: hidden;
+    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 220ms ease,
+                border-color 220ms ease;
+    box-shadow: 0 6px 20px -10px rgba(11, 37, 64, 0.12);
+}
+.ad-person:hover {
+    transform: translateY(-3px);
+    border-color: rgba(212, 175, 55, 0.40);
+    box-shadow: 0 20px 40px -16px rgba(11, 37, 64, 0.22);
+}
+.ad-person-banner {
+    height: 64px;
+    background: linear-gradient(135deg, var(--ad-navy) 0%, var(--ad-blue-deep) 100%);
+    position: relative;
+    overflow: hidden;
+}
+.ad-person-banner::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 140px; height: 140px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.30) 0%, transparent 65%);
+}
+.ad-person[data-role="chief"] .ad-person-banner {
+    background: linear-gradient(135deg, #1F1611 0%, #4A2F0F 60%, #6B4516 100%);
+}
+.ad-person[data-role="chief"] .ad-person-banner::before {
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.45) 0%, transparent 65%);
+}
+.ad-person-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 100% 14px;
+    opacity: 0.6;
+    pointer-events: none;
+}
+.ad-person-avatar-wrap {
+    position: absolute;
+    top: 28px;
+    left: 18px;
+    z-index: 2;
+}
+.ad-person-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ad-blue) 0%, var(--ad-gold) 100%);
+    color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 18px;
+    border: 3px solid var(--bg-card);
+    box-shadow: 0 6px 18px rgba(11, 37, 64, 0.20);
+}
+.ad-person[data-role="chief"] .ad-person-avatar {
+    background: linear-gradient(135deg, var(--ad-gold) 0%, var(--ad-gold-deep) 100%);
+    color: var(--ad-navy);
+}
+.ad-person-body {
+    padding: 36px 18px 14px;
+}
+.ad-person-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text-primary);
+    line-height: 1.25;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.ad-person-self {
+    font-size: 9px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--ad-blue) 0%, var(--ad-blue-deep) 100%);
+    color: #fff;
+    padding: 3px 7px;
+    border-radius: 6px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+.ad-person-handle {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    margin-top: 3px;
+}
+.ad-person-email {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: var(--bg-canvas);
+    border-radius: 8px;
+    font-family: 'SF Mono', ui-monospace, monospace;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.ad-person-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 14px;
+}
+.ad-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    line-height: 1;
+}
+.ad-pill.chief    { background: rgba(212, 175, 55, 0.15); color: var(--ad-gold-deep); border: 1px solid rgba(212, 175, 55, 0.32); }
+.ad-pill.admin    { background: rgba(11, 102, 195, 0.12); color: var(--ad-blue); border: 1px solid rgba(11, 102, 195, 0.30); }
+.ad-pill.active   { background: rgba(39, 174, 96, 0.12); color: #1E8449; border: 1px solid rgba(39, 174, 96, 0.30); }
+.ad-pill.locked   { background: rgba(231, 76, 60, 0.12); color: #C0392B; border: 1px solid rgba(231, 76, 60, 0.30); }
+.ad-pill.inactive { background: rgba(243, 156, 18, 0.12); color: #B9750F; border: 1px solid rgba(243, 156, 18, 0.30); }
+.ad-pill i { font-size: 9px; }
+
+.ad-person-foot {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--bg-canvas);
+}
+.ad-person-meta {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    line-height: 1.3;
+    min-width: 0;
+}
+.ad-person-meta strong {
+    display: block;
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 12px;
+}
+.ad-person-actions {
+    display: inline-flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.ad-icon-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none;
+}
+.ad-icon-btn:hover {
+    background: var(--ad-blue); color: #fff; border-color: var(--ad-blue);
+    transform: translateY(-1px);
+}
+.ad-icon-btn.gold:hover     { background: var(--ad-gold); color: var(--ad-navy); border-color: var(--ad-gold); }
+.ad-icon-btn.lock:hover     { background: #F39C12; color: #fff; border-color: #F39C12; }
+.ad-icon-btn.unlock:hover   { background: #27AE60; color: #fff; border-color: #27AE60; }
+.ad-icon-btn.danger:hover   { background: #DC2626; color: #fff; border-color: #DC2626; }
+
+/* Empty state */
+.ad-empty {
+    padding: 60px 24px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+.ad-empty-icon {
+    width: 80px; height: 80px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.10) 0%, rgba(11, 102, 195, 0.10) 100%);
+    border: 1px dashed rgba(212, 175, 55, 0.30);
+    color: var(--ad-gold-deep);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 30px;
+}
+.ad-empty h4 { margin: 0 0 6px; font-size: 17px; color: var(--text-primary); font-weight: 800; }
+.ad-empty p  { margin: 0 0 18px; font-size: 13px; }
+
+/* Pagination */
+.ad-pagination {
+    padding: 16px 26px;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+    background: var(--bg-canvas);
+}
+.ad-pagination-info {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+.ad-pagination-info strong { color: var(--text-primary); }
+.ad-pagination-controls { display: flex; gap: 6px; }
+
+/* Empty result of filter/search */
+.ad-filtered-empty {
+    padding: 48px 24px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+.ad-filtered-empty i {
+    display: block;
+    font-size: 32px;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-page, .ad-kpi, .ad-person, .ad-outbox-item, .ad-hero::after { animation: none !important; transition: none !important; }
+}
+@media (max-width: 720px) {
+    .ad-hero { padding: 26px 24px; }
+    .ad-hero-title { font-size: 24px; }
+    .ad-hero-icon { width: 60px; height: 60px; font-size: 24px; }
+    .ad-directory { padding: 16px; grid-template-columns: 1fr; }
+    .ad-outbox-list { grid-template-columns: 1fr; padding: 16px; }
+    .ad-card-head { padding: 16px 18px; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="admin-page" data-no-scroll-memory>
+
+    {# ========================== HERO ========================== #}
+    <div class="ad-hero">
+        <div class="ad-hero-row">
+            <div class="ad-hero-icon" aria-hidden="true">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <div class="ad-hero-info">
+                <div class="ad-hero-eyebrow">
+                    <i class="fas fa-sparkles"></i>
+                    Admin command center
+                </div>
+                <h1 class="ad-hero-title">Manage <span class="accent">admins</span></h1>
+                <p class="ad-hero-sub">
+                    Invite, lock, unlock, edit permissions, and delete platform administrators.
+                    Everything you need to govern the team — in one place.
+                </p>
+                {% if pending_invitations %}
+                    <div class="ad-hero-meta">
+                        <i class="fas fa-paper-plane"></i>
+                        {{ pending_invitations|length }} pending invitation{{ pending_invitations|length|pluralize }} awaiting acceptance
+                    </div>
+                {% endif %}
+            </div>
+            <div class="ad-hero-actions">
+                {% if can_invite %}
+                    <a href="{% url 'accounts:admin_invite' %}" class="ad-btn ad-btn-primary">
+                        <i class="fas fa-user-plus"></i> Invite Admin
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# ========================== COMMAND BAR ========================== #}
+    <div class="ad-command">
+        <div class="ad-search">
+            <i class="fas fa-magnifying-glass lead"></i>
+            <input type="search" id="adSearchInput" placeholder="Search admins by name, email, or handle…" aria-label="Search admins">
+            <span class="kbd">⌘K</span>
+        </div>
+        <div class="ad-filters" role="tablist" aria-label="Filter admins">
+            <button class="ad-filter" data-filter="all"      aria-pressed="true"  role="tab">
+                All <span class="count">{{ stats.total|default:0 }}</span>
+            </button>
+            <button class="ad-filter" data-filter="chief"    aria-pressed="false" role="tab">
+                <i class="fas fa-crown"></i> Chiefs <span class="count">{{ stats.chief|default:0 }}</span>
+            </button>
+            <button class="ad-filter" data-filter="admin"    aria-pressed="false" role="tab">
+                <i class="fas fa-shield"></i> Admins <span class="count">{{ stats.admin|default:0 }}</span>
+            </button>
+            <button class="ad-filter" data-filter="locked"   aria-pressed="false" role="tab">
+                <i class="fas fa-lock"></i> Locked <span class="count">{{ stats.locked|default:0 }}</span>
+            </button>
+        </div>
+        <a href="{% url 'accounts:admin_invite' %}" class="ad-btn ad-btn-primary" aria-label="Invite a new admin">
+            <i class="fas fa-user-plus"></i> Invite
+        </a>
+    </div>
+
+    {# ========================== KPI STRIP ========================== #}
+    <div class="ad-kpis">
+        <div class="ad-kpi blue">
+            <div class="ad-kpi-row">
+                <div class="ad-kpi-icon blue" aria-hidden="true"><i class="fas fa-users"></i></div>
+                <div class="ad-kpi-body">
+                    <div class="ad-kpi-value" data-countup="{{ stats.total|default:0 }}">0</div>
+                    <div class="ad-kpi-label">Total admins</div>
+                </div>
+            </div>
+        </div>
+        <div class="ad-kpi gold">
+            <div class="ad-kpi-row">
+                <div class="ad-kpi-icon gold" aria-hidden="true"><i class="fas fa-crown"></i></div>
+                <div class="ad-kpi-body">
+                    <div class="ad-kpi-value" data-countup="{{ stats.chief|default:0 }}">0</div>
+                    <div class="ad-kpi-label">Chief admins</div>
+                </div>
+            </div>
+        </div>
+        <div class="ad-kpi green">
+            <div class="ad-kpi-row">
+                <div class="ad-kpi-icon green" aria-hidden="true"><i class="fas fa-check-circle"></i></div>
+                <div class="ad-kpi-body">
+                    <div class="ad-kpi-value" data-countup="{{ stats.active|default:0 }}">0</div>
+                    <div class="ad-kpi-label">Active</div>
+                </div>
+            </div>
+        </div>
+        <div class="ad-kpi orange">
+            <div class="ad-kpi-row">
+                <div class="ad-kpi-icon orange" aria-hidden="true"><i class="fas fa-lock"></i></div>
+                <div class="ad-kpi-body">
+                    <div class="ad-kpi-value" data-countup="{{ stats.locked|default:0 }}">0</div>
+                    <div class="ad-kpi-label">Locked</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ========================== OUTBOX ========================== #}
+    {% if pending_invitations %}
+        <div class="ad-card">
+            <div class="ad-card-head">
+                <div class="ad-card-head-left">
+                    <i class="fas fa-paper-plane icon"></i>
+                    <h3>Outbox · pending invitations</h3>
+                </div>
+                <span class="count">{{ pending_invitations|length }} pending</span>
+            </div>
+            <ul class="ad-outbox-list">
+                {% for invitation in pending_invitations %}
+                    <li class="ad-outbox-item" data-invitation-id="{{ invitation.id }}">
+                        <div class="ad-outbox-row">
+                            <span class="ad-outbox-avatar">{{ invitation.email|slice:":1"|upper }}</span>
+                            <div class="ad-outbox-info">
+                                <div class="ad-outbox-email">{{ invitation.email }}</div>
+                                <div class="ad-outbox-meta">
+                                    <i class="fas fa-paper-plane"></i>
+                                    Sent {{ invitation.created_at|timesince }} ago
+                                    &middot;
+                                    <span class="countdown">
+                                        <i class="fas fa-hourglass-half"></i>
+                                        expires {{ invitation.expires_at|timeuntil }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="ad-outbox-channels">
+                                {% if invitation.email_sent_at %}
+                                    <span class="ad-channel-pill email" title="Email sent"><i class="fas fa-envelope"></i></span>
+                                {% endif %}
+                                {% if invitation.sms_sent_at %}
+                                    <span class="ad-channel-pill sms" title="SMS sent"><i class="fas fa-mobile-screen"></i></span>
+                                {% endif %}
+                                {% if not invitation.email_sent_at and not invitation.sms_sent_at %}
+                                    <span class="ad-channel-pill pending" title="Awaiting delivery"><i class="fas fa-hourglass-half"></i></span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if can_invite %}
+                            <div class="ad-outbox-actions">
+                                <button type="button"
+                                        class="ad-mini-btn resend-btn"
+                                        data-channel="email"
+                                        data-invitation-id="{{ invitation.id }}"
+                                        data-email="{{ invitation.email }}"
+                                        aria-label="Resend email to {{ invitation.email }}">
+                                    <i class="fas fa-envelope"></i> Resend email
+                                </button>
+                                <button type="button"
+                                        class="ad-mini-btn resend-btn {% if not invitation.phone %}is-disabled{% endif %}"
+                                        data-channel="sms"
+                                        data-invitation-id="{{ invitation.id }}"
+                                        data-has-phone="{% if invitation.phone %}1{% else %}0{% endif %}"
+                                        {% if not invitation.phone %}disabled{% endif %}
+                                        aria-label="Resend SMS to {{ invitation.email }}">
+                                    <i class="fas fa-mobile-screen"></i> Resend SMS
+                                </button>
+                            </div>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {# ========================== DIRECTORY ========================== #}
+    <div class="ad-card">
+        <div class="ad-card-head">
+            <div class="ad-card-head-left">
+                <i class="fas fa-users icon"></i>
+                <h3>Admin directory</h3>
+            </div>
+            <span class="count" id="adDirectoryCount">{{ admins.paginator.count|default:0 }} total</span>
+        </div>
+
+        {% if admins %}
+            <div class="ad-directory" id="adDirectory">
+                {% for admin in admins %}
+                    <article class="ad-person"
+                             data-admin-id="{{ admin.id }}"
+                             data-admin-name="{{ admin.full_name|escapejs }}"
+                             data-admin-email="{{ admin.email|escapejs }}"
+                             data-admin-locked="{% if admin.is_currently_locked %}1{% else %}0{% endif %}"
+                             data-role="{% if admin.is_chief %}chief{% else %}admin{% endif %}">
+                        <div class="ad-person-banner"></div>
+                        <div class="ad-person-avatar-wrap">
+                            <div class="ad-person-avatar">
+                                {{ admin.full_name|slice:":1"|upper|default:"A" }}
+                            </div>
+                        </div>
+                        <div class="ad-person-body">
+                            <div class="ad-person-name">
+                                {{ admin.full_name }}
+                                {% if admin.id == request.user.id %}<span class="ad-person-self">YOU</span>{% endif %}
+                            </div>
+                            {% if admin.username %}
+                                <div class="ad-person-handle">@{{ admin.username }}</div>
+                            {% endif %}
+                            <div class="ad-person-email" title="{{ admin.email }}">{{ admin.email }}</div>
+
+                            <div class="ad-person-pills">
+                                {% if admin.is_chief %}
+                                    <span class="ad-pill chief"><i class="fas fa-crown"></i> Chief</span>
+                                {% else %}
+                                    <span class="ad-pill admin"><i class="fas fa-shield-alt"></i> Admin</span>
+                                {% endif %}
+                                {% if admin.is_currently_locked %}
+                                    <span class="ad-pill locked"><i class="fas fa-lock"></i> Locked</span>
+                                {% elif admin.is_active %}
+                                    <span class="ad-pill active"><i class="fas fa-check-circle"></i> Active</span>
+                                {% else %}
+                                    <span class="ad-pill inactive"><i class="fas fa-pause-circle"></i> Inactive</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="ad-person-foot">
+                            <div class="ad-person-meta">
+                                <strong>{{ admin.date_joined|date:"M d, Y"|default:'—' }}</strong>
+                                <span>Joined {{ admin.date_joined|timesince|default:'' }} ago</span>
+                            </div>
+                            <div class="ad-person-actions">
+                                <a href="{% url 'accounts:admin_edit' admin.id %}"
+                                   class="ad-icon-btn"
+                                   title="Edit admin"
+                                   aria-label="Edit {{ admin.full_name }}">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <a href="{% url 'accounts:admin_detail' admin.id %}"
+                                   class="ad-icon-btn"
+                                   title="View details"
+                                   aria-label="View {{ admin.full_name }}">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if can_edit_permissions and not admin.is_chief %}
+                                    <button type="button"
+                                            class="ad-icon-btn gold"
+                                            title="Edit permissions"
+                                            aria-label="Edit permissions for {{ admin.full_name }}"
+                                            onclick="editPermissions({{ admin.id }}, '{{ admin.full_name|escapejs }}')">
+                                        <i class="fas fa-user-cog"></i>
+                                    </button>
+                                {% endif %}
+                                {% if can_lock and not admin.is_chief and admin.id != request.user.id %}
+                                    {% if admin.is_currently_locked %}
+                                        <button type="button"
+                                                class="ad-icon-btn unlock"
+                                                title="Unlock"
+                                                aria-label="Unlock {{ admin.full_name }}"
+                                                onclick="unlockAdmin({{ admin.id }}, '{{ admin.full_name|escapejs }}')">
+                                            <i class="fas fa-unlock"></i>
+                                        </button>
+                                    {% else %}
+                                        <button type="button"
+                                                class="ad-icon-btn lock"
+                                                title="Lock for 24 hours"
+                                                aria-label="Lock {{ admin.full_name }}"
+                                                onclick="lockAdmin({{ admin.id }}, '{{ admin.full_name|escapejs }}')">
+                                            <i class="fas fa-lock"></i>
+                                        </button>
+                                    {% endif %}
+                                {% endif %}
+                                {% if can_delete and not admin.is_chief and admin.id != request.user.id %}
+                                    <button type="button"
+                                            class="ad-icon-btn danger"
+                                            title="Delete"
+                                            aria-label="Delete {{ admin.full_name }}"
+                                            onclick="deleteAdmin({{ admin.id }}, '{{ admin.full_name|escapejs }}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+
+            <div class="ad-filtered-empty" id="adFilteredEmpty" hidden>
+                <i class="fas fa-search"></i>
+                No admins match your search or filter.
+            </div>
+
+            {# Pagination #}
+            {% if admins.has_other_pages %}
+                <div class="ad-pagination">
+                    <div class="ad-pagination-info">
+                        Page <strong>{{ admins.number }}</strong> of <strong>{{ admins.paginator.num_pages }}</strong>
+                        &middot; {{ admins.paginator.count }} total admins
+                    </div>
+                    <div class="ad-pagination-controls">
+                        {% if admins.has_previous %}
+                            <a href="?page={{ admins.previous_page_number }}" class="ad-icon-btn" title="Previous page">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        {% endif %}
+                        {% if admins.has_next %}
+                            <a href="?page={{ admins.next_page_number }}" class="ad-icon-btn" title="Next page">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="ad-empty">
+                <div class="ad-empty-icon"><i class="fas fa-users"></i></div>
+                <h4>No admins yet</h4>
+                <p>Invite your first platform admin to get started.</p>
+                {% if can_invite %}
+                    <a href="{% url 'accounts:admin_invite' %}" class="ad-btn ad-btn-primary">
+                        <i class="fas fa-user-plus"></i> Invite Admin
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    // ===================================================================
+    // KPI count-up animation
+    // ===================================================================
+    function animateCountUp() {
+        var els = document.querySelectorAll('[data-countup]');
+        if (!els.length) return;
+        if (window.caldan && window.caldan.prefersReducedMotion && window.caldan.prefersReducedMotion()) {
+            els.forEach(function(el) { el.textContent = el.getAttribute('data-countup'); });
+            return;
+        }
+        els.forEach(function(el) {
+            var target = parseInt(el.getAttribute('data-countup'), 10) || 0;
+            var duration = 700;
+            var start = performance.now();
+            function tick(now) {
+                var t = Math.min(1, (now - start) / duration);
+                // Ease-out cubic
+                var eased = 1 - Math.pow(1 - t, 3);
+                var value = Math.round(target * eased);
+                el.textContent = value.toLocaleString();
+                if (t < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        });
+    }
+
+    // ===================================================================
+    // Search + filter (client-side, immediate)
+    // ===================================================================
+    function initSearchAndFilter() {
+        var searchInput = document.getElementById('adSearchInput');
+        var filterBtns  = document.querySelectorAll('.ad-filter');
+        var directory   = document.getElementById('adDirectory');
+        var empty       = document.getElementById('adFilteredEmpty');
+        var countEl     = document.getElementById('adDirectoryCount');
+        if (!directory) return;
+
+        var activeFilter = 'all';
+
+        // Cache a normalized snapshot of every card once so subsequent
+        // recomputes (counts + visibility) don't have to read attributes
+        // over and over. Mirror the server-side stats: every card has a
+        // role (chief|admin) and a locked flag, and they map to one of
+        // All / Chiefs / Admins / Locked buckets respectively.
+        var cardsData = [];
+        directory.querySelectorAll('.ad-person').forEach(function(card) {
+            cardsData.push({
+                el:     card,
+                name:   (card.getAttribute('data-admin-name')  || '').toLowerCase(),
+                email:  (card.getAttribute('data-admin-email') || '').toLowerCase(),
+                role:   card.getAttribute('data-role') || '',
+                locked: card.getAttribute('data-admin-locked') === '1'
+            });
+        });
+
+        // Lookup: data-filter value → KPI data-countup selector
+        var kpiByFilter = {
+            all:    '.ad-kpis .ad-kpi.blue  .ad-kpi-value',
+            chief:  '.ad-kpis .ad-kpi.gold  .ad-kpi-value',
+            locked: '.ad-kpis .ad-kpi.orange .ad-kpi-value'
+        };
+
+        function matchesSearch(d, query) {
+            if (!query) return true;
+            return d.name.indexOf(query) !== -1 || d.email.indexOf(query) !== -1;
+        }
+
+        function matchesFilter(d, filter) {
+            if (filter === 'all')    return true;
+            if (filter === 'chief')  return d.role === 'chief';
+            if (filter === 'admin')  return d.role === 'admin';
+            if (filter === 'locked') return d.locked;
+            return true;
+        }
+
+        // Recompute every filter's *displayed* count given the current
+        // search query, then push those values into both the chip
+        // buttons and the KPI strip. This is what makes the filter UI
+        // feel "live" — searching immediately reshapes every other
+        // chip's count to reflect the intersection.
+        function recomputeCounts(query) {
+            var counts = { all: 0, chief: 0, admin: 0, locked: 0 };
+
+            cardsData.forEach(function(d) {
+                if (!matchesSearch(d, query)) return;
+                counts.all++;
+                if (d.role === 'chief') counts.chief++;
+                if (d.role === 'admin') counts.admin++;
+                if (d.locked)           counts.locked++;
+            });
+
+            // Update the chip badges (All / Chiefs / Admins / Locked)
+            filterBtns.forEach(function(btn) {
+                var key = btn.getAttribute('data-filter');
+                if (!key || !counts.hasOwnProperty(key)) return;
+                var span = btn.querySelector('.count');
+                if (span) span.textContent = counts[key];
+            });
+
+            // Update the matching KPI values; the "Active" KPI is left
+            // alone because it has no matching chip.
+            Object.keys(kpiByFilter).forEach(function(key) {
+                var sel = kpiByFilter[key];
+                var node = document.querySelector(sel);
+                if (!node) return;
+                var next = String(counts[key]);
+                node.textContent = next;
+                node.setAttribute('data-countup', next);
+            });
+        }
+
+        function applyFilters() {
+            var query = (searchInput && searchInput.value || '').trim().toLowerCase();
+            var visible = 0;
+
+            // Recompute chip/KPI counts BEFORE the visibility pass so
+            // the badges always reflect what each filter would show if
+            // selected right now.
+            recomputeCounts(query);
+
+            cardsData.forEach(function(d) {
+                var matchSearch = matchesSearch(d, query);
+                var matchFilter = matchesFilter(d, activeFilter);
+                var show = matchSearch && matchFilter;
+                d.el.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+
+            if (empty) empty.hidden = visible > 0;
+            if (countEl) {
+                var base = countEl.getAttribute('data-total') || countEl.textContent;
+                if (!countEl.getAttribute('data-total')) countEl.setAttribute('data-total', base);
+                countEl.textContent = visible + ' visible';
+            }
+        }
+
+        if (searchInput) searchInput.addEventListener('input', applyFilters);
+        filterBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                filterBtns.forEach(function(b) { b.setAttribute('aria-pressed', 'false'); });
+                btn.setAttribute('aria-pressed', 'true');
+                activeFilter = btn.getAttribute('data-filter');
+                applyFilters();
+            });
+        });
+
+        // On first paint the search input is empty so the chip and KPI
+        // counts already match what the server rendered. We only kick
+        // off applyFilters() once the user interacts (typed into
+        // search or clicked a chip), so we don't race the count-up
+        // animation that's running on the KPI values.
+    }
+
+    // ===================================================================
+    // Permission edit / delete / lock / unlock (unchanged from before —
+    // reuses the global modals and toast helpers from _admin_js.html)
+    // ===================================================================
+    window.editPermissions = function(adminId, adminName) {
+        var url = '{% url "accounts:admin_permissions" 0 %}'.replace('0', adminId);
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function(r) { return r.json().catch(function() { return null; }); })
+            .then(function(data) {
+                var perms = (data && data.permissions) ? data.permissions : {};
+                if (typeof openEditPermissions === 'function') {
+                    openEditPermissions(adminId, perms);
+                    var form = document.getElementById('editPermissionsForm');
+                    if (form) form.action = url;
+                } else {
+                    window.location.href = url;
+                }
+            })
+            .catch(function() { window.location.href = url; });
+    };
+
+    window.deleteAdmin = function(id, name) {
+        var url = '{% url "accounts:admin_delete" 0 %}'.replace('0', id);
+        if (typeof openDeleteAdminModal === 'function') {
+            var msg = document.getElementById('deleteAdminMessage');
+            if (msg) msg.textContent = 'Are you sure you want to delete admin "' + name + '"? This action cannot be undone.';
+            openDeleteAdminModal(id, function(adminId) {
+                var csrf = document.querySelector('[name=csrfmiddlewaretoken]');
+                csrf = csrf ? csrf.value : '';
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': csrf,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(function(r) { return r.json().catch(function() { return {}; }); })
+                .then(function(data) {
+                    if (data.success !== false) {
+                        if (typeof showToast === 'function') showToast('success', 'Admin Deleted', 'The admin has been deleted.');
+                        window.location.reload();
+                    } else {
+                        if (typeof showToast === 'function') showToast('error', 'Error', data.error || 'Failed to delete admin.');
+                    }
+                })
+                .catch(function() {
+                    if (typeof showToast === 'function') showToast('error', 'Error', 'An unexpected error occurred.');
+                });
+            });
+        }
+    };
+
+    window.lockAdmin = function(id, name) {
+        var url = '{% url "accounts:admin_lock" 0 %}'.replace('0', id);
+        if (typeof confirmDialog === 'function') {
+            confirmDialog({
+                title: 'Lock Admin',
+                message: 'Lock admin "' + name + '" for 24 hours? They will be unable to log in until unlocked.',
+                confirmLabel: 'Lock',
+                confirmClass: 'btn-warning',
+            }).then(function(confirmed) {
+                if (confirmed) doLock(id, url);
+            });
+        }
+    };
+    function doLock(id, url) {
+        var csrf = document.querySelector('[name=csrfmiddlewaretoken]');
+        csrf = csrf ? csrf.value : '';
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrf,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'hours=24'
+        })
+        .then(function() {
+            if (typeof showToast === 'function') showToast('success', 'Admin Locked', 'The admin has been locked.');
+            window.location.reload();
+        })
+        .catch(function() {
+            if (typeof showToast === 'function') showToast('error', 'Error', 'Failed to lock admin.');
+        });
+    }
+    window.unlockAdmin = function(id, name) {
+        var url = '{% url "accounts:admin_unlock" 0 %}'.replace('0', id);
+        if (typeof confirmDialog === 'function') {
+            confirmDialog({
+                title: 'Unlock Admin',
+                message: 'Unlock admin "' + name + '"? They will be able to log in immediately.',
+                confirmLabel: 'Unlock',
+                confirmClass: 'btn-success',
+            }).then(function(confirmed) {
+                if (confirmed) doUnlock(id, url);
+            });
+        }
+    };
+    function doUnlock(id, url) {
+        var csrf = document.querySelector('[name=csrfmiddlewaretoken]');
+        csrf = csrf ? csrf.value : '';
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrf,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(function() {
+            if (typeof showToast === 'function') showToast('success', 'Admin Unlocked', 'The admin has been unlocked.');
+            window.location.reload();
+        })
+        .catch(function() {
+            if (typeof showToast === 'function') showToast('error', 'Error', 'Failed to unlock admin.');
+        });
+    }
+
+    // ===================================================================
+    // Resend buttons
+    // ===================================================================
+    document.querySelectorAll('.resend-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (btn.disabled || btn.hasAttribute('disabled')) return;
+            var invitationId = btn.getAttribute('data-invitation-id');
+            var channel      = btn.getAttribute('data-channel');
+            if (!invitationId || !channel) return;
+            var url = '{% url "accounts:admin_invitation_resend" 0 "email" %}'
+                .replace('0', invitationId)
+                .replace('email', channel);
+            var csrf = document.querySelector('[name=csrfmiddlewaretoken]');
+            csrf = csrf ? csrf.value : '';
+
+            var oldHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrf,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(function(r) { return r.json().catch(function() { return {}; }); })
+            .then(function(data) {
+                btn.innerHTML = oldHtml;
+                btn.disabled = false;
+                if (data && data.ok) {
+                    if (typeof showToast === 'function') showToast('success', 'Invitation re-sent', data.message || (channel + ' re-sent.'));
+                    setTimeout(function() { window.location.reload(); }, 900);
+                } else {
+                    if (typeof showToast === 'function') showToast('error', 'Resend failed', (data && data.error) || 'Please try again.');
+                }
+            })
+            .catch(function() {
+                btn.innerHTML = oldHtml;
+                btn.disabled = false;
+                if (typeof showToast === 'function') showToast('error', 'Network error', 'Could not reach the server.');
+            });
+        });
+    });
+
+    // ===================================================================
+    // Boot
+    // ===================================================================
+    function init() {
+        animateCountUp();
+        initSearchAndFilter();
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init, { once: true });
+    } else {
+        init();
+    }
+})();
+</script>
+{% endblock %}

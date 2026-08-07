@@ -1,0 +1,647 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Privacy Policy — Caldan Construction and Consultancy Firm Kenya{% endblock %}
+
+{% block meta_description %}Caldan Construction and Consultancy Firm's Privacy Policy. Learn how we collect, use, and protect your personal data in compliance with Kenya's Data Protection Act.{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   LEGAL PAGE — PREMIUM SHARED STYLES (Privacy)
+   ================================================================ */
+:root {
+    --lg-gold: #D4AF37;
+    --lg-gold-deep: #B8932A;
+    --lg-gold-soft: rgba(212,175,55,0.14);
+    --lg-gold-glow: rgba(212,175,55,0.32);
+    --lg-hero-grad: linear-gradient(135deg, #0B172A 0%, #0F1F3A 50%, #0B66C3 100%);
+    --lg-glass: rgba(255,255,255,0.06);
+}
+
+/* ---------- HERO ---------- */
+.legal-hero {
+    position: relative;
+    background: var(--lg-hero-grad);
+    color: #fff;
+    padding: 140px 0 90px;
+    overflow: hidden;
+}
+.legal-hero::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+        radial-gradient(700px 320px at 18% 14%, rgba(212,175,55,0.20), transparent 70%),
+        radial-gradient(800px 360px at 85% 80%, rgba(11,102,195,0.30), transparent 75%);
+    pointer-events: none;
+    animation: heroGlow 10s ease-in-out infinite alternate;
+}
+@keyframes heroGlow { from { opacity: 0.85; } to { opacity: 1; } }
+
+.legal-hero::after {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 36px 36px;
+    pointer-events: none;
+    mask-image: linear-gradient(120deg, black, transparent 75%);
+}
+
+.legal-hero__inner {
+    position: relative; z-index: 2;
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto;
+}
+.legal-hero__eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 18px;
+    background: rgba(212,175,55,0.14);
+    border: 1px solid rgba(212,175,55,0.32);
+    color: var(--lg-gold);
+    border-radius: 999px;
+    font-size: 0.74rem; font-weight: 700;
+    letter-spacing: 1.6px; text-transform: uppercase;
+    margin-bottom: 22px;
+    backdrop-filter: blur(6px);
+}
+.legal-hero__title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 4.4vw, 3.6rem);
+    font-weight: 700; line-height: 1.12;
+    color: #fff;
+    margin: 0 0 18px;
+    letter-spacing: -0.5px;
+}
+.legal-hero__title em {
+    font-style: normal;
+    background: linear-gradient(120deg, var(--lg-gold) 0%, #F4D674 60%, var(--lg-gold) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.legal-hero__lead {
+    color: rgba(255,255,255,0.85);
+    font-size: 1.08rem; line-height: 1.7;
+    max-width: 580px;
+    margin: 0 auto 22px;
+}
+.legal-hero__rule {
+    width: 64px; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--lg-gold), transparent);
+    margin: 0 auto;
+    border-radius: 2px;
+}
+
+@media (max-width: 768px) {
+    .legal-hero { padding: 110px 0 70px; }
+}
+
+/* ---------- CONTENT GRID ---------- */
+.legal-content { padding: 60px 0 50px; background: var(--bg-primary); }
+.legal-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+    gap: 48px;
+    max-width: 1180px;
+    margin: 0 auto;
+}
+@media (max-width: 960px) { .legal-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+/* ---------- META PANEL ---------- */
+.legal-meta {
+    background: var(--lg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(212,175,55,0.25);
+    border-left: 4px solid var(--lg-gold);
+    padding: 22px 24px;
+    border-radius: 12px;
+    margin-bottom: 36px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+@media (max-width: 600px) { .legal-meta { grid-template-columns: 1fr; gap: 8px; } }
+
+.legal-meta__item {
+    display: flex; flex-direction: column;
+}
+.legal-meta__label {
+    font-size: 0.7rem; font-weight: 700;
+    color: var(--lg-gold);
+    text-transform: uppercase; letter-spacing: 1.2px;
+    margin-bottom: 4px;
+}
+.legal-meta__value {
+    font-size: 0.92rem; font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ---------- ARTICLE PROSE ---------- */
+.legal-section { margin-bottom: 44px; scroll-margin-top: 100px; }
+
+.legal-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 18px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(212,175,55,0.35);
+    display: flex; align-items: center; gap: 14px;
+}
+.legal-section h2::before {
+    content: attr(data-num);
+    width: 32px; height: 32px;
+    background: var(--lg-gold);
+    color: #0B172A;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem; font-weight: 800;
+    letter-spacing: 0;
+    flex-shrink: 0;
+}
+
+.legal-section h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.18rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 28px 0 12px;
+}
+
+.legal-section p {
+    color: var(--text-secondary);
+    line-height: 1.85;
+    margin: 0 0 14px;
+    font-size: 1rem;
+}
+
+.legal-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 18px;
+}
+.legal-section ul li {
+    position: relative;
+    padding-left: 26px;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+.legal-section ul li::before {
+    content: "";
+    position: absolute; left: 6px; top: 12px;
+    width: 8px; height: 8px;
+    background: var(--lg-gold);
+    border-radius: 2px;
+    transform: rotate(45deg);
+}
+.legal-section ul li strong { color: var(--text-primary); font-weight: 700; }
+
+.legal-section a {
+    color: var(--lg-gold-deep);
+    text-decoration: none;
+    border-bottom: 1.5px solid rgba(212,175,55,0.4);
+    transition: border-color 150ms ease;
+}
+.legal-section a:hover { border-color: var(--lg-gold); }
+
+/* ---------- STICKY TOC SIDEBAR ---------- */
+.legal-toc {
+    position: sticky;
+    top: 88px;
+    align-self: start;
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: 14px;
+    padding: 22px 22px 20px;
+}
+@media (max-width: 960px) { .legal-toc { position: static; } }
+
+.legal-toc__title {
+    font-size: 0.74rem; font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 1.4px;
+    margin: 0 0 14px;
+    display: flex; align-items: center; gap: 8px;
+}
+.legal-toc__title i { color: var(--lg-gold); }
+
+.toc-list { list-style: none; padding: 0; margin: 0; border-left: 2px solid var(--border-primary); }
+.toc-list li { margin: 0; }
+.toc-list a {
+    display: block;
+    padding: 7px 0 7px 14px;
+    margin-left: -2px;
+    border-left: 2px solid transparent;
+    color: var(--text-secondary);
+    font-size: 0.86rem;
+    text-decoration: none;
+    transition: color 150ms ease, border-color 150ms ease;
+    line-height: 1.35;
+}
+.toc-list a:hover { color: var(--text-primary); }
+.toc-list a.is-active {
+    border-left-color: var(--lg-gold);
+    color: var(--lg-gold-deep);
+    font-weight: 600;
+}
+
+/* ---------- CROSS-LINK GRID ---------- */
+.legal-crosslinks {
+    background: var(--bg-secondary);
+    padding: 60px 0;
+    border-top: 1px solid var(--border-primary);
+}
+.legal-crosslinks__head {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.legal-crosslinks__head .eyebrow {
+    color: var(--lg-gold);
+    font-size: 0.78rem; font-weight: 700;
+    letter-spacing: 1.6px; text-transform: uppercase;
+    display: inline-block; margin-bottom: 8px;
+}
+.legal-crosslinks__head h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.legal-crosslinks__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    max-width: 980px;
+    margin: 0 auto;
+}
+@media (max-width: 768px) { .legal-crosslinks__grid { grid-template-columns: 1fr; } }
+
+.legal-crosslink {
+    display: flex; flex-direction: column;
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: 14px;
+    padding: 22px 22px 18px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 250ms ease;
+    position: relative; overflow: hidden;
+}
+.legal-crosslink:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px -20px rgba(11,23,42,0.4);
+    border-color: rgba(212,175,55,0.5);
+}
+.legal-crosslink__icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: var(--lg-gold-soft);
+    color: var(--lg-gold-deep);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    margin-bottom: 14px;
+}
+.legal-crosslink__title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 6px;
+}
+.legal-crosslink__desc {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.55;
+    margin: 0 0 14px;
+    flex: 1;
+}
+.legal-crosslink__cta {
+    font-size: 0.84rem; font-weight: 700;
+    color: var(--lg-gold-deep);
+    display: inline-flex; align-items: center; gap: 4px;
+}
+
+/* ---------- DARK MODE ---------- */
+html[data-theme="dark"] .legal-meta {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(212,175,55,0.4);
+}
+html[data-theme="dark"] .legal-section h2 { border-bottom-color: rgba(212,175,55,0.5); }
+html[data-theme="dark"] .toc-list { border-left-color: rgba(255,255,255,0.1); }
+html[data-theme="dark"] .legal-toc { border-color: rgba(255,255,255,0.08); }
+html[data-theme="dark"] .legal-crosslink { border-color: rgba(255,255,255,0.08); }
+
+@media (prefers-reduced-motion: reduce) {
+    .legal-hero::before { animation: none; }
+    .legal-crosslink { transition: none; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="legal-hero">
+    <div class="container">
+        <div class="legal-hero__inner" data-aos="fade-up">
+            <div class="legal-hero__eyebrow">
+                <i class="fas fa-shield-alt"></i> Legal · Privacy
+            </div>
+            <h1 class="legal-hero__title">Privacy <em>Policy</em></h1>
+            <p class="legal-hero__lead">How we collect, use, and protect your personal information — committed to the highest standards of data protection under Kenyan and international law.</p>
+            <div class="legal-hero__rule"></div>
+        </div>
+    </div>
+</section>
+
+<!-- CONTENT -->
+<section class="legal-content">
+    <div class="container">
+        <div class="legal-grid">
+
+            <article id="legalArticle">
+                <div class="legal-meta" data-aos="fade-up">
+                    <div class="legal-meta__item">
+                        <span class="legal-meta__label">Last Updated</span>
+                        <span class="legal-meta__value">July 21, 2026</span>
+                    </div>
+                    <div class="legal-meta__item">
+                        <span class="legal-meta__label">Effective Date</span>
+                        <span class="legal-meta__value">July 21, 2026</span>
+                    </div>
+                    <div class="legal-meta__item">
+                        <span class="legal-meta__label">Compliance</span>
+                        <span class="legal-meta__value">Kenya DPA 2019</span>
+                    </div>
+                </div>
+
+                <div class="legal-section" data-num="01">
+                    <h2>Introduction</h2>
+                    <p>
+                        Caldan Construction and Consultancy Firm ("we," "us," or "our") respects your privacy and is committed to
+                        protecting your personal data. This Privacy Policy explains how we collect, use,
+                        disclose, and safeguard your information when you visit our website or interact with
+                        our services.
+                    </p>
+                    <p>
+                        We are compliant with the <strong>Kenya Data Protection Act, 2019</strong> and are
+                        committed to upholding the highest standards of data protection and privacy.
+                    </p>
+                </div>
+
+                <div class="legal-section" data-num="02">
+                    <h2>Information We Collect</h2>
+
+                    <h3>2.1 Personal Information You Provide</h3>
+                    <p>We collect personal information that you voluntarily provide when you:</p>
+                    <ul>
+                        <li>Fill out our contact form</li>
+                        <li>Submit a quote request</li>
+                        <li>Sign up for our newsletter (if applicable)</li>
+                        <li>Communicate with us via email, phone, or social media</li>
+                    </ul>
+                    <p>The personal information we collect may include:</p>
+                    <ul>
+                        <li><strong>Name</strong> — Your full name</li>
+                        <li><strong>Email Address</strong> — Your primary email for communication</li>
+                        <li><strong>Phone Number</strong> — Your contact number</li>
+                        <li><strong>Project Details</strong> — Information about your construction project</li>
+                        <li><strong>Budget and Timeline</strong> — Your project budget and timeline preferences</li>
+                    </ul>
+
+                    <h3>2.2 Automatically Collected Information</h3>
+                    <p>When you visit our website, we automatically collect certain information:</p>
+                    <ul>
+                        <li><strong>IP Address</strong> — Your device's internet protocol address</li>
+                        <li><strong>Browser Type</strong> — The browser you are using</li>
+                        <li><strong>Device Information</strong> — Device type, operating system, screen resolution</li>
+                        <li><strong>Pages Visited</strong> — Which pages you view and for how long</li>
+                        <li><strong>Referring URLs</strong> — How you arrived at our website</li>
+                    </ul>
+                    <p>We use this information to improve our website, analyze trends, and enhance your experience.</p>
+                </div>
+
+                <div class="legal-section" data-num="03">
+                    <h2>How We Use Your Information</h2>
+                    <p>We use your personal information for the following purposes:</p>
+                    <ul>
+                        <li><strong>To Provide Services</strong> — Respond to your inquiries, provide quotes, and deliver construction services</li>
+                        <li><strong>To Communicate</strong> — Send you updates about your project, respond to your messages, and notify you of important information</li>
+                        <li><strong>To Improve Our Services</strong> — Analyze feedback and enhance our offerings</li>
+                        <li><strong>To Comply with Legal Obligations</strong> — Meet regulatory requirements and legal processes</li>
+                        <li><strong>To Protect Our Rights</strong> — Prevent fraud, abuse, and unauthorized access</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section" data-num="04">
+                    <h2>Legal Basis for Processing</h2>
+                    <p>Under the Kenya Data Protection Act, we process your personal data based on the following legal grounds:</p>
+                    <ul>
+                        <li><strong>Consent</strong> — You have given us explicit consent to process your data</li>
+                        <li><strong>Contractual Necessity</strong> — Processing is necessary for the performance of a contract with you</li>
+                        <li><strong>Legal Obligation</strong> — Processing is required by law</li>
+                        <li><strong>Legitimate Interest</strong> — Processing is necessary for our legitimate business interests, provided your rights are not overridden</li>
+                    </ul>
+                </div>
+
+                <div class="legal-section" data-num="05">
+                    <h2>Data Sharing and Disclosure</h2>
+                    <p>We do not sell, trade, or rent your personal information to third parties. We may share your data with:</p>
+                    <ul>
+                        <li><strong>Service Providers</strong> — Third-party vendors who assist us in operating our website and delivering services (e.g., hosting, email delivery, payment processing)</li>
+                        <li><strong>Legal Authorities</strong> — When required by law or to protect our rights</li>
+                        <li><strong>Business Partners</strong> — With your explicit consent, we may share information with trusted partners for specific services</li>
+                    </ul>
+                    <p>All third-party providers are bound by strict confidentiality agreements and data protection obligations.</p>
+                </div>
+
+                <div class="legal-section" data-num="06">
+                    <h2>Data Security</h2>
+                    <p>
+                        We implement appropriate technical and organizational measures to protect your personal data:
+                    </p>
+                    <ul>
+                        <li><strong>Encryption</strong> — All data transmitted is encrypted using TLS/SSL</li>
+                        <li><strong>Access Controls</strong> — Restricted access to personal data on a need-to-know basis</li>
+                        <li><strong>Regular Audits</strong> — Periodic security reviews and vulnerability assessments</li>
+                        <li><strong>Secure Storage</strong> — Your data is stored in secure, access-controlled environments</li>
+                        <li><strong>SHA-256 Hashing</strong> — Sensitive data is hashed using SHA-256 for integrity</li>
+                    </ul>
+                    <p>While we strive to protect your data, no method of transmission over the internet is 100% secure. We cannot guarantee absolute security.</p>
+                </div>
+
+                <div class="legal-section" data-num="07">
+                    <h2>Data Retention</h2>
+                    <p>
+                        We retain your personal data only for as long as necessary to fulfill the purposes outlined
+                        in this Privacy Policy, or as required by law. Our retention periods are:
+                    </p>
+                    <ul>
+                        <li><strong>Contact Submissions</strong> — 5 years</li>
+                        <li><strong>Quote Requests</strong> — 5 years</li>
+                        <li><strong>Project Data</strong> — 7 years (for project and financial records)</li>
+                        <li><strong>Audit Logs</strong> — 365 days</li>
+                    </ul>
+                    <p>
+                        After the retention period, we securely delete or anonymize your personal data.
+                    </p>
+                </div>
+
+                <div class="legal-section" data-num="08">
+                    <h2>Your Rights Under Kenya's Data Protection Act</h2>
+                    <p>You have the following rights regarding your personal data:</p>
+                    <ul>
+                        <li><strong>Right to Access</strong> — Request a copy of the personal data we hold about you</li>
+                        <li><strong>Right to Rectification</strong> — Request correction of inaccurate or incomplete data</li>
+                        <li><strong>Right to Erasure</strong> — Request deletion of your personal data (subject to legal requirements)</li>
+                        <li><strong>Right to Restriction</strong> — Request restriction of processing in certain circumstances</li>
+                        <li><strong>Right to Object</strong> — Object to processing of your personal data</li>
+                        <li><strong>Right to Data Portability</strong> — Request transfer of your data to another service provider</li>
+                        <li><strong>Right to Withdraw Consent</strong> — Withdraw your consent at any time</li>
+                    </ul>
+                    <p>
+                        To exercise any of these rights, please contact us using the details provided in Section 12.
+                    </p>
+                </div>
+
+                <div class="legal-section" data-num="09">
+                    <h2>Cookies and Tracking Technologies</h2>
+                    <p>
+                        We use cookies and similar tracking technologies to enhance your experience on our website.
+                        Please refer to our <a href="{% url 'website:legal_cookies' %}">Cookie Policy</a> for detailed information.
+                    </p>
+                </div>
+
+                <div class="legal-section" data-num="10">
+                    <h2>Third-Party Links</h2>
+                    <p>
+                        Our website may contain links to third-party websites. We are not responsible for the privacy
+                        practices or content of these external sites. We encourage you to review their privacy policies
+                        before providing any personal information.
+                    </p>
+                </div>
+
+                <div class="legal-section" data-num="11">
+                    <h2>Children's Privacy</h2>
+                    <p>
+                        Our services are not directed to individuals under the age of 18. We do not knowingly collect
+                        personal information from children. If we become aware that we have collected personal data
+                        from a child, we will take steps to delete it.
+                    </p>
+                </div>
+
+                <div class="legal-section" data-num="12">
+                    <h2>Contact Us</h2>
+                    <p>If you have any questions, concerns, or requests regarding this Privacy Policy, please contact us:</p>
+                    <ul>
+                        <li><strong>Email:</strong> <a href="mailto:{{ ADMIN_EMAIL }}">{{ ADMIN_EMAIL }}</a></li>
+                        <li><strong>Phone:</strong> <a href="tel:{{ ADMIN_PHONE }}">{{ ADMIN_PHONE }}</a></li>
+                        <li><strong>Address:</strong> Nairobi, Kenya</li>
+                    </ul>
+                    <p>We will respond to your inquiry within 15 business days.</p>
+                </div>
+
+                <div class="legal-section" data-num="13">
+                    <h2>Changes to This Privacy Policy</h2>
+                    <p>
+                        We may update this Privacy Policy from time to time. We will notify you of any changes by
+                        posting the updated policy on this page with a new "Last Updated" date. We encourage you
+                        to review this policy periodically to stay informed about how we protect your privacy.
+                    </p>
+                </div>
+            </article>
+
+            <aside class="legal-toc" data-aos="fade-up" data-aos-delay="80">
+                <h3 class="legal-toc__title"><i class="fas fa-list-ul"></i> On this page</h3>
+                <ul class="toc-list" id="tocList">
+                    <!-- JS auto-fills from h2s -->
+                </ul>
+            </aside>
+
+        </div>
+    </div>
+</section>
+
+<!-- CROSS-LINK GRID -->
+<section class="legal-crosslinks">
+    <div class="container">
+        <div class="legal-crosslinks__head" data-aos="fade-up">
+            <span class="eyebrow">Related Documents</span>
+            <h2>Other legal documents</h2>
+        </div>
+        <div class="legal-crosslinks__grid">
+            <a href="{% url 'website:legal_terms' %}" class="legal-crosslink" data-aos="fade-up" data-aos-delay="40">
+                <div class="legal-crosslink__icon"><i class="fas fa-scroll"></i></div>
+                <h3 class="legal-crosslink__title">Terms of Service</h3>
+                <p class="legal-crosslink__desc">Read the terms and conditions for using our website and engaging our services.</p>
+                <span class="legal-crosslink__cta">Read terms <i class="fas fa-arrow-right"></i></span>
+            </a>
+            <a href="{% url 'website:legal_refunds' %}" class="legal-crosslink" data-aos="fade-up" data-aos-delay="80">
+                <div class="legal-crosslink__icon"><i class="fas fa-hand-holding-usd"></i></div>
+                <h3 class="legal-crosslink__title">Refund Policy</h3>
+                <p class="legal-crosslink__desc">Understand our policies on cancellations, deposits, and payment refunds.</p>
+                <span class="legal-crosslink__cta">Read refund policy <i class="fas fa-arrow-right"></i></span>
+            </a>
+            <a href="{% url 'website:legal_cookies' %}" class="legal-crosslink" data-aos="fade-up" data-aos-delay="120">
+                <div class="legal-crosslink__icon"><i class="fas fa-cookie-bite"></i></div>
+                <h3 class="legal-crosslink__title">Cookie Policy</h3>
+                <p class="legal-crosslink__desc">Learn what cookies we use, how we use them, and how you can manage preferences.</p>
+                <span class="legal-crosslink__cta">Read cookie policy <i class="fas fa-arrow-right"></i></span>
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict';
+    var article = document.getElementById('legalArticle');
+    var tocList = document.getElementById('tocList');
+    if (!article || !tocList) return;
+
+    var sections = article.querySelectorAll('.legal-section');
+    var labels = Array.from(sections).map(function (s) {
+        var h = s.querySelector('h2');
+        if (!h) return null;
+        if (!h.id) h.id = 'legal-' + s.getAttribute('data-num');
+        return { id: h.id, text: h.textContent.replace(/^\d+\s*/, '').trim() };
+    }).filter(Boolean);
+
+    labels.forEach(function (item, idx) {
+        var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.href = '#' + item.id;
+        a.textContent = (idx + 1).toString().padStart(2, '0') + ' · ' + item.text;
+        a.dataset.target = item.id;
+        li.appendChild(a);
+        tocList.appendChild(li);
+    });
+
+    if (sections.length) {
+        var tocLinks = tocList.querySelectorAll('a');
+        var onScroll = function () {
+            var scrollY = window.scrollY + 120;
+            var current = sections[0].querySelector('h2').id;
+            sections.forEach(function (s) {
+                var h = s.querySelector('h2');
+                if (h && h.offsetTop <= scrollY) current = h.id;
+            });
+            tocLinks.forEach(function (a) {
+                a.classList.toggle('is-active', a.dataset.target === current);
+            });
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+    }
+})();
+</script>
+{% endblock %}

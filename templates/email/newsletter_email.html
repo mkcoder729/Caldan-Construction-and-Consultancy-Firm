@@ -1,0 +1,31 @@
+{# Marketing newsletter — sent when a new blog post is published. #}
+{% extends "email/_base.html" %}
+{% load humanize %}
+
+{% block badge %}<span class="badge badge-gold" style="margin-top: 14px;">NEW POST</span>{% endblock %}
+
+{% block content %}
+  <h1>{{ post.title }}</h1>
+  <p class="subtitle">Published {{ post.published_at|date:"F j, Y"|default:post.created_at|date:"F j, Y" }} · {{ post.get_category_display }}</p>
+
+  {% if post.featured_image %}
+  <div style="margin: 0 0 24px 0; text-align: center;">
+    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--slate-200);">
+  </div>
+  {% endif %}
+
+  <p style="font-size: 16px; color: var(--slate-700);">{{ post.excerpt }}</p>
+
+  <div style="background: var(--slate-75); border-radius: 8px; padding: 20px 24px; margin: 20px 0; font-size: 15px; line-height: 1.7; color: var(--slate-700); border: 1px solid var(--slate-200);">
+    {{ post.content|truncatewords:80 }}
+  </div>
+
+  <div class="button-row">
+    <a href="{{ post_url }}" class="button">Read the full article</a>
+  </div>
+
+  <p style="text-align:center; color: var(--slate-500); font-size: 13px;">
+    You're receiving this because you subscribed at {{ brand_name|default:"Caldan" }}.<br>
+    <a href="{{ unsubscribe_url }}">Unsubscribe</a> any time.
+  </p>
+{% endblock %}

@@ -1,0 +1,48 @@
+{# Admin invitation — sent to a new admin with a setup link. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-info" style="margin-top: 14px;">INVITATION</span>{% endblock %}
+
+{% block content %}
+  <h1>You're <span>invited</span></h1>
+  <p class="subtitle">Join the {{ brand_name|default:"Caldan" }} admin team</p>
+
+  <p>Hi {{ invitation.full_name|default:invitation.email }} — {{ created_by.full_name|default:created_by.email }} has invited you to join the {{ brand_name|default:"Caldan" }} admin dashboard.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Email</dt>
+      <dd>{{ invitation.email }}</dd>
+      <dt>Role</dt>
+      <dd><span class="badge badge-gold">{{ invitation.get_role_display }}</span></dd>
+      {% if invitation.phone %}<dt>Phone</dt><dd>{{ invitation.phone }}</dd>{% endif %}
+      <dt>Expires</dt>
+      <dd>{{ invitation.expires_at|date:"F j, Y H:i" }} ({{ expiry_hours|default:48 }}h from now)</dd>
+    </dl>
+  </div>
+
+  {% if invitation.personal_message %}
+  <div class="callout callout-info">
+    <strong>Personal message:</strong><br>
+    {{ invitation.personal_message }}
+  </div>
+  {% endif %}
+
+  {% if temp_password %}
+  <div class="callout callout-warning">
+    <strong>Temporary password:</strong> <code style="font-family: 'Courier New', monospace; background: #FEF3C7; padding: 2px 8px; border-radius: 4px;">{{ temp_password }}</code><br>
+    Change this password immediately after signing in.
+  </div>
+  {% endif %}
+
+  <div class="button-row">
+    <a href="{{ invitation_link }}" class="button">Accept invitation</a>
+  </div>
+
+  {% if permissions %}
+  <h2>Your permissions</h2>
+  <ul style="padding-left: 22px; margin: 0 0 16px 0; color: var(--slate-700);">
+    {% for p in permissions %}<li style="margin-bottom: 6px;">{{ p }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+{% endblock %}

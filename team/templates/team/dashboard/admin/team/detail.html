@@ -1,0 +1,721 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}{{ member.name }} - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   TEAM MEMBER DETAIL — PREMIUM ADMIN
+   ================================================================ */
+
+.team-detail {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+/* ---- Hero ---- */
+.project-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.project-hero::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.project-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -50%;
+    left: -5%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(11, 102, 195, 0.25) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.hero-main {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-avatar-wrap {
+    width: 96px;
+    height: 96px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.hero-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(212, 175, 55, 0.45);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    display: block;
+}
+
+.hero-avatar-placeholder {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.2);
+    border: 3px solid rgba(212, 175, 55, 0.45);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 800;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+.hero-info { flex: 1; min-width: 240px; }
+
+.hero-name {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 6px;
+    letter-spacing: -0.3px;
+    line-height: 1.2;
+}
+
+.hero-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--brand-gold);
+    background: rgba(212, 175, 55, 0.15);
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.hero-title {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 8px;
+}
+
+.hero-meta {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
+.hero-meta i { color: var(--brand-gold); font-size: 11px; }
+
+.hero-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.hero-status.active   { background: rgba(39,174,96,0.25); border-color: rgba(39,174,96,0.4); }
+.hero-status.inactive { background: rgba(149,165,166,0.25); border-color: rgba(149,165,166,0.4); }
+
+.hero-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+/* ---- Buttons ---- */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.2px;
+}
+
+.btn-primary {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary:hover {
+    background: var(--brand-gold-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-light {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.btn-light:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-danger-solid {
+    background: rgba(185, 52, 43, 0.15);
+    color: #fff;
+    border: 1px solid rgba(185, 52, 43, 0.4);
+    backdrop-filter: blur(10px);
+}
+
+.btn-danger-solid:hover {
+    background: rgba(185, 52, 43, 0.3);
+    border-color: rgba(185, 52, 43, 0.6);
+}
+
+/* ---- Stat cards ---- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: all var(--t-base) var(--ease-spring);
+    border-top: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 50%, var(--stat-accent, transparent) 130%);
+    opacity: 0;
+    transition: opacity var(--t-base) var(--ease-standard);
+    pointer-events: none;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--stat-accent, var(--border-subtle));
+}
+
+.stat-card:hover::after { opacity: 0.06; }
+
+.stat-card.blue   { --stat-accent: var(--brand-blue); border-top-color: var(--brand-blue); }
+.stat-card.gold   { --stat-accent: var(--brand-gold); border-top-color: var(--brand-gold); }
+.stat-card.green  { --stat-accent: var(--sem-success); border-top-color: var(--sem-success); }
+.stat-card.orange { --stat-accent: var(--sem-warning); border-top-color: var(--sem-warning); }
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--r-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: transform var(--t-base) var(--ease-spring);
+}
+
+.stat-card:hover .stat-icon { transform: scale(1.08) rotate(-4deg); }
+
+.stat-icon.blue   { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); }
+.stat-icon.gold   { background: rgba(212, 175, 55, 0.14); color: var(--brand-gold-deep); }
+.stat-icon.green  { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); }
+.stat-icon.orange { background: rgba(243, 156, 18, 0.12); color: var(--sem-warning); }
+
+.stat-body { flex: 1; min-width: 0; }
+.stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+}
+.stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.stat-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+/* ---- Two-column layout ---- */
+.detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* ---- Chart cards ---- */
+.chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.chart-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.chart-card-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.chart-card-header h3 i {
+    color: var(--brand-gold);
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-badge {
+    padding: 4px 12px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold-deep);
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.chart-body { padding: 20px; }
+
+/* ---- Bio card ---- */
+.bio-card { padding: 20px 22px; }
+.bio-text {
+    color: var(--text-primary);
+    line-height: 1.7;
+    margin: 0;
+    font-size: 14px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+}
+
+.info-label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.info-label i { color: var(--brand-gold); font-size: 11px; }
+
+.info-value {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 600;
+    word-break: break-word;
+}
+
+.info-value a { color: var(--brand-gold-deep); text-decoration: none; }
+.info-value a:hover { text-decoration: underline; }
+
+.social-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.social-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--r-sm);
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all var(--t-fast) var(--ease-spring);
+    text-decoration: none;
+}
+
+.social-btn:hover {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    border-color: var(--brand-gold);
+    transform: translateY(-2px);
+}
+
+/* ---- Project chips ---- */
+.chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: var(--r-pill);
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    font-size: 12px;
+    text-decoration: none;
+    transition: all var(--t-fast) var(--ease-spring);
+}
+
+.chip:hover {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    border-color: var(--brand-gold);
+    transform: translateY(-1px);
+}
+
+.empty-mini {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-tertiary);
+    font-size: 13px;
+}
+
+.empty-mini i {
+    display: block;
+    font-size: 2rem;
+    margin-bottom: 8px;
+    opacity: 0.3;
+    color: var(--brand-gold);
+}
+
+/* ---- Animations ---- */
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.project-hero, .stat-card, .chart-card { animation: fade-up 0.4s ease both; }
+.stat-card:nth-child(2) { animation-delay: 0.05s; }
+.stat-card:nth-child(3) { animation-delay: 0.1s; }
+.stat-card:nth-child(4) { animation-delay: 0.15s; }
+
+/* ---- Responsive ---- */
+@media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .detail-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .project-hero { padding: 22px; }
+    .hero-name { font-size: 20px; }
+    .hero-avatar, .hero-avatar-placeholder { width: 76px; height: 76px; }
+    .hero-avatar-placeholder { font-size: 28px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 18px; }
+    .stat-icon { width: 40px; height: 40px; font-size: 16px; }
+    .info-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .hero-actions { width: 100%; }
+    .hero-actions .btn { flex: 1; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .project-hero, .stat-card, .chart-card { animation: none; }
+    .stat-card:hover, .chip:hover { transform: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="team-detail">
+
+    <!-- Hero Header -->
+    <div class="project-hero">
+        <div class="hero-main">
+            <div class="hero-avatar-wrap">
+                {% if member.photo %}
+                    <img src="{{ member.photo.url }}" alt="{{ member.name }}" class="hero-avatar">
+                {% else %}
+                    <div class="hero-avatar-placeholder">{{ member.name|first|upper }}</div>
+                {% endif %}
+            </div>
+            <div class="hero-info">
+                <span class="hero-role"><i class="fas fa-user-tag"></i>{{ member.get_role_display }}</span>
+                <h1 class="hero-name">{{ member.name }}</h1>
+                {% if member.title %}<div class="hero-title">{{ member.title }}</div>{% endif %}
+                <div class="hero-meta">
+                    {% if member.email %}
+                        <span><i class="fas fa-envelope"></i> {{ member.email }}</span>
+                    {% endif %}
+                    {% if member.phone %}
+                        <span><i class="fas fa-phone"></i> {{ member.phone }}</span>
+                    {% endif %}
+                    <span class="hero-status {% if member.is_active %}active{% else %}inactive{% endif %}">
+                        {% if member.is_active %}<i class="fas fa-circle-check"></i> Active{% else %}<i class="fas fa-circle-pause"></i> Inactive{% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="hero-actions">
+                <a href="{% url 'team:member_edit' member.id %}" class="btn btn-light">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <button class="btn btn-light" onclick="toggleFeatured({{ member.id }})">
+                    <i class="fas fa-star {% if member.is_featured %}text-warning{% endif %}"></i>
+                    {% if member.is_featured %}Unfeature{% else %}Feature{% endif %}
+                </button>
+                <button class="btn btn-danger-solid" onclick="deleteMember({{ member.id }}, '{{ member.name }}')">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stats-grid">
+        <div class="stat-card gold">
+            <div class="stat-icon gold"><i class="fas fa-hashtag"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">#{{ member.display_order|default:'—' }}</div>
+                <div class="stat-label">Display Order</div>
+                <div class="stat-sub">Position in list</div>
+            </div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ member.projects.count|default:0 }}</div>
+                <div class="stat-label">Projects</div>
+                <div class="stat-sub">Linked projects</div>
+            </div>
+        </div>
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-calendar-plus"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ member.created_at|date:"M d" }}</div>
+                <div class="stat-label">Joined</div>
+                <div class="stat-sub">{{ member.created_at|date:"Y" }}</div>
+            </div>
+        </div>
+        <div class="stat-card orange">
+            <div class="stat-icon orange"><i class="fas fa-clock-rotate-left"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ member.updated_at|date:"M d" }}</div>
+                <div class="stat-label">Updated</div>
+                <div class="stat-sub">{{ member.updated_at|date:"Y" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Two-column: Bio + Info -->
+    <div class="detail-row">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3><i class="fas fa-align-left"></i> Biography</h3>
+                <span class="chart-badge">Profile</span>
+            </div>
+            <div class="chart-body bio-card">
+                {% if member.bio %}
+                    <p class="bio-text">{{ member.bio|linebreaks }}</p>
+                {% else %}
+                    <div class="empty-mini">
+                        <i class="fas fa-pen"></i>
+                        No biography yet.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3><i class="fas fa-info-circle"></i> Member Info</h3>
+                <span class="chart-badge">Details</span>
+            </div>
+            <div class="chart-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-envelope"></i> Email</div>
+                        <div class="info-value">
+                            {% if member.email %}<a href="mailto:{{ member.email }}">{{ member.email }}</a>{% else %}—{% endif %}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-phone"></i> Phone</div>
+                        <div class="info-value">
+                            {% if member.phone %}<a href="tel:{{ member.phone }}">{{ member.phone }}</a>{% else %}—{% endif %}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-user-tag"></i> Role</div>
+                        <div class="info-value">{{ member.get_role_display }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-briefcase"></i> Title</div>
+                        <div class="info-value">{{ member.title|default:'—' }}</div>
+                    </div>
+                </div>
+
+                {% if member.linkedin or member.twitter %}
+                <div class="social-row">
+                    {% if member.linkedin %}
+                        <a href="{{ member.linkedin }}" target="_blank" rel="noopener" class="social-btn" title="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    {% endif %}
+                    {% if member.twitter %}
+                        <a href="{{ member.twitter }}" target="_blank" rel="noopener" class="social-btn" title="Twitter/X">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance / Projects -->
+    <div class="chart-card">
+        <div class="chart-card-header">
+            <h3><i class="fas fa-chart-line"></i> Linked Projects</h3>
+            <span class="chart-badge">{{ member.projects.count|default:0 }} projects</span>
+        </div>
+        <div class="chart-body">
+            {% if member.projects.all %}
+                <div class="chip-list">
+                    {% for project in member.projects.all %}
+                        <a href="{% url 'admin_projects:project_detail' project.id %}" class="chip">
+                            <i class="fas fa-building"></i> {{ project.name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-mini">
+                    <i class="fas fa-building"></i>
+                    No projects linked to this member yet.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="text-align:center;">
+        <a href="{% url 'team:member_list' %}" class="btn btn-light" style="background: var(--bg-secondary); color: var(--text-secondary); border:1px solid var(--border-subtle);">
+            <i class="fas fa-arrow-left"></i> Back to Team
+        </a>
+    </div>
+</div>
+
+<form id="deleteForm" method="post" action="">{% csrf_token %}</form>
+<form id="toggleForm" method="post" action="">{% csrf_token %}</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function deleteMember(id, name) {
+    if (confirm('Are you sure you want to delete "' + name + '"?')) {
+        const form = document.getElementById('deleteForm');
+        form.action = '/team/' + id + '/delete/';
+        form.submit();
+    }
+}
+
+function toggleFeatured(id) {
+    const form = document.getElementById('toggleForm');
+    form.action = '/team/' + id + '/toggle-featured/';
+    form.submit();
+}
+</script>
+{% endblock %}

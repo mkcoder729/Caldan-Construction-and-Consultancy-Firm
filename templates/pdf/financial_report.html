@@ -1,0 +1,172 @@
+{% extends "pdf/_base_report.html" %}
+{% load humanize %}
+
+{% block badge %}FINANCIAL REPORT{% endblock %}
+
+{% block title %}Financial <span>Report</span>{% endblock %}
+
+{% block meta_extra %}
+  {% if date_from and date_to %}
+    <span><strong>Period:</strong> {{ date_from|date:"M d, Y" }} — {{ date_to|date:"M d, Y" }}</span>
+  {% else %}
+    <span><strong>Period:</strong> All Time</span>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="label">Total Revenue</div>
+      <div class="value gold">KES {{ total_payments|floatformat:0|intcomma }}</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Total Expenses</div>
+      <div class="value">KES {{ total_expenses|floatformat:0|intcomma }}</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Net Position</div>
+      <div class="value {% if net_position >= 0 %}success{% else %}danger{% endif %}">KES {{ net_position|floatformat:0|intcomma }}</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Payments</div>
+      <div class="value">{{ payment_count|default:0 }}</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Budget Summary</h2>
+    <div class="summary-box">
+      <div class="row">
+        <span class="label">Total Allocated Budget</span>
+        <span class="value">KES {{ budget_summary.total_budget|floatformat:2 }}</span>
+      </div>
+      <div class="row">
+        <span class="label">Total Spent</span>
+        <span class="value">KES {{ budget_summary.total_spent|floatformat:2 }}</span>
+      </div>
+      <div class="row">
+        <span class="label">Remaining</span>
+        <span class="value">KES {{ budget_summary.remaining|floatformat:2 }}</span>
+      </div>
+      <div class="row total">
+        <span class="label">Budget Usage</span>
+        <span class="value">{{ budget_summary.used_percentage|floatformat:0 }}%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="breakdown-grid">
+    <div class="breakdown-box">
+      <h3>Payment Methods</h3>
+      {% for method, data in method_breakdown.items %}
+      <div class="item">
+        <span class="name">{{ method }}</span>
+        <span class="amount">KES {{ data.amount|floatformat:0|intcomma }} ({{ data.count }})</span>
+      </div>
+      {% empty %}
+      <p style="font-size: 9pt; margin: 0; opacity: 0.5;">No payments recorded.</p>
+      {% endfor %}
+    </div>
+    <div class="breakdown-box">
+      <h3>Expense Categories</h3>
+      {% for category, data in expense_breakdown.items %}
+      <div class="item">
+        <span class="name">{{ category }}</span>
+        <span class="amount">KES {{ data.amount|floatformat:0|intcomma }} ({{ data.count }})</span>
+      </div>
+      {% empty %}
+      <p style="font-size: 9pt; margin: 0; opacity: 0.5;">No expenses recorded.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Recent Payments</h2>
+    {% if recent_payments %}
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th class="text-right">Amount</th>
+          <th class="text-center">Method</th>
+          <th class="text-center">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for payment in recent_payments %}
+        <tr>
+          <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+          <td>{{ payment.description|truncatewords:10 }}</td>
+          <td class="text-right">KES {{ payment.amount|floatformat:2 }}</td>
+          <td class="text-center">{{ payment.get_method_display }}</td>
+          <td class="text-center">{{ payment.get_status_display }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No recent payments.</div>
+    {% endif %}
+  </div>
+
+  <div class="section">
+    <h2>Recent Expenses</h2>
+    {% if recent_expenses %}
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th class="text-right">Amount</th>
+          <th>Category</th>
+          <th>Vendor</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for expense in recent_expenses %}
+        <tr>
+          <td>{{ expense.expense_date|date:"M d, Y" }}</td>
+          <td>{{ expense.description|truncatewords:10 }}</td>
+          <td class="text-right">KES {{ expense.amount|floatformat:2 }}</td>
+          <td>{{ expense.get_category_display }}</td>
+          <td>{{ expense.vendor_name|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No recent expenses.</div>
+    {% endif %}
+  </div>
+
+  <div class="section">
+    <h2>Monthly Trend</h2>
+    {% if trend_data %}
+    <table>
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th class="text-right">Revenue</th>
+          <th class="text-right">Expenses</th>
+          <th class="text-right">Profit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for month in trend_data %}
+        <tr>
+          <td>{{ month.month }}</td>
+          <td class="text-right status-positive">KES {{ month.revenue|floatformat:0|intcomma }}</td>
+          <td class="text-right status-negative">KES {{ month.expenses|floatformat:0|intcomma }}</td>
+          <td class="text-right {% if month.profit >= 0 %}status-positive{% else %}status-negative{% endif %}">
+            KES {{ month.profit|floatformat:0|intcomma }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No trend data available.</div>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -1,0 +1,236 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Delete Message - Caldan{% endblock %}
+
+{% block extra_css %}
+<style>
+.confirm-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding-bottom: 40px;
+    animation: fade-up 0.4s ease both;
+}
+@keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+.confirm-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-xl);
+    overflow: hidden; box-shadow: var(--shadow-md);
+}
+.confirm-header {
+    background:
+        radial-gradient(700px 220px at 50% 0%, rgba(192,57,43,0.16), transparent 70%),
+        linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    padding: 32px 36px;
+    text-align: center;
+    color: #fff;
+    position: relative; overflow: hidden;
+}
+.confirm-header::before {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.5;
+}
+.confirm-header > * { position: relative; z-index: 1; }
+.confirm-icon-wrap {
+    width: 84px; height: 84px;
+    margin: 0 auto 16px;
+    background: rgba(192,57,43,0.16);
+    border: 1px solid rgba(192,57,43,0.3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #FF6B61; font-size: 32px;
+    box-shadow: 0 8px 24px rgba(192,57,43,0.32);
+}
+.confirm-header h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.65rem; font-weight: 800;
+    margin: 0 0 8px; letter-spacing: -0.5px;
+}
+.confirm-header p {
+    margin: 0; font-size: 0.92rem; color: rgba(255,255,255,0.78);
+}
+.confirm-body { padding: 32px 36px; }
+
+.msg-preview {
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 18px 20px;
+    margin-bottom: 24px;
+}
+.msg-preview__head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+.msg-preview__avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand-gold) 0%, var(--brand-gold-deep) 100%);
+    color: var(--brand-navy);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+}
+.msg-preview__who {
+    flex: 1; min-width: 0;
+}
+.msg-preview__name {
+    font-weight: 700; color: var(--text-primary);
+    font-size: 1rem; margin: 0;
+}
+.msg-preview__email {
+    font-size: 0.8rem; color: var(--text-secondary);
+    margin-top: 2px;
+}
+.msg-preview__subject {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1rem; font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+.msg-preview__body {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    padding: 12px 14px;
+    background: var(--bg-card);
+    border-left: 3px solid var(--brand-gold);
+    border-radius: 0 var(--r-md) var(--r-md) 0;
+}
+
+.warning-block {
+    padding: 14px 18px;
+    background: rgba(192,57,43,0.08);
+    border: 1px solid rgba(192,57,43,0.2);
+    border-radius: var(--r-md);
+    margin-bottom: 24px;
+}
+.warning-block h4 {
+    margin: 0 0 10px;
+    color: #C0392B;
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; gap: 6px;
+}
+.warning-block ul {
+    margin: 0; padding-left: 18px;
+    font-size: 13px; color: var(--text-primary);
+    line-height: 1.7;
+}
+.warning-block ul li::marker { color: #C0392B; font-weight: 700; }
+
+.action-row {
+    display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end;
+}
+
+.btn-cancel {
+    padding: 12px 26px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    color: var(--text-primary);
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: inherit;
+}
+.btn-cancel:hover {
+    border-color: var(--text-secondary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+.btn-delete {
+    padding: 12px 26px;
+    background: linear-gradient(135deg, #B9342B 0%, #C0392B 100%);
+    border: 1px solid #A12E26;
+    border-radius: var(--r-sm);
+    color: #fff;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    display: inline-flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 14px rgba(192,57,43,0.34);
+    font-family: inherit;
+}
+.btn-delete:hover {
+    background: linear-gradient(135deg, #A12E26 0%, #922B22 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(192,57,43,0.45);
+}
+
+@media (max-width: 600px) {
+    .confirm-header { padding: 22px; }
+    .confirm-body { padding: 22px; }
+    .action-row { flex-direction: column-reverse; }
+    .action-row .btn-cancel, .action-row .btn-delete {
+        width: 100%; justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="confirm-page">
+    <div class="confirm-card">
+
+        <div class="confirm-header">
+            <div class="confirm-icon-wrap">
+                <i class="fas fa-triangle-exclamation"></i>
+            </div>
+            <h1>Delete this message?</h1>
+            <p>This action cannot be undone. The submission will be removed permanently.</p>
+        </div>
+
+        <div class="confirm-body">
+
+            <div class="msg-preview">
+                <div class="msg-preview__head">
+                    <div class="msg-preview__avatar">{{ submission.name|slice:":1"|upper }}</div>
+                    <div class="msg-preview__who">
+                        <div class="msg-preview__name">{{ submission.name }}</div>
+                        <div class="msg-preview__email">{{ submission.email }}</div>
+                    </div>
+                    <div style="font-size: 0.78rem; color: var(--text-tertiary); text-align: right;">
+                        {{ submission.created_at|date:"M d, Y" }}
+                    </div>
+                </div>
+
+                <div class="msg-preview__subject">{{ submission.subject }}</div>
+                <div class="msg-preview__body">{{ submission.message|truncatewords:40 }}</div>
+            </div>
+
+            <div class="warning-block">
+                <h4><i class="fas fa-circle-exclamation"></i> What will be deleted</h4>
+                <ul>
+                    <li>The full message and its subject line</li>
+                    <li>All audit log entries linked to this message</li>
+                    <li>Reply history and timestamps</li>
+                </ul>
+            </div>
+
+            <form method="POST" action="{% url 'dashboard:contact_delete' submission.id %}">
+                {% csrf_token %}
+                <div class="action-row">
+                    <a href="{% url 'dashboard:contact_detail' submission.id %}" class="btn-cancel">
+                        <i class="fas fa-arrow-left"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn-delete">
+                        <i class="fas fa-trash"></i> Delete Permanently
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

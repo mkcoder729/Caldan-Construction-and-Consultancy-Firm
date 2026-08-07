@@ -1,0 +1,35 @@
+{# Admin alert — new quote request submitted. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-warning" style="margin-top: 14px;">NEW QUOTE</span>{% endblock %}
+
+{% block content %}
+  <h1>New <span>quote</span> request</h1>
+  <p class="subtitle">Awaiting your review</p>
+
+  <p>A new quote request just landed. Reach out to the customer within 24 hours to keep the lead warm.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Name</dt>
+      <dd>{{ name }}</dd>
+      <dt>Email</dt>
+      <dd><a href="mailto:{{ email }}">{{ email }}</a></dd>
+      <dt>Phone</dt>
+      <dd>{{ phone }}</dd>
+      <dt>Project type</dt>
+      <dd><span class="badge badge-gold">{{ project_type }}</span></dd>
+      <dt>Budget</dt>
+      <dd>{{ budget }}</dd>
+    </dl>
+  </div>
+
+  <h2>Project details</h2>
+  <div class="callout callout-info">
+    {{ details }}
+  </div>
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}{{ action_url|default:'/dashboard/quotes/' }}" class="button">Open in dashboard</a>
+  </div>
+{% endblock %}

@@ -1,0 +1,86 @@
+[
+  {
+    "model": "inventory.material",
+    "pk": 1,
+    "fields": {
+      "name": "Portland Cement",
+      "category": "CEMENT",
+      "unit": "BAG",
+      "description": "High quality Portland cement for general construction",
+      "current_quantity": 100.00,
+      "minimum_threshold": 20.00,
+      "reorder_quantity": 50.00,
+      "unit_cost": 850.00,
+      "total_cost": 85000.00,
+      "supplier": 1,
+      "sku": "CEM-001",
+      "is_active": true,
+      "is_low_stock": false,
+      "is_available_in_shop": true,
+      "shop_price": 950.00
+    }
+  },
+  {
+    "model": "inventory.material",
+    "pk": 2,
+    "fields": {
+      "name": "Structural Steel",
+      "category": "STEEL",
+      "unit": "TONNE",
+      "description": "Structural steel for building frames",
+      "current_quantity": 8.50,
+      "minimum_threshold": 10.00,
+      "reorder_quantity": 20.00,
+      "unit_cost": 45000.00,
+      "total_cost": 382500.00,
+      "supplier": 2,
+      "sku": "STL-001",
+      "is_active": true,
+      "is_low_stock": true,
+      "is_available_in_shop": false,
+      "shop_price": null
+    }
+  },
+  {
+    "model": "inventory.material",
+    "pk": 3,
+    "fields": {
+      "name": "River Sand",
+      "category": "SAND",
+      "unit": "TONNE",
+      "description": "Clean river sand for plastering and rendering",
+      "current_quantity": 50.00,
+      "minimum_threshold": 10.00,
+      "reorder_quantity": 30.00,
+      "unit_cost": 2500.00,
+      "total_cost": 125000.00,
+      "supplier": 3,
+      "sku": "SND-001",
+      "is_active": true,
+      "is_low_stock": false,
+      "is_available_in_shop": true,
+      "shop_price": 3000.00
+    }
+  },
+  {
+    "model": "inventory.material",
+    "pk": 4,
+    "fields": {
+      "name": "Crushed Aggregate",
+      "category": "AGGREGATE",
+      "unit": "TONNE",
+      "description": "Crushed stones for concrete mix",
+      "current_quantity": 0.00,
+      "minimum_threshold": 15.00,
+      "reorder_quantity": 40.00,
+      "unit_cost": 3200.00,
+      "total_cost": 0.00,
+      "supplier": 3,
+      "sku": "AGG-001",
+      "is_active": true,
+      "is_low_stock": true,
+      "is_available_in_shop": true,
+      "shop_price": 3800.00
+    }
+  }
+]

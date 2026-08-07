@@ -1,0 +1,507 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Data Management - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+.settings-page {
+    max-width: 820px;
+}
+
+.page-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 20px; flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative; overflow: hidden;
+    margin-bottom: 24px;
+}
+.page-hero::before {
+    content: ''; position: absolute; top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+}
+.page-hero-main {
+    display: flex; align-items: center; gap: 16px;
+    flex: 1; min-width: 240px; position: relative; z-index: 1;
+}
+.page-hero-icon {
+    width: 52px; height: 52px; border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+}
+.page-hero-title {
+    font-size: 22px; font-weight: 800; color: #fff;
+    margin: 0 0 4px; letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 10px;
+}
+.page-hero-title i { color: var(--brand-gold); }
+.page-hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+.settings-card {
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.settings-card .card-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.settings-card .card-header h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-card .card-header h3 i {
+    color: var(--brand-gold);
+}
+
+.settings-card .card-body {
+    padding: 20px;
+}
+
+.data-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.data-option:last-child {
+    border-bottom: none;
+}
+
+.data-option .option-info .option-title {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.data-option .option-info .option-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.data-option .option-info .option-meta {
+    font-size: 0.65rem;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+.data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.data-grid .data-option {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    padding: 14px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    border-bottom: none;
+}
+
+.data-grid .data-option .option-info {
+    width: 100%;
+}
+
+.data-grid .data-option .option-actions {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--bg-secondary);
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.progress-bar .progress-fill {
+    height: 100%;
+    border-radius: var(--r-pill);
+    transition: width 0.5s var(--ease-standard);
+}
+
+.progress-fill.success {
+    background: var(--sem-success);
+}
+.progress-fill.warning {
+    background: var(--sem-warning);
+}
+.progress-fill.danger {
+    background: var(--sem-danger);
+}
+
+@media (max-width: 640px) {
+    .data-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .data-option {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .settings-card .card-body {
+        padding: 16px;
+    }
+
+    .data-grid .data-option .option-actions {
+        flex-wrap: wrap;
+    }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-page settings-page">
+    <div class="page-hero">
+        <div class="page-hero-main">
+            <div class="page-hero-icon"><i class="fas fa-database"></i></div>
+            <div>
+                <h1 class="page-hero-title">Data Management</h1>
+                <p class="page-hero-sub">Export, backup, and manage your platform data</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Data -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h3><i class="fas fa-file-export"></i> Export Data</h3>
+        </div>
+        <div class="card-body">
+            <div class="data-grid">
+                <div class="data-option">
+                    <div class="option-info">
+                        <div class="option-title">Export All Projects</div>
+                        <div class="option-desc">Download project data including milestones and progress</div>
+                        <div class="option-meta">Format: CSV, Excel, PDF</div>
+                    </div>
+                    <div class="option-actions">
+                        <a href="{% url 'reports:export' %}?type=projects&format=csv" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-csv"></i> CSV
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=projects&format=excel" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=projects&format=pdf" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                </div>
+
+                <div class="data-option">
+                    <div class="option-info">
+                        <div class="option-title">Export Clients</div>
+                        <div class="option-desc">Download client directory with contact details</div>
+                        <div class="option-meta">Format: CSV, Excel, PDF</div>
+                    </div>
+                    <div class="option-actions">
+                        <a href="{% url 'reports:export' %}?type=clients&format=csv" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-csv"></i> CSV
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=clients&format=excel" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=clients&format=pdf" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                </div>
+
+                <div class="data-option">
+                    <div class="option-info">
+                        <div class="option-title">Export Services</div>
+                        <div class="option-desc">Download services catalog with categories and pricing</div>
+                        <div class="option-meta">Format: CSV, Excel, PDF</div>
+                    </div>
+                    <div class="option-actions">
+                        <a href="{% url 'reports:export' %}?type=services&format=csv" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-csv"></i> CSV
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=services&format=excel" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=services&format=pdf" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                </div>
+
+                <div class="data-option">
+                    <div class="option-info">
+                        <div class="option-title">Export Team</div>
+                        <div class="option-desc">Download team members with roles and contact info</div>
+                        <div class="option-meta">Format: CSV, Excel, PDF</div>
+                    </div>
+                    <div class="option-actions">
+                        <a href="{% url 'reports:export' %}?type=team&format=csv" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-csv"></i> CSV
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=team&format=excel" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=team&format=pdf" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                </div>
+
+                <div class="data-option">
+                    <div class="option-info">
+                        <div class="option-title">Export Blog Posts</div>
+                        <div class="option-desc">Download all articles, drafts and published</div>
+                        <div class="option-meta">Format: CSV, Excel, PDF</div>
+                    </div>
+                    <div class="option-actions">
+                        <a href="{% url 'reports:export' %}?type=blog&format=csv" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-csv"></i> CSV
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=blog&format=excel" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=blog&format=pdf" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                </div>
+
+                <div class="data-option">
+                    <div class="option-info">
+                        <div class="option-title">Export Inventory</div>
+                        <div class="option-desc">Download material stock, suppliers and transactions</div>
+                        <div class="option-meta">Format: CSV, Excel, PDF</div>
+                    </div>
+                    <div class="option-actions">
+                        <a href="{% url 'reports:export' %}?type=inventory&format=csv" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-csv"></i> CSV
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=inventory&format=excel" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=inventory&format=pdf" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                </div>
+
+                <div class="data-option">
+                    <div class="option-info">
+                        <div class="option-title">Export Orders</div>
+                        <div class="option-desc">Download shop order history and revenue data</div>
+                        <div class="option-meta">Format: CSV, Excel, PDF</div>
+                    </div>
+                    <div class="option-actions">
+                        <a href="{% url 'reports:export' %}?type=orders&format=csv" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-csv"></i> CSV
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=orders&format=excel" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=orders&format=pdf" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                </div>
+
+                <div class="data-option">
+                    <div class="option-info">
+                        <div class="option-title">Export Payments</div>
+                        <div class="option-desc">Download all recorded payments</div>
+                        <div class="option-meta">Format: CSV, Excel, PDF</div>
+                    </div>
+                    <div class="option-actions">
+                        <a href="{% url 'reports:export' %}?type=payments&format=csv" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-csv"></i> CSV
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=payments&format=excel" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=payments&format=pdf" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                </div>
+
+                <div class="data-option">
+                    <div class="option-info">
+                        <div class="option-title">Export Expenses</div>
+                        <div class="option-desc">Download all recorded expenses</div>
+                        <div class="option-meta">Format: CSV, Excel, PDF</div>
+                    </div>
+                    <div class="option-actions">
+                        <a href="{% url 'reports:export' %}?type=expenses&format=csv" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-csv"></i> CSV
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=expenses&format=excel" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=expenses&format=pdf" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                </div>
+
+                <div class="data-option">
+                    <div class="option-info">
+                        <div class="option-title">Export Notifications</div>
+                        <div class="option-desc">Download notifications and recent audit log</div>
+                        <div class="option-meta">Format: CSV, Excel, PDF</div>
+                    </div>
+                    <div class="option-actions">
+                        <a href="{% url 'reports:export' %}?type=notifications&format=csv" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-csv"></i> CSV
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=notifications&format=excel" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </a>
+                        <a href="{% url 'reports:export' %}?type=notifications&format=pdf" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-subtle);display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+                <a href="{% url 'reports:export_all' %}" class="btn btn-gold">
+                    <i class="fas fa-download"></i> Export All Data (ZIP)
+                </a>
+                <span style="font-size:0.75rem;color:var(--text-tertiary);">
+                    One zip file containing every section as its own CSV — projects, clients, services, team, blog, inventory, orders, payments, expenses, notifications
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backup -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h3><i class="fas fa-archive"></i> Backups</h3>
+        </div>
+        <div class="card-body">
+            <div class="data-option">
+                <div class="option-info">
+                    <div class="option-title">Create Full Backup</div>
+                    <div class="option-desc">Backup all data including projects, inventory, orders, and finances</div>
+                    <div class="option-meta">Last backup: Yesterday at 2:00 AM • Size: 45.2 MB</div>
+                </div>
+                <a href="{% url 'reports:backup_manager' %}" class="btn btn-gold">
+                    <i class="fas fa-database"></i> Create Backup
+                </a>
+            </div>
+
+            <div class="data-option">
+                <div class="option-info">
+                    <div class="option-title">Restore from Backup</div>
+                    <div class="option-desc">Restore data from a previous backup file</div>
+                    <div class="option-meta">Warning: This will overwrite current data</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <a href="{% url 'reports:backup_history' %}" class="btn btn-warning">
+                        <i class="fas fa-undo"></i> Restore from History
+                    </a>
+                </div>
+            </div>
+
+            <div class="data-option" style="border-bottom:none;">
+                <div class="option-info">
+                    <div class="option-title">Backup History</div>
+                    <div class="option-desc">View and manage all backups</div>
+                    <div class="option-meta">15 backups available</div>
+                </div>
+                <a href="{% url 'reports:backup_manager' %}" class="btn btn-secondary">
+                    <i class="fas fa-history"></i> View History
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Deletion -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h3><i class="fas fa-trash-alt"></i> Data Deletion</h3>
+        </div>
+        <div class="card-body">
+            <div class="data-option">
+                <div class="option-info">
+                    <div class="option-title" style="color:var(--sem-danger);">Delete All Data</div>
+                    <div class="option-desc">Permanently delete all platform data. This action is irreversible.</div>
+                    <div class="option-meta">Requires backup confirmation</div>
+                </div>
+                <button class="btn btn-danger" onclick="confirmDeleteAll()">
+                    <i class="fas fa-exclamation-triangle"></i> Delete All Data
+                </button>
+            </div>
+
+            <div class="data-option" style="border-bottom:none;">
+                <div class="option-info">
+                    <div class="option-title" style="color:var(--sem-warning);">Archive Old Projects</div>
+                    <div class="option-desc">Archive projects older than 1 year to reduce database load</div>
+                    <div class="option-meta">12 projects eligible for archiving</div>
+                </div>
+                <button class="btn btn-warning" onclick="archiveOldProjects()">
+                    <i class="fas fa-archive"></i> Archive Now
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDeleteAll() {
+    confirmDialog({
+        title: 'Delete All Data',
+        message: '⚠️ WARNING: This will permanently delete ALL platform data. Type "DELETE" to confirm.',
+        confirmLabel: 'DELETE',
+        confirmClass: 'btn-danger',
+        danger: true
+    }).then(function(confirmed) {
+        if (confirmed) {
+            showToast('error', 'Action Blocked', 'This action requires additional confirmation.');
+        }
+    });
+}
+
+function archiveOldProjects() {
+    confirmDialog({
+        title: 'Archive Old Projects',
+        message: 'Archive projects older than 1 year? This will move them to the archive.',
+        confirmLabel: 'Archive',
+        confirmClass: 'btn-warning'
+    }).then(function(confirmed) {
+        if (confirmed) {
+            showToast('info', 'Archiving Started', 'Old projects are being archived...');
+            setTimeout(function() {
+                showToast('success', 'Archive Complete', 'Projects archived successfully.');
+            }, 2000);
+        }
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,210 @@
+{% extends "shop/base_shop.html" %}
+{% load static %}
+{% load humanize %}
+{% load shop_extras %}
+
+{% block title %}Shopping Cart — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block shop_hero %}
+<section class="shop-hero" style="background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85f1c6?w=1600&q=80');">
+    <div class="overlay"></div>
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="{% url 'website:index' %}">Home</a>
+            <span class="sep">/</span>
+            <a href="{% url 'shop:index' %}">Shop</a>
+            <span class="sep">/</span>
+            <span class="current">Cart</span>
+        </nav>
+
+        <div class="icon-wrap">
+            <i class="fas fa-shopping-cart"></i>
+        </div>
+
+        <p class="eyebrow">
+            <i class="fas fa-cart-plus"></i> Your Cart
+        </p>
+
+        <h1>Shopping Cart</h1>
+
+        <p class="subtitle">
+            {% if cart_items %}
+            You have {{ cart_items|length }} item{% if cart_items|length != 1 %}s{% endif %} in your cart.
+            {% else %}
+            Your cart is currently empty.
+            {% endif %}
+        </p>
+
+        <div class="gold-line"></div>
+
+        <a href="{% url 'shop:index' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: rgba(255,255,255,0.1); border-radius: 50px; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.08);">
+            <i class="fas fa-arrow-left"></i> Continue Shopping
+        </a>
+    </div>
+</section>
+{% endblock %}
+
+{% block shop_content %}
+
+{% if cart_items %}
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 32px;">
+
+    <!-- Cart Items -->
+    <div>
+        {% for item in cart_items %}
+        <div class="cart-item" style="display: flex; gap: 16px; padding: 16px; background: var(--bg-card); border-radius: var(--radius-lg); border: 2px solid var(--border-primary); margin-bottom: 12px; transition: all 0.3s ease;">
+            <div style="width: 100px; height: 100px; flex-shrink: 0; border-radius: var(--radius-md); overflow: hidden; background: var(--bg-secondary);">
+                {% if item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); font-size: 1.5rem;">
+                    <i class="fas fa-box"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 2px; color: var(--text-primary);">
+                        <a href="{% url 'shop:product_detail' item.product.slug %}" style="color: var(--text-primary); text-decoration: none;">{{ item.product.name }}</a>
+                    </h4>
+                    <p style="font-size: 0.85rem; color: var(--text-tertiary);">Unit: {{ item.product.get_unit_display }}</p>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                    <span style="font-size: 1.1rem; font-weight: 700; color: var(--accent-secondary);">KES {{ item.total_price|floatformat:0|intcomma }}</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <form method="POST" action="{% url 'shop:cart_update' item.id %}" class="cart-update-form" style="display: flex; align-items: center; gap: 4px;">
+                            {% csrf_token %}
+                            <button type="button" onclick="updateQty('{{ item.id }}', 'dec')" style="padding: 4px 10px; background: var(--bg-secondary); border: 2px solid var(--border-primary); border-radius: var(--radius-sm); cursor: pointer; color: var(--text-primary); font-size: 1rem;">−</button>
+                            <input type="number" name="quantity" id="qty_{{ item.id }}" value="{{ item.quantity }}" min="1" max="999" style="width: 50px; padding: 4px 4px; border: 2px solid var(--border-primary); border-radius: var(--radius-sm); text-align: center; background: var(--bg-card); color: var(--text-primary); font-size: 0.9rem;">
+                            <button type="button" onclick="updateQty('{{ item.id }}', 'inc')" style="padding: 4px 10px; background: var(--bg-secondary); border: 2px solid var(--border-primary); border-radius: var(--radius-sm); cursor: pointer; color: var(--text-primary); font-size: 1rem;">+</button>
+                        </form>
+                        <form method="POST" action="{% url 'shop:cart_remove' item.id %}" class="cart-remove-form">
+                            {% csrf_token %}
+                            <button type="submit" style="padding: 4px 10px; background: none; border: none; color: var(--accent-danger); cursor: pointer; font-size: 1.1rem;" aria-label="Remove item">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Order Summary -->
+    <div style="background: var(--bg-card); border-radius: var(--radius-lg); padding: 24px; border: 2px solid var(--border-primary); align-self: start; position: sticky; top: 100px;">
+        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; color: var(--text-primary);">Order Summary</h3>
+        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-primary);">
+            <span style="color: var(--text-secondary);">Subtotal</span>
+            <span style="font-weight: 600; color: var(--text-primary);">KES {{ subtotal|floatformat:0|intcomma }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-primary);">
+            <span style="color: var(--text-secondary);">Delivery Fee</span>
+            <span style="font-weight: 600; color: var(--text-primary);">KES {{ delivery_fee|floatformat:0|intcomma }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 12px 0; font-size: 1.2rem;">
+            <span style="font-weight: 700; color: var(--text-primary);">Total</span>
+            <span style="font-weight: 700; color: var(--accent-secondary);">KES {{ total|floatformat:0|intcomma }}</span>
+        </div>
+        <a href="{% url 'shop:checkout_view' %}" style="display: block; width: 100%; padding: 14px; background: var(--accent-secondary); color: #0D2B36; border: none; border-radius: var(--radius-md); font-weight: 700; font-size: 1rem; text-align: center; text-decoration: none; transition: all 0.3s ease; margin-top: 8px;">
+            <i class="fas fa-lock"></i> Proceed to Checkout
+        </a>
+        <p style="font-size: 0.8rem; color: var(--text-tertiary); text-align: center; margin-top: 12px;">
+            <i class="fas fa-lock" style="margin-right: 4px;"></i> Secure checkout via Paystack
+        </p>
+    </div>
+
+</div>
+
+{% else %}
+
+<!-- Empty Cart -->
+<div style="text-align: center; padding: 60px 20px; background: var(--bg-card); border-radius: var(--radius-lg); border: 2px solid var(--border-primary);">
+    <i class="fas fa-shopping-cart" style="font-size: 3rem; color: var(--border-primary); margin-bottom: 16px; display: block;"></i>
+    <h3 style="font-size: 1.2rem; color: var(--text-primary); margin-bottom: 8px;">Your cart is empty</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 24px;">Browse our shop and add items to your cart.</p>
+    <a href="{% url 'shop:index' %}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 32px;">
+        <i class="fas fa-arrow-left"></i> Start Shopping
+    </a>
+</div>
+
+{% endif %}
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+    function updateQty(itemId, action) {
+        const input = document.getElementById('qty_' + itemId);
+        if (!input) return;
+        let val = parseInt(input.value) || 1;
+        if (action === 'inc') {
+            if (val < 999) input.value = val + 1;
+        } else if (action === 'dec') {
+            if (val > 1) input.value = val - 1;
+        }
+        const form = input.closest('form.cart-update-form');
+        if (form) form.submit();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.cart-update-form').forEach(function(form) {
+            if (form.dataset.ajaxWired === '1') return;
+            form.dataset.ajaxWired = '1';
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+                const action = form.action;
+
+                fetch(action, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Accept': 'application/json',
+                    },
+                })
+                .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+                .then(function(result) {
+                    if (result.ok && result.data.success) {
+                        if (typeof showToast === 'function') showToast(result.data.message || 'Cart updated', 'success');
+                        if (result.data.cart_count !== undefined) updateCartBadge(result.data.cart_count);
+                        if (result.data.subtotal !== undefined) {
+                            location.reload();
+                        }
+                        if (result.data.removed) {
+                            location.reload();
+                        }
+                    } else {
+                        const err = (result.data && result.data.error) || 'Update failed';
+                        if (typeof showToast === 'function') showToast(err, 'error');
+                    }
+                })
+                .catch(function() {
+                    if (typeof showToast === 'function') showToast('Network error. Please try again.', 'error');
+                });
+            });
+        });
+    });
+</script>
+
+<style>
+    .cart-item:hover {
+        border-color: var(--accent-secondary) !important;
+    }
+    @media (max-width: 992px) {
+        .cart-grid { grid-template-columns: 1fr !important; }
+        .cart-summary { position: static !important; }
+    }
+    @media (max-width: 576px) {
+        .cart-item { flex-direction: column !important; align-items: center !important; text-align: center; }
+        .cart-item .flex-between { flex-direction: column !important; align-items: center !important; }
+    }
+</style>
+
+{% endblock %}

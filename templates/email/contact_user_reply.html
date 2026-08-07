@@ -1,0 +1,21 @@
+{# Reply from Caldan to a contact-form message. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-info" style="margin-top: 14px;">REPLY</span>{% endblock %}
+
+{% block content %}
+  <h1>Re: <span>{{ subject }}</span></h1>
+  <p class="subtitle">From the {{ brand_name|default:"Caldan" }} team</p>
+
+  <p>Hi {{ name }} — thanks for reaching out. Here's our reply:</p>
+
+  <div class="callout callout-info">
+    {{ message|linebreaks }}
+  </div>
+
+  <p>Reply to this email or give us a call to keep the conversation going.</p>
+
+  <p style="margin-top: 24px; color: var(--text-muted); font-size: 13px;">
+    <strong style="color: var(--text-primary);">Caldan</strong> · Building Kenya's Future, One Project at a Time.
+  </p>
+{% endblock %}

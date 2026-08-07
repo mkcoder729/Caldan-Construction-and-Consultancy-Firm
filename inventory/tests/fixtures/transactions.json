@@ -1,0 +1,86 @@
+[
+  {
+    "model": "inventory.stocktransaction",
+    "pk": 1,
+    "fields": {
+      "material": 1,
+      "type": "IN",
+      "quantity": 50.00,
+      "unit_cost": 850.00,
+      "total_cost": 42500.00,
+      "reference": "PO-2026-001",
+      "notes": "Initial stock purchase",
+      "receipt": "",
+      "receipt_number": "INV-001",
+      "status": "CONFIRMED",
+      "performed_by": null,
+      "confirmed_at": "2026-07-01T10:00:00Z",
+      "quantity_before": 0.00,
+      "quantity_after": 50.00,
+      "transaction_date": "2026-07-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "inventory.stocktransaction",
+    "pk": 2,
+    "fields": {
+      "material": 2,
+      "type": "IN",
+      "quantity": 10.00,
+      "unit_cost": 45000.00,
+      "total_cost": 450000.00,
+      "reference": "PO-2026-002",
+      "notes": "Steel delivery",
+      "receipt": "",
+      "receipt_number": "INV-002",
+      "status": "CONFIRMED",
+      "performed_by": null,
+      "confirmed_at": "2026-07-05T14:30:00Z",
+      "quantity_before": 0.00,
+      "quantity_after": 10.00,
+      "transaction_date": "2026-07-05T14:30:00Z"
+    }
+  },
+  {
+    "model": "inventory.stocktransaction",
+    "pk": 3,
+    "fields": {
+      "material": 1,
+      "type": "OUT",
+      "quantity": 25.00,
+      "unit_cost": 850.00,
+      "total_cost": 21250.00,
+      "reference": "PROJECT-001",
+      "notes": "Used for project foundation",
+      "receipt": "",
+      "receipt_number": "",
+      "status": "CONFIRMED",
+      "performed_by": null,
+      "confirmed_at": "2026-07-10T09:00:00Z",
+      "quantity_before": 75.00,
+      "quantity_after": 50.00,
+      "transaction_date": "2026-07-10T09:00:00Z"
+    }
+  },
+  {
+    "model": "inventory.stocktransaction",
+    "pk": 4,
+    "fields": {
+      "material": 3,
+      "type": "IN",
+      "quantity": 30.00,
+      "unit_cost": 2500.00,
+      "total_cost": 75000.00,
+      "reference": "PO-2026-003",
+      "notes": "Sand delivery",
+      "receipt": "",
+      "receipt_number": "INV-003",
+      "status": "PENDING",
+      "performed_by": null,
+      "confirmed_at": null,
+      "quantity_before": 20.00,
+      "quantity_after": null,
+      "transaction_date": "2026-07-12T11:00:00Z"
+    }
+  }
+]

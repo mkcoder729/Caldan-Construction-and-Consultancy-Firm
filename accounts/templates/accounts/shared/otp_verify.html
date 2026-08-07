@@ -1,0 +1,162 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block title %}Verify Code — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-grid">
+
+        <!-- Brand side -->
+        <aside class="auth-brand" aria-hidden="true">
+            <div class="auth-brand-content">
+                <img src="{% static 'images/logo_light.png' %}" alt="Caldan Construction and Consultancy Firm" class="auth-brand-logo">
+                <span class="auth-brand-eyebrow">Two-Factor Authentication</span>
+                <h1>Verify Your Identity</h1>
+                <p class="auth-brand-text">Enter the 8-digit verification code we just sent to your email to finish signing in.</p>
+
+                <div class="auth-brand-features">
+                    <div class="feature-item"><i class="fas fa-shield-halved"></i><span>Extra Security Layer</span></div>
+                    <div class="feature-item"><i class="fas fa-clock"></i><span>Code expires in 5 minutes</span></div>
+                    <div class="feature-item"><i class="fas fa-envelope"></i><span>Check your inbox</span></div>
+                    <div class="feature-item"><i class="fas fa-rotate"></i><span>Resend if not received</span></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Form side -->
+        <div class="auth-form-wrapper">
+            <div class="auth-form-container">
+
+                <div class="auth-form-header">
+                    <div class="icon-bubble gold" aria-hidden="true"><i class="fas fa-key"></i></div>
+                    <h2>Verification Code</h2>
+                    <p>We sent an 8-digit code to <strong>{{ email }}</strong></p>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags|default:'info' }}" role="alert">
+                            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" class="auth-form" data-loading novalidate>
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="otp_code">Enter Code</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-key" aria-hidden="true"></i>
+                            <input type="text"
+                                   id="otp_code"
+                                   name="otp_code"
+                                   class="otp-input"
+                                   placeholder="••••••••"
+                                   inputmode="numeric"
+                                   autocomplete="one-time-code"
+                                   pattern="[0-9]{8}"
+                                   maxlength="8"
+                                   minlength="8"
+                                   required
+                                   autofocus
+                                   aria-required="true">
+                        </div>
+                        <div class="otp-help">
+                            <span class="otp-timer" id="otp-timer-text" aria-live="polite">Resend available in 60s</span>
+                            <form method="post" action="{% url 'accounts:resend_otp' %}" style="display:inline; margin:0;">
+                                {% csrf_token %}
+                                <button type="submit" class="resend-btn" id="resend-btn" disabled aria-disabled="true">
+                                    <i class="fas fa-rotate" aria-hidden="true"></i> Resend Code
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span class="btn-text"><i class="fas fa-check" aria-hidden="true"></i> Verify &amp; Continue</span>
+                        <i class="spinner fas fa-circle-notch" aria-hidden="true"></i>
+                    </button>
+                </form>
+
+                <div class="auth-form-footer">
+                    <p><a href="{% url 'accounts:login' %}"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Login</a></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+(function() {
+    'use strict';
+
+    const RESEND_SECONDS = 60;
+    const timerText = document.getElementById('otp-timer-text');
+    const resendBtn = document.getElementById('resend-btn');
+    const otpInput = document.getElementById('otp_code');
+
+    let seconds = RESEND_SECONDS;
+    let interval = null;
+
+    function startTimer() {
+        seconds = RESEND_SECONDS;
+        if (timerText) timerText.textContent = 'Resend available in ' + seconds + 's';
+        if (resendBtn) {
+            resendBtn.disabled = true;
+            resendBtn.setAttribute('aria-disabled', 'true');
+        }
+
+        if (interval) clearInterval(interval);
+        interval = setInterval(() => {
+            seconds -= 1;
+            if (seconds <= 0) {
+                clearInterval(interval);
+                interval = null;
+                if (timerText) timerText.textContent = "Didn't receive the code?";
+                if (resendBtn) {
+                    resendBtn.disabled = false;
+                    resendBtn.removeAttribute('aria-disabled');
+                }
+            } else {
+                if (timerText) timerText.textContent = 'Resend available in ' + seconds + 's';
+            }
+        }, 1000);
+    }
+
+    startTimer();
+
+    // Block clicks on the disabled resend button
+    if (resendBtn) {
+        resendBtn.addEventListener('click', (e) => {
+            if (resendBtn.disabled) {
+                e.preventDefault();
+                return;
+            }
+            startTimer();
+        });
+    }
+
+    // Auto-submit when 8 digits entered (with a short debounce)
+    if (otpInput) {
+        let debounceTimer = null;
+        const form = otpInput.form;
+        otpInput.addEventListener('input', () => {
+            // Strip non-digits
+            const digits = otpInput.value.replace(/\D/g, '');
+            if (digits !== otpInput.value) otpInput.value = digits;
+            if (debounceTimer) clearTimeout(debounceTimer);
+            if (otpInput.value.length === 8) {
+                debounceTimer = setTimeout(() => form.submit(), 250);
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

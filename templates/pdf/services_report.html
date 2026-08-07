@@ -1,0 +1,51 @@
+{% extends "pdf/_base_report.html" %}
+
+{% block badge %}SERVICES REPORT{% endblock %}
+
+{% block title %}Services <span>Report</span>{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h2>Services</h2>
+    {% if services %}
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Duration</th>
+                <th>Featured</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in services %}
+            <tr>
+                <td><strong>{{ s.title }}</strong></td>
+                <td>{{ s.get_category_display|default:s.category|default:"—" }}</td>
+                <td>KES {{ s.price|floatformat:2|default:"—" }}</td>
+                <td>{{ s.duration|default:"—" }}</td>
+                <td>
+                    {% if s.is_featured %}
+                        <span class="pill pill-warning">Featured</span>
+                    {% else %}
+                        <span class="pill pill-neutral">Standard</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if s.is_active %}
+                        <span class="pill pill-success">Active</span>
+                    {% else %}
+                        <span class="pill pill-neutral">Inactive</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No services recorded.</div>
+    {% endif %}
+</div>
+{% endblock %}

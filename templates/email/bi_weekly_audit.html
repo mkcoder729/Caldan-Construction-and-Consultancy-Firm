@@ -1,0 +1,37 @@
+{# Bi-weekly audit report — admin digest of system activity. #}
+{% extends "email/_base.html" %}
+{% load humanize %}
+
+{% block badge %}<span class="badge badge-info" style="margin-top: 14px;">AUDIT REPORT</span>{% endblock %}
+
+{% block content %}
+  <h1>Bi-weekly <span>audit</span></h1>
+  <p class="subtitle">{{ period_start|date:"F j, Y" }} — {{ period_end|date:"F j, Y" }}</p>
+
+  <p>Summary of system activity over the last two weeks.</p>
+
+  <div style="display: block; margin: 22px 0;">
+    <table width="100%" cellpadding="0" cellspacing="6" border="0">
+      <tr>
+        <td align="center" style="background: #FAFBFD; border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px 12px;">
+          <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500);">Total Actions</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--brand-navy); margin-top: 4px;">{{ total_actions|default:0 }}</div>
+        </td>
+        <td align="center" style="background: #FAFBFD; border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px 12px;">
+          <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500);">Unique Users</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--brand-blue); margin-top: 4px;">{{ unique_users|default:0 }}</div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  {% if report_pdf_url %}
+  <div class="button-row">
+    <a href="{{ report_pdf_url }}" class="button">Download full audit PDF</a>
+  </div>
+  {% else %}
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}/dashboard/admin/audit/" class="button">Open audit log</a>
+  </div>
+  {% endif %}
+{% endblock %}

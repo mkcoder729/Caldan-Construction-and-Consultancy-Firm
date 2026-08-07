@@ -1,0 +1,80 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block title %}Setup Complete — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-grid">
+
+        <!-- ============ Brand side ============ -->
+        <aside class="auth-brand" aria-hidden="true">
+            <div class="auth-brand-content">
+                <img src="{% static 'images/logo_light.png' %}" alt="Caldan Construction and Consultancy Firm" class="auth-brand-logo">
+                <span class="auth-brand-eyebrow">Setup Complete</span>
+                <h1>You're All Set</h1>
+                <p class="auth-brand-text">
+                    Your Chief Admin account is ready. Sign in to start exploring projects, inventory, finances, and everything you can manage.
+                </p>
+
+                <div class="auth-brand-features">
+                    <div class="feature-item"><i class="fas fa-diagram-project"></i><span>Manage Projects</span></div>
+                    <div class="feature-item"><i class="fas fa-boxes-stacked"></i><span>Track Inventory</span></div>
+                    <div class="feature-item"><i class="fas fa-bag-shopping"></i><span>Run the Shop</span></div>
+                    <div class="feature-item"><i class="fas fa-coins"></i><span>Track Finances</span></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ============ Success card side ============ -->
+        <div class="auth-form-wrapper">
+            <div class="auth-form-container">
+
+                <div class="auth-form-header">
+                    <div class="icon-bubble success" aria-hidden="true">
+                        <i class="fas fa-circle-check"></i>
+                    </div>
+                    <h2>Setup Complete!</h2>
+                    <p>
+                        {% if chief %}
+                            Welcome, <strong>{{ chief.full_name_short }}</strong> — your Chief Admin account is ready.
+                        {% else %}
+                            Your Chief Admin account has been created successfully.
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="alert alert-success" role="alert" style="text-align: left;">
+                    <i class="fas fa-circle-check"></i>
+                    <span>Your account is active. You're already signed in — head straight to the dashboard.</span>
+                </div>
+
+                <div class="message-box success" style="text-align: left;">
+                    <p><strong>Welcome to Caldan Construction and Consultancy Firm!</strong></p>
+                    <p>You now have full access to manage:</p>
+                    <ul style="margin: 10px 0 0 0; padding-left: 18px; color: var(--text-secondary);">
+                        <li><i class="fas fa-diagram-project" style="color: var(--accent-gold); width: 18px;"></i> Projects</li>
+                        <li><i class="fas fa-boxes-stacked" style="color: var(--accent-gold); width: 18px;"></i> Inventory</li>
+                        <li><i class="fas fa-bag-shopping" style="color: var(--accent-gold); width: 18px;"></i> Online Shop</li>
+                        <li><i class="fas fa-coins" style="color: var(--accent-gold); width: 18px;"></i> Finances</li>
+                        <li><i class="fas fa-people-group" style="color: var(--accent-gold); width: 18px;"></i> Clients &amp; Team</li>
+                        <li><i class="fas fa-chart-line" style="color: var(--accent-gold); width: 18px;"></i> Reports &amp; Analytics</li>
+                    </ul>
+                </div>
+
+                <a href="{% url 'dashboard:overview' %}" class="btn btn-primary btn-block">
+                    <span class="btn-text"><i class="fas fa-arrow-right" aria-hidden="true"></i> Go to Dashboard</span>
+                    <i class="spinner fas fa-circle-notch" aria-hidden="true"></i>
+                </a>
+
+                <div class="auth-form-footer" style="border-top: none; padding-top: 18px;">
+                    <p style="font-size: 0.85rem; color: var(--text-tertiary); text-align: center; font-style: italic;">
+                        "Building Kenya's Future, One Project at a Time."
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

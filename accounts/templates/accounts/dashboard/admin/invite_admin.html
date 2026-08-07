@@ -1,0 +1,2084 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Invite Admin - Caldan{% endblock %}
+
+{% block extra_css %}
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<style>
+/* =====================================================================
+   INVITE ADMIN — Side-by-side wizard with rail.
+
+   Aesthetic: midnight sapphire + brushed gold + ivory. Designed so the
+   wizard feels like an altar — calm, focused, ceremonial — distinct
+   from the wide admin table on /admins/.
+
+   Bug-class prevention: two SEPARATE forms (one per step) so step 2's
+   hidden inputs can never bleed into step 1's submit.
+   ===================================================================== */
+
+.inv-page {
+    --inv-navy: #061327;
+    --inv-navy-mid: #0B2540;
+    --inv-navy-deep: #08203C;
+    --inv-blue: #0B66C3;
+    --inv-blue-deep: #10355E;
+    --inv-gold: #D4AF37;
+    --inv-gold-deep: #B08C28;
+    --inv-gold-glow: rgba(212, 175, 55, 0.45);
+    --inv-ivory: #FAF7F0;
+    --inv-line: rgba(212, 175, 55, 0.18);
+    --inv-radius-lg: 22px;
+    --inv-radius-md: 14px;
+    --inv-radius-sm: 10px;
+
+    position: relative;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-bottom: 80px;
+    animation: inv-rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes inv-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Aurora backdrop ---------- */
+.invite-page::before {
+    content: '';
+    position: absolute;
+    inset: -60px -120px auto -120px;
+    height: 520px;
+    background:
+        radial-gradient(ellipse at 12% 20%, rgba(212, 175, 55, 0.16) 0%, transparent 55%),
+        radial-gradient(ellipse at 88% 80%, rgba(11, 102, 195, 0.22) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* =====================================================================
+   HERO
+   ===================================================================== */
+.inv-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--inv-radius-lg);
+    color: #fff;
+    padding: 30px 38px;
+    background:
+        radial-gradient(900px 260px at 0% 0%, rgba(212, 175, 55, 0.22), transparent 60%),
+        radial-gradient(700px 240px at 100% 100%, rgba(11, 102, 195, 0.40), transparent 65%),
+        linear-gradient(135deg, var(--inv-navy) 0%, var(--inv-blue-deep) 55%, var(--inv-navy-deep) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.28);
+    box-shadow: 0 30px 60px -16px rgba(6, 19, 39, 0.55),
+                0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}
+/* Animated grid behind hero */
+.inv-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 80%);
+    pointer-events: none;
+    opacity: 0.6;
+}
+/* Gold ribbon sweeping across */
+.inv-hero::after {
+    content: '';
+    position: absolute;
+    top: -120px; right: -160px;
+    width: 520px; height: 520px;
+    background: conic-gradient(from 220deg at 50% 50%,
+        rgba(212, 175, 55, 0.30) 0deg,
+        rgba(212, 175, 55, 0.0) 80deg,
+        rgba(11, 102, 195, 0.20) 220deg,
+        rgba(212, 175, 55, 0.30) 360deg);
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0.55;
+    pointer-events: none;
+    animation: inv-ribbon 18s linear infinite;
+}
+@keyframes inv-ribbon {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+.inv-hero-row {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+.inv-hero-icon {
+    width: 80px; height: 80px;
+    border-radius: 20px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(212, 175, 55, 0.20);
+    border: 1.5px solid rgba(212, 175, 55, 0.42);
+    color: var(--inv-gold);
+    font-size: 30px;
+    flex-shrink: 0;
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.28);
+    backdrop-filter: blur(10px);
+}
+.inv-hero-info { flex: 1; min-width: 240px; }
+.inv-hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--inv-gold);
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    margin: 0 0 10px;
+    padding: 5px 12px;
+    border: 1px solid rgba(212, 175, 55, 0.32);
+    border-radius: 999px;
+    background: rgba(212, 175, 55, 0.06);
+}
+.inv-hero-eyebrow i { font-size: 9px; }
+.inv-hero-title {
+    margin: 0 0 8px;
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    line-height: 1.1;
+    color: #fff;
+}
+.inv-hero-title .accent {
+    background: linear-gradient(135deg, #FFE082 0%, var(--inv-gold) 50%, var(--inv-gold-deep) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.inv-hero-sub {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 14.5px;
+    line-height: 1.55;
+    max-width: 60ch;
+}
+.inv-hero-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 999px;
+    text-decoration: none;
+    backdrop-filter: blur(12px);
+    transition: background 180ms ease, transform 180ms cubic-bezier(0.16, 1, 0.3, 1), border-color 180ms ease;
+    flex-shrink: 0;
+    letter-spacing: 0.3px;
+    font-family: inherit;
+}
+.inv-hero-back:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.40);
+    transform: translateX(-2px);
+}
+
+/* =====================================================================
+   WIZARD — side-by-side rail + content
+   ===================================================================== */
+.inv-wizard {
+    margin-top: 26px;
+    display: grid;
+    grid-template-columns: 268px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+@media (max-width: 880px) {
+    .inv-wizard { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Step rail ---------- */
+.inv-rail {
+    position: sticky;
+    top: 90px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--inv-radius-lg);
+    padding: 22px 20px;
+    box-shadow: 0 12px 36px -16px rgba(11, 37, 64, 0.20),
+                0 1px 3px rgba(11, 37, 64, 0.04);
+    overflow: hidden;
+}
+.inv-rail::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--inv-gold) 0%, var(--inv-blue) 100%);
+}
+.inv-rail-eyebrow {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    color: var(--text-tertiary);
+    margin: 0 0 16px;
+    padding-left: 56px;
+}
+.inv-rail-list {
+    position: relative;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+/* Vertical progress bar behind the chips */
+.inv-rail-list::before {
+    content: '';
+    position: absolute;
+    left: 22px;
+    top: 22px;
+    bottom: 22px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--border-subtle) 0%, var(--border-subtle) 100%);
+    border-radius: 2px;
+}
+.inv-rail-list::after {
+    content: '';
+    position: absolute;
+    left: 22px;
+    top: 22px;
+    width: 2px;
+    height: var(--inv-rail-fill, 0px);
+    background: linear-gradient(180deg, var(--inv-gold) 0%, var(--inv-gold-deep) 100%);
+    border-radius: 2px;
+    transition: height 480ms cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 12px var(--inv-gold-glow);
+}
+.inv-rail-item {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    z-index: 1;
+}
+.inv-rail-num {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: var(--bg-canvas);
+    color: var(--text-tertiary);
+    border: 2px solid var(--border-subtle);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 16px;
+    flex-shrink: 0;
+    transition: background 240ms ease, color 240ms ease, border-color 240ms ease, transform 240ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 240ms ease;
+}
+.inv-rail-item[data-state="active"] .inv-rail-num {
+    background: linear-gradient(135deg, var(--inv-gold) 0%, var(--inv-gold-deep) 100%);
+    color: var(--inv-navy);
+    border-color: transparent;
+    transform: scale(1.08);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.18),
+                0 10px 24px rgba(212, 175, 55, 0.30);
+}
+.inv-rail-item[data-state="done"] .inv-rail-num {
+    background: linear-gradient(135deg, var(--inv-blue) 0%, var(--inv-blue-deep) 100%);
+    color: #fff;
+    border-color: transparent;
+}
+.inv-rail-body { min-width: 0; padding-top: 4px; }
+.inv-rail-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.2;
+    transition: color 240ms ease;
+}
+.inv-rail-item[data-state="active"] .inv-rail-name { color: var(--text-primary); }
+.inv-rail-meta {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    line-height: 1.4;
+}
+.inv-rail-summary {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border-subtle);
+}
+.inv-rail-summary-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+.inv-rail-summary-row i {
+    width: 26px; height: 26px;
+    border-radius: 8px;
+    background: rgba(11, 102, 195, 0.10);
+    color: var(--inv-blue);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+.inv-rail-summary-row strong {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+/* =====================================================================
+   CONTENT — the form cards
+   ===================================================================== */
+.inv-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
+}
+
+/* ---------- Rail: dense side cards ---------- */
+.inv-rail-tips,
+.inv-rail-pending {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--inv-radius-lg);
+    padding: 18px 18px 16px;
+    box-shadow: 0 8px 22px -16px rgba(11, 37, 64, 0.18);
+}
+.inv-rail-tips-head,
+.inv-rail-pending-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-tertiary, #6B7280);
+    margin-bottom: 12px;
+}
+.inv-rail-tips-head i { color: var(--inv-gold, #D4AF37); }
+.inv-rail-pending-head i { color: var(--inv-blue, #0B66C3); }
+.inv-rail-pending-count {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: var(--inv-blue, #0B66C3);
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0;
+}
+.inv-rail-tips-list,
+.inv-rail-pending-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.inv-rail-tips-list li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+.inv-rail-tips-list .tip-num {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--inv-gold, #D4AF37) 0%, #B8932A 100%);
+    color: #0D2B36;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.4px;
+}
+.inv-rail-tips-list strong {
+    display: block;
+    font-size: 13px;
+    color: var(--text-primary, #0D2B36);
+    margin-bottom: 2px;
+}
+.inv-rail-tips-list p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-tertiary, #6B7280);
+    line-height: 1.45;
+}
+.inv-rail-pending-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--bg-canvas, #F8FAFC);
+    border: 1px solid var(--border-subtle, #E5E7EB);
+}
+.inv-rail-pending-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0B66C3 0%, #10355E 100%);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.inv-rail-pending-info {
+    flex: 1;
+    min-width: 0;
+}
+.inv-rail-pending-email {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary, #0D2B36);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.inv-rail-pending-meta {
+    font-size: 11px;
+    color: var(--text-tertiary, #6B7280);
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.inv-rail-pending-meta i { font-size: 9px; color: var(--inv-gold, #D4AF37); }
+
+/* ---------- Form card ---------- */
+.inv-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--inv-radius-lg);
+    box-shadow: 0 18px 50px -20px rgba(11, 37, 64, 0.18),
+                0 1px 3px rgba(11, 37, 64, 0.04);
+    overflow: hidden;
+    position: relative;
+    animation: inv-card-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes inv-card-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.inv-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--inv-gold) 0%, var(--inv-blue) 100%);
+}
+.inv-card-head {
+    padding: 28px 36px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: linear-gradient(180deg, var(--bg-canvas) 0%, var(--bg-card) 100%);
+}
+.inv-card-eyebrow {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--inv-gold-deep);
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    margin: 0 0 8px;
+    display: inline-flex; align-items: center; gap: 8px;
+}
+.inv-card-eyebrow i { font-size: 10px; }
+.inv-card-title {
+    margin: 0 0 6px;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+    line-height: 1.2;
+}
+.inv-card-sub {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13.5px;
+    line-height: 1.55;
+    max-width: 64ch;
+}
+.inv-card-body { padding: 26px 30px 10px; }
+.inv-card-foot {
+    padding: 18px 30px 24px;
+    background: var(--bg-canvas);
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ---------- Banner (errors / messages) ---------- */
+.inv-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 24px;
+    border-bottom: 1px solid;
+    position: relative;
+    z-index: 3;
+    animation: inv-banner-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both,
+               inv-banner-shake 0.45s ease-in-out 0.15s 1;
+}
+@keyframes inv-banner-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes inv-banner-shake {
+    0%, 100% { transform: translateX(0); }
+    20%      { transform: translateX(-4px); }
+    40%      { transform: translateX(4px); }
+    60%      { transform: translateX(-2px); }
+    80%      { transform: translateX(2px); }
+}
+.inv-banner-error {
+    color: #7F1D1D;
+    background: linear-gradient(180deg, #FEF2F2 0%, #FEE2E2 100%);
+    border-bottom-color: #FCA5A5;
+    border-top: 4px solid #DC2626;
+}
+.inv-banner-error::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 0% 50%, rgba(220, 38, 38, 0.10) 0%, transparent 70%);
+    pointer-events: none;
+}
+.inv-banner-success {
+    color: #065F46;
+    background: linear-gradient(180deg, #ECFDF5 0%, #D1FAE5 100%);
+    border-bottom-color: #6EE7B7;
+    border-top: 4px solid #059669;
+}
+.inv-banner-icon {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    color: #FFFFFF;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+}
+.inv-banner-error .inv-banner-icon { background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); }
+.inv-banner-success .inv-banner-icon { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+.inv-banner-body { flex: 1; font-size: 13px; line-height: 1.5; min-width: 0; }
+.inv-banner-body strong { display: block; font-size: 13.5px; margin-bottom: 2px; }
+.inv-banner-body span { opacity: 0.85; }
+.inv-banner-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px;
+    border-radius: 6px;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: background 160ms ease;
+    font-family: inherit;
+}
+.inv-banner-error .inv-banner-close { color: #991B1B; }
+.inv-banner-success .inv-banner-close { color: #065F46; }
+.inv-banner-error .inv-banner-close:hover { background: rgba(185, 28, 28, 0.12); }
+.inv-banner-success .inv-banner-close:hover { background: rgba(5, 150, 105, 0.12); }
+
+/* ---------- Form fields ---------- */
+.inv-field { margin: 0 0 18px; }
+.inv-field:last-child { margin-bottom: 0; }
+.inv-field-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 10px;
+}
+.inv-field-label i { color: var(--inv-blue); font-size: 12px; }
+.inv-field-label .req { color: #DC2626; margin-left: 2px; }
+.inv-field-label .optional-tag {
+    margin-left: auto;
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 9px;
+    background: var(--bg-canvas);
+    color: var(--text-tertiary);
+    border-radius: 999px;
+    border: 1px solid var(--border-subtle);
+    letter-spacing: 0.6px;
+}
+
+.inv-input-wrap { position: relative; }
+.inv-input-wrap .inv-leading {
+    position: absolute;
+    left: 18px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    font-size: 15px;
+    pointer-events: none;
+    transition: color 180ms ease;
+}
+.inv-input,
+.inv-page input[type="email"],
+.inv-page input[type="text"],
+.inv-page input[type="tel"],
+.inv-page textarea,
+.inv-page select {
+    width: 100%;
+    padding: 14px 16px 14px 48px;
+    border: 1.5px solid var(--border-subtle);
+    border-radius: var(--inv-radius-md);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 15px;
+    font-family: inherit;
+    transition: border-color 180ms ease,
+                box-shadow 180ms ease,
+                background 180ms ease;
+    pointer-events: auto !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    position: relative;
+    z-index: 2;
+}
+.inv-page select { padding-left: 16px; }
+.inv-page textarea {
+    padding: 14px 16px;
+    min-height: 96px;
+    resize: vertical;
+    line-height: 1.55;
+}
+.inv-input:focus,
+.inv-page input:focus,
+.inv-page select:focus,
+.inv-page textarea:focus {
+    outline: none;
+    border-color: var(--inv-gold);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.18);
+}
+.inv-input:focus ~ .inv-leading,
+.inv-input-wrap:focus-within .inv-leading { color: var(--inv-gold-deep); }
+.inv-input::placeholder,
+.inv-page input::placeholder,
+.inv-page textarea::placeholder { color: var(--text-tertiary); }
+
+/* Step 1 — oversized email */
+.inv-page .inv-card[data-step="1"] .inv-input,
+.inv-page .inv-card[data-step="1"] input[type="email"] {
+    height: 64px;
+    padding: 0 20px 0 56px;
+    font-size: 17px;
+    border-radius: 16px;
+    border-width: 1.5px;
+}
+.inv-page .inv-card[data-step="1"] .inv-leading {
+    left: 22px;
+    font-size: 18px;
+}
+
+/* Invalid field */
+.inv-page .inv-input-wrap.is-invalid .inv-input,
+.inv-page input.is-invalid {
+    border-color: #DC2626 !important;
+    background: rgba(254, 226, 226, 0.55) !important;
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.18) !important;
+    animation: inv-field-shake 0.42s ease-in-out;
+}
+.inv-page .inv-input-wrap.is-invalid .inv-leading { color: #DC2626; }
+@keyframes inv-field-shake {
+    0%, 100% { transform: translateX(0); }
+    25%      { transform: translateX(-3px); }
+    50%      { transform: translateX(3px); }
+    75%      { transform: translateX(-1px); }
+}
+
+.inv-field-error {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #B91C1C;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.22);
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+.inv-field-hint {
+    margin-top: 8px;
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.inv-field-hint i { color: var(--inv-gold); font-size: 10px; }
+
+/* =====================================================================
+   STEP 1 — Trust strip
+   ===================================================================== */
+.inv-trust {
+    margin-top: 22px;
+    padding: 16px 18px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.06) 0%, rgba(212, 175, 55, 0.02) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.18);
+    border-radius: var(--inv-radius-md);
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+.inv-trust-icon {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--inv-gold) 0%, var(--inv-gold-deep) 100%);
+    color: var(--inv-navy);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.30);
+}
+.inv-trust-text {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+}
+.inv-trust-text strong { color: var(--text-primary); font-weight: 700; }
+.inv-trust-text .small { display: block; margin-top: 4px; font-size: 11.5px; color: var(--text-tertiary); }
+
+/* =====================================================================
+   STEP 2 layout — 2 columns + sticky summary
+   ===================================================================== */
+.inv-email-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 10px 10px 16px;
+    background: linear-gradient(135deg, rgba(11, 102, 195, 0.10) 0%, rgba(11, 102, 195, 0.05) 100%);
+    border: 1px solid rgba(11, 102, 195, 0.22);
+    color: var(--text-primary);
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 600;
+    margin: 0 0 24px;
+    max-width: 100%;
+}
+.inv-email-pill .pill-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(11, 102, 195, 0.15);
+    color: var(--inv-blue);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+.inv-email-pill .pill-email {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+.inv-email-pill .pill-change {
+    background: transparent;
+    border: none;
+    color: var(--inv-blue);
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: background 160ms ease;
+    flex-shrink: 0;
+}
+.inv-email-pill .pill-change:hover { background: rgba(11, 102, 195, 0.15); }
+
+.inv-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 28px;
+}
+@media (max-width: 820px) {
+    .inv-grid { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+}
+
+/* Channel tiles */
+.inv-channels-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+@media (max-width: 480px) { .inv-channels-grid { grid-template-columns: minmax(0, 1fr); } }
+.inv-channel-tile {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--bg-canvas);
+    border: 1.5px solid var(--border-subtle);
+    border-radius: var(--inv-radius-md);
+    cursor: pointer;
+    transition: border-color 180ms ease, background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+.inv-channel-tile:hover { border-color: rgba(212, 175, 55, 0.40); background: var(--bg-card); transform: translateY(-1px); }
+.inv-channel-tile input[type="checkbox"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.inv-channel-icon {
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    background: rgba(11, 102, 195, 0.10);
+    color: var(--inv-blue);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+    transition: background 180ms ease, color 180ms ease;
+}
+.inv-channel-tile:has(input:checked) .inv-channel-icon {
+    background: linear-gradient(135deg, var(--inv-gold) 0%, var(--inv-gold-deep) 100%);
+    color: var(--inv-navy);
+}
+.inv-channel-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+.inv-channel-label { font-weight: 700; font-size: 13.5px; color: var(--text-primary); }
+.inv-channel-desc  { font-size: 11.5px; color: var(--text-tertiary); }
+.inv-channel-check {
+    color: var(--inv-gold-deep);
+    opacity: 0;
+    transition: opacity 180ms ease;
+    font-size: 14px;
+}
+.inv-channel-tile:has(input:checked) {
+    border-color: var(--inv-gold);
+    background: rgba(212, 175, 55, 0.06);
+    box-shadow: 0 6px 16px rgba(212, 175, 55, 0.10);
+}
+.inv-channel-tile:has(input:checked) .inv-channel-check { opacity: 1; }
+.inv-channel-tile.is-disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+/* Permissions */
+.inv-perm-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+@media (max-width: 720px) { .inv-perm-grid { grid-template-columns: minmax(0, 1fr); } }
+.inv-perm-toggle {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px 10px 36px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 180ms ease, background 180ms ease;
+}
+.inv-perm-toggle:hover { border-color: rgba(212, 175, 55, 0.40); background: var(--bg-card); }
+.inv-perm-toggle input { position: absolute; left: 12px; top: 12px; }
+.inv-perm-label { font-weight: 700; font-size: 12.5px; color: var(--text-primary); }
+.inv-perm-desc  { font-size: 10.5px; color: var(--text-tertiary); line-height: 1.4; }
+.inv-perm-toggle:has(input:checked) {
+    border-color: var(--inv-gold);
+    background: rgba(212, 175, 55, 0.06);
+}
+.inv-perm-toggle:has(input:checked) .inv-perm-label { color: var(--inv-gold-deep); }
+
+/* Buttons */
+.inv-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    height: 50px;
+    padding: 0 26px;
+    border: none;
+    border-radius: var(--inv-radius-md);
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 180ms ease,
+                background 180ms ease,
+                border-color 180ms ease,
+                color 180ms ease;
+    text-decoration: none;
+    font-family: inherit;
+}
+.inv-btn:disabled,
+.inv-btn[aria-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+.inv-btn-primary {
+    background: linear-gradient(135deg, #F5D675 0%, var(--inv-gold) 50%, var(--inv-gold-deep) 100%);
+    color: var(--inv-navy);
+    box-shadow: 0 8px 22px -6px rgba(212, 175, 55, 0.55),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    min-width: 200px;
+    position: relative;
+    overflow: hidden;
+}
+.inv-btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+    transition: left 600ms ease;
+}
+.inv-btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px -6px rgba(212, 175, 55, 0.65),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.inv-btn-primary:hover:not(:disabled)::after { left: 100%; }
+.inv-btn-primary:active:not(:disabled) { transform: translateY(0); }
+
+.inv-btn-secondary {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+    height: 50px;
+}
+.inv-btn-secondary:hover { background: var(--bg-secondary); border-color: var(--text-tertiary); color: var(--text-primary); }
+
+.inv-btn-blue {
+    background: linear-gradient(135deg, var(--inv-blue) 0%, var(--inv-blue-deep) 100%);
+    color: #fff;
+    box-shadow: 0 8px 22px -6px rgba(11, 102, 195, 0.55);
+    min-width: 200px;
+}
+.inv-btn-blue:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px -6px rgba(11, 102, 195, 0.65);
+}
+.inv-btn i { font-size: 13px; }
+
+/* =====================================================================
+   RECENT INVITATIONS card
+   ===================================================================== */
+.inv-recent {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--inv-radius-lg);
+    overflow: hidden;
+    box-shadow: 0 12px 32px -16px rgba(11, 37, 64, 0.16),
+                0 1px 3px rgba(11, 37, 64, 0.04);
+}
+.inv-recent-head {
+    padding: 20px 26px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-canvas) 100%);
+}
+.inv-recent-head-left { display: flex; align-items: center; gap: 12px; }
+.inv-recent-head i.icon {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: rgba(212, 175, 55, 0.12);
+    color: var(--inv-gold-deep);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    border: 1px solid rgba(212, 175, 55, 0.18);
+}
+.inv-recent-head h3 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.inv-recent-head .count {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    padding: 3px 9px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+}
+.inv-recent-list { list-style: none; padding: 0; margin: 0; }
+.inv-recent-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 26px;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 13px;
+    transition: background 160ms ease;
+}
+.inv-recent-item:hover { background: rgba(212, 175, 55, 0.04); }
+.inv-recent-item:last-child { border-bottom: none; }
+.inv-recent-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: rgba(11, 102, 195, 0.10);
+    color: var(--inv-blue);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+.inv-recent-info { flex: 1; min-width: 0; }
+.inv-recent-email {
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.inv-recent-meta {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.inv-recent-meta i { font-size: 10px; color: var(--inv-gold); }
+.inv-recent-channels { display: inline-flex; gap: 6px; flex-shrink: 0; }
+.inv-recent-pill {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex; align-items: center; gap: 4px;
+}
+.inv-recent-pill.email { background: rgba(11, 102, 195, 0.10); color: var(--inv-blue); border: 1px solid rgba(11, 102, 195, 0.2); }
+.inv-recent-pill.sms   { background: rgba(212, 175, 55, 0.12); color: var(--inv-gold-deep); border: 1px solid rgba(212, 175, 55, 0.24); }
+.inv-recent-pill i { font-size: 9px; }
+.inv-empty {
+    padding: 30px 24px;
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 13px;
+}
+.inv-empty i { font-size: 26px; color: var(--border-subtle); margin-bottom: 8px; display: block; }
+
+/* =====================================================================
+   RESPONSIVE
+   ===================================================================== */
+@media (max-width: 720px) {
+    .inv-hero { padding: 26px 24px; }
+    .inv-hero-title { font-size: 26px; }
+    .inv-hero-icon { width: 60px; height: 60px; font-size: 24px; }
+    .inv-card-head,
+    .inv-card-body,
+    .inv-card-foot { padding-left: 22px; padding-right: 22px; }
+    .inv-card-foot { flex-direction: column-reverse; }
+    .inv-btn { width: 100%; }
+    .inv-btn-primary { min-width: 0; }
+    .inv-rail { position: static; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .inv-page,
+    .inv-card,
+    .inv-hero::after { animation: none !important; }
+}
+
+/* ---------- Success modal ---------- */
+.inv-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: radial-gradient(circle at 50% 50%, rgba(13, 43, 54, 0.78) 0%, rgba(8, 26, 33, 0.92) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    animation: inv-modal-backdrop-in 0.28s ease-out both;
+}
+@keyframes inv-modal-backdrop-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.inv-modal {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    background: linear-gradient(180deg, #FFFFFF 0%, #FBFBFD 100%);
+    border-radius: 22px;
+    padding: 36px 36px 28px;
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.45),
+        0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+    text-align: center;
+    overflow: hidden;
+    animation: inv-modal-pop 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes inv-modal-pop {
+    from { transform: translateY(20px) scale(0.96); opacity: 0; }
+    to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+.inv-modal::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #D4AF37 0%, #0B66C3 50%, #D4AF37 100%);
+}
+.inv-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #F3F4F6;
+    color: #4B5563;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.15s;
+}
+.inv-modal-close:hover {
+    background: #E5E7EB;
+    transform: rotate(90deg);
+}
+.inv-modal-pulse {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    margin: 4px auto 18px;
+}
+.inv-modal-pulse-core {
+    position: absolute;
+    inset: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    box-shadow: 0 12px 28px rgba(16, 185, 129, 0.45);
+    z-index: 2;
+    animation: inv-modal-core-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+@keyframes inv-modal-core-in {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+.inv-modal-pulse-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid #10B981;
+    opacity: 0.5;
+    animation: inv-modal-ring 2.4s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+.inv-modal-pulse-ring-2 {
+    animation-delay: 1.2s;
+}
+@keyframes inv-modal-ring {
+    0%   { transform: scale(0.6); opacity: 0.7; }
+    100% { transform: scale(1.4); opacity: 0; }
+}
+.inv-modal-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: #ECFDF5;
+    color: #065F46;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+.inv-modal-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0D2B36;
+    margin: 0 0 8px;
+    letter-spacing: -0.3px;
+    word-break: break-word;
+}
+.inv-modal-sub {
+    font-size: 13px;
+    color: #4B5563;
+    margin: 0 auto 18px;
+    max-width: 380px;
+    line-height: 1.55;
+}
+.inv-modal-recipient {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+    border: 1px solid #DBEAFE;
+    border-radius: 12px;
+    margin: 0 0 18px;
+    text-align: left;
+}
+.inv-modal-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #D4AF37 0%, #B8932A 100%);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.inv-modal-recipient-info {
+    flex: 1;
+    min-width: 0;
+}
+.inv-modal-recipient-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0D2B36;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.inv-modal-recipient-email {
+    font-size: 12px;
+    color: #6B7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.inv-modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 0 0 22px;
+}
+.inv-modal-stat {
+    padding: 12px 14px;
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    text-align: left;
+}
+.inv-modal-stat-wide {
+    grid-column: 1 / -1;
+}
+.inv-modal-stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #6B7280;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.inv-modal-stat-label i {
+    color: #0B66C3;
+    font-size: 11px;
+}
+.inv-modal-stat-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0D2B36;
+    line-height: 1.3;
+}
+.inv-modal-channels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.inv-channel-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.inv-channel-pill-on {
+    background: #D1FAE5;
+    color: #065F46;
+}
+.inv-channel-pill-fail {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+.inv-modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+.inv-modal-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.inv-modal-btn:hover {
+    transform: translateY(-1px);
+}
+.inv-modal-btn-primary {
+    background: linear-gradient(135deg, #D4AF37 0%, #B8932A 100%);
+    color: #0D2B36;
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.35);
+}
+.inv-modal-btn-primary:hover {
+    color: #0D2B36;
+    box-shadow: 0 12px 28px rgba(212, 175, 55, 0.45);
+}
+.inv-modal-btn-ghost {
+    background: #F3F4F6;
+    color: #0D2B36;
+    border-color: #E5E7EB;
+}
+.inv-modal-btn-ghost:hover {
+    background: #E5E7EB;
+    color: #0D2B36;
+}
+@media (max-width: 480px) {
+    .inv-modal { padding: 28px 22px 22px; }
+    .inv-modal-pulse { width: 80px; height: 80px; }
+    .inv-modal-pulse-core { inset: 14px; font-size: 30px; }
+    .inv-modal-title { font-size: 20px; }
+    .inv-modal-actions { flex-direction: column-reverse; }
+    .inv-modal-btn { width: 100%; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="inv-page" data-no-scroll-memory>
+
+    {# ================================================================= #}
+    {# HERO                                                              #}
+    {# ================================================================= #}
+    <div class="inv-hero">
+        <div class="inv-hero-row">
+            <div class="inv-hero-icon" aria-hidden="true">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="inv-hero-info">
+                <div class="inv-hero-eyebrow">
+                    <i class="fas fa-shield-halved"></i>
+                    Secure invitation flow
+                </div>
+                <h1 class="inv-hero-title">
+                    Welcome a new <span class="accent">admin</span>
+                </h1>
+                <p class="inv-hero-sub">
+                    Send a branded invitation with a unique 48-hour link.
+                    Collect a few details up front so the acceptance step is
+                    fast — your invitee just picks a password.
+                </p>
+            </div>
+            <a href="{% url 'accounts:admin_list' %}" class="inv-hero-back" aria-label="Back to Manage Admins">
+                <i class="fas fa-arrow-left"></i>
+                Manage Admins
+            </a>
+        </div>
+    </div>
+
+    {# ================================================================= #}
+    {# WIZARD — rail + content                                          #}
+    {# ================================================================= #}
+    <div class="inv-wizard">
+        {# ----- Step rail (left) ----- #}
+        <aside class="inv-rail" aria-label="Invitation steps">
+            <p class="inv-rail-eyebrow">Invitation flow</p>
+            <ol class="inv-rail-list">
+                <li class="inv-rail-item"
+                    data-idx="1"
+                    data-state="{% if invite_step == '1' %}active{% else %}done{% endif %}">
+                    <span class="inv-rail-num">
+                        {% if invite_step == '2' %}<i class="fas fa-check"></i>{% else %}1{% endif %}
+                    </span>
+                    <div class="inv-rail-body">
+                        <div class="inv-rail-name">Recipient email</div>
+                        <div class="inv-rail-meta">Who you're inviting</div>
+                    </div>
+                </li>
+                <li class="inv-rail-item"
+                    data-idx="2"
+                    data-state="{% if invite_step == '2' %}active{% else %}pending{% endif %}">
+                    <span class="inv-rail-num">{% if invite_step == '2' %}2{% else %}2{% endif %}</span>
+                    <div class="inv-rail-body">
+                        <div class="inv-rail-name">Details &amp; delivery</div>
+                        <div class="inv-rail-meta">Name, phone, permissions</div>
+                    </div>
+                </li>
+            </ol>
+
+            {% if invite_step == '2' and invite_email %}
+                <div class="inv-rail-summary">
+                    <div class="inv-rail-summary-row">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <strong>Inviting</strong><br>
+                            <span style="word-break: break-all;">{{ invite_email }}</span>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            {# ----- Pro-tips card (fills empty space under rail) ----- #}
+            <div class="inv-rail-tips" aria-label="Tips">
+                <div class="inv-rail-tips-head">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Pro tips</span>
+                </div>
+                <ul class="inv-rail-tips-list">
+                    <li>
+                        <span class="tip-num">01</span>
+                        <div>
+                            <strong>Use a real email</strong>
+                            <p>The invitation link is the only way to claim the account — typos mean a resend.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="tip-num">02</span>
+                        <div>
+                            <strong>Layer permissions lightly</strong>
+                            <p>You can grant more later. Less is safer on day one.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="tip-num">03</span>
+                        <div>
+                            <strong>48-hour window</strong>
+                            <p>Links expire automatically. The chief gets a copy by email.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            {# ----- Pending count card ----- #}
+            {% if pending_invitations %}
+            <div class="inv-rail-pending">
+                <div class="inv-rail-pending-head">
+                    <i class="fas fa-hourglass-half"></i>
+                    <span>In flight</span>
+                    <span class="inv-rail-pending-count">{{ pending_invitations|length }}</span>
+                </div>
+                <ul class="inv-rail-pending-list">
+                    {% for inv in pending_invitations|slice:":3" %}
+                        <li>
+                            <div class="inv-rail-pending-avatar">{{ inv.email|slice:":1"|upper }}</div>
+                            <div class="inv-rail-pending-info">
+                                <div class="inv-rail-pending-email">{{ inv.email }}</div>
+                                <div class="inv-rail-pending-meta">
+                                    {% if inv.expires_at %}
+                                        <i class="fas fa-clock"></i>
+                                        expires {{ inv.expires_at|date:"M j, H:i" }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </aside>
+
+        {# ----- Content (right) ----- #}
+        <div class="inv-content">
+
+            {# ============================================================ #}
+            {# STEP 1 — EMAIL  (separate <form>, no shared state)        #}
+            {# ============================================================ #}
+            {% if invite_step == '1' %}
+                <form method="post" action="{% url 'accounts:admin_invite' %}" class="inv-card" data-step="1" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="invite_step" value="email">
+
+                    {% if invite_step1_form.errors %}
+                        <div class="inv-banner inv-banner-error" role="alert" aria-live="polite" id="invFormBanner">
+                            <span class="inv-banner-icon"><i class="fas fa-exclamation-triangle"></i></span>
+                            <div class="inv-banner-body">
+                                <strong>We couldn't send that invitation.</strong>
+                                <span>
+                                    {% for field, errs in invite_step1_form.errors.items %}
+                                        {% for err in errs %}{{ err }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                        {% if not forloop.last %} · {% endif %}
+                                    {% endfor %}
+                                </span>
+                            </div>
+                            <button type="button" class="inv-banner-close" aria-label="Dismiss"
+                                    onclick="this.parentElement.remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    {% endif %}
+
+                    <div class="inv-card-head">
+                        <div class="inv-card-eyebrow">
+                            <i class="fas fa-circle-1"></i>
+                            Step 1 of 2 · Recipient
+                        </div>
+                        <h2 class="inv-card-title">Who would you like to invite?</h2>
+                        <p class="inv-card-sub">
+                            Enter the recipient's work email. We'll check they don't already
+                            have an account or a live invitation, then move to the next step.
+                        </p>
+                    </div>
+                    <div class="inv-card-body">
+                        <div class="inv-field">
+                            <label class="inv-field-label" for="id_email">
+                                <i class="fas fa-envelope"></i>
+                                Email address <span class="req">*</span>
+                            </label>
+                            <div class="inv-input-wrap">
+                                <i class="fas fa-envelope inv-leading" aria-hidden="true"></i>
+                                {{ invite_step1_form.email }}
+                            </div>
+                            {% if invite_step1_form.email.errors %}
+                                <div class="inv-field-error">{{ invite_step1_form.email.errors|join:", " }}</div>
+                            {% else %}
+                                <div class="inv-field-hint"><i class="fas fa-lightbulb"></i> Use the address they'll actually check — the link is single-use.</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="inv-trust">
+                            <span class="inv-trust-icon"><i class="fas fa-lock"></i></span>
+                            <div class="inv-trust-text">
+                                <strong>End-to-end secure.</strong> The link is single-use and
+                                expires in 48 hours. We never share the address with anyone
+                                outside your admin team.
+                                <span class="small"><i class="fas fa-info-circle"></i> Next, you'll pre-fill their name, phone, role, and a personal message.</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="inv-card-foot">
+                        <a href="{% url 'accounts:admin_list' %}" class="inv-btn inv-btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancel
+                        </a>
+                        <button type="submit" class="inv-btn inv-btn-primary" id="invStep1Continue">
+                            Continue
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </form>
+
+            {# ============================================================ #}
+            {# STEP 2 — DETAILS  (its own <form>)                          #}
+            {# ============================================================ #}
+            {% elif invite_step == '2' %}
+                <form method="post" action="{% url 'accounts:admin_invite' %}" class="inv-card" data-step="2" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="invite_step" value="details">
+                    <input type="hidden" name="email" value="{{ invite_email }}">
+
+                    {% if invite_step2_form.non_field_errors %}
+                        <div class="inv-banner inv-banner-error" role="alert" aria-live="polite">
+                            <span class="inv-banner-icon"><i class="fas fa-exclamation-triangle"></i></span>
+                            <div class="inv-banner-body">
+                                <strong>We couldn't send that invitation.</strong>
+                                <span>{{ invite_step2_form.non_field_errors|join:", " }}</span>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="inv-card-head">
+                        <div class="inv-card-eyebrow">
+                            <i class="fas fa-circle-2"></i>
+                            Step 2 of 2 · Details
+                        </div>
+                        <h2 class="inv-card-title">Tell us about them</h2>
+                        <p class="inv-card-sub">
+                            Confirm the email and add whatever context you have. Skip anything
+                            you don't know — they'll be asked on the acceptance page.
+                        </p>
+                    </div>
+                    <div class="inv-card-body">
+                        <div class="inv-email-pill">
+                            <span class="pill-icon"><i class="fas fa-envelope"></i></span>
+                            <span class="pill-email">{{ invite_email }}</span>
+                            <a href="{% url 'accounts:admin_invite' %}" class="pill-change"
+                               aria-label="Use a different email">
+                                <i class="fas fa-pen"></i> Change
+                            </a>
+                        </div>
+
+                        <div class="inv-grid">
+                            {# LEFT COLUMN #}
+                            <div class="inv-col">
+                                <div class="inv-field">
+                                    <label class="inv-field-label" for="id_full_name">
+                                        <i class="fas fa-user"></i>
+                                        Full name <span class="optional-tag">optional</span>
+                                    </label>
+                                    <div class="inv-input-wrap">
+                                        <i class="fas fa-user inv-leading" aria-hidden="true"></i>
+                                        {{ invite_step2_form.full_name }}
+                                    </div>
+                                    {% if invite_step2_form.full_name.errors %}
+                                        <div class="inv-field-error">{{ invite_step2_form.full_name.errors|join:", " }}</div>
+                                    {% else %}
+                                        <div class="inv-field-hint"><i class="fas fa-lightbulb"></i> Pre-fills the acceptance page.</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="inv-field">
+                                    <label class="inv-field-label" for="id_phone">
+                                        <i class="fas fa-phone"></i>
+                                        Phone number <span class="optional-tag">optional</span>
+                                    </label>
+                                    <div class="inv-input-wrap">
+                                        <i class="fas fa-phone inv-leading" aria-hidden="true"></i>
+                                        {{ invite_step2_form.phone }}
+                                    </div>
+                                    {% if invite_step2_form.phone.errors %}
+                                        <div class="inv-field-error">{{ invite_step2_form.phone.errors|join:", " }}</div>
+                                    {% else %}
+                                        <div class="inv-field-hint"><i class="fas fa-info-circle"></i> Kenyan format. Required to deliver via SMS.</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="inv-field">
+                                    <label class="inv-field-label" for="id_role">
+                                        <i class="fas fa-shield-halved"></i>
+                                        Role
+                                    </label>
+                                    {{ invite_step2_form.role }}
+                                    <div class="inv-field-hint"><i class="fas fa-info-circle"></i> Chief Admins can only be created via the management command.</div>
+                                </div>
+
+                                <div class="inv-field">
+                                    <label class="inv-field-label" for="id_personal_message">
+                                        <i class="fas fa-comment"></i>
+                                        Personal message <span class="optional-tag">optional</span>
+                                    </label>
+                                    {{ invite_step2_form.personal_message }}
+                                    <div class="inv-field-hint"><i class="fas fa-comment-dots"></i> Up to 500 characters. Shown in the invitation email.</div>
+                                    {% if invite_step2_form.personal_message.errors %}
+                                        <div class="inv-field-error">{{ invite_step2_form.personal_message.errors|join:", " }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {# RIGHT COLUMN #}
+                            <div class="inv-col">
+                                <div class="inv-field">
+                                    <label class="inv-field-label" for="id_channels">
+                                        <i class="fas fa-paper-plane"></i>
+                                        Delivery channels
+                                    </label>
+                                    <div class="inv-channels-grid" id="invChannelGrid">
+                                        <label class="inv-channel-tile" data-channel="email">
+                                            <input type="checkbox" name="channels" value="email"
+                                                   {% if 'email' in invite_step2_form.channels.value or not invite_step2_form.channels.value %}checked{% endif %}>
+                                            <span class="inv-channel-icon"><i class="fas fa-envelope"></i></span>
+                                            <span class="inv-channel-text">
+                                                <span class="inv-channel-label">Email</span>
+                                                <span class="inv-channel-desc">Branded HTML invitation</span>
+                                            </span>
+                                            <span class="inv-channel-check"><i class="fas fa-check-circle"></i></span>
+                                        </label>
+                                        <label class="inv-channel-tile" data-channel="sms">
+                                            <input type="checkbox" name="channels" value="sms"
+                                                   {% if 'sms' in invite_step2_form.channels.value %}checked{% endif %}>
+                                            <span class="inv-channel-icon"><i class="fas fa-mobile-screen"></i></span>
+                                            <span class="inv-channel-text">
+                                                <span class="inv-channel-label">SMS</span>
+                                                <span class="inv-channel-desc">Plain-text with link</span>
+                                            </span>
+                                            <span class="inv-channel-check"><i class="fas fa-check-circle"></i></span>
+                                        </label>
+                                    </div>
+                                    {% if invite_step2_form.channels.errors %}
+                                        <div class="inv-field-error">{{ invite_step2_form.channels.errors|join:", " }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="inv-field">
+                                    <label class="inv-field-label">
+                                        <i class="fas fa-key"></i>
+                                        Initial permissions <span class="optional-tag">optional</span>
+                                    </label>
+                                    <div class="inv-perm-grid">
+                                        {% for perm in invite_available_permissions %}
+                                            <label class="inv-perm-toggle">
+                                                <input type="checkbox"
+                                                       name="permissions"
+                                                       value="{{ perm.key }}"
+                                                       {% if perm.key in invite_step2_form.permissions.value %}checked{% endif %}>
+                                                <span class="inv-perm-label">{{ perm.label }}</span>
+                                                <span class="inv-perm-desc">{{ perm.description }}</span>
+                                            </label>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="inv-field-hint"><i class="fas fa-info-circle"></i> Skip to use default permissions. You can edit these later.</div>
+                                    {% if invite_step2_form.permissions.errors %}
+                                        <div class="inv-field-error">{{ invite_step2_form.permissions.errors|join:", " }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="inv-card-foot">
+                        <a href="{% url 'accounts:admin_invite' %}" class="inv-btn inv-btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </a>
+                        <button type="submit" class="inv-btn inv-btn-blue" id="invStep2Send">
+                            <i class="fas fa-paper-plane"></i> Send Invitation
+                        </button>
+                    </div>
+                </form>
+            {% endif %}
+
+            {# ================================================================= #}
+            {# RECENT PENDING INVITATIONS                                        #}
+            {# ================================================================= #}
+            <div class="inv-recent">
+                <div class="inv-recent-head">
+                    <div class="inv-recent-head-left">
+                        <i class="fas fa-clock icon"></i>
+                        <h3>Recent pending invitations</h3>
+                    </div>
+                    {% if pending_invitations %}
+                        <span class="count">{{ pending_invitations|length }} pending</span>
+                    {% endif %}
+                </div>
+                {% if pending_invitations %}
+                    <ul class="inv-recent-list">
+                        {% for invitation in pending_invitations|slice:":5" %}
+                            <li class="inv-recent-item">
+                                <span class="inv-recent-avatar">{{ invitation.email|slice:":1"|upper }}</span>
+                                <div class="inv-recent-info">
+                                    <div class="inv-recent-email">{{ invitation.email }}</div>
+                                    <div class="inv-recent-meta">
+                                        <i class="fas fa-paper-plane"></i>
+                                        Sent {{ invitation.created_at|timesince }} ago
+                                        &middot; expires {{ invitation.expires_at|timeuntil }}
+                                    </div>
+                                </div>
+                                <div class="inv-recent-channels">
+                                    {% if invitation.email_sent_at %}
+                                        <span class="inv-recent-pill email" title="Email sent">
+                                            <i class="fas fa-envelope"></i> Email
+                                        </span>
+                                    {% endif %}
+                                    {% if invitation.sms_sent_at %}
+                                        <span class="inv-recent-pill sms" title="SMS sent">
+                                            <i class="fas fa-mobile-screen"></i> SMS
+                                        </span>
+                                    {% endif %}
+                                    {% if not invitation.email_sent_at and not invitation.sms_sent_at %}
+                                        <span class="inv-recent-pill sms" title="Awaiting delivery">
+                                            <i class="fas fa-hourglass-half"></i> Pending
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="inv-empty">
+                        <i class="fas fa-inbox"></i>
+                        No pending invitations right now. Send your first one above.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# ================================================================= #}
+    {# SUCCESS MODAL                                                      #}
+    {# ================================================================= #}
+    {% if invite_success %}
+    <div class="inv-modal-backdrop" id="invSuccessModal" role="dialog" aria-modal="true" aria-labelledby="invSuccessTitle">
+        <div class="inv-modal inv-modal-success">
+            <button type="button" class="inv-modal-close" data-inv-modal-close aria-label="Close">
+                <i class="fas fa-xmark"></i>
+            </button>
+
+            <div class="inv-modal-pulse" aria-hidden="true">
+                <div class="inv-modal-pulse-ring"></div>
+                <div class="inv-modal-pulse-ring inv-modal-pulse-ring-2"></div>
+                <div class="inv-modal-pulse-core">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+
+            <div class="inv-modal-eyebrow">
+                <i class="fas fa-paper-plane"></i> Invitation dispatched
+            </div>
+            <h2 class="inv-modal-title" id="invSuccessTitle">
+                Sent to {{ invite_success.email }}
+            </h2>
+            <p class="inv-modal-sub">
+                Your invitation is in flight. We've also dropped a paper trail in your inbox
+                so you can re-share or revoke it from one place.
+            </p>
+
+            <div class="inv-modal-recipient">
+                <div class="inv-modal-avatar">
+                    {{ invite_success.email|slice:":1"|upper }}
+                </div>
+                <div class="inv-modal-recipient-info">
+                    <div class="inv-modal-recipient-name">{{ invite_success.full_name }}</div>
+                    <div class="inv-modal-recipient-email">{{ invite_success.email }}</div>
+                </div>
+            </div>
+
+            <div class="inv-modal-grid">
+                <div class="inv-modal-stat">
+                    <div class="inv-modal-stat-label">
+                        <i class="fas fa-shield-halved"></i> Role
+                    </div>
+                    <div class="inv-modal-stat-value">{{ invite_success.role|default:"Platform Admin" }}</div>
+                </div>
+                <div class="inv-modal-stat">
+                    <div class="inv-modal-stat-label">
+                        <i class="fas fa-clock"></i> Expires
+                    </div>
+                    <div class="inv-modal-stat-value">
+                        {% if invite_success.expires_at %}
+                            in 48 h
+                        {% else %}
+                            in 48 h
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="inv-modal-stat inv-modal-stat-wide">
+                    <div class="inv-modal-stat-label">
+                        <i class="fas fa-broadcast-tower"></i> Channels used
+                    </div>
+                    <div class="inv-modal-stat-value inv-modal-channels">
+                        {% for ch in invite_success.channels_sent %}
+                            <span class="inv-channel-pill inv-channel-pill-on">
+                                <i class="fas fa-check-circle"></i>{{ ch }}
+                            </span>
+                        {% empty %}
+                            <span class="inv-channel-pill inv-channel-pill-fail">
+                                <i class="fas fa-exclamation-circle"></i>all failed
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="inv-modal-actions">
+                <a href="{% url 'accounts:admin_invite' %}" class="inv-modal-btn inv-modal-btn-primary">
+                    <i class="fas fa-user-plus"></i> Invite another
+                </a>
+                <a href="{% url 'accounts:admin_list' %}" class="inv-modal-btn inv-modal-btn-ghost">
+                    <i class="fas fa-users-cog"></i> Manage admins
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    var page = document.querySelector('.inv-page');
+    if (!page) return;
+
+    var step1Input = document.querySelector('.inv-card[data-step="1"] input[type="email"]');
+    var step1Wrap  = step1Input ? step1Input.closest('.inv-input-wrap') : null;
+    var smsTile    = document.querySelector('.inv-channel-tile[data-channel="sms"]');
+    var smsCheckbox = smsTile ? smsTile.querySelector('input[type="checkbox"]') : null;
+    var phoneInput = document.getElementById('id_phone');
+
+    // -----------------------------------------------------------------
+    // Step-rail progress fill — animates the vertical gold bar based
+    // on which step is active.
+    // -----------------------------------------------------------------
+    function paintRail() {
+        var list = document.querySelector('.inv-rail-list');
+        if (!list) return;
+        var items = list.querySelectorAll('.inv-rail-item');
+        if (!items.length) return;
+
+        // Find the active item's center within the list
+        var active = list.querySelector('.inv-rail-item[data-state="active"]');
+        var done   = list.querySelector('.inv-rail-item[data-state="done"]');
+        var last   = items[items.length - 1];
+
+        var reference = active || done || last;
+        var firstTop  = items[0].offsetTop + 22;
+        var refMid    = reference.offsetTop + reference.offsetHeight / 2;
+        var fillHeight = Math.max(0, refMid - firstTop);
+
+        // CSS variable drives the ::after height
+        list.style.setProperty('--inv-rail-fill', fillHeight + 'px');
+    }
+
+    // -----------------------------------------------------------------
+    // SMS gating — SMS tile stays disabled until the phone looks valid.
+    // -----------------------------------------------------------------
+    function looksLikeKenyanPhone(raw) {
+        if (!raw) return false;
+        var digits = raw.replace(/\D/g, '');
+        if (digits.length === 9 && (digits[0] === '1' || digits[0] === '7')) return true;
+        if (digits.length === 10 && digits[0] === '0' && (digits[1] === '1' || digits[1] === '7')) return true;
+        if (digits.length === 12 && digits.startsWith('254') && (digits[3] === '1' || digits[3] === '7')) return true;
+        return false;
+    }
+    function updateSmsAvailability() {
+        if (!smsTile || !smsCheckbox || !phoneInput) return;
+        var ok = looksLikeKenyanPhone(phoneInput.value);
+        if (ok) {
+            smsTile.classList.remove('is-disabled');
+            smsCheckbox.disabled = false;
+        } else {
+            smsTile.classList.add('is-disabled');
+            smsCheckbox.disabled = true;
+            if (smsCheckbox.checked && (!phoneInput.value || phoneInput.value.replace(/\D/g, '').length < 9)) {
+                smsCheckbox.checked = false;
+            }
+        }
+    }
+    if (phoneInput) {
+        phoneInput.addEventListener('input', updateSmsAvailability);
+        phoneInput.addEventListener('blur', updateSmsAvailability);
+        updateSmsAvailability();
+    }
+
+    // -----------------------------------------------------------------
+    // Focus the right input — step 1 auto-focuses; on error scrolls
+    // to the banner.
+    // -----------------------------------------------------------------
+    function focusInitial() {
+        var banner = document.getElementById('invFormBanner');
+        if (banner && step1Input) {
+            try { banner.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+            step1Input.classList.add('is-invalid');
+            if (step1Wrap) step1Wrap.classList.add('is-invalid');
+            var clear = function() {
+                step1Input.classList.remove('is-invalid');
+                if (step1Wrap) step1Wrap.classList.remove('is-invalid');
+                step1Input.removeEventListener('input', clear);
+            };
+            step1Input.addEventListener('input', clear);
+            setTimeout(function() {
+                try { step1Input.focus({preventScroll: true}); } catch (e) { step1Input.focus(); }
+            }, 250);
+        } else if (step1Input && !step1Input.value) {
+            try { step1Input.focus({preventScroll: true}); } catch (e) { step1Input.focus(); }
+        } else {
+            var firstOptional = document.getElementById('id_full_name') || phoneInput;
+            if (firstOptional) {
+                try { firstOptional.focus({preventScroll: true}); } catch (e) { firstOptional.focus(); }
+            }
+        }
+    }
+
+    function init() {
+        paintRail();
+        focusInitial();
+        if (document.readyState === 'loading') {
+            // Already fired
+        } else {
+            // Re-paint rail once layout settles (web fonts, late paints).
+            setTimeout(paintRail, 60);
+            setTimeout(paintRail, 240);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init, { once: true });
+    } else {
+        init();
+    }
+
+    // Repaint on resize so the rail fill stays correct.
+    window.addEventListener('resize', function() {
+        clearTimeout(window.__invRailRaf);
+        window.__invRailRaf = setTimeout(paintRail, 80);
+    });
+})();
+
+// ---------- Success modal controller ----------
+(function() {
+    var modal = document.getElementById('invSuccessModal');
+    if (!modal) return;
+
+    function closeModal() {
+        modal.style.transition = 'opacity 0.18s ease';
+        modal.style.opacity = '0';
+        setTimeout(function() { modal.remove(); }, 200);
+    }
+
+    document.querySelectorAll('[data-inv-modal-close]').forEach(function(btn) {
+        btn.addEventListener('click', closeModal);
+    });
+
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeModal();
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,199 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}{{ page_title }} - Caldan Construction{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   SUPPLIER CONFIRM DELETE — PREMIUM ADMIN
+   ================================================================ */
+
+.confirm-delete-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.confirm-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-xl);
+    padding: 36px;
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.confirm-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--sem-danger) 0%, #c0392b 100%);
+}
+
+.danger-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(185, 52, 43, 0.12);
+    color: var(--sem-danger);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin-bottom: 20px;
+    border: 1.5px solid rgba(185, 52, 43, 0.25);
+}
+
+.confirm-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 12px;
+    letter-spacing: -0.3px;
+}
+
+.confirm-message {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0 0 24px;
+    line-height: 1.6;
+}
+
+.confirm-target {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(212, 175, 55, 0.08);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: var(--r-pill);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--brand-gold-deep);
+    margin-bottom: 28px;
+}
+
+.confirm-target i {
+    color: var(--brand-gold);
+}
+
+.confirm-form {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.3px;
+}
+
+.btn-danger {
+    background: var(--sem-danger);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(185, 52, 43, 0.3);
+}
+
+.btn-danger:hover {
+    background: #a02e23;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(185, 52, 43, 0.4);
+}
+
+.btn-cancel {
+    background: var(--bg-canvas);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-default);
+}
+
+.btn-cancel:hover {
+    background: var(--bg-secondary);
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+}
+
+.warning-note {
+    margin-top: 24px;
+    padding: 12px 16px;
+    background: rgba(243, 156, 18, 0.08);
+    border: 1px solid rgba(243, 156, 18, 0.25);
+    border-left: 3px solid var(--sem-warning);
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: left;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.warning-note i {
+    color: var(--sem-warning);
+    margin-top: 2px;
+}
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.confirm-card { animation: fade-up 0.4s ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+    .confirm-card { animation: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="confirm-delete-page">
+    <div class="confirm-card">
+        <div class="danger-icon">
+            <i class="fas fa-trash-alt"></i>
+        </div>
+
+        <h1 class="confirm-title">Delete Supplier?</h1>
+        <p class="confirm-message">
+            You're about to permanently soft-delete this supplier. This action will hide them from active lists and inventory forms.
+        </p>
+
+        <div class="confirm-target">
+            <i class="fas fa-truck"></i>
+            {{ supplier.name }}
+        </div>
+
+        <form method="post" class="confirm-form">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash-alt"></i> Yes, Delete Supplier
+            </button>
+            <a href="{% url 'inventory:supplier_detail' supplier.id %}" class="btn btn-cancel">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </form>
+
+        <div class="warning-note">
+            <i class="fas fa-info-circle"></i>
+            <span>Suppliers with active materials linked to them cannot be deleted. If deletion fails, archive or reassign materials first.</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

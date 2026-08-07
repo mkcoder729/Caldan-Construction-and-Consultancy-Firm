@@ -1,0 +1,54 @@
+{# Weekly performance report — sent to admin every Monday. #}
+{% extends "email/_base.html" %}
+{% load humanize %}
+
+{% block badge %}<span class="badge badge-info" style="margin-top: 14px;">WEEKLY REPORT</span>{% endblock %}
+
+{% block content %}
+  <h1>Weekly <span>report</span></h1>
+  <p class="subtitle">Week ending {{ report.week_ending|date:"F j, Y" }}</p>
+
+  <p>Here's a snapshot of how the business performed this week. The full breakdown is below.</p>
+
+  <div style="display: block; margin: 22px 0;">
+    <table width="100%" cellpadding="0" cellspacing="6" border="0">
+      <tr>
+        <td align="center" style="background: #FAFBFD; border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px 12px;">
+          <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500);">Active Projects</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--brand-navy); margin-top: 4px;">{{ report.active_projects|default:0 }}</div>
+        </td>
+        <td align="center" style="background: #FAFBFD; border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px 12px;">
+          <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500);">New Orders</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--brand-navy); margin-top: 4px;">{{ report.new_orders|default:0 }}</div>
+        </td>
+        <td align="center" style="background: #FAFBFD; border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px 12px;">
+          <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500);">Revenue</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--brand-gold-deep); margin-top: 4px;">KES {{ report.revenue|floatformat:0|intcomma|default:0 }}</div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  {% if report.highlights %}
+  <h2>Highlights</h2>
+  <ul style="padding-left: 22px; margin: 0 0 16px 0; color: var(--slate-700);">
+    {% for h in report.highlights %}<li style="margin-bottom: 8px;">{{ h }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if report.totals %}
+  <h2>Totals</h2>
+  <table class="summary">
+    <thead><tr><th>Metric</th><th style="text-align:right;">Value</th></tr></thead>
+    <tbody>
+      {% for k, v in report.totals.items %}
+      <tr><td>{{ k }}</td><td style="text-align:right; font-weight:600;">{{ v }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}/dashboard/admin/reports/" class="button">Open full report</a>
+  </div>
+{% endblock %}

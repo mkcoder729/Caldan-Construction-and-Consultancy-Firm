@@ -1,0 +1,203 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Invite Admin - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+.settings-page {
+    max-width: 720px;
+}
+
+.page-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 20px; flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative; overflow: hidden;
+    margin-bottom: 24px;
+}
+.page-hero::before {
+    content: ''; position: absolute; top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+}
+.page-hero-main {
+    display: flex; align-items: center; gap: 16px;
+    flex: 1; min-width: 240px; position: relative; z-index: 1;
+}
+.page-hero-icon {
+    width: 52px; height: 52px; border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+}
+.page-hero-title {
+    font-size: 22px; font-weight: 800; color: #fff;
+    margin: 0 0 4px; letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 10px;
+}
+.page-hero-title i { color: var(--brand-gold); }
+.page-hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+.settings-card {
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.settings-card .card-body {
+    padding: 24px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.form-hint {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    display: block;
+}
+
+.form-control {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: border-color var(--t-fast) var(--ease-standard),
+                box-shadow var(--t-fast) var(--ease-standard),
+                background var(--t-fast) var(--ease-standard);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.12);
+    background: var(--bg-card);
+}
+
+.invitation-info {
+    background: var(--bg-canvas);
+    border-radius: var(--r-md);
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-subtle);
+}
+
+.invitation-info p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.invitation-info p i {
+    color: var(--brand-gold);
+    margin-right: 6px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 640px) {
+    .settings-card .card-body {
+        padding: 16px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-page settings-page">
+    <div class="page-hero">
+        <div class="page-hero-main">
+            <div class="page-hero-icon"><i class="fas fa-user-plus"></i></div>
+            <div>
+                <h1 class="page-hero-title">Invite Admin</h1>
+                <p class="page-hero-sub">Send an invitation to create a new admin account</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-card">
+        <div class="card-body">
+            <form method="post" action="{% url 'accounts:invite_admin' %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="email">Email Address <span style="color:var(--sem-danger);">*</span></label>
+                    <input type="email" class="form-control" id="email" name="email"
+                           required placeholder="e.g. newadmin@caldan.com">
+                    <span class="form-hint">The invitation will be sent to this email address</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="full_name">Full Name</label>
+                    <input type="text" class="form-control" id="full_name" name="full_name"
+                           placeholder="e.g. John Mwangi">
+                    <span class="form-hint">Optional - the admin can set their own name</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select class="form-control" id="role" name="role">
+                        <option value="ADMIN" selected>Platform Admin</option>
+                    </select>
+                    <span class="form-hint">All invited admins are Platform Admins</span>
+                </div>
+
+                <div class="invitation-info">
+                    <p>
+                        <i class="fas fa-info-circle"></i>
+                        The invitation will expire in <strong>48 hours</strong>.
+                        The recipient will be asked to set their password upon acceptance.
+                    </p>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-gold">
+                        <i class="fas fa-paper-plane"></i> Send Invitation
+                    </button>
+                    <a href="{% url 'accounts:admins' %}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

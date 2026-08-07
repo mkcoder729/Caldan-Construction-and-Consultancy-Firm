@@ -1,0 +1,356 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Edit Permissions - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+.settings-page {
+    max-width: 720px;
+}
+
+.page-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 20px; flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative; overflow: hidden;
+    margin-bottom: 24px;
+}
+.page-hero::before {
+    content: ''; position: absolute; top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+}
+.page-hero-main {
+    display: flex; align-items: center; gap: 16px;
+    flex: 1; min-width: 240px; position: relative; z-index: 1;
+}
+.page-hero-icon {
+    width: 52px; height: 52px; border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+}
+.page-hero-title {
+    font-size: 22px; font-weight: 800; color: #fff;
+    margin: 0 0 4px; letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 10px;
+}
+.page-hero-title i { color: var(--brand-gold); }
+.page-hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+.settings-card {
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.settings-card .card-body {
+    padding: 24px;
+}
+
+.permission-group {
+    margin-bottom: 20px;
+}
+
+.permission-group .group-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 0 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--border-subtle);
+}
+
+.permission-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.permission-item:last-child {
+    border-bottom: none;
+}
+
+.permission-item .permission-label {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    flex: 1;
+    padding-right: 16px;
+}
+
+.permission-item .permission-label .permission-desc {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    display: block;
+    font-weight: 400;
+}
+
+.permission-item .toggle-switch {
+    flex-shrink: 0;
+}
+
+.alert-info {
+    background: rgba(41, 128, 185, 0.08);
+    border: 1px solid rgba(41, 128, 185, 0.15);
+    border-radius: var(--r-md);
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.alert-info .alert-icon {
+    color: var(--sem-info);
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.alert-info .alert-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 640px) {
+    .settings-card .card-body {
+        padding: 16px;
+    }
+
+    .permission-item {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .permission-item .permission-label {
+        width: 100%;
+        padding-right: 0;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-page settings-page">
+    <div class="page-hero">
+        <div class="page-hero-main">
+            <div class="page-hero-icon"><i class="fas fa-user-cog"></i></div>
+            <div>
+                <h1 class="page-hero-title">Edit Permissions: {{ admin.full_name|default:admin.email }}</h1>
+                <p class="page-hero-sub">Configure what this admin can access</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-card">
+        <div class="card-body">
+            <div class="alert-info">
+                <span class="alert-icon"><i class="fas fa-info-circle"></i></span>
+                <span class="alert-text">
+                    Permissions control what modules this admin can access and manage.
+                    Uncheck a permission to restrict access.
+                </span>
+            </div>
+
+            <form method="post" action="{% url 'accounts:admin_permissions' admin.id %}">
+                {% csrf_token %}
+
+                <div class="permission-group">
+                    <div class="group-title">Core Modules</div>
+
+                    <div class="permission-item">
+                        <span class="permission-label">
+                            Dashboard Access
+                            <span class="permission-desc">View the dashboard and overview pages</span>
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="can_view_dashboard" checked disabled>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="permission-item">
+                        <span class="permission-label">
+                            Manage Projects
+                            <span class="permission-desc">Create, edit, and delete projects</span>
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="can_manage_projects"
+                                   {% if permissions.can_manage_projects|default:True %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="permission-item">
+                        <span class="permission-label">
+                            Manage Inventory
+                            <span class="permission-desc">Manage materials, stock, and suppliers</span>
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="can_manage_inventory"
+                                   {% if permissions.can_manage_inventory|default:True %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="permission-item">
+                        <span class="permission-label">
+                            Manage Shop
+                            <span class="permission-desc">Manage products, orders, and checkout</span>
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="can_manage_shop"
+                                   {% if permissions.can_manage_shop|default:True %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="permission-group">
+                    <div class="group-title">Financial Modules</div>
+
+                    <div class="permission-item">
+                        <span class="permission-label">
+                            Manage Finances
+                            <span class="permission-desc">View and record payments and expenses</span>
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="can_manage_finances"
+                                   {% if permissions.can_manage_finances|default:True %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="permission-item">
+                        <span class="permission-label">
+                            Manage Budgets
+                            <span class="permission-desc">Create and edit project budgets</span>
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="can_manage_budgets"
+                                   {% if permissions.can_manage_budgets|default:True %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="permission-group">
+                    <div class="group-title">People Modules</div>
+
+                    <div class="permission-item">
+                        <span class="permission-label">
+                            Manage Clients
+                            <span class="permission-desc">View, create, and edit client records</span>
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="can_manage_clients"
+                                   {% if permissions.can_manage_clients|default:True %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="permission-item">
+                        <span class="permission-label">
+                            Manage Team
+                            <span class="permission-desc">Manage team member profiles</span>
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="can_manage_team"
+                                   {% if permissions.can_manage_team|default:True %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="permission-group">
+                    <div class="group-title">System Modules</div>
+
+                    <div class="permission-item">
+                        <span class="permission-label">
+                            Manage Services
+                            <span class="permission-desc">Create and edit service offerings</span>
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="can_manage_services"
+                                   {% if permissions.can_manage_services|default:True %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="permission-item">
+                        <span class="permission-label">
+                            View Reports
+                            <span class="permission-desc">Access and export reports</span>
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="can_view_reports"
+                                   {% if permissions.can_view_reports|default:True %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="permission-item">
+                        <span class="permission-label">
+                            Manage Settings
+                            <span class="permission-desc">Access system settings (excluding admin management)</span>
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="can_manage_settings"
+                                   {% if permissions.can_manage_settings|default:True %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="permission-item">
+                        <span class="permission-label">
+                            Invite Admins
+                            <span class="permission-desc">Send invitations to new administrators</span>
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="can_invite_admins"
+                                   {% if permissions.can_invite_admins|default:True %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-gold">
+                        <i class="fas fa-save"></i> Save Permissions
+                    </button>
+                    <a href="{% url 'accounts:admin_detail' admin.id %}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

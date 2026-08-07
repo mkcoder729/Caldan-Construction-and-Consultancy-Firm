@@ -1,0 +1,33 @@
+{% comment %}
+    _item.html — single sidebar menu item partial.
+
+    Renders ONE menu item as either:
+      - a sub-header  (item.type == 'header')
+      - a nav link    (default)
+
+    The 83-line repeated markup from the old inline-loop is gone; this file is
+    the single source of truth for how every menu entry looks.
+{% endcomment %}
+{% load dashboard_extras %}
+
+{% if item.type == 'header' %}
+    <li class="sidebar-subheader" aria-hidden="true">
+        <i class="fas {{ item.icon }}"></i>
+        <span>{{ item.label }}</span>
+    </li>
+{% else %}
+    {% nav_active_item item request.resolver_match as item_active_class %}
+    <li class="sidebar-item {{ item_active_class }}"
+        data-section="{{ section_label|lower }}"
+        data-icon="{{ item.icon }}"
+        data-label="{{ item.label }}">
+        <a href="{% sidebar_url item %}" class="sidebar-link"
+           {% if item_active_class == 'active' %}aria-current="page"{% endif %}>
+            <i class="fas {{ item.icon }} sidebar-link-icon"></i>
+            <span>{{ item.label }}</span>
+            {% if item.badge %}
+                <span class="sidebar-badge">{{ item.badge }}</span>
+            {% endif %}
+        </a>
+    </li>
+{% endif %}

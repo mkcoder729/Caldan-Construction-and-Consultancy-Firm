@@ -1,0 +1,180 @@
+{% extends "website/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ project.name }} — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="{{ project.description|truncatewords:20 }}">
+<meta property="og:title" content="{{ project.name }} — Caldan Construction and Consultancy Firm">
+<meta property="og:description" content="{{ project.description|truncatewords:20 }}">
+{% if project.cover_photo %}<meta property="og:image" content="{{ project.cover_photo.url }}">{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Project Detail Hero -->
+<section class="project-detail-hero" style="min-height: 45vh; display: flex; align-items: center; position: relative; background: linear-gradient(160deg, rgba(11, 20, 32, 0.82) 0%, rgba(11, 102, 195, 0.65) 100%), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&q=80'); background-size: cover; background-position: center; background-attachment: fixed; padding: 120px 0 80px; color: #FFFFFF;">
+    <div class="container" style="position: relative; z-index: 2;">
+        <nav style="font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 20px;">
+            <a href="{% url 'website:index' %}" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.3s ease;">Home</a>
+            <span style="margin: 0 8px; color: rgba(255,255,255,0.4);">/</span>
+            <a href="{% url 'website:projects' %}" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.3s ease;">Projects</a>
+            <span style="margin: 0 8px; color: rgba(255,255,255,0.4);">/</span>
+            <span style="color: rgba(255,255,255,0.8);">{{ project.name }}</span>
+        </nav>
+
+        <div style="max-width: 700px; margin: 0 auto; text-align: center;">
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 16px;">
+                <span style="display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.7); font-size: 0.85rem;">
+                    <i class="fas fa-map-marker-alt" style="color: #D4AF37;"></i>
+                    {{ project.town }}, {{ project.county }}
+                </span>
+                <span style="display: inline-block; padding: 4px 16px; border-radius: 50px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+                    {% if project.status == 'COMPLETED' %}background: rgba(39, 174, 96, 0.9); color: #FFFFFF;
+                    {% elif project.status == 'ACTIVE' %}background: rgba(11, 102, 195, 0.9); color: #FFFFFF;
+                    {% elif project.status == 'ON_HOLD' %}background: rgba(243, 156, 18, 0.9); color: #FFFFFF;
+                    {% else %}background: rgba(107, 114, 128, 0.9); color: #FFFFFF;{% endif %}">
+                    <i class="fas {% if project.status == 'COMPLETED' %}fa-check-circle{% elif project.status == 'ACTIVE' %}fa-spinner{% elif project.status == 'ON_HOLD' %}fa-pause-circle{% else %}fa-clock{% endif %}" style="margin-right: 4px;"></i>
+                    {{ project.get_status_display }}
+                </span>
+            </div>
+
+            <h1 style="font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 700; margin-bottom: 12px; color: #FFFFFF;">
+                {{ project.name }}
+            </h1>
+
+            <p style="color: rgba(255,255,255,0.8); font-size: 1.05rem; line-height: 1.6; max-width: 600px; margin: 0 auto;">
+                {{ project.description|truncatewords:20 }}
+            </p>
+
+            <div style="width: 60px; height: 3px; background: #D4AF37; margin: 16px auto 0;"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Project Content -->
+<section class="project-content" style="padding: 60px 0; background: var(--bg-primary);">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px;">
+
+            <!-- Main Content -->
+            <div>
+                <!-- Cover Image -->
+                {% if project.cover_photo %}
+                <div style="border-radius: 12px; overflow: hidden; margin-bottom: 32px; box-shadow: var(--shadow-md);">
+                    <img src="{{ project.cover_photo.url }}" alt="{{ project.name }}" style="width: 100%; height: auto; display: block;">
+                </div>
+                {% endif %}
+
+                <!-- Description -->
+                <div style="font-size: 1.05rem; line-height: 1.8; color: var(--text-secondary);">
+                    {{ project.description|linebreaks }}
+                </div>
+
+                <!-- Gallery -->
+                {% if gallery_images %}
+                <div style="margin-top: 40px;">
+                    <h3 style="font-size: 1.3rem; margin-bottom: 16px; color: var(--text-primary);">Project Gallery</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        {% for image in gallery_images %}
+                        <div style="border-radius: 8px; overflow: hidden; aspect-ratio: 1; background: var(--bg-secondary);">
+                            <img src="{{ image.image.url }}" alt="{{ image.caption|default:project.name }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Services Used -->
+                {% if services_used %}
+                <div style="margin-top: 40px;">
+                    <h3 style="font-size: 1.3rem; margin-bottom: 16px; color: var(--text-primary);">Services Used</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        {% for service in services_used %}
+                        <a href="{% url 'website:service_detail' service.slug %}" style="display: inline-block; padding: 6px 16px; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: 20px; color: var(--text-secondary); text-decoration: none; transition: all 0.3s ease; font-size: 0.9rem;">
+                            <i class="{{ service.icon|default:'fas fa-tools' }}" style="margin-right: 4px;"></i>
+                            {{ service.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div>
+                <!-- Project Details -->
+                <div style="background: var(--bg-card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-primary); margin-bottom: 24px;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 16px; color: var(--text-primary);">Project Details</h3>
+
+                    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem;">
+                        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-primary);">
+                            <span style="color: var(--text-secondary);">Status</span>
+                            <span style="color: var(--text-primary); font-weight: 500;">{{ project.get_status_display }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-primary);">
+                            <span style="color: var(--text-secondary);">Location</span>
+                            <span style="color: var(--text-primary); font-weight: 500;">{{ project.town }}, {{ project.county }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-primary);">
+                            <span style="color: var(--text-secondary);">Start Date</span>
+                            <span style="color: var(--text-primary); font-weight: 500;">{{ project.start_date|date:"M d, Y" }}</span>
+                        </div>
+                        {% if project.end_date %}
+                        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-primary);">
+                            <span style="color: var(--text-secondary);">End Date</span>
+                            <span style="color: var(--text-primary); font-weight: 500;">{{ project.end_date|date:"M d, Y" }}</span>
+                        </div>
+                        {% endif %}
+                        {% if project.budget %}
+                        <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                            <span style="color: var(--text-secondary);">Budget</span>
+                            <span style="color: var(--text-primary); font-weight: 500;">KES {{ project.budget|floatformat:0|intcomma }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Quick Quote -->
+                <div style="background: var(--bg-card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-primary);">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 12px; color: var(--text-primary);">Interested in a Similar Project?</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 16px;">Contact us for a free consultation and quote.</p>
+                    <a href="{% url 'website:quote_request' %}" class="btn btn-gold" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: var(--accent-secondary); color: #0D2B36; border-radius: 8px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; width: 100%; justify-content: center;">
+                        <i class="fas fa-paper-plane"></i> Request a Quote
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+{% include "website/partials/_cta.html" %}
+
+<style>
+    .gallery-image:hover img {
+        transform: scale(1.05);
+    }
+    .services-used a:hover {
+        background: var(--accent-primary) !important;
+        color: #FFFFFF !important;
+        border-color: var(--accent-primary) !important;
+    }
+
+    @media (max-width: 992px) {
+        .project-content .grid-2 {
+            grid-template-columns: 1fr !important;
+        }
+        .project-gallery .grid-3 {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+    }
+    @media (max-width: 576px) {
+        .project-gallery .grid-3 {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+{% endblock %}

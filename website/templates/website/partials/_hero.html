@@ -1,0 +1,68 @@
+{% load static %}
+
+<section class="hero" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; background: linear-gradient(160deg, rgba(11, 20, 32, 0.86) 0%, rgba(18, 50, 82, 0.92) 100%), url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1600&q=80'); background-size: cover; background-position: center; background-attachment: fixed; padding: 130px 0 90px; overflow: hidden;">
+
+    <div class="container" style="position: relative; z-index: 2; display: flex; justify-content: center;">
+        <div class="hero-content" style="max-width: 760px; width: 100%; text-align: center;">
+
+            <!-- Trust badge -->
+            <div class="hero-badge" style="display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.06); backdrop-filter: blur(8px); padding: 7px 18px 7px 12px; border-radius: 50px; margin-bottom: 28px; border: 1px solid rgba(255,255,255,0.14);">
+                <span style="display: inline-flex; align-items: center; justify-content: center; background: #27AE60; color: #FFFFFF; border-radius: 50%; width: 20px; height: 20px; font-size: 0.6rem;">
+                    <i class="fas fa-check"></i>
+                </span>
+                <span style="color: rgba(255,255,255,0.78); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.04em;">
+                    TRUSTED BY <strong style="color: #FFFFFF;">{{ trust_counter|default:"0" }}</strong> CLIENTS ACROSS KENYA
+                </span>
+            </div>
+
+            <!-- Headline -->
+            <h1 style="color: #FFFFFF; font-size: clamp(2.6rem, 6vw, 4.2rem); font-weight: 700; line-height: 1.08; letter-spacing: -0.02em; margin-bottom: 20px;">
+                Building Kenya's future,<br>
+                <span style="color: #D4AF37;">one project at a time.</span>
+            </h1>
+
+            <!-- Subtitle -->
+            <p style="color: rgba(255,255,255,0.8); font-size: clamp(1rem, 1.3vw, 1.2rem); line-height: 1.7; max-width: 540px; margin: 0 auto 36px;">
+                Construction, renovations, interior design, and industrial solutions — all from one trusted partner.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="hero-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">
+                <a href="{% url 'website:quote_request' %}" class="btn btn-gold btn-lg" style="display: inline-flex; align-items: center; gap: 8px; padding: 16px 36px; background: #D4AF37; color: #0D2B36; border-radius: 10px; font-weight: 600; text-decoration: none; transition: all 0.3s ease;">
+                    <i class="fas fa-paper-plane"></i> Get a Quote
+                </a>
+                <a href="{% url 'website:projects' %}" class="btn btn-outline-light btn-lg" style="display: inline-flex; align-items: center; gap: 8px; padding: 16px 36px; border: 2px solid rgba(255,255,255,0.3); color: #FFFFFF; border-radius: 10px; font-weight: 600; text-decoration: none; transition: all 0.3s ease;">
+                    <i class="fas fa-building"></i> View Our Projects
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scroll Indicator (absolutely positioned, centered horizontally, near the bottom) -->
+    <div class="scroll-indicator" style="position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; animation: bounce 2s infinite; z-index: 2;">
+        <span style="width: 30px; height: 1px; background: rgba(255,255,255,0.35); display: inline-block;"></span>
+        <span style="color: rgba(255,255,255,0.5); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;">
+            <i class="fas fa-chevron-down" style="margin-right: 6px;"></i> Scroll to explore
+        </span>
+    </div>
+
+</section>
+
+<style>
+    @keyframes bounce {
+        0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.7; }
+        50%      { transform: translateX(-50%) translateY(6px); opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+        .hero {
+            background-attachment: scroll !important;
+            padding: 110px 0 60px !important;
+            min-height: auto !important;
+        }
+        .hero-buttons { flex-direction: column; width: 100%; }
+        .hero-buttons .btn { width: 100%; justify-content: center; }
+        .scroll-indicator { display: none !important; }
+    }
+</style>

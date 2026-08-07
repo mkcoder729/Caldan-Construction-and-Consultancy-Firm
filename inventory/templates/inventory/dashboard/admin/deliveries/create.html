@@ -1,0 +1,274 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Create Delivery - Inventory - Caldan Construction{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   DELIVERY CREATE — PREMIUM ADMIN
+   ================================================================ */
+
+.delivery-form-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+.project-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    position: relative; overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+.project-hero::before {
+    content: ''; position: absolute; top: -100%; right: -10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 65%);
+    border-radius: 50%; pointer-events: none;
+}
+.hero-main { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; position: relative; z-index: 1; }
+.hero-icon {
+    width: 56px; height: 56px;
+    border-radius: var(--r-md);
+    background: rgba(212, 175, 55, 0.18);
+    border: 1.5px solid rgba(212, 175, 55, 0.3);
+    backdrop-filter: blur(10px);
+    color: var(--brand-gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+}
+.hero-info { flex: 1; min-width: 240px; }
+.hero-title { font-size: 24px; font-weight: 800; color: #fff; margin: 0 0 4px; letter-spacing: -0.3px; }
+.hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.85); margin: 0; }
+.hero-actions { display: flex; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; }
+
+.btn { padding: 8px 16px; border: none; border-radius: var(--r-sm); font-size: 12px; font-weight: 600; cursor: pointer; transition: all var(--t-fast) var(--ease-spring); font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.2px; }
+.btn-light { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); }
+.btn-light:hover { background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.3); transform: translateY(-1px); }
+.btn-primary { background: var(--brand-gold); color: var(--brand-navy); box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3); }
+.btn-primary:hover { background: var(--brand-gold-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4); }
+.btn-outline { background: transparent; border: 1px solid var(--border-default); color: var(--text-secondary); }
+.btn-outline:hover { background: var(--bg-secondary); border-color: var(--border-strong); color: var(--text-primary); }
+
+.breadcrumb-bar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-tertiary); }
+.breadcrumb-bar a { color: var(--text-secondary); text-decoration: none; }
+.breadcrumb-bar a:hover { color: var(--brand-gold-deep); }
+.breadcrumb-bar i.sep { font-size: 9px; }
+.breadcrumb-bar .current { color: var(--text-primary); font-weight: 600; }
+
+.form-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-xs); }
+.form-section { padding: 22px 26px; border-bottom: 1px solid var(--border-subtle); }
+.form-section:last-child { border-bottom: 0; }
+.section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); }
+.section-header i { color: var(--brand-gold); width: 30px; height: 30px; background: rgba(212, 175, 55, 0.1); border-radius: var(--r-sm); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; }
+.section-header h3 { font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.form-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-field.full { grid-column: 1 / -1; }
+.form-field label { font-size: 12px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+.form-field label .req { color: var(--sem-danger); margin-left: 2px; }
+.form-field input, .form-field select, .form-field textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border-subtle); border-radius: var(--r-sm); background: var(--bg-canvas); color: var(--text-primary); font-size: 13px; font-family: inherit; transition: all var(--t-fast) var(--ease-standard); }
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: var(--brand-gold); background: var(--bg-card); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1); }
+.form-field textarea { resize: vertical; min-height: 90px; }
+.form-field .help-text { font-size: 11px; color: var(--text-tertiary); }
+.form-field .errors { font-size: 12px; color: var(--sem-danger); margin-top: 2px; }
+
+.form-actions { display: flex; align-items: center; gap: 10px; padding: 18px 26px; background: var(--bg-canvas); border-top: 1px solid var(--border-subtle); flex-wrap: wrap; }
+
+/* Items list */
+.items-list { display: flex; flex-direction: column; gap: 12px; }
+.item-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 12px;
+    padding: 14px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    align-items: end;
+}
+.item-row .form-field label { font-size: 11px; }
+.item-row .item-remove { display: flex; align-items: center; gap: 8px; padding-bottom: 6px; }
+.item-row .item-remove label { color: var(--sem-danger); font-size: 11px; cursor: pointer; margin: 0; text-transform: none; letter-spacing: 0; font-weight: 600; }
+.item-row .item-remove input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--sem-danger); }
+.items-empty { text-align: center; padding: 20px; color: var(--text-tertiary); font-size: 13px; }
+
+.items-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 14px; padding: 10px 14px;
+    background: rgba(212, 175, 55, 0.08);
+    border-radius: var(--r-sm);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    color: var(--brand-gold-deep);
+    font-size: 12px; font-weight: 600;
+}
+
+.project-hero, .form-card { animation: fade-up 0.4s ease both; }
+@keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 1100px) { .form-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) {
+    .project-hero { padding: 22px; }
+    .hero-title { font-size: 20px; }
+    .hero-icon { width: 44px; height: 44px; font-size: 18px; }
+    .form-grid, .form-grid.cols-2 { grid-template-columns: 1fr; }
+    .item-row { grid-template-columns: 1fr; }
+    .form-section { padding: 18px 18px; }
+    .form-actions { padding: 14px 18px; }
+}
+@media (max-width: 480px) {
+    .hero-actions { width: 100%; }
+    .hero-actions .btn { flex: 1; justify-content: center; }
+    .form-actions { flex-direction: column; align-items: stretch; }
+    .form-actions .btn { justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) { .project-hero, .form-card { animation: none; } }
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="delivery-form-page">
+
+    <div class="breadcrumb-bar">
+        <a href="{% url 'inventory:deliveries_list' %}">Deliveries</a>
+        <i class="fas fa-chevron-right sep"></i>
+        <span class="current">Create Delivery</span>
+    </div>
+
+    <div class="project-hero">
+        <div class="hero-main">
+            <div class="hero-icon"><i class="fas fa-truck-loading"></i></div>
+            <div class="hero-info">
+                <h1 class="hero-title">Create Delivery</h1>
+                <p class="hero-sub">Record a new incoming shipment from a supplier</p>
+            </div>
+            <div class="hero-actions">
+                <a href="{% url 'inventory:deliveries_list' %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left"></i> Back to Deliveries
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="form-card">
+        {% csrf_token %}
+
+        <div class="form-section">
+            <div class="section-header">
+                <i class="fas fa-truck"></i>
+                <h3>Delivery Information</h3>
+            </div>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="{{ form.supplier.id_for_label }}">Supplier{% if form.supplier.field.required %} <span class="req">*</span>{% endif %}</label>
+                    {{ form.supplier }}
+                    {% if form.supplier.errors %}<div class="errors">{{ form.supplier.errors }}</div>{% endif %}
+                </div>
+                <div class="form-field">
+                    <label for="{{ form.expected_date.id_for_label }}">Expected Date</label>
+                    {{ form.expected_date }}
+                    {% if form.expected_date.errors %}<div class="errors">{{ form.expected_date.errors }}</div>{% endif %}
+                    {% if form.expected_date.help_text %}<div class="help-text">{{ form.expected_date.help_text }}</div>{% endif %}
+                </div>
+                <div class="form-field">
+                    <label for="{{ form.status.id_for_label }}">Status</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}<div class="errors">{{ form.status.errors }}</div>{% endif %}
+                </div>
+                <div class="form-field">
+                    <label for="{{ form.tracking_number.id_for_label }}">Tracking #</label>
+                    {{ form.tracking_number }}
+                    {% if form.tracking_number.errors %}<div class="errors">{{ form.tracking_number.errors }}</div>{% endif %}
+                </div>
+                <div class="form-field">
+                    <label for="{{ form.delivery_fee.id_for_label }}">Delivery Fee (KES)</label>
+                    {{ form.delivery_fee }}
+                    {% if form.delivery_fee.errors %}<div class="errors">{{ form.delivery_fee.errors }}</div>{% endif %}
+                    {% if form.delivery_fee.help_text %}<div class="help-text">{{ form.delivery_fee.help_text }}</div>{% endif %}
+                </div>
+                <div class="form-field">
+                    <label for="{{ form.receipt.id_for_label }}">Receipt</label>
+                    {{ form.receipt }}
+                    {% if form.receipt.errors %}<div class="errors">{{ form.receipt.errors }}</div>{% endif %}
+                </div>
+                <div class="form-field full">
+                    <label for="{{ form.notes.id_for_label }}">Notes</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}<div class="errors">{{ form.notes.errors }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="section-header">
+                <i class="fas fa-cubes"></i>
+                <h3>Delivery Items</h3>
+            </div>
+            <div class="items-header">
+                <i class="fas fa-info-circle"></i>
+                Add the materials being delivered in this shipment
+            </div>
+            {{ delivery_items.management_form }}
+            <div class="items-list">
+                {% for form in delivery_items %}
+                    <div class="item-row">
+                        <div class="form-field">
+                            <label for="{{ form.material.id_for_label }}">Material</label>
+                            {{ form.material }}
+                            {% if form.material.errors %}<div class="errors">{{ form.material.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-field">
+                            <label for="{{ form.quantity.id_for_label }}">Quantity</label>
+                            {{ form.quantity }}
+                            {% if form.quantity.errors %}<div class="errors">{{ form.quantity.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-field">
+                            <label for="{{ form.unit_cost.id_for_label }}">Unit Cost</label>
+                            {{ form.unit_cost }}
+                            {% if form.unit_cost.errors %}<div class="errors">{{ form.unit_cost.errors }}</div>{% endif %}
+                        </div>
+                        <div class="item-remove">
+                            {% if form.instance.pk %}
+                                {{ form.DELETE }}
+                                <label for="{{ form.DELETE.id_for_label }}">Remove</label>
+                            {% else %}
+                                <span class="muted" style="font-size:11px;">New</span>
+                            {% endif %}
+                            {{ form.id }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Create Delivery
+            </button>
+            <a href="{% url 'inventory:deliveries_list' %}" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var supplierId = urlParams.get('supplier');
+    var supplierField = document.getElementById('id_supplier');
+    if (supplierId && supplierField) {
+        supplierField.value = supplierId;
+    }
+});
+</script>
+{% endblock %}

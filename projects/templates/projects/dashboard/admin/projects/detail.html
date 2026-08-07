@@ -1,0 +1,975 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}{{ project.name }} - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   PROJECT DETAIL — PREMIUM ADMIN
+   ================================================================ */
+
+.project-detail {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+/* ---- Hero header (navy gradient) ---- */
+.project-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.project-hero::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.project-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -50%;
+    left: -5%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(11, 102, 195, 0.25) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.hero-main {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--r-md);
+    background: rgba(212, 175, 55, 0.18);
+    border: 1.5px solid rgba(212, 175, 55, 0.3);
+    backdrop-filter: blur(10px);
+    color: var(--brand-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.hero-info {
+    flex: 1;
+    min-width: 240px;
+}
+
+.hero-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 6px;
+    letter-spacing: -0.3px;
+    line-height: 1.2;
+}
+
+.hero-code {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--brand-gold);
+    background: rgba(212, 175, 55, 0.15);
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.hero-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.hero-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hero-meta i {
+    color: var(--brand-gold);
+    font-size: 12px;
+}
+
+.hero-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.hero-status.planning  { background: rgba(41,128,185,0.25); border-color: rgba(41,128,185,0.4); }
+.hero-status.active    { background: rgba(39,174,96,0.25);  border-color: rgba(39,174,96,0.4); }
+.hero-status.on_hold   { background: rgba(243,156,18,0.25); border-color: rgba(243,156,18,0.4); }
+.hero-status.completed { background: rgba(46,204,113,0.25); border-color: rgba(46,204,113,0.4); }
+.hero-status.archived  { background: rgba(149,165,166,0.25); border-color: rgba(149,165,166,0.4); }
+
+.hero-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+/* ---- Buttons ---- */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.2px;
+}
+
+.btn-primary {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary:hover {
+    background: var(--brand-gold-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-light {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.btn-light:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-danger-solid {
+    background: rgba(185, 52, 43, 0.15);
+    color: #fff;
+    border: 1px solid rgba(185, 52, 43, 0.4);
+    backdrop-filter: blur(10px);
+}
+
+.btn-danger-solid:hover {
+    background: rgba(185, 52, 43, 0.3);
+    border-color: rgba(185, 52, 43, 0.6);
+}
+
+.btn-success-solid {
+    background: rgba(39, 174, 96, 0.15);
+    color: #fff;
+    border: 1px solid rgba(39, 174, 96, 0.4);
+    backdrop-filter: blur(10px);
+}
+
+.btn-success-solid:hover {
+    background: rgba(39, 174, 96, 0.3);
+    border-color: rgba(39, 174, 96, 0.6);
+}
+
+.btn-sm { padding: 6px 12px; font-size: 11px; }
+
+/* ---- Stat cards ---- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: all var(--t-base) var(--ease-spring);
+    border-top: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 50%, var(--stat-accent, transparent) 130%);
+    opacity: 0;
+    transition: opacity var(--t-base) var(--ease-standard);
+    pointer-events: none;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--stat-accent, var(--border-subtle));
+}
+
+.stat-card:hover::after { opacity: 0.06; }
+
+.stat-card.blue   { --stat-accent: var(--brand-blue); border-top-color: var(--brand-blue); }
+.stat-card.gold   { --stat-accent: var(--brand-gold); border-top-color: var(--brand-gold); }
+.stat-card.green  { --stat-accent: var(--sem-success); border-top-color: var(--sem-success); }
+.stat-card.orange { --stat-accent: var(--sem-warning); border-top-color: var(--sem-warning); }
+.stat-card.red    { --stat-accent: var(--sem-danger); border-top-color: var(--sem-danger); }
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--r-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: transform var(--t-base) var(--ease-spring);
+}
+
+.stat-card:hover .stat-icon { transform: scale(1.08) rotate(-4deg); }
+
+.stat-icon.blue   { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); }
+.stat-icon.gold   { background: rgba(212, 175, 55, 0.14); color: var(--brand-gold-deep); }
+.stat-icon.green  { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); }
+.stat-icon.orange { background: rgba(243, 156, 18, 0.12); color: var(--sem-warning); }
+.stat-icon.red    { background: rgba(185, 52, 43, 0.12); color: var(--sem-danger); }
+
+.stat-body { flex: 1; min-width: 0; }
+.stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+}
+.stat-value-sm { font-size: 16px; }
+.stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.stat-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+}
+
+/* ---- Tabs ---- */
+.project-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 6px;
+    box-shadow: var(--shadow-xs);
+    overflow-x: auto;
+}
+
+.tab {
+    flex: 1;
+    min-width: 110px;
+    padding: 10px 18px;
+    border-radius: var(--r-md);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    transition: all var(--t-fast) var(--ease-spring);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.tab:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.tab.active {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+/* ---- Chart cards (for two-col layout) ---- */
+.charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.chart-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.chart-card-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.chart-card-header h3 i {
+    color: var(--brand-gold);
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-badge {
+    padding: 4px 12px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold-deep);
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.chart-body {
+    padding: 20px;
+}
+
+/* ---- Description block ---- */
+.description-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 22px 24px;
+    box-shadow: var(--shadow-xs);
+}
+
+.description-card h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin: 0 0 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.description-card h3 i {
+    color: var(--brand-gold);
+}
+
+.description-card p {
+    color: var(--text-primary);
+    line-height: 1.7;
+    margin: 0;
+    font-size: 14px;
+}
+
+/* ---- Progress chart card ---- */
+.progress-display {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.progress-ring {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 16px;
+}
+
+.progress-ring svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+}
+
+.progress-ring .ring-bg {
+    fill: none;
+    stroke: var(--border-subtle);
+    stroke-width: 12;
+}
+
+.progress-ring .ring-fill {
+    fill: none;
+    stroke: url(#goldGradient);
+    stroke-width: 12;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s var(--ease-spring);
+}
+
+.progress-ring .ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-ring .ring-value {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+    letter-spacing: -1px;
+}
+
+.progress-ring .ring-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.progress-bar-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.progress-bar-mini {
+    height: 8px;
+    background: var(--border-subtle);
+    border-radius: var(--r-pill);
+    overflow: hidden;
+}
+
+.progress-bar-mini .fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--brand-blue), var(--brand-gold));
+    border-radius: var(--r-pill);
+    transition: width 0.6s var(--ease-spring);
+}
+
+/* ---- Milestone list ---- */
+.milestone-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.milestone-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    transition: all var(--t-fast) var(--ease-spring);
+    position: relative;
+}
+
+.milestone-item:hover {
+    transform: translateX(4px);
+    border-color: var(--brand-gold);
+    box-shadow: var(--shadow-sm);
+}
+
+.milestone-status {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    border: 2px solid transparent;
+}
+
+.milestone-status.completed {
+    background: rgba(39, 174, 96, 0.12);
+    color: var(--sem-success);
+    border-color: rgba(39, 174, 96, 0.3);
+}
+
+.milestone-status.in_progress {
+    background: rgba(11, 102, 195, 0.12);
+    color: var(--brand-blue);
+    border-color: rgba(11, 102, 195, 0.3);
+}
+
+.milestone-status.overdue {
+    background: rgba(185, 52, 43, 0.12);
+    color: var(--sem-danger);
+    border-color: rgba(185, 52, 43, 0.3);
+}
+
+.milestone-status.pending {
+    background: var(--bg-secondary);
+    color: var(--text-tertiary);
+    border-color: var(--border-default);
+}
+
+.milestone-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.milestone-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 4px;
+}
+
+.milestone-date {
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.milestone-date i {
+    color: var(--text-tertiary);
+}
+
+.milestone-progress {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--brand-gold-deep);
+    background: rgba(212, 175, 55, 0.1);
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.milestone-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-tertiary);
+}
+
+.milestone-empty i {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 12px;
+    opacity: 0.3;
+    color: var(--brand-gold);
+}
+
+.milestone-empty a {
+    color: var(--brand-gold-deep);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.milestone-empty a:hover {
+    text-decoration: underline;
+}
+
+/* ---- Animations ---- */
+.stat-card,
+.chart-card,
+.description-card,
+.project-hero {
+    animation: fade-up 0.4s ease both;
+}
+
+.project-hero { animation-delay: 0s; }
+.stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-card:nth-child(2) { animation-delay: 0.1s; }
+.stat-card:nth-child(3) { animation-delay: 0.15s; }
+.stat-card:nth-child(4) { animation-delay: 0.2s; }
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 1200px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .charts-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .project-hero { padding: 22px; }
+    .hero-title { font-size: 20px; }
+    .hero-icon { width: 44px; height: 44px; font-size: 18px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 18px; }
+    .stat-icon { width: 40px; height: 40px; font-size: 16px; }
+    .project-tabs { flex-wrap: nowrap; }
+    .tab { min-width: 90px; padding: 8px 12px; font-size: 11px; }
+    .progress-ring { width: 140px; height: 140px; }
+    .progress-ring .ring-value { font-size: 28px; }
+}
+
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .hero-actions { width: 100%; }
+    .hero-actions .btn { flex: 1; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .stat-card, .chart-card, .description-card, .project-hero { animation: none; }
+    .stat-card:hover, .milestone-item:hover { transform: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="project-detail">
+
+    <!-- Hero Header -->
+    <div class="project-hero">
+        <div class="hero-main">
+            <div class="hero-icon">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="hero-info">
+                <span class="hero-code"><i class="fas fa-hashtag"></i>{{ project.project_code }}</span>
+                <h1 class="hero-title">{{ project.name }}</h1>
+                <div class="hero-meta">
+                    <span><i class="fas fa-map-marker-alt"></i> {{ project.location }}{% if project.town %}, {{ project.town }}{% endif %}</span>
+                    <span><i class="fas fa-map"></i> {{ project.county }}</span>
+                    <span><i class="fas fa-calendar-alt"></i> {{ project.start_date|date:"M d, Y" }}</span>
+                    <span class="hero-status {{ project.status|lower }}">{{ project.get_status_display }}</span>
+                </div>
+            </div>
+            <div class="hero-actions">
+                <a href="{% url 'admin_projects:project_edit' project.id %}" class="btn btn-light">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'admin_projects:project_milestones' project.id %}" class="btn btn-light">
+                    <i class="fas fa-flag-checkered"></i> Milestones
+                </a>
+                {% if not project.is_archived %}
+                    <button class="btn btn-danger-solid" onclick="deleteProject({{ project.id }})">
+                        <i class="fas fa-trash"></i> Archive
+                    </button>
+                {% else %}
+                    <button class="btn btn-success-solid" onclick="restoreProject({{ project.id }})">
+                        <i class="fas fa-undo"></i> Restore
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stats-grid">
+        <div class="stat-card gold">
+            <div class="stat-icon gold"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">KES {{ project.budget|floatformat:0|intcomma }}</div>
+                <div class="stat-label">Total Budget</div>
+                <div class="stat-sub">Allocated</div>
+            </div>
+        </div>
+        <div class="stat-card {% if project.budget_used_percentage > 90 %}red{% elif project.budget_used_percentage > 70 %}orange{% else %}green{% endif %}">
+            <div class="stat-icon {% if project.budget_used_percentage > 90 %}red{% elif project.budget_used_percentage > 70 %}orange{% else %}green{% endif %}">
+                <i class="fas fa-coins"></i>
+            </div>
+            <div class="stat-body">
+                <div class="stat-value">{{ project.budget_used_percentage|floatformat:0 }}%</div>
+                <div class="stat-label">Budget Used</div>
+                <div class="stat-sub">KES {{ project.spent|floatformat:0|intcomma }} spent</div>
+            </div>
+        </div>
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-calendar-day"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ project.days_active|default:0 }}</div>
+                <div class="stat-label">Days Active</div>
+                <div class="stat-sub">Since {{ project.start_date|date:"M d, Y" }}</div>
+            </div>
+        </div>
+        <div class="stat-card {% if project.is_over_budget %}red{% else %}green{% endif %}">
+            <div class="stat-icon {% if project.is_over_budget %}red{% else %}green{% endif %}">
+                <i class="fas fa-piggy-bank"></i>
+            </div>
+            <div class="stat-body">
+                <div class="stat-value stat-value-sm">KES {{ project.remaining_budget|floatformat:0|intcomma }}</div>
+                <div class="stat-label">Remaining</div>
+                <div class="stat-sub">{% if project.is_over_budget %}Over budget{% else %}Budget left{% endif %}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="project-tabs">
+        <a href="{% url 'admin_projects:project_detail' project.id %}" class="tab active">
+            <i class="fas fa-info-circle"></i> Overview
+        </a>
+        <a href="{% url 'admin_projects:project_progress' project.id %}" class="tab">
+            <i class="fas fa-chart-bar"></i> Progress
+        </a>
+        <a href="{% url 'admin_projects:project_milestones' project.id %}" class="tab">
+            <i class="fas fa-flag-checkered"></i> Milestones
+        </a>
+        <a href="{% url 'admin_projects:project_timeline' project.id %}" class="tab">
+            <i class="fas fa-calendar-alt"></i> Timeline
+        </a>
+        <a href="{% url 'admin_projects:project_budget' project.id %}" class="tab">
+            <i class="fas fa-money-bill-wave"></i> Budget
+        </a>
+    </div>
+
+    <!-- Two-column: Progress + Description/Milestones -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3><i class="fas fa-chart-pie"></i> Overall Progress</h3>
+                <span class="chart-badge">{{ project.progress|floatformat:1 }}%</span>
+            </div>
+            <div class="chart-body">
+                <div class="progress-display">
+                    <div class="progress-ring">
+                        <svg viewBox="0 0 200 200">
+                            <defs>
+                                <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#0B66C3"/>
+                                    <stop offset="100%" stop-color="#D4AF37"/>
+                                </linearGradient>
+                            </defs>
+                            <circle class="ring-bg" cx="100" cy="100" r="85"></circle>
+                            <circle class="ring-fill" id="progressRingFill" cx="100" cy="100" r="85"
+                                stroke-dasharray="{{ progress.circumference }}"
+                                stroke-dashoffset="{{ progress.offset }}"
+                                data-progress="{{ project.progress|floatformat:1 }}"></circle>
+                        </svg>
+                        <div class="ring-center">
+                            <div class="ring-value">{{ project.progress|floatformat:0 }}%</div>
+                            <div class="ring-label">Complete</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar-row">
+                        <span>0%</span>
+                        <span>50%</span>
+                        <span>100%</span>
+                    </div>
+                    <div class="progress-bar-mini" style="margin-top:8px;">
+                        <div class="fill" style="width:{{ project.progress|floatformat:0 }}%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3><i class="fas fa-history"></i> Recent Milestones</h3>
+                <span class="chart-badge">{{ milestones|length }} latest</span>
+            </div>
+            <div class="chart-body">
+                {% if milestones %}
+                    <div class="milestone-list">
+                        {% for milestone in milestones %}
+                            <div class="milestone-item">
+                                <div class="milestone-status {{ milestone.status|lower }}">
+                                    {% if milestone.status == 'COMPLETED' %}
+                                        <i class="fas fa-check"></i>
+                                    {% elif milestone.status == 'IN_PROGRESS' %}
+                                        <i class="fas fa-spinner"></i>
+                                    {% elif milestone.status == 'OVERDUE' %}
+                                        <i class="fas fa-exclamation"></i>
+                                    {% else %}
+                                        <i class="fas fa-clock"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="milestone-info">
+                                    <div class="milestone-title">{{ milestone.title }}</div>
+                                    <div class="milestone-date">
+                                        <i class="far fa-calendar-alt"></i>
+                                        {% if milestone.completed_date %}
+                                            Completed: {{ milestone.completed_date|date:"M d, Y" }}
+                                        {% else %}
+                                            Target: {{ milestone.target_date|date:"M d, Y" }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="milestone-progress">{{ milestone.completion_percentage|floatformat:0 }}%</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="milestone-empty">
+                        <i class="fas fa-flag"></i>
+                        <p>No milestones yet. <a href="{% url 'admin_projects:project_milestones' project.id %}">Add one</a></p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if project.description %}
+    <div class="description-card">
+        <h3><i class="fas fa-align-left"></i> Description</h3>
+        <p>{{ project.description }}</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ring = document.getElementById('progressRingFill');
+    if (ring) {
+        var progress = parseFloat(ring.dataset.progress) || 0;
+        // Read the ring's actual circumference from the SVG attribute
+        // so the math stays correct if the radius ever changes.
+        var circumference = parseFloat(ring.getAttribute('stroke-dasharray')) || 0;
+        var offset = circumference - (progress / 100) * circumference;
+        ring.style.strokeDashoffset = offset;
+    }
+});
+
+function getCookie(name) {
+    const value = '; ' + document.cookie;
+    const parts = value.split('; ' + name + '=');
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return '';
+}
+
+function deleteProject(id) {
+    if (confirm('Are you sure you want to archive this project? It can be restored later.')) {
+        fetch('{% url "projects:project_delete" 0 %}'.replace('0', id), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.success) {
+                if (typeof showToast === 'function') {
+                    showToast('success', 'Project Archived', 'Project has been archived successfully');
+                }
+                window.location.href = '{% url "projects:project_list" %}';
+            } else {
+                if (typeof showToast === 'function') {
+                    showToast('error', 'Error', data.error || 'Failed to archive project');
+                }
+            }
+        })
+        .catch(function() {
+            if (typeof showToast === 'function') {
+                showToast('error', 'Error', 'An unexpected error occurred');
+            }
+        });
+    }
+}
+
+function restoreProject(id) {
+    if (confirm('Are you sure you want to restore this project?')) {
+        fetch('{% url "projects:project_restore" 0 %}'.replace('0', id), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.success) {
+                if (typeof showToast === 'function') {
+                    showToast('success', 'Project Restored', 'Project has been restored successfully');
+                }
+                window.location.reload();
+            } else {
+                if (typeof showToast === 'function') {
+                    showToast('error', 'Error', data.error || 'Failed to restore project');
+                }
+            }
+        })
+        .catch(function() {
+            if (typeof showToast === 'function') {
+                showToast('error', 'Error', 'An unexpected error occurred');
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

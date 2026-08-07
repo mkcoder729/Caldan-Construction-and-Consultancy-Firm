@@ -1,0 +1,31 @@
+{# Admin alert — new contact form submission. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-warning" style="margin-top: 14px;">NEW MESSAGE</span>{% endblock %}
+
+{% block content %}
+  <h1>New <span>contact</span> message</h1>
+  <p class="subtitle">Awaiting your reply</p>
+
+  <p>A new contact form submission just landed. Reply within 24 hours to keep the lead warm.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Name</dt>
+      <dd>{{ name }}</dd>
+      <dt>Email</dt>
+      <dd><a href="mailto:{{ email }}">{{ email }}</a></dd>
+      <dt>Phone</dt>
+      <dd>{{ phone }}</dd>
+    </dl>
+  </div>
+
+  <h2>Message</h2>
+  <div class="callout callout-info">
+    {{ message|linebreaks }}
+  </div>
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}{{ action_url|default:'/dashboard/contact/' }}" class="button">Open in dashboard</a>
+  </div>
+{% endblock %}

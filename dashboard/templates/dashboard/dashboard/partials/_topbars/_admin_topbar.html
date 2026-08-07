@@ -1,0 +1,27 @@
+{% load static %}
+
+<header class="topbar">
+    <div class="topbar-left">
+        <!-- Mobile Menu Toggle -->
+        <button class="topbar-toggle" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Breadcrumbs -->
+        {% include "dashboard/dashboard/partials/_breadcrumbs.html" %}
+    </div>
+
+    <div class="topbar-right">
+        <!-- Search -->
+        {% include "dashboard/dashboard/partials/_components/__search_modal.html" %}
+
+        <!-- Notification Bell -->
+        {% include "dashboard/dashboard/partials/_components/__notification_bell.html" %}
+
+        <!-- Theme Toggle -->
+        {% include "dashboard/dashboard/partials/_components/__theme_toggle.html" %}
+
+        <!-- User Menu -->
+        {% include "dashboard/dashboard/partials/_components/__user_menu.html" %}
+    </div>
+</header>

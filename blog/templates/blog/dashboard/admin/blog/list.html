@@ -1,0 +1,959 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}Blog Posts - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   BLOG LIST — PREMIUM ADMIN (CARD GRID)
+   ================================================================ */
+
+.blog-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+/* ---------- Page Header (compact pill — same scale as the published tag) ---------- */
+.page-header {
+    background: linear-gradient(135deg, rgba(11, 23, 42, 0.95) 0%, rgba(11, 102, 195, 0.85) 100%);
+    border-radius: var(--r-pill);
+    padding: 6px 14px 6px 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    border: 1px solid rgba(212, 175, 55, 0.28);
+    box-shadow: 0 4px 14px -4px rgba(11, 23, 42, 0.45);
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.18) 0%, transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.page-header::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 16px 16px;
+    pointer-events: none;
+    mask-image: linear-gradient(120deg, black, transparent 70%);
+}
+
+.page-header-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+    z-index: 1;
+}
+
+.page-header-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: var(--r-pill);
+    background: rgba(212, 175, 55, 0.22);
+    border: 1px solid rgba(212, 175, 55, 0.32);
+    color: var(--brand-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+
+.page-header-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1;
+}
+
+.page-header-title i { color: var(--brand-gold); font-size: 11px; }
+.page-header-sub {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.72);
+    margin: 0 0 0 2px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    line-height: 1;
+}
+
+.page-header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+/* ---------- Stats Grid ---------- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: all var(--t-base) var(--ease-spring);
+    border-top: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 50%, var(--stat-accent, transparent) 130%);
+    opacity: 0;
+    transition: opacity var(--t-base) var(--ease-standard);
+    pointer-events: none;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--stat-accent, var(--border-subtle));
+}
+.stat-card:hover::after { opacity: 0.08; }
+
+.stat-card.blue   { --stat-accent: var(--brand-blue); border-top-color: var(--brand-blue); }
+.stat-card.gold   { --stat-accent: var(--brand-gold); border-top-color: var(--brand-gold); }
+.stat-card.green  { --stat-accent: var(--sem-success); border-top-color: var(--sem-success); }
+.stat-card.orange { --stat-accent: var(--sem-warning); border-top-color: var(--sem-warning); }
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--r-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: transform var(--t-base) var(--ease-spring);
+}
+
+.stat-card:hover .stat-icon { transform: scale(1.1) rotate(-6deg); }
+
+.stat-icon.blue   { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); }
+.stat-icon.gold   { background: rgba(212, 175, 55, 0.14); color: var(--brand-gold-deep); }
+.stat-icon.green  { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); }
+.stat-icon.orange { background: rgba(243, 156, 18, 0.12); color: var(--sem-warning); }
+
+.stat-body { flex: 1; min-width: 0; }
+.stat-value {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+}
+.stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.stat-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+.stat-spark {
+    position: absolute;
+    right: 18px;
+    bottom: 14px;
+    opacity: 0.4;
+}
+
+/* ---------- Toolbar ---------- */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 14px 18px;
+    box-shadow: var(--shadow-xs);
+}
+
+.toolbar__tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.toolbar__tab {
+    padding: 8px 16px;
+    border-radius: var(--r-pill);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--t-fast) var(--ease-spring);
+}
+.toolbar__tab:hover { background: var(--bg-secondary); color: var(--text-primary); transform: translateY(-1px); }
+.toolbar__tab.is-active {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 4px 14px -6px rgba(212,175,55,0.5);
+}
+.toolbar__tab .pill-count { font-size: 11px; font-weight: 700; opacity: 0.7; }
+.toolbar__tab.is-active .pill-count { opacity: 1; }
+
+.toolbar__divider {
+    width: 1px;
+    height: 22px;
+    background: var(--border-subtle);
+}
+
+.toolbar__search {
+    flex: 1;
+    min-width: 240px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    transition: all var(--t-fast) var(--ease-standard);
+}
+.toolbar__search:focus-within {
+    border-color: var(--brand-gold);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+.toolbar__search i { color: var(--text-tertiary); font-size: 13px; }
+.toolbar__search input {
+    flex: 1;
+    border: none; outline: none; background: transparent;
+    font-family: inherit; font-size: 13px;
+    color: var(--text-primary);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+    padding: 9px 20px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.2px;
+}
+
+.btn-primary {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+.btn-primary:hover {
+    background: var(--brand-gold-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+}
+.btn-secondary:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-default);
+    color: var(--text-primary);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
+}
+.btn-outline:hover {
+    background: var(--bg-secondary);
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+}
+
+.btn-ghost {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+}
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ---------- Card Grid ---------- */
+.post-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.post-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: all var(--t-base) var(--ease-spring);
+}
+
+.post-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(212, 175, 55, 0.45);
+}
+
+.post-card__media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+}
+
+.post-card__media img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 600ms ease;
+}
+
+.post-card:hover .post-card__media img { transform: scale(1.06); }
+
+.post-card__placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.18); font-size: 2.4rem;
+}
+
+.post-card__badge {
+    position: absolute; top: 12px; left: 12px;
+    padding: 4px 11px;
+    border-radius: var(--r-pill);
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    backdrop-filter: blur(6px);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1;
+    white-space: nowrap;
+}
+.post-card__badge i { font-size: 9px; line-height: 1; }
+.post-card__badge.published {
+    background: rgba(39,174,96,0.85); color: #fff;
+    box-shadow: 0 4px 14px -4px rgba(39,174,96,0.5);
+}
+.post-card__badge.draft {
+    background: rgba(243,156,18,0.85); color: #fff;
+    box-shadow: 0 4px 14px -4px rgba(243,156,18,0.5);
+}
+.post-card__badge.new {
+    position: absolute; top: 12px; right: 12px;
+    background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%);
+    color: #fff;
+    box-shadow: 0 4px 14px -4px rgba(39,174,96,0.6);
+    padding: 4px 11px;
+    border-radius: var(--r-pill);
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    backdrop-filter: blur(6px);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1;
+    white-space: nowrap;
+}
+.post-card__badge.new i { font-size: 9px; line-height: 1; }
+
+/* Category pill — sits in the top-right corner under the "New" badge (when
+   present) or alone when the post is not recent. Same compact scale as the
+   Published/Draft pills so all three badges feel like siblings. */
+.post-card__badge.category {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 4px 11px;
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    backdrop-filter: blur(6px);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1;
+    white-space: nowrap;
+    box-shadow: 0 4px 14px -4px rgba(11, 23, 42, 0.4);
+}
+.post-card__badge.category i { font-size: 9px; line-height: 1; }
+.post-card__badge.category.cat-construction {
+    background: linear-gradient(135deg, #D4AF37 0%, #E8C84A 100%);
+    color: #0D2B36;
+    box-shadow: 0 4px 14px -4px rgba(212,175,55,0.55);
+}
+.post-card__badge.category.cat-consultancy {
+    background: linear-gradient(135deg, #0B66C3 0%, #4A90E2 100%);
+    color: #fff;
+    box-shadow: 0 4px 14px -4px rgba(11,102,195,0.55);
+}
+.post-card__badge.category.cat-news {
+    background: linear-gradient(135deg, #0D2B36 0%, #1B3A5C 100%);
+    color: #D4AF37;
+    box-shadow: 0 4px 14px -4px rgba(13,43,54,0.6);
+}
+
+/* When both "New" and "category" badges want the top-right corner, stack
+   the category pill below the New one so neither gets clipped. */
+.post-card__media { padding-top: 0; }
+.post-card__badge.category.has-new {
+    top: 44px;
+}
+
+.post-card__body {
+    padding: 18px 20px;
+    display: flex; flex-direction: column;
+    flex: 1;
+}
+
+.post-card__title {
+    font-size: 15px; font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 8px;
+    line-height: 1.35;
+    letter-spacing: -0.1px;
+}
+.post-card__title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--t-fast) var(--ease-standard);
+}
+.post-card__title a:hover { color: var(--brand-gold-deep); }
+
+.post-card__excerpt {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin: 0 0 14px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.post-card__meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border-subtle);
+}
+.post-card__meta span { display: inline-flex; align-items: center; gap: 4px; }
+.post-card__meta i { color: var(--text-tertiary); font-size: 10px; }
+
+/* Hover-revealed action toolbar */
+.post-card__actions {
+    position: absolute;
+    top: 76px;
+    right: 12px;
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity var(--t-fast) var(--ease-standard),
+                transform var(--t-fast) var(--ease-spring);
+}
+.post-card:hover .post-card__actions { opacity: 1; transform: translateY(0); }
+
+.action-btn {
+    width: 32px; height: 32px;
+    border-radius: var(--r-sm);
+    border: none;
+    background: rgba(11,23,42,0.78);
+    color: #fff;
+    backdrop-filter: blur(8px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-standard);
+    text-decoration: none;
+}
+.action-btn:hover { background: var(--brand-gold); color: var(--brand-navy); transform: scale(1.1); }
+.action-btn.danger:hover { background: var(--sem-danger); color: #fff; }
+
+/* ---------- Empty State ---------- */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 100px 24px;
+    background: var(--bg-card);
+    border-radius: var(--r-xl);
+    border: 1px dashed var(--border-default);
+}
+.empty-state__icon {
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    color: var(--brand-gold);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.4rem;
+    margin-bottom: 18px;
+    border: 2px dashed rgba(212,175,55,0.4);
+}
+.empty-state h3 {
+    font-size: 1.2rem; font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 8px;
+}
+.empty-state p {
+    color: var(--text-secondary);
+    margin: 0 0 22px;
+    max-width: 400px;
+    margin-left: auto; margin-right: auto;
+}
+
+/* ---------- Pagination ---------- */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 28px;
+    padding: 12px 0;
+    flex-wrap: wrap;
+}
+.page-link {
+    min-width: 38px; height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+.page-link:hover { background: var(--bg-secondary); border-color: var(--brand-gold); color: var(--text-primary); transform: translateY(-1px); }
+.page-link.active {
+    background: var(--brand-gold); color: var(--brand-navy);
+    border-color: var(--brand-gold);
+    box-shadow: 0 4px 12px -6px rgba(212, 175, 55, 0.5);
+}
+.page-link.disabled { opacity: 0.4; pointer-events: none; }
+
+/* ---------- Card entrance ---------- */
+.post-card { animation: card-in 0.4s ease both; }
+.post-card:nth-child(2) { animation-delay: 0.04s; }
+.post-card:nth-child(3) { animation-delay: 0.08s; }
+.post-card:nth-child(4) { animation-delay: 0.12s; }
+.post-card:nth-child(5) { animation-delay: 0.16s; }
+.post-card:nth-child(6) { animation-delay: 0.20s; }
+.post-card:nth-child(7) { animation-delay: 0.24s; }
+.post-card:nth-child(8) { animation-delay: 0.28s; }
+.post-card:nth-child(9) { animation-delay: 0.32s; }
+
+@keyframes card-in {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Modal ---------- */
+.modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(11, 23, 42, 0.65);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+    animation: backdrop-in 0.18s ease both;
+}
+@keyframes backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+
+.modal-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-xl);
+    padding: 30px 28px;
+    max-width: 440px;
+    width: 90%;
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+    position: relative;
+    overflow: hidden;
+    animation: card-in 0.22s var(--ease-spring) both;
+}
+.modal-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(380px 200px at 50% -10%, rgba(185,52,43,0.08), transparent 70%);
+    pointer-events: none;
+}
+.modal-icon {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: rgba(185,52,43,0.12);
+    color: var(--sem-danger);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 1.6rem;
+    border: 2px solid rgba(185,52,43,0.18);
+    position: relative; z-index: 1;
+}
+.modal-title {
+    margin: 0 0 8px;
+    color: var(--text-primary);
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+    position: relative; z-index: 1;
+}
+.modal-message {
+    color: var(--text-secondary);
+    margin: 0 0 22px;
+    font-size: 13px;
+    line-height: 1.55;
+    position: relative; z-index: 1;
+}
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative; z-index: 1;
+}
+.btn-danger-pill {
+    padding: 9px 20px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--sem-danger);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(185,52,43,0.3);
+}
+.btn-danger-pill:hover {
+    background: #A12E26;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(185,52,43,0.45);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+    .post-grid { grid-template-columns: repeat(2, 1fr); }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .page-header { padding: 14px 16px; }
+    .page-header-title { font-size: 17px; }
+    .page-header-icon { width: 40px; height: 40px; font-size: 16px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 22px; }
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .toolbar__divider { display: none; }
+    .toolbar__search { min-width: 0; }
+    .post-grid { grid-template-columns: 1fr; gap: 16px; }
+    .post-card__actions { opacity: 1; transform: none; }
+}
+
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .post-card, .post-card__media img, .post-card__actions { animation: none; transition: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="blog-page">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-main">
+            <div class="page-header-icon"><i class="fas fa-newspaper"></i></div>
+            <div>
+                <h1 class="page-header-title">Blog Posts <i class="fas fa-feather-alt"></i></h1>
+                <p class="page-header-sub">Write, edit and publish stories from the field.</p>
+            </div>
+        </div>
+        <div class="page-header-actions">
+            <a href="{% url 'blog:list' %}" target="_blank" class="btn btn-ghost">
+                <i class="fas fa-external-link-alt"></i> View Public
+            </a>
+            <a href="{% url 'blog:admin_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Post
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-newspaper"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ total_posts|default:0 }}</div>
+                <div class="stat-label">Total Posts</div>
+                <div class="stat-sub">All content</div>
+            </div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-circle-check"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ published_posts|default:0 }}</div>
+                <div class="stat-label">Published</div>
+                <div class="stat-sub">Live on site</div>
+            </div>
+        </div>
+        <div class="stat-card orange">
+            <div class="stat-icon orange"><i class="fas fa-pen-to-square"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ draft_posts|default:0 }}</div>
+                <div class="stat-label">Drafts</div>
+                <div class="stat-sub">In progress</div>
+            </div>
+        </div>
+        <div class="stat-card gold">
+            <div class="stat-icon gold"><i class="fas fa-image"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ posts_with_images|default:0 }}</div>
+                <div class="stat-label">With Images</div>
+                <div class="stat-sub">Featured photos</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toolbar (tabs + search) -->
+    <form method="get" class="toolbar">
+        <div class="toolbar__tabs">
+            <a href="?{% if search_query %}search={{ search_query }}{% endif %}" class="toolbar__tab {% if not status_filter %}is-active{% endif %}">
+                All <span class="pill-count">{{ total_posts|default:0 }}</span>
+            </a>
+            <a href="?status=published{% if search_query %}&search={{ search_query }}{% endif %}" class="toolbar__tab {% if status_filter == 'published' %}is-active{% endif %}">
+                <i class="fas fa-circle-check" style="font-size:8px;"></i> Published <span class="pill-count">{{ published_posts|default:0 }}</span>
+            </a>
+            <a href="?status=draft{% if search_query %}&search={{ search_query }}{% endif %}" class="toolbar__tab {% if status_filter == 'draft' %}is-active{% endif %}">
+                <i class="fas fa-circle-pause" style="font-size:8px;"></i> Drafts <span class="pill-count">{{ draft_posts|default:0 }}</span>
+            </a>
+        </div>
+        <div class="toolbar__divider"></div>
+        <div class="toolbar__search">
+            <i class="fas fa-search"></i>
+            <input type="text" name="search" placeholder="Search posts by title..." value="{{ search_query|default:'' }}">
+            {% if status_filter %}<input type="hidden" name="status" value="{{ status_filter }}">{% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-search"></i> Search
+        </button>
+        {% if search_query or status_filter %}
+            <a href="{% url 'blog:admin_list' %}" class="btn btn-outline">
+                <i class="fas fa-times"></i> Clear
+            </a>
+        {% endif %}
+    </form>
+
+    <!-- Card Grid -->
+    <div class="post-grid">
+        {% for post in posts %}
+        <article class="post-card">
+            <a href="{% url 'blog:admin_detail' post.id %}" class="post-card__media" aria-label="{{ post.title }}">
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="{{ post.title }}" loading="lazy">
+                {% else %}
+                    <div class="post-card__placeholder"><i class="fas fa-newspaper"></i></div>
+                {% endif %}
+
+                {% if post.is_published %}
+                    <span class="post-card__badge published"><i class="fas fa-circle-check"></i> Published</span>
+                {% else %}
+                    <span class="post-card__badge draft"><i class="fas fa-circle-pause"></i> Draft</span>
+                {% endif %}
+
+                {% if post.is_recent %}
+                    <span class="post-card__badge new"><i class="fas fa-sparkles"></i> New</span>
+                {% endif %}
+
+                <span class="post-card__badge category cat-{{ post.category }}{% if post.is_recent %} has-new{% endif %}">
+                    {% if post.category == 'construction' %}<i class="fas fa-hard-hat"></i>
+                    {% elif post.category == 'consultancy' %}<i class="fas fa-lightbulb"></i>
+                    {% else %}<i class="fas fa-bullhorn"></i>{% endif %}
+                    {{ post.get_category_display }}
+                </span>
+            </a>
+
+            <div class="post-card__body">
+                <h3 class="post-card__title">
+                    <a href="{% url 'blog:admin_detail' post.id %}">{{ post.title }}</a>
+                </h3>
+                {% if post.excerpt %}
+                    <p class="post-card__excerpt">{{ post.excerpt }}</p>
+                {% endif %}
+                <div class="post-card__meta">
+                    <span><i class="far fa-calendar-alt"></i> {{ post.created_at|date:"M d, Y" }}</span>
+                    {% if post.reading_time %}<span><i class="far fa-clock"></i> {{ post.reading_time }} min</span>{% endif %}
+                </div>
+            </div>
+
+            <div class="post-card__actions">
+                <a href="{% url 'blog:admin_edit' post.id %}" class="action-btn" title="Edit"><i class="fas fa-pen"></i></a>
+                <a href="{% url 'blog:detail' post.slug %}" target="_blank" class="action-btn" title="View public"><i class="fas fa-external-link-alt"></i></a>
+                <button type="button" class="action-btn danger" title="Delete" onclick="confirmDelete('{{ post.id }}', '{{ post.title|escapejs }}')"><i class="fas fa-trash"></i></button>
+            </div>
+        </article>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-state__icon"><i class="fas fa-feather-alt"></i></div>
+            <h3>No blog posts yet</h3>
+            <p>Start sharing project highlights, construction insights and company news with your audience.</p>
+            <a href="{% url 'blog:admin_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Write your first post
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if posts.paginator.num_pages > 1 %}
+    <div class="pagination">
+        {% if posts.has_previous %}
+            <a href="?page={{ posts.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="page-link">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        {% else %}
+            <span class="page-link disabled"><i class="fas fa-chevron-left"></i></span>
+        {% endif %}
+
+        {% for n in posts.paginator.page_range %}
+            {% if n == posts.number %}
+                <span class="page-link active">{{ n }}</span>
+            {% else %}
+                <a href="?page={{ n }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="page-link">{{ n }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if posts.has_next %}
+            <a href="?page={{ posts.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="page-link">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        {% else %}
+            <span class="page-link disabled"><i class="fas fa-chevron-right"></i></span>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Delete Post?</h3>
+        <p class="modal-message" id="deleteMessage">Are you sure you want to delete this post?</p>
+        <div class="modal-actions">
+            <button type="button" onclick="closeDeleteModal()" class="btn btn-secondary">Cancel</button>
+            <form id="deleteForm" method="POST" style="display:inline;">{% csrf_token %}
+                <button type="submit" class="btn btn-danger-pill">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmDelete(postId, postTitle) {
+    document.getElementById('deleteModal').style.display = 'flex';
+    document.getElementById('deleteMessage').textContent = 'Are you sure you want to delete "' + postTitle + '"? This action cannot be undone.';
+    document.getElementById('deleteForm').action = "{% url 'blog:admin_delete' 0 %}".replace('0', postId);
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) closeDeleteModal();
+        });
+    }
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeDeleteModal();
+    });
+});
+</script>
+{% endblock %}

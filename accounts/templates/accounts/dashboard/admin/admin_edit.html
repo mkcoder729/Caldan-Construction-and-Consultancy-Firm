@@ -1,0 +1,479 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Edit {{ admin.full_name }} - Caldan{% endblock %}
+
+{% block extra_css %}
+<style>
+.edit-page {
+    max-width: 880px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 56px;
+    animation: edit-fade-in 0.4s var(--ease-standard, ease) both;
+}
+@keyframes edit-fade-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Hero — mirrors admin management style */
+.edit-hero {
+    background: linear-gradient(135deg, var(--brand-navy, #0B2540) 0%, var(--brand-blue-deep, #10355E) 100%);
+    border-radius: var(--r-xl, 14px);
+    padding: 24px 28px;
+    color: #fff;
+    display: flex; align-items: center; gap: 18px;
+    border: 1px solid rgba(212, 175, 55, 0.22);
+    box-shadow: 0 14px 40px rgba(11, 37, 64, 0.18);
+    position: relative; overflow: hidden;
+}
+.edit-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(transparent 0, transparent calc(100% - 1px), rgba(255,255,255,0.04) 100%);
+    background-size: 100% 32px;
+    pointer-events: none;
+}
+.edit-hero-avatar {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand-gold, #D4AF37) 0%, #c19e2f 100%);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700;
+    flex-shrink: 0;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.32);
+}
+.edit-hero-avatar img {
+    width: 100%; height: 100%; object-fit: cover;
+}
+.edit-hero-info { flex: 1; min-width: 0; }
+.edit-hero-info h1 {
+    margin: 0 0 4px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.2px;
+}
+.edit-hero-info p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 13px;
+}
+.edit-hero-badges {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 6px;
+}
+.edit-hero-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.92);
+}
+.edit-hero-badge.gold { background: rgba(212,175,55,0.18); border-color: rgba(212,175,55,0.45); color: var(--brand-gold); }
+.edit-hero-badge.danger { background: rgba(231,76,60,0.18); border-color: rgba(231,76,60,0.45); color: #ff7e6c; }
+.edit-hero-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-secondary,
+.btn-ghost {
+    height: 38px;
+    padding: 0 14px;
+    border-radius: var(--r-sm, 6px);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    text-decoration: none;
+    font-family: inherit;
+    transition: background var(--t-fast) ease, border-color var(--t-fast) ease, color var(--t-fast) ease;
+}
+.btn-secondary {
+    background: rgba(255,255,255,0.10);
+    color: rgba(255,255,255,0.95);
+    border: 1px solid rgba(255,255,255,0.20);
+}
+.btn-secondary:hover {
+    background: rgba(255,255,255,0.18);
+    border-color: rgba(255,255,255,0.32);
+}
+.btn-danger-light {
+    height: 38px;
+    padding: 0 14px;
+    border-radius: var(--r-sm, 6px);
+    background: rgba(231,76,60,0.18);
+    color: #ff7e6c;
+    border: 1px solid rgba(231,76,60,0.40);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    text-decoration: none;
+    font-family: inherit;
+}
+.btn-danger-light:hover {
+    background: rgba(231,76,60,0.32);
+    color: #fff;
+}
+
+/* Card layout */
+.edit-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg, 12px);
+    box-shadow: var(--shadow-xs);
+    overflow: hidden;
+}
+.edit-section {
+    padding: 22px 26px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+.edit-section:last-of-type { border-bottom: none; }
+.edit-section-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+}
+.edit-section-header i {
+    color: var(--brand-gold, #D4AF37);
+    font-size: 13px;
+    width: 26px; height: 26px;
+    background: rgba(212, 175, 55, 0.10);
+    border-radius: var(--r-sm, 6px);
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.edit-section-header h3 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Form grid */
+.edit-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+.edit-field { display: flex; flex-direction: column; gap: 6px; }
+.edit-field-full { grid-column: 1 / -1; }
+.edit-field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.edit-field input[type="text"],
+.edit-field input[type="email"],
+.edit-field input[type="tel"] {
+    height: 44px;
+    padding: 0 14px;
+    border: 1.5px solid var(--border-default, #d6dce5);
+    border-radius: var(--r-md, 8px);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color var(--t-fast) var(--ease-standard, ease),
+                box-shadow var(--t-fast) var(--ease-standard, ease);
+    pointer-events: auto !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    position: relative; z-index: 2;
+}
+.edit-field input:focus {
+    outline: none;
+    border-color: var(--brand-gold, #D4AF37);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.12);
+    background: var(--bg-card);
+}
+.edit-field-error {
+    color: var(--sem-danger, #E74C3C);
+    font-size: 12px;
+    font-weight: 600;
+}
+.edit-field-hint {
+    color: var(--text-tertiary);
+    font-size: 12px;
+}
+
+/* Toggle row (is_active) */
+.edit-toggle-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md, 8px);
+}
+.edit-toggle-row .form-check-input {
+    width: 44px; height: 24px;
+    cursor: pointer;
+}
+.edit-toggle-text { flex: 1; }
+.edit-toggle-text strong { display: block; font-size: 14px; color: var(--text-primary); }
+.edit-toggle-text small { color: var(--text-tertiary); font-size: 12px; }
+
+/* Permissions badge grid */
+.perms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+}
+.perm-chip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px;
+    border-radius: var(--r-sm, 6px);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-canvas);
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+.perm-chip.on { border-color: rgba(212,175,55,0.45); background: rgba(212,175,55,0.08); color: var(--text-primary); }
+.perm-chip i { color: var(--brand-gold, #D4AF37); }
+
+/* Actions */
+.edit-actions {
+    padding: 20px 26px;
+    background: var(--bg-canvas);
+    border-top: 1px solid var(--border-subtle);
+    display: flex; gap: 10px; justify-content: flex-end;
+    flex-wrap: wrap;
+}
+.edit-btn-primary {
+    height: 44px;
+    padding: 0 22px;
+    border: none;
+    border-radius: var(--r-sm, 6px);
+    background: linear-gradient(135deg, var(--brand-gold, #D4AF37) 0%, #c19e2f 100%);
+    color: var(--brand-navy, #0B2540);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: inherit;
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.30);
+    transition: transform var(--t-fast) var(--ease-spring, ease),
+                box-shadow var(--t-fast) ease;
+}
+.edit-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.40);
+}
+.edit-btn-secondary {
+    height: 44px;
+    padding: 0 22px;
+    border-radius: var(--r-sm, 6px);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    text-decoration: none;
+    font-family: inherit;
+}
+
+@media (max-width: 768px) {
+    .edit-grid { grid-template-columns: 1fr; }
+    .edit-hero { padding: 22px; flex-wrap: wrap; }
+    .edit-section, .edit-actions { padding: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .edit-page { animation: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="edit-page" data-no-scroll-memory>
+
+    <!-- Hero -->
+    <div class="edit-hero">
+        <div class="edit-hero-avatar">
+            {% if admin.avatar %}
+                <img src="{{ admin.avatar.url }}" alt="{{ admin.full_name }}">
+            {% else %}
+                {{ admin.full_name|slice:":1"|upper }}
+            {% endif %}
+        </div>
+        <div class="edit-hero-info">
+            <h1>{{ admin.full_name }}</h1>
+            <p>{{ admin.email }}{% if admin.phone %} · {{ admin.phone }}{% endif %}</p>
+            <div class="edit-hero-badges">
+                {% if admin.is_chief %}
+                    <span class="edit-hero-badge gold"><i class="fas fa-crown" style="margin-right: 4px;"></i> Chief Admin</span>
+                {% else %}
+                    <span class="edit-hero-badge">Platform Admin</span>
+                {% endif %}
+                {% if is_currently_locked %}
+                    <span class="edit-hero-badge danger"><i class="fas fa-lock" style="margin-right: 4px;"></i> Locked</span>
+                {% elif not admin.is_active %}
+                    <span class="edit-hero-badge danger"><i class="fas fa-pause" style="margin-right: 4px;"></i> Disabled</span>
+                {% else %}
+                    <span class="edit-hero-badge"><i class="fas fa-check" style="margin-right: 4px;"></i> Active</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="edit-hero-actions">
+            <a href="{% url 'accounts:admin_list' %}" class="btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            {% if admin.id != user.id %}
+                {% if is_currently_locked %}
+                    <a href="{% url 'accounts:admin_unlock' admin.id %}" class="btn-secondary" data-method="post">
+                        <i class="fas fa-unlock"></i> Unlock
+                    </a>
+                {% else %}
+                    <button type="button" class="btn-secondary" onclick="lockAdmin({{ admin.id }}, '{{ admin.full_name|escapejs }}')">
+                        <i class="fas fa-lock"></i> Lock
+                    </button>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <form method="post" action="{% url 'accounts:admin_edit' admin.id %}" class="edit-card" autocomplete="off" novalidate>
+        {% csrf_token %}
+
+        <div class="edit-section">
+            <div class="edit-section-header">
+                <i class="fas fa-user"></i>
+                <h3>Profile</h3>
+            </div>
+
+            <div class="edit-grid">
+                <div class="edit-field">
+                    <label for="id_full_name">Full name</label>
+                    <input type="text" name="full_name" id="id_full_name"
+                           value="{{ form.full_name.value|default:admin.full_name }}" required>
+                    {% if form.full_name.errors %}<span class="edit-field-error">{{ form.full_name.errors|join:", " }}</span>{% endif %}
+                </div>
+                <div class="edit-field">
+                    <label for="id_email">Email address</label>
+                    <input type="email" name="email" id="id_email"
+                           value="{{ form.email.value|default:admin.email }}" required>
+                    {% if form.email.errors %}<span class="edit-field-error">{{ form.email.errors|join:", " }}</span>{% endif %}
+                </div>
+                <div class="edit-field edit-field-full">
+                    <label for="id_phone">Phone number</label>
+                    <input type="tel" name="phone" id="id_phone"
+                           value="{{ form.phone.value|default:admin.phone }}" placeholder="0712345678">
+                    {% if form.phone.errors %}<span class="edit-field-error">{{ form.phone.errors|join:", " }}</span>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="edit-section">
+            <div class="edit-section-header">
+                <i class="fas fa-toggle-on"></i>
+                <h3>Account Status</h3>
+            </div>
+
+            <label class="edit-toggle-row" for="id_is_active">
+                <input type="checkbox" name="is_active" id="id_is_active"
+                       class="form-check-input"
+                       {% if form.is_active.value != False and admin.is_active %}checked{% endif %}>
+                <div class="edit-toggle-text">
+                    <strong>Active</strong>
+                    <small>When disabled, the admin cannot log in until re-enabled.</small>
+                </div>
+            </label>
+        </div>
+
+        <div class="edit-section">
+            <div class="edit-section-header">
+                <i class="fas fa-key"></i>
+                <h3>Permissions</h3>
+            </div>
+
+            <p class="edit-field-hint" style="margin: 0 0 14px;">
+                Granular permissions can only be edited from the
+                <a href="{% url 'accounts:admin_permissions' admin.id %}" style="color: var(--brand-gold, #D4AF37); text-decoration: none; font-weight: 700;">Edit Permissions</a>
+                page.
+            </p>
+
+            <div class="perms-grid">
+                {% for key, value in permissions.items %}
+                    <div class="perm-chip {% if value %}on{% endif %}">
+                        <i class="fas {% if value %}fa-check{% else %}fa-times{% endif %}"></i>
+                        <span>{{ key|slice:":24" }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="edit-actions">
+            <a href="{% url 'accounts:admin_list' %}" class="edit-btn-secondary">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+            <button type="submit" class="edit-btn-primary">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </div>
+    </form>
+
+</div>
+
+<script>
+(function() {
+    var input = document.getElementById('id_full_name');
+    if (!input) return;
+    function once() {
+        if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+        try { input.focus({ preventScroll: true }); } catch (e) { input.focus(); }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', once, { once: true });
+    } else {
+        once();
+    }
+})();
+
+// Wire up the lock button to fetch POST + reload.
+function lockAdmin(id, name) {
+    var url = '{% url "accounts:admin_lock" 0 %}'.replace('0', id);
+    var csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+    if (typeof confirmDialog === 'function') {
+        confirmDialog({
+            title: 'Lock Admin',
+            message: 'Lock "' + name + '" for 24 hours? They will not be able to log in.',
+            confirmLabel: 'Lock for 24h',
+            confirmClass: 'btn-danger',
+        }).then(function(ok) { if (ok) doLock(id, url, csrf); });
+    } else if (window.confirm('Lock "' + name + '" for 24 hours?')) {
+        doLock(id, url, csrf);
+    }
+}
+function doLock(id, url, csrf) {
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrf,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'hours=24'
+    }).then(function(r) {
+        if (r.ok || r.status === 302) {
+            if (typeof showToast === 'function') showToast('success', 'Locked', 'Admin has been locked.');
+            window.location.reload();
+        } else {
+            if (typeof showToast === 'function') showToast('error', 'Error', 'Could not lock admin.');
+        }
+    }).catch(function() {
+        if (typeof showToast === 'function') showToast('error', 'Error', 'Network error.');
+    });
+}
+</script>
+{% endblock %}

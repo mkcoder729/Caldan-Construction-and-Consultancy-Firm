@@ -1,0 +1,238 @@
+<div class="modal" id="quickAddModal" role="dialog" aria-modal="true">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="quickAddTitle">Quick Add</h3>
+            <button class="modal-close" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form class="modal-body" id="quickAddForm" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" id="quickAddAction">
+
+            <div class="form-group" id="quickAddFields">
+                <!-- Dynamic fields will be injected here -->
+                <p style="color:var(--text-tertiary);font-size:0.85rem;text-align:center;padding:20px 0;">
+                    Select an action from the dashboard to get started.
+                </p>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="quickAddCancel">Cancel</button>
+                <button type="submit" class="btn btn-gold" id="quickAddSubmit">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+#quickAddModal .modal-content {
+    max-width: 560px;
+}
+
+#quickAddModal .form-group {
+    margin-bottom: 16px;
+}
+
+#quickAddModal .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+#quickAddModal .form-control {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: border-color var(--t-fast) var(--ease-standard),
+                box-shadow var(--t-fast) var(--ease-standard),
+                background var(--t-fast) var(--ease-standard);
+}
+
+#quickAddModal .form-control:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.12);
+    background: var(--bg-card);
+}
+
+#quickAddModal .form-hint {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    display: block;
+}
+
+#quickAddModal .modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+    justify-content: flex-end;
+}
+
+#quickAddModal .quick-add-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+#quickAddModal .quick-add-grid .btn {
+    justify-content: center;
+    height: 48px;
+    font-size: 0.8rem;
+}
+
+@media (max-width: 640px) {
+    #quickAddModal .quick-add-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #quickAddModal .modal-actions {
+        flex-direction: column;
+    }
+
+    #quickAddModal .modal-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var modal = document.getElementById('quickAddModal');
+    var form = document.getElementById('quickAddForm');
+    var fields = document.getElementById('quickAddFields');
+    var title = document.getElementById('quickAddTitle');
+    var actionInput = document.getElementById('quickAddAction');
+
+    // Quick add configuration
+    var quickActions = {
+        'project': {
+            title: 'Quick Add Project',
+            fields: [
+                { name: 'name', label: 'Project Name', type: 'text', required: true, placeholder: 'Enter project name' },
+                { name: 'location', label: 'Location', type: 'text', required: true, placeholder: 'Enter location' },
+                { name: 'start_date', label: 'Start Date', type: 'date', required: true }
+            ],
+            submitLabel: 'Create Project',
+            url: '{% url "projects:create" %}'
+        },
+        'material': {
+            title: 'Quick Add Material',
+            fields: [
+                { name: 'name', label: 'Material Name', type: 'text', required: true, placeholder: 'Enter material name' },
+                { name: 'category', label: 'Category', type: 'select', required: true, options: ['Cement', 'Steel', 'Sand', 'Aggregate', 'Blocks', 'Paint', 'Timber', 'Other'] },
+                { name: 'current_quantity', label: 'Initial Quantity', type: 'number', required: true, placeholder: '0' }
+            ],
+            submitLabel: 'Create Material',
+            url: '{% url "inventory:material_create" %}'
+        },
+        'client': {
+            title: 'Quick Add Client',
+            fields: [
+                { name: 'name', label: 'Client Name', type: 'text', required: true, placeholder: 'Enter client name' },
+                { name: 'email', label: 'Email', type: 'email', required: true, placeholder: 'client@example.com' },
+                { name: 'phone', label: 'Phone', type: 'tel', required: true, placeholder: '0712345678' }
+            ],
+            submitLabel: 'Create Client',
+            url: '{% url "clients:create" %}'
+        }
+    };
+
+    window.openQuickAdd = function(actionKey) {
+        var config = quickActions[actionKey];
+        if (!config) {
+            showToast('error', 'Error', 'Unknown quick add action.');
+            return;
+        }
+
+        title.textContent = config.title;
+        actionInput.value = actionKey;
+        form.action = config.url;
+
+        // Build fields
+        var html = '';
+        config.fields.forEach(function(field) {
+            var requiredAttr = field.required ? 'required' : '';
+            var placeholderAttr = field.placeholder ? 'placeholder="' + field.placeholder + '"' : '';
+
+            html += '<div class="form-group">';
+            html += '<label for="quick_' + field.name + '">' + field.label + (field.required ? ' <span style="color:var(--sem-danger);">*</span>' : '') + '</label>';
+
+            if (field.type === 'select') {
+                html += '<select class="form-control" id="quick_' + field.name + '" name="' + field.name + '" ' + requiredAttr + '>';
+                if (field.options) {
+                    field.options.forEach(function(opt) {
+                        html += '<option value="' + opt + '">' + opt + '</option>';
+                    });
+                }
+                html += '</select>';
+            } else {
+                html += '<input type="' + field.type + '" class="form-control" id="quick_' + field.name + '" name="' + field.name + '" ' + requiredAttr + ' ' + placeholderAttr + '>';
+            }
+
+            html += '</div>';
+        });
+
+        fields.innerHTML = html;
+        document.getElementById('quickAddSubmit').textContent = config.submitLabel;
+
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+
+        // Focus first field
+        setTimeout(function() {
+            var firstInput = fields.querySelector('input, select');
+            if (firstInput) firstInput.focus();
+        }, 100);
+    };
+
+    function closeModal() {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+        form.reset();
+    }
+
+    document.querySelector('#quickAddModal .modal-overlay')?.addEventListener('click', closeModal);
+    document.querySelector('#quickAddModal .modal-close')?.addEventListener('click', closeModal);
+    document.getElementById('quickAddCancel')?.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('open')) {
+            closeModal();
+        }
+    });
+
+    // Form submission with validation
+    form.addEventListener('submit', function(e) {
+        var requiredFields = fields.querySelectorAll('[required]');
+        var valid = true;
+
+        requiredFields.forEach(function(field) {
+            if (!field.value.trim()) {
+                field.style.borderColor = 'var(--sem-danger)';
+                valid = false;
+            } else {
+                field.style.borderColor = '';
+            }
+        });
+
+        if (!valid) {
+            e.preventDefault();
+            showToast('error', 'Error', 'Please fill in all required fields.');
+        }
+    });
+});
+</script>

@@ -1,0 +1,34 @@
+{# Milestone overdue — admin alert when a project milestone passes its target date. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-error" style="margin-top: 14px;">OVERDUE</span>{% endblock %}
+
+{% block content %}
+  <h1>Milestone <span>overdue</span></h1>
+  <p class="subtitle">{{ project.name }} — {{ overdue_days }} days past target</p>
+
+  <p>The following milestone has missed its target date. Review the project timeline and take action.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Milestone</dt>
+      <dd><strong>{{ milestone.title }}</strong></dd>
+      <dt>Project</dt>
+      <dd>{{ project.name }}</dd>
+      <dt>Target date</dt>
+      <dd>{{ milestone.target_date|date:"F j, Y" }}</dd>
+      <dt>Status</dt>
+      <dd><span class="badge badge-error">{{ milestone.get_status_display }}</span></dd>
+      <dt>Days overdue</dt>
+      <dd><strong>{{ overdue_days }}</strong></dd>
+    </dl>
+  </div>
+
+  <div class="callout callout-danger">
+    <strong>Action needed.</strong> This milestone is now on the critical path. Update the schedule or escalate.
+  </div>
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}/dashboard/projects/{{ project.id }}/" class="button">Open project</a>
+  </div>
+{% endblock %}

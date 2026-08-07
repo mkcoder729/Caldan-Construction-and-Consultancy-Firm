@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ report_title }} — Caldan Construction</title>
+  {% load humanize %}
+  {% load pdf_filters %}
+  <style>
+    @page {
+      size: A4;
+      margin: 2.2cm 2.2cm 2.2cm 2.2cm;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', 'Helvetica Neue', Arial, serif;
+      color: #000000;
+      font-size: 10.5pt;
+      line-height: 1.6;
+      background: #FFFFFF;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .document {
+      max-width: 100%;
+      background: #FDFBF8;
+      padding: 0;
+    }
+
+    /* ===== HEADER ===== */
+    .doc-header {
+      background: #FDFBF8;
+      padding: 18px 0 18px;
+      margin-bottom: 28px;
+      border-bottom: 1px solid #E8E0D4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .doc-header .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .doc-header .logo {
+      width: 200px;
+      height: auto;
+      display: block;
+    }
+    .doc-header .brand-text .name {
+      font-family: 'Georgia', serif;
+      font-size: 14pt;
+      font-weight: 700;
+      color: #0D2B36;
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+    .doc-header .brand-text .tagline {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 7.5pt;
+      font-weight: 500;
+      color: #9C7A1F;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin: 2px 0 0;
+    }
+    .doc-header .badge-right {
+      background: #F5E9C0;
+      border: 1px solid #D4AF37;
+      padding: 6px 18px;
+      border-radius: 4px;
+      color: #0D2B36;
+      font-size: 8pt;
+      font-weight: 700;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* ===== TITLE BLOCK ===== */
+    .title-block {
+      text-align: center;
+      padding: 14px 0 22px;
+      margin-bottom: 28px;
+      border-bottom: 1px solid #D4AF37;
+      width: 60%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .title-block h1 {
+      font-family: 'Georgia', serif;
+      font-size: 22pt;
+      font-weight: 600;
+      color: #0F2A35;
+      letter-spacing: -0.5px;
+      margin: 0;
+    }
+    .title-block h1 span {
+      color: #9C7A1F;
+      font-style: italic;
+    }
+    .title-block .subtitle {
+      font-size: 11pt;
+      color: #475569;
+      margin-top: 6px;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    .title-block .meta-row {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      font-size: 9pt;
+      color: #475569;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    .title-block .meta-row strong {
+      color: #0D2B36;
+      font-weight: 700;
+    }
+
+    /* ===== SECTIONS ===== */
+    .section {
+      margin-bottom: 40px;
+    }
+    .section h2 {
+      font-family: 'Georgia', serif;
+      font-size: 11.5pt;
+      font-weight: 600;
+      color: #0D2B36;
+      border-bottom: 1px solid #E8E0D4;
+      padding-bottom: 6px;
+      margin: 24px 0 18px;
+      letter-spacing: 0.4px;
+    }
+    .section h3 {
+      font-family: 'Georgia', serif;
+      font-size: 11.5pt;
+      font-weight: 700;
+      color: #0D2B36;
+      margin: 16px 0 8px;
+    }
+
+    /* ===== STATS GRID ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .stats-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .stats-grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+    .stat-box {
+      background: #FFFFFF;
+      border: 1px solid #E8E0D4;
+      padding: 20px 22px;
+      border-radius: 0;
+      position: relative;
+    }
+    .stat-box::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 0;
+      width: 3px;
+      height: 14px;
+      background: #D4AF37;
+    }
+    .stat-box .label {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 7.5pt;
+      font-weight: 600;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+    }
+    .stat-box .value {
+      font-family: 'Georgia', serif;
+      font-size: 16pt;
+      font-weight: 600;
+      color: #0F2A35;
+      margin-top: 3px;
+      letter-spacing: -0.2px;
+    }
+    .stat-box .value.gold { color: #9C7A1F; }
+    .stat-box .value.danger { color: #DC2626; }
+    .stat-box .value.success { color: #16A34A; }
+    .stat-box .sub {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 7.5pt;
+      color: #64748B;
+      margin-top: 2px;
+    }
+
+    /* ===== INFO CARD ===== */
+    .info-card {
+      background: #FFFFFF;
+      border: 1px solid #E8E0D4;
+      border-radius: 0;
+      padding: 18px 22px;
+      margin-bottom: 18px;
+      position: relative;
+    }
+    .info-card::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 0;
+      width: 3px;
+      height: 14px;
+      background: #D4AF37;
+    }
+    .info-card dl { margin: 0; }
+    .info-card dt {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-weight: 600;
+      color: #0D2B36;
+      font-size: 7.5pt;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-top: 8px;
+    }
+    .info-card dt:first-child { margin-top: 0; }
+    .info-card dd {
+      margin: 2px 0 0 0;
+      color: #000000;
+      font-weight: 500;
+      font-size: 10pt;
+      font-family: 'Georgia', serif;
+    }
+
+    /* ===== TABLES ===== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px;
+      font-size: 9.5pt;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #FFFFFF;
+      border-radius: 0;
+      overflow: hidden;
+      border: 0;
+    }
+    table thead { display: table-header-group; }
+    table tbody tr { page-break-inside: avoid; }
+    thead th {
+      background: #F6F1E8;
+      color: #0D2B36;
+      text-align: left;
+      padding: 13px 14px;
+      font-size: 7.5pt;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      border-bottom: 1px solid #D4AF37;
+    }
+    tbody td {
+      padding: 13px 14px;
+      border-bottom: 1px solid #E8E0D4;
+      color: #000000;
+    }
+    tbody tr:nth-child(even) { background: #FBF9F6; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody td.text-right {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: 'tnum';
+    }
+    tfoot td {
+      background: #F8F5F0;
+      font-weight: 600;
+      color: #0D2B36;
+      border-top: 1px solid #D4AF37;
+      padding: 13px 14px;
+    }
+
+    /* ===== SUMMARY BOX ===== */
+    .summary-box {
+      background: #0D2B36;
+      color: #F6F1E8;
+      border-radius: 0;
+      padding: 22px 26px;
+      margin-top: 14px;
+      border: 0;
+      border-top: 1px solid #D4AF37;
+    }
+    .summary-box .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 10pt;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    .summary-box .row .label { color: rgba(246, 241, 232, 0.6); }
+    .summary-box .row .value { font-weight: 600; color: #F6F1E8; }
+    .summary-box .row.total {
+      border-top: 1px solid rgba(212, 175, 55, 0.35);
+      padding-top: 8px;
+      margin-top: 4px;
+    }
+    .summary-box .row.total .value {
+      color: #D4AF37;
+      font-size: 12pt;
+      font-weight: 700;
+    }
+
+    /* ===== BREAKDOWN GRID ===== */
+    .breakdown-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .breakdown-box {
+      background: #FFFFFF;
+      border: 1px solid #E8E0D4;
+      border-radius: 0;
+      padding: 16px 20px;
+    }
+    .breakdown-box h3 {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 7.5pt;
+      font-weight: 600;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 8px;
+    }
+    .breakdown-box .item {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 9.5pt;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      border-bottom: 1px solid #E8E0D4;
+    }
+    .breakdown-box .item:last-child { border-bottom: none; }
+    .breakdown-box .item .name { color: #000000; }
+    .breakdown-box .item .amount { font-weight: 700; color: #0D2B36; }
+
+    /* ===== EMPTY STATE ===== */
+    .empty {
+      text-align: center;
+      padding: 24px 20px;
+      color: #475569;
+      font-style: italic;
+      background: #F8F5F0;
+      border-radius: 0;
+      border: 1px solid #E8E0D4;
+      font-family: 'Georgia', serif;
+    }
+
+    /* ===== PILLS ===== */
+    .pill {
+      display: inline-block;
+      padding: 2px 12px;
+      border-radius: 3px;
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      border: 1px solid transparent;
+    }
+    .pill-success { background: #DCFCE7; color: #000000; border-color: #B8E6CC; }
+    .pill-warning { background: #FEF3C7; color: #000000; border-color: #F5D99E; }
+    .pill-danger  { background: #FEE2E2; color: #000000; border-color: #F5C2C2; }
+    .pill-info    { background: #E0EDFB; color: #000000; border-color: #B8D1F0; }
+    .pill-neutral { background: #E5E7EB; color: #000000; border-color: #D1D5DB; }
+    .pill-gold    { background: #F5E9C0; color: #000000; border-color: #D4AF37; }
+    .pill-navy    { background: #0D2B36; color: #F6F1E8; border-color: #1A4050; }
+
+    /* ===== TEXT UTILITIES ===== */
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .text-left { text-align: left; }
+
+    /* ===== ACCENTS ===== */
+    .gold-mark {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      background: #D4AF37;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .hash-arrow {
+      display: block;
+      width: 1px;
+      height: 16px;
+      background: #D4AF37;
+      opacity: .4;
+      margin: 12px auto;
+    }
+
+    .status-completed { color: #16A34A; font-weight: 700; }
+    .status-overdue { color: #DC2626; font-weight: 700; }
+    .status-pending { color: #9C7A1F; font-weight: 700; }
+    .status-low { color: #9C7A1F; font-weight: 700; }
+    .status-out { color: #DC2626; font-weight: 700; }
+    .status-ok { color: #16A34A; font-weight: 700; }
+    .status-positive { color: #16A34A; font-weight: 700; }
+    .status-negative { color: #DC2626; font-weight: 700; }
+
+    /* ===== HASH CHAIN ===== */
+    .hash-chain {
+      background: #0D2B36;
+      color: rgba(246, 241, 232, 0.6);
+      border-radius: 4px;
+      padding: 14px 18px;
+      font-family: 'Courier New', monospace;
+      font-size: 7pt;
+      word-break: break-all;
+      margin-top: 8px;
+      border: 1px solid #1A4050;
+    }
+    .hash-chain .label {
+      color: #D4AF37;
+      font-weight: 700;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 8pt;
+      margin-bottom: 4px;
+    }
+    .hash-chain .hash { color: #F6F1E8; }
+
+    /* ===== FOOTER ===== */
+    .doc-footer {
+      margin-top: 36px;
+      padding-top: 16px;
+      border-top: 1px solid #E8E0D4;
+      text-align: center;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      color: #64748B;
+      font-size: 9pt;
+      letter-spacing: 0.4px;
+    }
+
+    .page-footer {
+      margin-top: 28px;
+      padding-top: 12px;
+      border-top: 1px solid #E8E0D4;
+      text-align: center;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 8pt;
+      color: #94A3B8;
+      letter-spacing: 0.4px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media screen and (max-width: 600px) {
+      .doc-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+        padding: 16px 0;
+      }
+      .doc-header .brand-left { flex-direction: column; }
+      .doc-header .logo { width: 160px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .breakdown-grid { grid-template-columns: 1fr; }
+      .title-block h1 { font-size: 18pt; }
+      .doc-header .brand-text .name { font-size: 12pt; }
+    }
+  </style>
+</head>
+<body>
+  <div class="document">
+
+    <!-- HEADER -->
+    <div class="doc-header">
+      <div class="brand-left">
+        <img class="logo" src="https://res.cloudinary.com/nifbnyz2/image/upload/w_400,c_scale/v1786023287/caldan/caldan/logo.png" alt="Caldan Construction">
+        <div class="brand-text">
+          <p class="name">{{ brand_name|default:"Caldan Construction and Consultancy Firm" }}</p>
+          <p class="tagline">{{ tagline|default:"Building Kenya's Future, One Project at a Time." }}</p>
+        </div>
+      </div>
+      <div class="badge-right">{% block badge %}REPORT{% endblock %}</div>
+    </div>
+
+    <!-- TITLE BLOCK -->
+    <div class="title-block">
+      <h1>{% block title %}Report<span>.</span>{% endblock %}</h1>
+      {% if report_subtitle %}
+        <p class="subtitle">{{ report_subtitle }}</p>
+      {% endif %}
+      <div class="meta-row">
+        <span><strong>Generated:</strong> {{ generated_at|date:"F j, Y H:i" }}</span>
+        {% if total_records is not None %}
+          <span><strong>Records:</strong> {{ total_records }}</span>
+        {% endif %}
+        {% block meta_extra %}{% endblock %}
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    {% block content %}{% endblock %}
+
+    <!-- FOOTER -->
+    <div class="doc-footer">
+      <span class="gold-mark"></span>Caldan Construction · Nairobi · {{ generated_at|date:"F j, Y" }}
+    </div>
+
+    <!-- PAGE FOOTER -->
+    <div class="page-footer">
+      Caldan · Confidential · Page <span class="page-number"></span>
+    </div>
+
+  </div>
+</body>
+</html>

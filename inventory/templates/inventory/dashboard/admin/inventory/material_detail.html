@@ -1,0 +1,583 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}{{ material.name }} - Inventory - Caldan Construction{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   MATERIAL DETAIL — PREMIUM ADMIN
+   ================================================================ */
+
+.material-detail {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+/* ---- Hero ---- */
+.project-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+.project-hero::before {
+    content: ''; position: absolute; top: -100%; right: -10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 65%);
+    border-radius: 50%; pointer-events: none;
+}
+.project-hero::after {
+    content: ''; position: absolute; bottom: -50%; left: -5%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(11, 102, 195, 0.25) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+}
+
+.hero-main {
+    display: flex; align-items: flex-start; gap: 18px; flex-wrap: wrap;
+    position: relative; z-index: 1;
+}
+
+.hero-icon {
+    width: 56px; height: 56px;
+    border-radius: var(--r-md);
+    background: rgba(212, 175, 55, 0.18);
+    border: 1.5px solid rgba(212, 175, 55, 0.3);
+    backdrop-filter: blur(10px);
+    color: var(--brand-gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+}
+
+.hero-info { flex: 1; min-width: 240px; }
+
+.hero-code {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700;
+    color: var(--brand-gold);
+    background: rgba(212, 175, 55, 0.15);
+    padding: 4px 12px; border-radius: var(--r-pill);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    letter-spacing: 0.5px; text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.hero-title {
+    font-size: 24px; font-weight: 800;
+    color: #fff; margin: 0 0 6px;
+    letter-spacing: -0.3px; line-height: 1.2;
+}
+
+.hero-meta {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    font-size: 13px; color: rgba(255, 255, 255, 0.85);
+}
+.hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
+.hero-meta i { color: var(--brand-gold); font-size: 12px; }
+
+.hero-status {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 12px; border-radius: var(--r-pill);
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.hero-status.in_stock  { background: rgba(39, 174, 96, 0.25); border: 1px solid rgba(39, 174, 96, 0.4); color: #fff; }
+.hero-status.low_stock { background: rgba(243, 156, 18, 0.25); border: 1px solid rgba(243, 156, 18, 0.4); color: #fff; }
+.hero-status.out_stock { background: rgba(185, 52, 43, 0.25); border: 1px solid rgba(185, 52, 43, 0.4); color: #fff; }
+
+.hero-actions { display: flex; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; }
+
+/* ---- Buttons ---- */
+.btn {
+    padding: 8px 16px; border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px; font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+    letter-spacing: 0.2px;
+}
+.btn-primary { background: var(--brand-gold); color: var(--brand-navy); box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3); }
+.btn-primary:hover { background: var(--brand-gold-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4); }
+.btn-light { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); }
+.btn-light:hover { background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.3); transform: translateY(-1px); }
+.btn-success-solid { background: rgba(39, 174, 96, 0.15); color: #fff; border: 1px solid rgba(39, 174, 96, 0.4); backdrop-filter: blur(10px); }
+.btn-success-solid:hover { background: rgba(39, 174, 96, 0.3); border-color: rgba(39, 174, 96, 0.6); }
+.btn-danger-solid { background: rgba(185, 52, 43, 0.15); color: #fff; border: 1px solid rgba(185, 52, 43, 0.4); backdrop-filter: blur(10px); }
+.btn-danger-solid:hover { background: rgba(185, 52, 43, 0.3); border-color: rgba(185, 52, 43, 0.6); }
+.btn-sm { padding: 5px 12px; font-size: 11px; }
+.btn-outline { background: transparent; border: 1px solid var(--border-default); color: var(--text-secondary); }
+.btn-outline:hover { background: var(--bg-secondary); border-color: var(--border-strong); color: var(--text-primary); }
+
+/* ---- Breadcrumb ---- */
+.breadcrumb-bar {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-tertiary);
+}
+.breadcrumb-bar a { color: var(--text-secondary); text-decoration: none; transition: color var(--t-fast); }
+.breadcrumb-bar a:hover { color: var(--brand-gold-deep); }
+.breadcrumb-bar i.sep { font-size: 9px; color: var(--text-tertiary); }
+.breadcrumb-bar .current { color: var(--text-primary); font-weight: 600; }
+
+/* ---- Stat cards ---- */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
+    display: flex; align-items: flex-start; gap: 16px;
+    transition: all var(--t-base) var(--ease-spring);
+    border-top: 3px solid transparent;
+    position: relative; overflow: hidden;
+}
+.stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--stat-accent, var(--border-subtle)); }
+.stat-card.blue   { --stat-accent: var(--brand-blue); border-top-color: var(--brand-blue); }
+.stat-card.gold   { --stat-accent: var(--brand-gold); border-top-color: var(--brand-gold); }
+.stat-card.green  { --stat-accent: var(--sem-success); border-top-color: var(--sem-success); }
+.stat-card.orange { --stat-accent: var(--sem-warning); border-top-color: var(--sem-warning); }
+.stat-card.red    { --stat-accent: var(--sem-danger); border-top-color: var(--sem-danger); }
+.stat-icon { width: 48px; height: 48px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.stat-icon.blue   { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); }
+.stat-icon.gold   { background: rgba(212, 175, 55, 0.14); color: var(--brand-gold-deep); }
+.stat-icon.green  { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); }
+.stat-icon.orange { background: rgba(243, 156, 18, 0.12); color: var(--sem-warning); }
+.stat-icon.red    { background: rgba(185, 52, 43, 0.12); color: var(--sem-danger); }
+.stat-card:hover .stat-icon { transform: scale(1.08) rotate(-4deg); }
+.stat-body { flex: 1; min-width: 0; }
+.stat-value { font-size: 22px; font-weight: 800; color: var(--text-primary); line-height: 1.1; letter-spacing: -0.5px; }
+.stat-value-sm { font-size: 16px; }
+.stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+/* ---- Alert banner ---- */
+.alert-banner {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 20px;
+    border-radius: var(--r-lg);
+    border: 1px solid transparent;
+    background: var(--bg-card);
+}
+.alert-banner.warning { background: rgba(243, 156, 18, 0.08); border-color: rgba(243, 156, 18, 0.25); color: var(--text-primary); }
+.alert-banner.danger  { background: rgba(185, 52, 43, 0.08);  border-color: rgba(185, 52, 43, 0.25);  color: var(--text-primary); }
+.alert-banner i.big { font-size: 24px; }
+.alert-banner.warning i { color: var(--sem-warning); }
+.alert-banner.danger i  { color: var(--sem-danger); }
+.alert-banner .alert-text { flex: 1; }
+.alert-banner .alert-text strong { display: block; margin-bottom: 2px; font-size: 13px; }
+.alert-banner .alert-text small { font-size: 12px; color: var(--text-secondary); }
+
+/* ---- Two-col layout ---- */
+.two-col {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+}
+.info-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+.info-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex; align-items: center; gap: 10px;
+}
+.info-card-header h3 {
+    font-size: 14px; font-weight: 700;
+    color: var(--text-primary);
+    margin: 0; display: flex; align-items: center; gap: 10px;
+}
+.info-card-header h3 i {
+    color: var(--brand-gold); font-size: 14px;
+    width: 28px; height: 28px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.info-card-body { padding: 18px 20px; }
+
+.dl-row {
+    display: flex; align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+.dl-row:last-child { border-bottom: 0; }
+.dl-row dt {
+    flex: 0 0 130px;
+    font-size: 12px; color: var(--text-tertiary);
+    font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    padding-top: 2px;
+}
+.dl-row dd {
+    flex: 1; margin: 0;
+    font-size: 13px; color: var(--text-primary);
+}
+.dl-row dd a { color: var(--brand-blue); text-decoration: none; }
+.dl-row dd a:hover { text-decoration: underline; }
+
+/* ---- Stock progress bar ---- */
+.stock-bar-row { margin-top: 14px; }
+.stock-bar-track {
+    height: 10px;
+    background: var(--border-subtle);
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    position: relative;
+}
+.stock-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sem-success), var(--brand-gold));
+    border-radius: var(--r-pill);
+    transition: width 0.6s var(--ease-spring);
+}
+.stock-bar-fill.warning { background: linear-gradient(90deg, var(--sem-warning), var(--sem-danger)); }
+.stock-bar-fill.danger  { background: linear-gradient(90deg, var(--sem-danger), #8B1F18); }
+.stock-bar-meta {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--text-tertiary);
+    margin-top: 6px;
+}
+
+/* ---- Alerts list ---- */
+.alert-list { display: flex; flex-direction: column; gap: 10px; }
+.alert-list .alert-banner { padding: 12px 16px; }
+
+/* ---- Empty ---- */
+.empty-mini {
+    text-align: center; padding: 28px 12px; color: var(--text-tertiary);
+}
+.empty-mini i { font-size: 2rem; display: block; margin-bottom: 8px; opacity: 0.3; color: var(--brand-gold); }
+.empty-mini p { margin: 0; font-size: 13px; }
+
+/* ---- Transactions table ---- */
+.tx-table {
+    width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px;
+}
+.tx-table thead th {
+    background: var(--bg-canvas); color: var(--text-secondary);
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 12px 16px; text-align: left;
+    border-bottom: 1px solid var(--border-subtle);
+}
+.tx-table tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+}
+.tx-table tbody tr:last-child td { border-bottom: 0; }
+.tx-table tbody tr:hover { background: var(--bg-canvas); }
+.muted { color: var(--text-tertiary); }
+
+.tx-type {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: var(--r-pill);
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.tx-type.in   { background: rgba(39,174,96,0.12); color: var(--sem-success); }
+.tx-type.out  { background: rgba(185,52,43,0.12); color: var(--sem-danger); }
+.tx-type.adj  { background: rgba(243,156,18,0.12); color: var(--sem-warning); }
+.tx-type.ret  { background: rgba(11,102,195,0.12); color: var(--brand-blue); }
+
+/* ---- Animations ---- */
+.project-hero, .stat-card, .info-card, .alert-banner { animation: fade-up 0.4s ease both; }
+.stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-card:nth-child(2) { animation-delay: 0.1s; }
+.stat-card:nth-child(3) { animation-delay: 0.15s; }
+.stat-card:nth-child(4) { animation-delay: 0.2s; }
+@keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ---- Responsive ---- */
+@media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+    .project-hero { padding: 22px; }
+    .hero-title { font-size: 20px; }
+    .hero-icon { width: 44px; height: 44px; font-size: 18px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 18px; }
+    .stat-icon { width: 40px; height: 40px; font-size: 16px; }
+    .dl-row dt { flex: 0 0 110px; }
+}
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .hero-actions { width: 100%; }
+    .hero-actions .btn { flex: 1; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .stat-card, .info-card, .alert-banner, .project-hero { animation: none; }
+    .stat-card:hover { transform: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="material-detail">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+        <a href="{% url 'inventory:materials_list' %}">Materials</a>
+        <i class="fas fa-chevron-right sep"></i>
+        <span class="current">{{ material.name }}</span>
+    </div>
+
+    <!-- Hero Header -->
+    <div class="project-hero">
+        <div class="hero-main">
+            <div class="hero-icon"><i class="fas fa-cube"></i></div>
+            <div class="hero-info">
+                <span class="hero-code"><i class="fas fa-hashtag"></i>SKU {{ material.sku|default:"—" }}</span>
+                <h1 class="hero-title">{{ material.name }}</h1>
+                <div class="hero-meta">
+                    <span><i class="fas fa-tag"></i> {{ material.get_category_display }}</span>
+                    <span><i class="fas fa-ruler"></i> {{ material.get_unit_display }}</span>
+                    <span><i class="fas fa-calendar"></i> Added {{ material.created_at|date:"M d, Y" }}</span>
+                    {% if material.current_quantity == 0 %}
+                        <span class="hero-status out_stock"><i class="fas fa-circle-xmark"></i> Out of Stock</span>
+                    {% elif material.is_low_stock %}
+                        <span class="hero-status low_stock"><i class="fas fa-triangle-exclamation"></i> Low Stock</span>
+                    {% else %}
+                        <span class="hero-status in_stock"><i class="fas fa-circle-check"></i> In Stock</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="hero-actions">
+                <a href="{% url 'inventory:stock_in' %}?material={{ material.id }}" class="btn btn-success-solid">
+                    <i class="fas fa-arrow-down"></i> Stock In
+                </a>
+                <a href="{% url 'inventory:stock_out' %}?material={{ material.id }}" class="btn btn-danger-solid">
+                    <i class="fas fa-arrow-up"></i> Stock Out
+                </a>
+                <a href="{% url 'inventory:material_edit' material.id %}" class="btn btn-light">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Banners -->
+    {% if material.is_low_stock and material.current_quantity > 0 %}
+    <div class="alert-banner warning">
+        <i class="fas fa-triangle-exclamation big"></i>
+        <div class="alert-text">
+            <strong>Low Stock Alert</strong>
+            <small>Current quantity {{ material.current_quantity }} {{ material.get_unit_display }} is below threshold of {{ material.minimum_threshold }} {{ material.get_unit_display }}. <a href="{% url 'inventory:stock_in' %}?material={{ material.id }}" class="alert-link" style="color:var(--sem-warning);font-weight:600;">Reorder Now</a></small>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if material.current_quantity == 0 %}
+    <div class="alert-banner danger">
+        <i class="fas fa-circle-xmark big"></i>
+        <div class="alert-text">
+            <strong>Out of Stock</strong>
+            <small>This material needs immediate reordering. <a href="{% url 'inventory:stock_in' %}?material={{ material.id }}" class="alert-link" style="color:var(--sem-danger);font-weight:600;">Reorder Now</a></small>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Stat Cards -->
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-cubes"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ material.current_quantity }} <span style="font-size:13px;color:var(--text-tertiary);font-weight:600;">{{ material.get_unit_display }}</span></div>
+                <div class="stat-label">Current Quantity</div>
+                <div class="stat-sub">On hand</div>
+            </div>
+        </div>
+        <div class="stat-card orange">
+            <div class="stat-icon orange"><i class="fas fa-bell"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ material.minimum_threshold }} <span style="font-size:13px;color:var(--text-tertiary);font-weight:600;">{{ material.get_unit_display }}</span></div>
+                <div class="stat-label">Minimum Threshold</div>
+                <div class="stat-sub">Reorder point</div>
+            </div>
+        </div>
+        <div class="stat-card gold">
+            <div class="stat-icon gold"><i class="fas fa-tag"></i></div>
+            <div class="stat-body">
+                <div class="stat-value stat-value-sm">KES {{ material.unit_cost|floatformat:2|intcomma }}</div>
+                <div class="stat-label">Unit Cost</div>
+                <div class="stat-sub">Per {{ material.get_unit_display }}</div>
+            </div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-coins"></i></div>
+            <div class="stat-body">
+                <div class="stat-value stat-value-sm">KES {{ material.total_cost|floatformat:2|intcomma }}</div>
+                <div class="stat-label">Total Value</div>
+                <div class="stat-sub">Current holdings</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Two-col: Details / Alerts -->
+    <div class="two-col">
+        <div class="info-card">
+            <div class="info-card-header">
+                <h3><i class="fas fa-info-circle"></i> Material Details</h3>
+            </div>
+            <div class="info-card-body">
+                <dl style="margin:0;">
+                    <div class="dl-row">
+                        <dt>Category</dt>
+                        <dd>{{ material.get_category_display }}</dd>
+                    </div>
+                    <div class="dl-row">
+                        <dt>Unit</dt>
+                        <dd>{{ material.get_unit_display }}</dd>
+                    </div>
+                    <div class="dl-row">
+                        <dt>Supplier</dt>
+                        <dd>
+                            {% if material.supplier %}
+                                <a href="{% url 'inventory:supplier_detail' material.supplier.id %}">{{ material.supplier.name }}</a>
+                            {% else %}
+                                <span class="muted">No supplier assigned</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="dl-row">
+                        <dt>SKU</dt>
+                        <dd>{{ material.sku|default:"—" }}</dd>
+                    </div>
+                    <div class="dl-row">
+                        <dt>Reorder Qty</dt>
+                        <dd>{{ material.reorder_quantity|default:"—" }} {{ material.get_unit_display }}</dd>
+                    </div>
+                    <div class="dl-row">
+                        <dt>In Shop</dt>
+                        <dd>
+                            {% if material.is_available_in_shop %}
+                                <span class="tx-type in">Yes</span>
+                                {% if material.shop_price %}
+                                    <span class="muted">— KES {{ material.shop_price|floatformat:2|intcomma }}</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="tx-type out">No</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div class="dl-row">
+                        <dt>Description</dt>
+                        <dd>{{ material.description|default:"—" }}</dd>
+                    </div>
+                </dl>
+
+                <!-- Stock progress bar -->
+                {% if material.minimum_threshold %}
+                <div class="stock-bar-row">
+                    <div class="stock-bar-track">
+                        {% with pct=material.current_quantity|default:0 %}
+                        <div class="stock-bar-fill {% if material.current_quantity == 0 %}danger{% elif material.is_low_stock %}warning{% endif %}" style="width: {% if material.minimum_threshold %}{% widthratio material.current_quantity material.minimum_threshold 100 %}{% if material.current_quantity > material.minimum_threshold %}100{% endif %}{% else %}0{% endif %}%;"></div>
+                        {% endwith %}
+                    </div>
+                    <div class="stock-bar-meta">
+                        <span>0</span>
+                        <span>Threshold: {{ material.minimum_threshold }} {{ material.get_unit_display }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-card-header">
+                <h3><i class="fas fa-bell"></i> Active Alerts</h3>
+            </div>
+            <div class="info-card-body">
+                {% if alerts %}
+                    <div class="alert-list">
+                        {% for alert in alerts %}
+                            <div class="alert-banner warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <div class="alert-text">
+                                    <strong>{{ alert.message|truncatechars:60 }}</strong>
+                                    <small>{{ alert.created_at|date:"M d, Y H:i" }}</small>
+                                </div>
+                                <form method="post" action="{% url 'inventory:alert_resolve' alert.id %}" style="margin:0;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-check"></i> Resolve
+                                    </button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-mini">
+                        <i class="fas fa-check-circle"></i>
+                        <p>No active alerts for this material.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="info-card">
+        <div class="info-card-header" style="justify-content:space-between;">
+            <h3><i class="fas fa-history"></i> Recent Transactions</h3>
+            <a href="{% url 'inventory:transactions_list' %}?material={{ material.id }}" class="btn btn-sm btn-outline">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="tx-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Quantity</th>
+                        <th>Unit Cost</th>
+                        <th>Total</th>
+                        <th>Reference</th>
+                        <th>By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tx in transactions %}
+                        <tr>
+                            <td>{{ tx.transaction_date|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if tx.type == 'IN' %}
+                                    <span class="tx-type in"><i class="fas fa-arrow-down"></i> IN</span>
+                                {% elif tx.type == 'OUT' %}
+                                    <span class="tx-type out"><i class="fas fa-arrow-up"></i> OUT</span>
+                                {% elif tx.type == 'ADJUSTMENT' %}
+                                    <span class="tx-type adj">ADJ</span>
+                                {% elif tx.type == 'RETURN' %}
+                                    <span class="tx-type ret">RET</span>
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ tx.quantity }}</strong> {{ material.get_unit_display }}</td>
+                            <td>KES {{ tx.unit_cost|floatformat:2|intcomma }}</td>
+                            <td>KES {{ tx.total_cost|floatformat:2|intcomma }}</td>
+                            <td class="muted">{{ tx.reference|default:"—" }}</td>
+                            <td>{{ tx.performed_by.full_name|default:"System" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" style="text-align:center;padding:30px;color:var(--text-tertiary);">No transactions recorded yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

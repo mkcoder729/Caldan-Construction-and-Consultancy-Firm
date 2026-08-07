@@ -1,0 +1,44 @@
+{# Confirmation to the inviter — admin invitation was sent. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-success" style="margin-top: 14px;">INVITATION SENT</span>{% endblock %}
+
+{% block content %}
+  <h1>Invitation <span>delivered</span></h1>
+  <p class="subtitle">The new admin has been notified</p>
+
+  <p>Hi {{ inviter.full_name|default:inviter.email }} — your invitation to <strong>{{ invitation.full_name|default:invitation.email }}</strong> has been sent.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Invited</dt>
+      <dd>{{ invitation.email }}</dd>
+      <dt>Name</dt>
+      <dd>{{ invitation.full_name|default:"—" }}</dd>
+      <dt>Role</dt>
+      <dd><span class="badge badge-gold">{{ invitation.get_role_display }}</span></dd>
+      <dt>Created</dt>
+      <dd>{{ invitation.created_at|date:"F j, Y H:i" }}</dd>
+      <dt>Expires</dt>
+      <dd>{{ invitation.expires_at|date:"F j, Y H:i" }} ({{ expiry_hours|default:48 }}h from now)</dd>
+    </dl>
+  </div>
+
+  {% if channels_sent %}
+  <h2>Delivery channels</h2>
+  <ul style="padding-left: 22px; margin: 0 0 16px 0; color: var(--slate-700);">
+    {% for ch in channels_sent %}<li style="margin-bottom: 6px;"><span class="badge badge-success">SENT</span> {{ ch }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if channels_failed %}
+  <h2>Failed to deliver</h2>
+  <ul style="padding-left: 22px; margin: 0 0 16px 0; color: var(--slate-700);">
+    {% for ch in channels_failed %}<li style="margin-bottom: 6px;"><span class="badge badge-error">FAILED</span> {{ ch }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}{{ manage_url|default:'/dashboard/admins/' }}" class="button">Manage admins</a>
+  </div>
+{% endblock %}

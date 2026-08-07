@@ -1,0 +1,452 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}Leads - Caldan Construction{% endblock %}
+
+{% block extra_css %}
+<style>
+.leads-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+.page-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+.page-hero::before {
+    content: ''; position: absolute; top: -100%; right: -10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 65%);
+    border-radius: 50%; pointer-events: none;
+}
+.hero-main {
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    position: relative; z-index: 1;
+}
+.hero-icon {
+    width: 56px; height: 56px; border-radius: var(--r-md);
+    background: rgba(212, 175, 55, 0.18);
+    border: 1.5px solid rgba(212, 175, 55, 0.3);
+    backdrop-filter: blur(10px);
+    color: var(--brand-gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+}
+.hero-info { flex: 1; min-width: 240px; }
+.hero-title {
+    font-size: 24px; font-weight: 800; color: #fff;
+    margin: 0 0 4px; letter-spacing: -0.3px;
+}
+.hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.85); }
+.hero-actions {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    position: relative; z-index: 1;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: all var(--t-base) var(--ease-spring);
+    border-top: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+.stat-card::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent 50%, var(--stat-accent, transparent) 130%);
+    opacity: 0; transition: opacity var(--t-base) var(--ease-standard);
+}
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--stat-accent, var(--border-subtle));
+}
+.stat-card:hover::after { opacity: 0.06; }
+.stat-card.blue  { --stat-accent: var(--brand-blue); border-top-color: var(--brand-blue); }
+.stat-card.gold  { --stat-accent: var(--brand-gold); border-top-color: var(--brand-gold); }
+.stat-card.green { --stat-accent: var(--sem-success); border-top-color: var(--sem-success); }
+.stat-card.teal  { --stat-accent: #0891B2; border-top-color: #0891B2; }
+
+.stat-icon {
+    width: 48px; height: 48px; border-radius: var(--r-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+    transition: transform var(--t-base) var(--ease-spring);
+}
+.stat-card:hover .stat-icon { transform: scale(1.08) rotate(-4deg); }
+.stat-icon.blue  { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); }
+.stat-icon.gold  { background: rgba(212, 175, 55, 0.14); color: var(--brand-gold-deep); }
+.stat-icon.green { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); }
+.stat-icon.teal  { background: rgba(8, 145, 178, 0.12); color: #0891B2; }
+.stat-body { flex: 1; min-width: 0; }
+.stat-value {
+    font-size: 22px; font-weight: 800; color: var(--text-primary);
+    line-height: 1.1; letter-spacing: -0.5px;
+}
+.stat-label {
+    font-size: 11px; color: var(--text-secondary); margin-top: 6px;
+    font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+.filters-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-xs);
+    padding: 18px 20px;
+}
+.filters-bar {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+}
+.filters-bar .form-control {
+    padding: 9px 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+.filters-bar .form-control:hover { border-color: var(--border-default); background: var(--bg-card); }
+.filters-bar .form-control:focus {
+    outline: none; border-color: var(--brand-gold);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+.search-input { flex: 1; min-width: 180px; }
+.date-input { width: 140px; }
+.source-select { min-width: 140px; }
+
+.btn {
+    padding: 9px 18px; border: none; border-radius: var(--r-sm);
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.3px;
+}
+.btn-primary { background: var(--brand-gold); color: var(--brand-navy); box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3); }
+.btn-primary:hover { background: var(--brand-gold-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4); }
+.btn-secondary { background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+.btn-secondary:hover { background: var(--bg-secondary); border-color: var(--border-default); color: var(--text-primary); }
+.btn-ghost { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); }
+.btn-ghost:hover { background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.3); }
+.btn-success { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); border: 1px solid rgba(39, 174, 96, 0.3); }
+.btn-success:hover { background: var(--sem-success); color: #fff; }
+.btn-danger { background: rgba(185, 52, 43, 0.12); color: var(--sem-danger); border: 1px solid rgba(185, 52, 43, 0.3); }
+.btn-danger:hover { background: var(--sem-danger); color: #fff; }
+
+.leads-table-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+.lead-table { width: 100%; border-collapse: collapse; }
+.lead-table th {
+    text-align: left; padding: 12px 16px;
+    font-size: 11px; font-weight: 700; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    background: var(--bg-canvas);
+    border-bottom: 1px solid var(--border-subtle);
+}
+.lead-table td {
+    padding: 14px 16px; font-size: 13px; color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+}
+.lead-table tr:last-child td { border-bottom: none; }
+.lead-table tr:hover td { background: var(--bg-canvas); }
+
+.lead-name { font-weight: 600; }
+.lead-company {
+    font-size: 11px; color: var(--text-secondary); margin-top: 2px;
+}
+.contact-row {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; margin-bottom: 2px;
+}
+.contact-row i { color: var(--text-tertiary); width: 14px; }
+
+.source-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; background: rgba(212, 175, 55, 0.08);
+    color: var(--brand-gold-deep);
+    border-radius: var(--r-pill); font-size: 11px; font-weight: 700;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.lead-notes {
+    max-width: 220px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+    font-size: 12px; color: var(--text-secondary);
+}
+
+.actions-cell {
+    display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;
+}
+
+.empty-state {
+    text-align: center; padding: 80px 20px;
+    background: var(--bg-card);
+    border: 1px dashed var(--border-default);
+    border-radius: var(--r-lg);
+}
+.empty-state-icon {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 36px; margin-bottom: 16px;
+}
+.empty-state h3 {
+    font-size: 16px; font-weight: 700; color: var(--text-primary);
+    margin: 0 0 6px;
+}
+.empty-state p { font-size: 13px; color: var(--text-secondary); margin: 0 0 18px; }
+
+.pagination-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px; background: var(--bg-card);
+    border: 1px solid var(--border-subtle); border-radius: var(--r-lg);
+    box-shadow: var(--shadow-xs); flex-wrap: wrap; gap: 12px;
+}
+.page-info { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+.page-controls { display: flex; gap: 8px; align-items: center; }
+.page-pill {
+    padding: 6px 14px; background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-pill);
+    font-size: 11px; font-weight: 700; color: var(--text-secondary);
+}
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.page-hero, .stat-card, .filters-card, .leads-table-card { animation: fade-up 0.4s ease both; }
+.stat-card:nth-child(2) { animation-delay: 0.05s; }
+.stat-card:nth-child(3) { animation-delay: 0.1s; }
+.stat-card:nth-child(4) { animation-delay: 0.15s; }
+
+@media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 18px; }
+    .stat-icon { width: 40px; height: 40px; font-size: 16px; }
+    .page-hero { padding: 22px; }
+    .hero-title { font-size: 20px; }
+    .hero-icon { width: 44px; height: 44px; font-size: 18px; }
+    .lead-table { font-size: 12px; }
+    .lead-table th, .lead-table td { padding: 10px 12px; }
+    .search-input { width: 100%; min-width: 0; }
+}
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .page-hero, .stat-card, .filters-card, .leads-table-card { animation: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="leads-page">
+
+    <div class="page-hero">
+        <div class="hero-main">
+            <div class="hero-icon"><i class="fas fa-user-tag"></i></div>
+            <div class="hero-info">
+                <h1 class="hero-title">Leads</h1>
+                <p class="hero-sub">Track and convert potential clients</p>
+            </div>
+        </div>
+        <div class="hero-actions">
+            <a href="{% url 'clients:client_list' %}" class="btn btn-ghost">
+                <i class="fas fa-arrow-left"></i> All Clients
+            </a>
+            <a href="{% url 'clients:client_create' %}?type=INDIVIDUAL&status=LEAD" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> Add Lead
+            </a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-user-tag"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.leads|default:0 }}</div>
+                <div class="stat-label">Total Leads</div>
+            </div>
+        </div>
+        <div class="stat-card gold">
+            <div class="stat-icon gold"><i class="fas fa-bolt"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.new_this_week|default:0 }}</div>
+                <div class="stat-label">New This Week</div>
+            </div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.active|default:0 }}</div>
+                <div class="stat-label">Active Clients</div>
+            </div>
+        </div>
+        <div class="stat-card teal">
+            <div class="stat-icon teal"><i class="fas fa-exchange-alt"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ stats.converted|default:0 }}</div>
+                <div class="stat-label">Converted</div>
+            </div>
+        </div>
+    </div>
+
+    <form method="get" class="filters-card">
+        <div class="filters-bar">
+            <input type="text" name="search" class="form-control search-input"
+                   placeholder="Search leads..." value="{{ search|default:'' }}">
+            <select name="source" class="form-control source-select">
+                <option value="">All Sources</option>
+                {% for source in source_list %}
+                <option value="{{ source }}" {% if current_source == source %}selected{% endif %}>{{ source }}</option>
+                {% endfor %}
+            </select>
+            <input type="date" name="date_from" class="form-control date-input" value="{{ date_from|default:'' }}">
+            <input type="date" name="date_to" class="form-control date-input" value="{{ date_to|default:'' }}">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Filter
+            </button>
+            <a href="{% url 'clients:lead_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Clear
+            </a>
+        </div>
+    </form>
+
+    {% if leads %}
+    <div class="leads-table-card">
+        <div style="overflow-x: auto;">
+            <table class="lead-table">
+                <thead>
+                    <tr>
+                        <th>Name / Company</th>
+                        <th>Contact</th>
+                        <th>Source</th>
+                        <th>Notes</th>
+                        <th>Received</th>
+                        <th style="text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lead in leads %}
+                    <tr>
+                        <td>
+                            <div class="lead-name">
+                                {{ lead.name|default:"—" }}
+                            </div>
+                            {% if lead.company_name %}
+                            <div class="lead-company">{{ lead.company_name }}</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="contact-row">
+                                <i class="fas fa-envelope"></i> {{ lead.email|default:"—" }}
+                            </div>
+                            <div class="contact-row">
+                                <i class="fas fa-phone"></i> {{ lead.phone|default:"—" }}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="source-badge">
+                                <i class="fas fa-tag"></i> {{ lead.source|default:"—" }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="lead-notes" title="{{ lead.notes }}">{{ lead.notes|truncatechars:50 }}</div>
+                        </td>
+                        <td style="font-size: 12px;">{{ lead.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="actions-cell">
+                                <a href="{% url 'clients:client_detail' lead.id %}" class="btn btn-secondary" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'clients:client_edit' lead.id %}" class="btn btn-secondary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="post" action="{% url 'clients:lead_convert' lead.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success" title="Convert to Active">
+                                        <i class="fas fa-check-circle"></i>
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'clients:client_delete' lead.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this lead?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if total_pages > 1 %}
+    <div class="pagination-bar">
+        <span class="page-info">Showing {{ leads|length }} of {{ total }} leads</span>
+        <div class="page-controls">
+            {% if page > 1 %}
+            <a href="?page={{ page|add:"-1" }}{% if search %}&search={{ search }}{% endif %}{% if current_source %}&source={{ current_source }}{% endif %}" class="btn btn-secondary">
+                <i class="fas fa-chevron-left"></i> Previous
+            </a>
+            {% endif %}
+            <span class="page-pill">Page {{ page }} of {{ total_pages }}</span>
+            {% if page < total_pages %}
+            <a href="?page={{ page|add:"1" }}{% if search %}&search={{ search }}{% endif %}{% if current_source %}&source={{ current_source }}{% endif %}" class="btn btn-secondary">
+                Next <i class="fas fa-chevron-right"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon"><i class="fas fa-user-tag"></i></div>
+        <h3>No leads found</h3>
+        <p>Start tracking potential clients by adding your first lead.</p>
+        <a href="{% url 'clients:client_create' %}?type=INDIVIDUAL&status=LEAD" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Add First Lead
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

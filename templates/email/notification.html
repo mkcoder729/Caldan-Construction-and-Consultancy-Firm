@@ -1,0 +1,27 @@
+{# Generic bell notification — used as a fallback for in-app notifications. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-navy" style="margin-top: 14px;">NOTIFICATION</span>{% endblock %}
+
+{% block content %}
+  <h1>{{ title }}</h1>
+  <p class="subtitle">{{ priority|default:"normal"|capfirst }} priority</p>
+
+  <p>{{ message }}</p>
+
+  {% if metadata %}
+  <h2>Details</h2>
+  <table class="summary">
+    <thead><tr><th>Field</th><th>Value</th></tr></thead>
+    <tbody>
+      {% for k, v in metadata.items %}
+      <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}/dashboard/" class="button">Open dashboard</a>
+  </div>
+{% endblock %}

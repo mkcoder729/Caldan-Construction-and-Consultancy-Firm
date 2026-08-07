@@ -1,0 +1,64 @@
+{% load static %}
+
+<div id="cookieConsent" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: var(--bg-card); border-top: 1px solid var(--border-primary); padding: 16px 24px; box-shadow: var(--shadow-xl);">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+
+        <div style="display: flex; align-items: center; gap: 14px; flex: 1; min-width: 200px;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(212, 175, 55, 0.12); display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-cookie-bite" style="color: var(--accent-secondary); font-size: 1.1rem;"></i>
+            </div>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0;">
+                We use cookies to enhance your experience. By continuing, you agree to our
+                <a href="{% url 'website:legal_cookies' %}" style="color: var(--accent-primary); font-weight: 500; text-decoration: underline;">Cookie Policy</a>.
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-shrink: 0;">
+            <button id="acceptCookies" style="padding: 9px 28px; background: var(--accent-secondary); color: #0D2B36; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                <i class="fas fa-check"></i> Accept
+            </button>
+            <a href="{% url 'website:legal_cookies' %}" style="padding: 9px 18px; border: 1px solid var(--border-primary); border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: all 0.3s ease;">
+                Learn More
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    #cookieConsent {
+        animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    #acceptCookies:hover {
+        background: var(--accent-secondary-hover) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(212, 175, 55, 0.25);
+    }
+
+    @media (max-width: 768px) {
+        #cookieConsent > div { flex-direction: column; text-align: center; }
+        #cookieConsent p { font-size: 0.85rem !important; }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const consent = document.getElementById('cookieConsent');
+        const acceptBtn = document.getElementById('acceptCookies');
+
+        if (!localStorage.getItem('caldan_cookies_accepted')) {
+            consent.style.display = 'block';
+        }
+
+        acceptBtn.addEventListener('click', function() {
+            localStorage.setItem('caldan_cookies_accepted', 'true');
+            consent.style.display = 'none';
+        });
+    });
+</script>

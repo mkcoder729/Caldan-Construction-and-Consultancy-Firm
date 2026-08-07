@@ -1,0 +1,31 @@
+from .public_views import (
+    index,
+    about,
+    services,
+    service_detail,
+    projects,
+    project_detail,
+    contact,
+    quote_request,
+    thank_you,
+    legal_privacy,
+    legal_terms,
+    legal_refunds,
+    legal_cookies,
+)
+
+__all__ = [
+    "index",
+    "about",
+    "services",
+    "service_detail",
+    "projects",
+    "project_detail",
+    "contact",
+    "quote_request",
+    "thank_you",
+    "legal_privacy",
+    "legal_terms",
+    "legal_refunds",
+    "legal_cookies",
+]

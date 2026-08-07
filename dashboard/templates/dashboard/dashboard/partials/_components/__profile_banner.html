@@ -1,0 +1,284 @@
+{% load static %}
+{% load avatar_tags %}
+
+<!-- ================================================================
+     PROFILE BANNER — Sidebar user card
+     Simple, clean. Mirrors the user-menu dropdown's design.
+     ================================================================ -->
+<div class="profile-banner">
+    <!-- Avatar -->
+    <a href="{% url 'dashboard:profile_view' %}" class="profile-banner-avatar-link" aria-label="View profile">
+        {% user_avatar request.user size=48 css_class='profile-banner-avatar' %}
+    </a>
+
+    <!-- User Info -->
+    <div class="profile-banner-info">
+        <div class="profile-banner-name">{{ request.user.full_name|default:request.user.email }}</div>
+        <div class="profile-banner-role">
+            {% if request.user.is_chief %}Chief Admin{% else %}Platform Admin{% endif %}
+        </div>
+        <div class="profile-banner-status">
+            <span class="status-dot"></span>
+            <span>Online</span>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="profile-banner-actions">
+        <div class="profile-banner-action-wrapper">
+            <button class="profile-banner-action profile-banner-chevron" id="profileChevron" aria-label="Open menu">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+            <div class="profile-banner-popup" id="profilePopup" role="menu">
+                <a href="{% url 'dashboard:profile_view' %}" class="profile-banner-popup-item" role="menuitem">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+                <a href="{% url 'dashboard:profile_edit' %}" class="profile-banner-popup-item" role="menuitem">
+                    <i class="fas fa-pen"></i>
+                    <span>Edit Profile</span>
+                </a>
+                <a href="{% url 'dashboard:change_password' %}" class="profile-banner-popup-item" role="menuitem">
+                    <i class="fas fa-key"></i>
+                    <span>Change Password</span>
+                </a>
+                <a href="{% url 'dashboard:notification_settings' %}" class="profile-banner-popup-item" role="menuitem">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+                <a href="{% url 'dashboard:appearance_settings' %}" class="profile-banner-popup-item" role="menuitem">
+                    <i class="fas fa-palette"></i>
+                    <span>Appearance</span>
+                </a>
+                <div class="profile-banner-popup-divider"></div>
+                <a href="{% url 'accounts:logout' %}" class="profile-banner-popup-item profile-banner-popup-logout" role="menuitem">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Sign Out</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ================================================================
+   PROFILE BANNER — Simple, clean
+   ================================================================ */
+.profile-banner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-xs);
+    position: relative;
+}
+
+.profile-banner-avatar-link {
+    display: block;
+    line-height: 0;
+    flex-shrink: 0;
+    text-decoration: none;
+}
+
+/* Avatar — image or initial fallback */
+.profile-banner-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--brand-blue), var(--brand-blue-deep));
+    color: var(--text-inverse);
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: transform var(--t-fast) var(--ease-spring);
+}
+.profile-banner-avatar.avatar-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.profile-banner-avatar.avatar-initial {
+    width: 100%;
+    height: 100%;
+}
+.profile-banner-avatar-link:hover .profile-banner-avatar {
+    transform: scale(1.04);
+}
+
+/* Info */
+.profile-banner-info {
+    min-width: 0;
+    line-height: 1.3;
+}
+.profile-banner-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.profile-banner-role {
+    font-size: 0.7rem;
+    color: var(--brand-gold-deep);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+}
+.profile-banner-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.65rem;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+.status-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--sem-success);
+    border-radius: var(--r-pill);
+    display: inline-block;
+    box-shadow: 0 0 0 2px rgba(34, 139, 87, 0.18);
+}
+
+/* Actions */
+.profile-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.profile-banner-action-wrapper {
+    position: relative;
+}
+.profile-banner-action {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--r-sm);
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+.profile-banner-action:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+    border-color: var(--brand-blue);
+}
+.profile-banner-chevron.open {
+    transform: rotate(180deg);
+    background: var(--bg-card-hover);
+}
+
+/* Popup — same visual language as the user-menu dropdown */
+.profile-banner-popup {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 8px);
+    min-width: 200px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-lg);
+    padding: 6px;
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+    pointer-events: none;
+    transition: opacity var(--t-fast) var(--ease-standard),
+                transform var(--t-fast) var(--ease-standard);
+    z-index: 60;
+}
+.profile-banner-popup.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+.profile-banner-popup::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    right: 14px;
+    width: 8px;
+    height: 8px;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+    transform: rotate(45deg);
+}
+.profile-banner-popup-item {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--r-sm);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: background var(--t-fast) var(--ease-standard);
+}
+.profile-banner-popup-item i {
+    color: var(--brand-blue);
+    font-size: 0.78rem;
+}
+.profile-banner-popup-item:hover {
+    background: rgba(11, 102, 195, 0.06);
+}
+.profile-banner-popup-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 4px 6px;
+}
+.profile-banner-popup-logout {
+    color: var(--sem-danger);
+}
+.profile-banner-popup-logout i {
+    color: var(--sem-danger);
+}
+.profile-banner-popup-logout:hover {
+    background: rgba(185, 52, 43, 0.06);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-banner {
+        grid-template-columns: auto 1fr auto;
+        padding: 10px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var chevron = document.getElementById('profileChevron');
+    var popup = document.getElementById('profilePopup');
+    if (chevron && popup) {
+        chevron.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            popup.classList.toggle('open');
+            chevron.classList.toggle('open');
+        });
+        document.addEventListener('click', function(e) {
+            if (!chevron.contains(e.target) && !popup.contains(e.target)) {
+                popup.classList.remove('open');
+                chevron.classList.remove('open');
+            }
+        });
+    }
+});
+</script>

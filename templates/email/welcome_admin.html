@@ -1,0 +1,34 @@
+{# Admin welcome email — sent when a new platform admin is created. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-success" style="margin-top: 14px;">WELCOME</span>{% endblock %}
+
+{% block content %}
+  <h1>Welcome to the <span>team</span></h1>
+  <p class="subtitle">Your admin account is ready</p>
+
+  <p>Hi <strong>{{ user.get_full_name|default:user.email }}</strong> — your admin account for {{ brand_name|default:"Caldan Construction and Consultancy Firm" }} has been created. You can now sign in to the dashboard.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Email</dt>
+      <dd>{{ user.email }}</dd>
+      {% if user.get_role_display %}<dt>Role</dt><dd><span class="badge badge-gold">{{ user.get_role_display }}</span></dd>{% endif %}
+      <dt>Dashboard</dt>
+      <dd><a href="{{ site_url|default:'https://caldanconstruction.com' }}/dashboard">Sign in to your dashboard</a></dd>
+    </dl>
+  </div>
+
+  {% if temp_password %}
+  <div class="callout callout-warning">
+    <strong>Temporary password:</strong> <code style="font-family: 'Courier New', monospace; background: #FEF3C7; padding: 2px 8px; border-radius: 4px;">{{ temp_password }}</code><br>
+    Sign in and change it immediately from your profile settings.
+  </div>
+  {% endif %}
+
+  <div class="button-row">
+    <a href="{{ site_url|default:'https://caldanconstruction.com' }}/dashboard" class="button">Open dashboard</a>
+  </div>
+
+  <p style="text-align: center; color: var(--slate-500); font-size: 13px;">Questions? Reach the team at <a href="mailto:{{ support_email|default:'info.caldanconstruction@gmail.com' }}">{{ support_email|default:'info.caldanconstruction@gmail.com' }}</a>.</p>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "pdf/_base_report.html" %}
+
+{% block badge %}CLIENTS REPORT{% endblock %}
+
+{% block title %}Clients <span>Report</span>{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h2>Clients</h2>
+    {% if clients %}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Company</th>
+                <th>Type</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in clients %}
+            <tr>
+                <td><strong>{{ c.full_name|default:c.name|default:"—" }}</strong></td>
+                <td>{{ c.email|default:"—" }}</td>
+                <td>{{ c.phone|default:"—" }}</td>
+                <td>{{ c.company|default:"—" }}</td>
+                <td>{{ c.type|default:"—" }}</td>
+                <td>
+                    {% if c.status == 'ACTIVE' %}
+                        <span class="pill pill-success">Active</span>
+                    {% elif c.status == 'INACTIVE' %}
+                        <span class="pill pill-neutral">Inactive</span>
+                    {% elif c.status == 'PROSPECT' %}
+                        <span class="pill pill-warning">Prospect</span>
+                    {% else %}
+                        <span class="pill pill-neutral">{{ c.status|default:"—" }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No clients recorded.</div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,538 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}Create Project - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   CREATE PROJECT — PREMIUM ADMIN FORM
+   ================================================================ */
+
+.settings-page {
+    max-width: 880px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+/* ---- Page header ---- */
+.page-header {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.page-header-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+    z-index: 1;
+}
+
+.page-header-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.page-header-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-header-title i {
+    color: var(--brand-gold);
+}
+
+.page-header-sub {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+/* ---- Form card ---- */
+.form-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-xs);
+    overflow: hidden;
+}
+
+.form-section {
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.form-section:last-child {
+    border-bottom: none;
+}
+
+.form-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.form-section-header i {
+    color: var(--brand-gold);
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-section-header h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ---- Form fields ---- */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.form-group label .required {
+    color: var(--sem-danger);
+    margin-left: 3px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.form-control:hover {
+    border-color: var(--border-default);
+    background: var(--bg-card);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.form-control::placeholder {
+    color: var(--text-tertiary);
+}
+
+.form-control:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+textarea.form-control {
+    min-height: 90px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+}
+
+.form-hint {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    display: block;
+}
+
+.form-hint i {
+    color: var(--brand-gold);
+    margin-right: 4px;
+}
+
+.form-error {
+    color: var(--sem-danger);
+    font-size: 11px;
+    margin-top: 6px;
+    display: block;
+    font-weight: 600;
+}
+
+/* ---- File input ---- */
+.file-input-wrapper {
+    position: relative;
+    border: 2px dashed var(--border-default);
+    border-radius: var(--r-md);
+    padding: 20px 14px;
+    text-align: center;
+    background: var(--bg-canvas);
+    transition: all var(--t-fast) var(--ease-standard);
+    cursor: pointer;
+}
+
+.file-input-wrapper:hover {
+    border-color: var(--brand-gold);
+    background: rgba(212, 175, 55, 0.04);
+}
+
+.file-input-wrapper input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-input-wrapper .file-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    pointer-events: none;
+}
+
+.file-input-wrapper .file-label i {
+    font-size: 24px;
+    color: var(--brand-gold);
+}
+
+.file-input-wrapper .file-label span {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+/* ---- Form actions ---- */
+.form-actions {
+    display: flex;
+    gap: 10px;
+    padding: 20px 28px;
+    background: var(--bg-canvas);
+    border-top: 1px solid var(--border-subtle);
+    border-radius: 0 0 var(--r-lg) var(--r-lg);
+}
+
+.btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.3px;
+}
+
+.btn-primary {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary:hover {
+    background: var(--brand-gold-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-secondary {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-secondary);
+    border-color: var(--border-default);
+    color: var(--text-primary);
+}
+
+.btn-ghost {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ---- Animation ---- */
+.form-card,
+.page-header {
+    animation: fade-up 0.4s ease both;
+}
+
+.form-section { animation: fade-up 0.5s ease both; }
+.form-section:nth-child(1) { animation-delay: 0.05s; }
+.form-section:nth-child(2) { animation-delay: 0.1s; }
+.form-section:nth-child(3) { animation-delay: 0.15s; }
+.form-section:nth-child(4) { animation-delay: 0.2s; }
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+    .form-row, .form-row-3 { grid-template-columns: 1fr; }
+    .form-section { padding: 20px; }
+    .form-actions { padding: 16px 20px; flex-direction: column-reverse; }
+    .btn { width: 100%; justify-content: center; }
+    .page-header { padding: 20px; }
+    .page-header-title { font-size: 18px; }
+    .page-header-icon { width: 44px; height: 44px; font-size: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .form-card, .page-header, .form-section { animation: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="settings-page">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-main">
+            <div class="page-header-icon">
+                <i class="fas fa-plus-circle"></i>
+            </div>
+            <div>
+                <h1 class="page-header-title">Create Project</h1>
+                <p class="page-header-sub">Add a new construction project to track</p>
+            </div>
+        </div>
+        <div>
+            <a href="{% url 'admin_projects:project_list' %}" class="btn btn-ghost">
+                <i class="fas fa-arrow-left"></i> Back to Projects
+            </a>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form method="post" action="{% url 'admin_projects:project_create' %}" enctype="multipart/form-data" class="form-card">
+        {% csrf_token %}
+
+        <!-- Section: Basic Information -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <i class="fas fa-info-circle"></i>
+                <h3>Basic Information</h3>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Project Name<span class="required">*</span></label>
+                <input type="text" class="form-control" id="name" name="name"
+                       required placeholder="e.g. Nairobi Heights Apartment">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea class="form-control" id="description" name="description"
+                          rows="3" placeholder="Brief description of the project, scope, and key details"></textarea>
+            </div>
+        </div>
+
+        <!-- Section: Location -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>Location</h3>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location / Address<span class="required">*</span></label>
+                <input type="text" class="form-control" id="location" name="location"
+                       required placeholder="e.g. Westlands, Moi Avenue">
+            </div>
+
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label for="county">County<span class="required">*</span></label>
+                    <input type="text" class="form-control" id="county" name="county"
+                           required placeholder="e.g. Nairobi" list="county-list">
+                    <datalist id="county-list">
+                        <option value="Nairobi">
+                        <option value="Nakuru">
+                        <option value="Mombasa">
+                        <option value="Kisumu">
+                        <option value="Uasin Gishu">
+                        <option value="Kiambu">
+                        <option value="Machakos">
+                        <option value="Kajiado">
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    <label for="town">Town</label>
+                    <input type="text" class="form-control" id="town" name="town"
+                           placeholder="e.g. Westlands">
+                </div>
+                <div class="form-group">
+                    <label for="estate">Estate</label>
+                    <input type="text" class="form-control" id="estate" name="estate"
+                           placeholder="e.g. Parklands">
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Timeline -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <i class="fas fa-calendar-alt"></i>
+                <h3>Timeline</h3>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="start_date">Start Date<span class="required">*</span></label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="estimated_completion">Estimated Completion</label>
+                    <input type="date" class="form-control" id="estimated_completion" name="estimated_completion">
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Budget & Status -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <i class="fas fa-money-bill-wave"></i>
+                <h3>Budget & Status</h3>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="budget">Budget (KES)</label>
+                    <input type="number" class="form-control" id="budget" name="budget"
+                           step="0.01" min="0" placeholder="0.00">
+                    <span class="form-hint"><i class="fas fa-info-circle"></i> Total allocated budget</span>
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select class="form-control" id="status" name="status">
+                        <option value="PLANNING">Planning</option>
+                        <option value="ACTIVE" selected>Active</option>
+                        <option value="ON_HOLD">On Hold</option>
+                        <option value="COMPLETED">Completed</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Cover Photo -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <i class="fas fa-image"></i>
+                <h3>Cover Photo</h3>
+            </div>
+
+            <div class="form-group">
+                <label for="cover_photo">Project Cover Image</label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="cover_photo" name="cover_photo" accept="image/*">
+                    <div class="file-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Click or drag image to upload</span>
+                    </div>
+                </div>
+                <span class="form-hint"><i class="fas fa-info-circle"></i> Recommended size: 1200x630px. Max 5MB.</span>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+            <a href="{% url 'admin_projects:project_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Create Project
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

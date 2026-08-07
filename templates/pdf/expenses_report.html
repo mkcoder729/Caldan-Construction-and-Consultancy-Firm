@@ -1,0 +1,39 @@
+{% extends "pdf/_base_report.html" %}
+
+{% block badge %}EXPENSES REPORT{% endblock %}
+
+{% block title %}Expenses <span>Report</span>{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h2>Expenses</h2>
+    {% if expenses %}
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Vendor</th>
+                <th>Project</th>
+                <th>Amount</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in expenses %}
+            <tr>
+                <td><strong>{{ e.description|truncatechars:40|default:"—" }}</strong></td>
+                <td>{{ e.get_category_display|default:e.category|default:"—" }}</td>
+                <td>{{ e.vendor_name|default:e.vendor|default:"—" }}</td>
+                <td>{{ e.project.name|default:"—" }}</td>
+                <td>KES {{ e.amount|floatformat:2 }}</td>
+                <td>{{ e.expense_date|date:"M d, Y"|default:e.date|date:"M d, Y"|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No expenses recorded.</div>
+    {% endif %}
+</div>
+{% endblock %}

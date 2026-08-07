@@ -1,0 +1,288 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Notification Settings - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+.settings-page {
+    max-width: 720px;
+}
+
+.page-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 20px; flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative; overflow: hidden;
+    margin-bottom: 24px;
+}
+.page-hero::before {
+    content: ''; position: absolute; top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+}
+.page-hero-main {
+    display: flex; align-items: center; gap: 16px;
+    flex: 1; min-width: 240px; position: relative; z-index: 1;
+}
+.page-hero-icon {
+    width: 52px; height: 52px; border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+}
+.page-hero-title {
+    font-size: 22px; font-weight: 800; color: #fff;
+    margin: 0 0 4px; letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 10px;
+}
+.page-hero-title i { color: var(--brand-gold); }
+.page-hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+.settings-card {
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.settings-card .card-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.settings-card .card-header h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-card .card-body {
+    padding: 20px;
+}
+
+.notification-channel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.notification-channel:last-child {
+    border-bottom: none;
+}
+
+.notification-channel .channel-info .channel-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.notification-channel .channel-info .channel-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.notification-channel .toggle-switch {
+    flex-shrink: 0;
+}
+
+.notification-type {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.notification-type:last-child {
+    border-bottom: none;
+}
+
+.notification-type .type-info .type-name {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+}
+
+.notification-type .type-info .type-channel {
+    font-size: 0.65rem;
+    color: var(--text-tertiary);
+}
+
+.notification-type .type-status {
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.notification-type .type-status.enabled {
+    color: var(--sem-success);
+}
+
+.notification-type .type-status.disabled {
+    color: var(--text-tertiary);
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 640px) {
+    .settings-card .card-body {
+        padding: 16px;
+    }
+
+    .notification-channel {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-page settings-page">
+    <div class="page-hero">
+        <div class="page-hero-main">
+            <div class="page-hero-icon"><i class="fas fa-bell"></i></div>
+            <div>
+                <h1 class="page-hero-title">Notification Settings</h1>
+                <p class="page-hero-sub">Configure how and when you receive notifications</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-card">
+        <div class="card-header">
+            <h3><i class="fas fa-sliders-h"></i> Notification Channels</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'dashboard:notification_settings' %}">
+                {% csrf_token %}
+
+                <div class="notification-channel">
+                    <div class="channel-info">
+                        <div class="channel-name">Email Notifications</div>
+                        <div class="channel-desc">Receive notifications via email</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="email_notifications"
+                               {% if preferences.email %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="notification-channel">
+                    <div class="channel-info">
+                        <div class="channel-name">SMS Notifications</div>
+                        <div class="channel-desc">Receive notifications via SMS</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="sms_notifications"
+                               {% if preferences.sms %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="notification-channel">
+                    <div class="channel-info">
+                        <div class="channel-name">In-App Notifications</div>
+                        <div class="channel-desc">Receive notifications within the dashboard</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="in_app_notifications"
+                               {% if preferences.in_app %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-gold">
+                        <i class="fas fa-save"></i> Save Preferences
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Types -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h3><i class="fas fa-tags"></i> Notification Types</h3>
+        </div>
+        <div class="card-body">
+            <div class="notification-type">
+                <div class="type-info">
+                    <div class="type-name">Stock Alerts</div>
+                    <div class="type-channel">Email • SMS • In-App</div>
+                </div>
+                <span class="type-status enabled">Enabled</span>
+            </div>
+
+            <div class="notification-type">
+                <div class="type-info">
+                    <div class="type-name">Order Updates</div>
+                    <div class="type-channel">Email • In-App</div>
+                </div>
+                <span class="type-status enabled">Enabled</span>
+            </div>
+
+            <div class="notification-type">
+                <div class="type-info">
+                    <div class="type-name">Project Updates</div>
+                    <div class="type-channel">Email • In-App</div>
+                </div>
+                <span class="type-status enabled">Enabled</span>
+            </div>
+
+            <div class="notification-type">
+                <div class="type-info">
+                    <div class="type-name">Payment Confirmation</div>
+                    <div class="type-channel">Email • In-App</div>
+                </div>
+                <span class="type-status enabled">Enabled</span>
+            </div>
+
+            <div class="notification-type">
+                <div class="type-info">
+                    <div class="type-name">System Alerts</div>
+                    <div class="type-channel">Email • SMS • In-App</div>
+                </div>
+                <span class="type-status enabled">Enabled</span>
+            </div>
+
+            <div class="notification-type">
+                <div class="type-info">
+                    <div class="type-name">Audit Reports</div>
+                    <div class="type-channel">Email</div>
+                </div>
+                <span class="type-status enabled">Enabled</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Invoice {{ order.order_number }} — Caldan Construction</title>
+  {% load humanize %}
+  <style>
+    @page {
+      size: A4;
+      margin: 2.2cm 2.2cm 2.2cm 2.2cm;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', 'Helvetica Neue', Arial, serif;
+      color: #000000;
+      font-size: 10.5pt;
+      line-height: 1.6;
+      background: #FFFFFF;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .document {
+      max-width: 100%;
+      background: #FDFBF8;
+      padding: 0;
+    }
+
+    /* ===== HEADER - Cream like the rest ===== */
+    .doc-header {
+      background: #FDFBF8;
+      padding: 16px 0 16px;
+      margin-bottom: 24px;
+      border-bottom: 4px solid #D4AF37;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .doc-header .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .doc-header .logo {
+      width: 200px;
+      height: auto;
+      display: block;
+    }
+    .doc-header .brand-text .name {
+      font-family: 'Georgia', serif;
+      font-size: 14pt;
+      font-weight: 700;
+      color: #0D2B36;
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+    .doc-header .brand-text .tagline {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 7.5pt;
+      font-weight: 500;
+      color: #9C7A1F;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin: 2px 0 0;
+    }
+    .doc-header .badge-right {
+      background: #F5E9C0;
+      border: 1px solid #D4AF37;
+      padding: 6px 18px;
+      border-radius: 4px;
+      color: #0D2B36;
+      font-size: 8pt;
+      font-weight: 700;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* ===== INVOICE HEADER ===== */
+    .invoice-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #D4AF37;
+    }
+    .invoice-head .left h1 {
+      font-family: 'Georgia', serif;
+      font-size: 22pt;
+      font-weight: 700;
+      color: #0D2B36;
+      letter-spacing: -0.3px;
+      margin: 0;
+    }
+    .invoice-head .left h1 span {
+      color: #9C7A1F;
+      font-style: italic;
+    }
+    .invoice-head .right {
+      text-align: right;
+    }
+    .invoice-head .right .invoice-num {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 8.5pt;
+      font-weight: 800;
+      color: #9C7A1F;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      margin-bottom: 4px;
+    }
+    .invoice-head .right .label {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 6px;
+    }
+    .invoice-head .right .label:first-of-type { margin-top: 0; }
+    .invoice-head .right .value {
+      font-family: 'Georgia', serif;
+      font-size: 10.5pt;
+      color: #000000;
+      font-weight: 600;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 16px;
+      border-radius: 3px;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 8pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      border: 1px solid transparent;
+      margin-top: 6px;
+    }
+    .status-badge.pending { background: #F5E9C0; color: #000000; border-color: #D4AF37; }
+    .status-badge.paid { background: #E0EDFB; color: #000000; border-color: #B8D1F0; }
+    .status-badge.processing { background: #E9D5FF; color: #000000; border-color: #C4B5FD; }
+    .status-badge.shipped { background: #DBEAFE; color: #000000; border-color: #93C5FD; }
+    .status-badge.delivered { background: #16A34A; color: #FFFFFF; border-color: #16A34A; }
+    .status-badge.completed { background: #CCFBF1; color: #000000; border-color: #5EEAD4; }
+    .status-badge.cancelled { background: #DC2626; color: #FFFFFF; border-color: #DC2626; }
+
+    /* ===== ADDRESS GRID ===== */
+    .address-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .address-card {
+      background: #F8F5F0;
+      border: 1px solid #E8E0D4;
+      border-left: 4px solid #D4AF37;
+      border-radius: 4px;
+      padding: 14px 18px;
+    }
+    .address-card h4 {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+    }
+    .address-card p {
+      margin: 2px 0;
+      font-size: 10pt;
+      font-family: 'Georgia', serif;
+      color: #000000;
+    }
+    .address-card p strong { color: #0D2B36; }
+
+    /* ===== TABLE ===== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 20px;
+      font-size: 9.5pt;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #FFFFFF;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid #E8E0D4;
+    }
+    thead th {
+      background: #0D2B36;
+      color: #F6F1E8;
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    tbody td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #E8E0D4;
+      color: #000000;
+    }
+    tbody tr:nth-child(even) { background: #FBF9F6; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tfoot td {
+      background: #F8F5F0;
+      font-weight: 700;
+      color: #0D2B36;
+      border-top: 2px solid #D4AF37;
+      padding: 10px 14px;
+    }
+    tfoot td.grand {
+      color: #9C7A1F;
+      font-size: 12pt;
+      font-weight: 700;
+    }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+
+    /* ===== SUMMARY BOX ===== */
+    .summary-box {
+      background: linear-gradient(135deg, #0D2B36 0%, #14333F 100%);
+      color: #F6F1E8;
+      border-radius: 6px;
+      padding: 16px 22px;
+      margin-top: 16px;
+      border: 1px solid #1A4050;
+    }
+    .summary-box .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 10pt;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    .summary-box .row .label { color: rgba(246, 241, 232, 0.6); }
+    .summary-box .row .value { font-weight: 600; color: #F6F1E8; }
+
+    /* ===== FOOTER ===== */
+    .doc-footer {
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 2px solid #D4AF37;
+      text-align: center;
+      font-family: 'Georgia', serif;
+      color: #0D2B36;
+    }
+    .doc-footer .brand {
+      font-size: 14pt;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .doc-footer .tagline {
+      font-size: 9pt;
+      color: #9C7A1F;
+      font-style: italic;
+      margin-top: 2px;
+    }
+    .doc-footer .meta {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 8pt;
+      color: #64748B;
+      margin-top: 8px;
+    }
+
+    .page-footer {
+      margin-top: 24px;
+      padding-top: 12px;
+      border-top: 1px solid #E8E0D4;
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 7.5pt;
+      color: #94A3B8;
+    }
+    .page-footer .footer-brand {
+      color: #0D2B36;
+      font-weight: 700;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media screen and (max-width: 600px) {
+      .doc-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+        padding: 16px 0;
+      }
+      .doc-header .brand-left { flex-direction: column; }
+      .doc-header .logo { width: 160px; }
+      .invoice-head { flex-direction: column; gap: 16px; }
+      .invoice-head .right { text-align: left; }
+      .address-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="document">
+
+    <!-- HEADER - Cream, clean, WIDE HIGH-RES logo -->
+    <div class="doc-header">
+      <div class="brand-left">
+        <img class="logo" src="https://res.cloudinary.com/nifbnyz2/image/upload/w_400,c_scale/v1786023287/caldan/caldan/logo.png" alt="Caldan Construction">
+        <div class="brand-text">
+          <p class="name">{{ brand_name|default:"Caldan Construction and Consultancy Firm" }}</p>
+          <p class="tagline">{{ tagline|default:"Building Kenya's Future, One Project at a Time." }}</p>
+        </div>
+      </div>
+      <div class="badge-right">INVOICE</div>
+    </div>
+
+    <!-- INVOICE HEADER -->
+    <div class="invoice-head">
+      <div class="left">
+        <h1>Order <span>invoice</span></h1>
+      </div>
+      <div class="right">
+        <div class="invoice-num">Invoice #INV-{{ order.order_number }}</div>
+        <div class="label">Order Number</div>
+        <div class="value">{{ order.order_number }}</div>
+        <div class="label" style="margin-top:6px;">Date</div>
+        <div class="value">{{ order.created_at|date:"F j, Y" }}</div>
+        <div>
+          <span class="status-badge {{ order.status|lower }}">{{ order.get_status_display }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADDRESSES -->
+    <div class="address-grid">
+      <div class="address-card">
+        <h4>Bill To</h4>
+        <p><strong>{{ order.client_name }}</strong></p>
+        <p>{{ order.client_email }}</p>
+        <p>{{ order.client_phone }}</p>
+      </div>
+      <div class="address-card">
+        <h4>Delivery Address</h4>
+        <p>{{ order.delivery_address }}</p>
+        <p>{{ order.delivery_town }}, {{ order.delivery_county }}</p>
+        {% if order.delivery_notes %}
+          <p style="font-size: 9pt; color: #64748B; margin-top:4px;">{{ order.delivery_notes }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ORDER ITEMS TABLE -->
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 50%;">Description</th>
+          <th class="text-right">Quantity</th>
+          <th class="text-right">Unit Price</th>
+          <th class="text-right">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in order.items.all %}
+        <tr>
+          <td><strong>{{ item.product.name }}</strong></td>
+          <td class="text-right">{{ item.quantity }}</td>
+          <td class="text-right">KES {{ item.unit_price|floatformat:2 }}</td>
+          <td class="text-right">KES {{ item.total_price|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" class="text-right">Subtotal</td>
+          <td class="text-right">KES {{ order.subtotal|floatformat:2 }}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="text-right">Delivery Fee</td>
+          <td class="text-right">KES {{ order.delivery_fee|floatformat:2 }}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="text-right" style="font-size: 11pt;">Grand Total</td>
+          <td class="text-right grand">KES {{ order.total|floatformat:2 }}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <!-- SUMMARY -->
+    <div class="summary-box">
+      <div class="row">
+        <span class="label">Payment Status</span>
+        <span class="value">{% if order.paid_at %}Paid on {{ order.paid_at|date:"F j, Y" }}{% else %}Pending Payment{% endif %}</span>
+      </div>
+      <div class="row">
+        <span class="label">Payment Reference</span>
+        <span class="value">{{ order.paystack_reference|default:"N/A" }}</span>
+      </div>
+      {% if order.tracking_number %}
+      <div class="row">
+        <span class="label">Tracking Number</span>
+        <span class="value">{{ order.tracking_number }}</span>
+      </div>
+      {% endif %}
+      {% if order.estimated_delivery %}
+      <div class="row">
+        <span class="label">Estimated Delivery</span>
+        <span class="value">{{ order.estimated_delivery|date:"F j, Y" }}</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- FOOTER -->
+    <div class="doc-footer">
+      <div class="brand">{{ brand_name|default:"Caldan Construction" }}</div>
+      <div class="tagline">{{ tagline|default:"Building Kenya's Future, One Project at a Time." }}</div>
+      <div class="meta">
+        {{ generated_at|date:"F j, Y" }} · Nairobi, Kenya
+      </div>
+    </div>
+
+    <!-- PAGE FOOTER -->
+    <div class="page-footer">
+      <span class="footer-brand">Caldan</span>
+      <span>Thank you for your business</span>
+      <span>Page <span class="page-number"></span></span>
+    </div>
+
+  </div>
+</body>
+</html>

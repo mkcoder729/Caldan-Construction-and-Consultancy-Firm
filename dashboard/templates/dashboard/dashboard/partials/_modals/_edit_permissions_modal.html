@@ -1,0 +1,219 @@
+<div class="modal" id="editPermissionsModal" role="dialog" aria-modal="true" data-js-managed="1">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="editPermsTitle">Edit Permissions</h3>
+            <button class="modal-close" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form class="modal-body" id="editPermissionsForm" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="admin_id" id="editPermsAdminId">
+
+            <div id="editPermsFields">
+                {# Render all 14 permission flags grouped by domain. #}
+                <div class="permission-group">
+                    <div class="group-title">Core Modules</div>
+                    {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_manage_projects" label="Manage Projects" desc="Create, edit, and delete projects" %}
+                    {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_manage_inventory" label="Manage Inventory" desc="Manage materials, stock, and suppliers" %}
+                    {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_manage_shop" label="Manage Shop" desc="Manage products, orders, and checkout" %}
+                    {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_manage_finances" label="Manage Finances" desc="View and record payments and expenses" %}
+                </div>
+
+                <div class="permission-group">
+                    <div class="group-title">People Modules</div>
+                    {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_manage_clients" label="Manage Clients" desc="View, create, and edit client records" %}
+                    {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_manage_team" label="Manage Team" desc="Manage team member profiles" %}
+                </div>
+
+                <div class="permission-group">
+                    <div class="group-title">Services &amp; Reports</div>
+                    {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_manage_services" label="Manage Services" desc="Manage service offerings" %}
+                    {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_manage_reports" label="Manage Reports" desc="View and export reports" %}
+                    {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_manage_budgets" label="Manage Budgets" desc="Set and approve project budgets" %}
+                </div>
+
+                <div class="permission-group">
+                    <div class="group-title">Data &amp; Audit</div>
+                    {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_export_data" label="Export Data" desc="Export data in various formats" %}
+                    {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_backup_data" label="Backup Data" desc="Create and restore backups" %}
+                    {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_delete_data" label="Delete Data" desc="Permanently delete records" %}
+                    {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_manage_audit_log" label="Manage Audit Log" desc="View and export audit logs" %}
+                </div>
+
+                <div class="permission-group">
+                    <div class="group-title">System</div>
+                    {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_manage_settings" label="Manage Settings" desc="Access system settings" %}
+                    {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_invite_admins" label="Invite Admins" desc="Send invitations to new administrators" %}
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="editPermsCancel">Cancel</button>
+                <button type="submit" class="btn btn-gold" id="editPermsSubmit">Save Permissions</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+#editPermissionsModal .modal-content {
+    max-width: 640px;
+}
+
+#editPermissionsModal .modal-body {
+    padding: 24px;
+}
+
+#editPermissionsModal .permission-group {
+    margin-bottom: 20px;
+}
+
+#editPermissionsModal .permission-group .group-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 0 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--border-subtle);
+}
+
+#editPermissionsModal .permission-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+#editPermissionsModal .permission-item:last-child {
+    border-bottom: none;
+}
+
+#editPermissionsModal .permission-item .permission-label {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    flex: 1;
+    padding-right: 16px;
+}
+
+#editPermissionsModal .permission-item .permission-label .permission-desc {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    display: block;
+    font-weight: 400;
+}
+
+#editPermissionsModal .permission-item .toggle-switch {
+    flex-shrink: 0;
+}
+
+#editPermissionsModal .modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+    justify-content: flex-end;
+}
+
+@media (max-width: 640px) {
+    #editPermissionsModal .modal-body {
+        padding: 16px;
+    }
+
+    #editPermissionsModal .permission-item {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    #editPermissionsModal .permission-item .permission-label {
+        width: 100%;
+        padding-right: 0;
+    }
+
+    #editPermissionsModal .modal-actions {
+        flex-direction: column;
+    }
+
+    #editPermissionsModal .modal-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var modal = document.getElementById('editPermissionsModal');
+    var form = document.getElementById('editPermissionsForm');
+
+    window.openEditPermissions = function(adminId, permissions) {
+        document.getElementById('editPermsAdminId').value = adminId;
+
+        // Set permission checkboxes
+        var checkboxes = form.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(function(cb) {
+            var permName = cb.name;
+            if (permissions && permissions.hasOwnProperty(permName)) {
+                cb.checked = permissions[permName];
+            } else {
+                // Default to checked if not specified
+                cb.checked = true;
+            }
+        });
+
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    };
+
+    function closeModal() {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    document.querySelector('#editPermissionsModal .modal-overlay')?.addEventListener('click', closeModal);
+    document.querySelector('#editPermissionsModal .modal-close')?.addEventListener('click', closeModal);
+    document.getElementById('editPermsCancel')?.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('open')) {
+            closeModal();
+        }
+    });
+
+    // Submit via fetch so we can reload cleanly without leaving the page
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var submitBtn = document.getElementById('editPermsSubmit');
+        if (submitBtn) submitBtn.disabled = true;
+
+        var data = new FormData(form);
+        fetch(form.action, {
+            method: 'POST',
+            body: data,
+            credentials: 'same-origin',
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+        }).then(function(r) {
+            if (r.redirected || r.ok || r.status === 302) {
+                if (typeof showToast === 'function') {
+                    showToast('success', 'Permissions Updated', 'Admin permissions have been saved.');
+                }
+                closeModal();
+                setTimeout(function() { window.location.reload(); }, 350);
+            } else {
+                if (submitBtn) submitBtn.disabled = false;
+                if (typeof showToast === 'function') {
+                    showToast('error', 'Error', 'Could not save permissions.');
+                }
+            }
+        }).catch(function() {
+            if (submitBtn) submitBtn.disabled = false;
+            if (typeof showToast === 'function') {
+                showToast('error', 'Error', 'Network error. Please try again.');
+            }
+        });
+    });
+});
+</script>

@@ -1,0 +1,373 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Edit Profile - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+.settings-page {
+    max-width: 720px;
+}
+
+.page-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 20px; flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative; overflow: hidden;
+    margin-bottom: 24px;
+}
+.page-hero::before {
+    content: ''; position: absolute; top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+}
+.page-hero-main {
+    display: flex; align-items: center; gap: 16px;
+    flex: 1; min-width: 240px; position: relative; z-index: 1;
+}
+.page-hero-icon {
+    width: 52px; height: 52px; border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+}
+.page-hero-title {
+    font-size: 22px; font-weight: 800; color: #fff;
+    margin: 0 0 4px; letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 10px;
+}
+.page-hero-title i { color: var(--brand-gold); }
+.page-hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+.settings-card {
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.settings-card .card-body {
+    padding: 24px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.form-hint {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    display: block;
+}
+
+.form-control {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: border-color var(--t-fast) var(--ease-standard),
+                box-shadow var(--t-fast) var(--ease-standard),
+                background var(--t-fast) var(--ease-standard);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.12);
+    background: var(--bg-card);
+}
+
+.form-control:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.profile-avatar-upload {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px;
+    background: var(--bg-canvas);
+    border-radius: var(--r-md);
+    border: 1px dashed var(--border-default);
+    margin-bottom: 16px;
+}
+
+.profile-avatar-upload .avatar-preview {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--r-pill);
+    background: var(--brand-gold);
+    color: var(--text-inverse);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.profile-avatar-upload .avatar-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.profile-avatar-upload .avatar-actions .btn-sm {
+    font-size: 0.7rem;
+    padding: 2px 12px;
+}
+
+.profile-avatar-upload .avatar-actions .file-input-label {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    cursor: pointer;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 640px) {
+    .settings-card .card-body {
+        padding: 16px;
+    }
+
+    .profile-avatar-upload {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-page settings-page">
+    <div class="page-hero">
+        <div class="page-hero-main">
+            <div class="page-hero-icon"><i class="fas fa-user-edit"></i></div>
+            <div>
+                <h1 class="page-hero-title">Edit Profile</h1>
+                <p class="page-hero-sub">Update your account information</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-card">
+        <div class="card-body">
+            <form method="post" action="{% url 'dashboard:profile_edit' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Avatar Upload -->
+                <div class="profile-avatar-upload">
+                    <div class="avatar-preview" id="avatarPreview">
+                        {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" alt="{{ user.full_name }}" id="avatarImg" />
+                        {% else %}
+                            <span id="avatarInitial">{{ user.full_name|default:user.email|first|upper }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="avatar-actions">
+                        <span style="font-size:0.8rem;font-weight:500;color:var(--text-primary);">Profile Photo</span>
+                        <label class="file-input-label" for="id_avatar">
+                            <i class="fas fa-upload"></i> Upload new photo
+                        </label>
+                        {{ form.avatar }}
+                        {% if form.avatar.errors %}
+                            <span class="form-error">{{ form.avatar.errors.0 }}</span>
+                        {% endif %}
+                        {% if user.avatar %}
+                        <button type="button" class="btn btn-sm btn-secondary" id="removeAvatarBtn">
+                            <i class="fas fa-times"></i> Remove
+                        </button>
+                        <input type="hidden" name="avatar-clear" id="avatarClearFlag" value="">
+                        {% endif %}
+                        <span style="font-size:0.65rem;color:var(--text-tertiary);">PNG, JPG, or SVG. Max 10MB.</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.full_name.id_for_label }}">Full Name</label>
+                    {{ form.full_name }}
+                    {% if form.full_name.errors %}
+                        <span class="form-error">{{ form.full_name.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.phone.id_for_label }}">Phone Number</label>
+                    {{ form.phone }}
+                    <span class="form-hint">Format: 07XXXXXXXX or +254XXXXXXXXX</span>
+                    {% if form.phone.errors %}
+                        <span class="form-error">{{ form.phone.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" class="form-control" value="{{ user.email }}" disabled>
+                    <span class="form-hint">Email cannot be changed. Contact support for assistance.</span>
+                </div>
+
+                {% if form.non_field_errors %}
+                <div class="form-error">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-gold">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a href="{% url 'dashboard:profile_view' %}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Hide the default file input — the styled label triggers it */
+.avatar-file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+.avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--r-pill);
+    display: block;
+}
+.avatar-preview .avatar-initial,
+.avatar-preview span#avatarInitial {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.form-error {
+    color: var(--sem-danger);
+    font-size: 0.75rem;
+    margin-top: 4px;
+    display: block;
+}
+</style>
+
+<script>
+(function() {
+    const input = document.getElementById('id_avatar');
+    const preview = document.getElementById('avatarPreview');
+    const removeBtn = document.getElementById('removeAvatarBtn');
+    const clearFlag = document.getElementById('avatarClearFlag');
+    if (input && preview) {
+        input.addEventListener('change', function(e) {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                preview.innerHTML = '<img src="' + ev.target.result + '" alt="Preview" />';
+            };
+            reader.readAsDataURL(file);
+            if (clearFlag) clearFlag.value = '';
+        });
+    }
+    if (removeBtn && clearFlag) {
+        removeBtn.addEventListener('click', function() {
+            preview.innerHTML = '<span id="avatarInitial">{{ user.full_name|default:user.email|first|upper }}</span>';
+            clearFlag.value = '1';
+            if (input) input.value = '';
+        });
+    }
+})();
+</script>
+
+<script>
+function removeAvatar() {
+    confirmDialog({
+        title: 'Remove Photo',
+        message: 'Are you sure you want to remove your profile photo?',
+        confirmLabel: 'Remove',
+        confirmClass: 'btn-danger',
+        danger: true
+    }).then(function(confirmed) {
+        if (confirmed) {
+            var avatarInput = document.querySelector('input[name="avatar"]');
+            if (avatarInput) {
+                // Clear the file input
+                avatarInput.value = '';
+                // Optionally trigger a form submission with a remove flag
+                var form = avatarInput.closest('form');
+                var removeInput = document.createElement('input');
+                removeInput.type = 'hidden';
+                removeInput.name = 'remove_avatar';
+                removeInput.value = 'true';
+                form.appendChild(removeInput);
+                form.submit();
+            }
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var fileInput = document.querySelector('input[name="avatar"]');
+    var preview = document.querySelector('.avatar-preview');
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            var file = this.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.style.backgroundImage = 'url(' + e.target.result + ')';
+                    preview.style.backgroundSize = 'cover';
+                    preview.style.backgroundPosition = 'center';
+                    preview.textContent = '';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

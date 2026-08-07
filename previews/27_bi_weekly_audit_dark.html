@@ -1,0 +1,350 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=600">
+<style>html,body{margin:0;padding:0;background:#0F172A;font-family:'Inter',Arial,sans-serif;}</style>
+</head><body>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Caldan Construction and Consultancy Firm</title>
+  <style>
+    /* RESET */
+    *, *:before, *:after { box-sizing: border-box; }
+    html, body { margin: 0 !important; padding: 0 !important; height: 100% !important; width: 100% !important; background-color: #F8FAFC; }
+    * { -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
+    div[style*="margin: 16px 0"] { margin: 0 !important; }
+    table, td { mso-table-lspace: 0pt !important; mso-table-rspace: 0pt !important; }
+    table { border-spacing: 0 !important; border-collapse: collapse !important; table-layout: fixed !important; margin: 0 auto !important; }
+    img { -ms-interpolation-mode: bicubic; max-width: 100%; height: auto; border: 0; display: block; }
+    a { text-decoration: none; }
+    *[x-apple-data-detectors], .x-gmail-data-detectors, .x-gmail-data-detectors *, .aBn { border-bottom: 0 !important; cursor: default !important; color: inherit !important; text-decoration: inherit !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
+
+    /* CALDAN DESIGN TOKENS */
+    :root {
+      --brand-navy:      #0D2B36;
+      --brand-blue:      #0B66C3;
+      --brand-gold:      #D4AF37;
+      --brand-gold-deep: #9C7A1F;
+      --brand-cream:     #F6F1E8;
+      --slate-900:       #0F172A;
+      --slate-700:       #334155;
+      --slate-500:       #64748B;
+      --slate-400:       #94A3B8;
+      --slate-200:       #E2E8F0;
+      --slate-100:       #F1F5F9;
+      --slate-50:        #F8FAFC;
+      --success:         #16A34A;
+      --warning:         #D97706;
+      --danger:          #DC2626;
+    }
+
+    /* CALDAN CONTAINER */
+    .email-container {
+      width: 100% !important; max-width: 600px !important; margin: 0 auto !important;
+      background-color: #FFFFFF;
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(13, 43, 54, 0.04);
+    }
+
+    /* HEADER — light gradient with gold accent strip */
+    .header {
+      padding: 36px 20px 28px;
+      text-align: center;
+      background: linear-gradient(135deg, #FFFFFF 0%, #F0F9FF 55%, #E6F0FB 100%);
+      border-bottom: 3px solid var(--brand-gold);
+    }
+    .logo-img { width: 130px; height: auto; max-width: 150px; display: block; margin: 0 auto; }
+    .brand-wordmark {
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 1.8px; text-transform: uppercase;
+      color: var(--brand-navy);
+      margin: 14px 0 0;
+    }
+    .brand-tagline {
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      color: var(--brand-gold-deep);
+      margin: 4px 0 0;
+    }
+
+    /* CONTENT */
+    .content {
+      padding: 36px 40px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--slate-700);
+    }
+    .content h1 {
+      color: var(--brand-navy);
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 16px 0;
+      text-align: center;
+      letter-spacing: -0.3px;
+    }
+    .content h1 span { color: var(--brand-gold-deep); font-style: italic; }
+    .content h2 {
+      color: var(--brand-navy);
+      font-size: 13px;
+      font-weight: 700;
+      margin: 28px 0 10px 0;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      border-bottom: 1px solid var(--slate-200);
+      padding-bottom: 6px;
+    }
+    .content h3 {
+      color: var(--brand-navy);
+      font-size: 17px;
+      font-weight: 700;
+      margin: 22px 0 10px 0;
+    }
+    .content p { margin: 0 0 16px 0; }
+    .content a { color: var(--brand-blue); font-weight: 500; }
+    .content .lede {
+      font-size: 16px;
+      color: var(--slate-700);
+      text-align: center;
+      margin: 0 0 24px 0;
+    }
+    .content .subtitle {
+      font-size: 13px;
+      color: var(--slate-500);
+      text-align: center;
+      margin: 0 0 28px 0;
+    }
+
+    /* META CARD — pale-gold inset card */
+    .meta-card {
+      background: var(--brand-cream);
+      border: 1px solid #E5DCC4;
+      border-left: 4px solid var(--brand-gold);
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin: 18px 0;
+    }
+    .meta-card dl { margin: 0; }
+    .meta-card dt { font-weight: 700; color: var(--brand-navy); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
+    .meta-card dt:first-child { margin-top: 0; }
+    .meta-card dd { margin: 3px 0 0 0; color: var(--slate-700); font-weight: 500; }
+
+    /* BUTTON */
+    .button {
+      display: inline-block;
+      padding: 14px 28px;
+      background-color: var(--brand-navy);
+      color: #FFFFFF !important;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.4px;
+      margin: 20px 0;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(13, 43, 54, 0.18);
+      max-width: 100%;
+      text-transform: uppercase;
+    }
+    .button-gold {
+      background: linear-gradient(135deg, var(--brand-gold) 0%, var(--brand-gold-deep) 100%);
+      color: var(--brand-navy) !important;
+      box-shadow: 0 4px 6px rgba(212, 175, 55, 0.28);
+    }
+    .button-row { text-align: center; margin: 26px 0; }
+
+    /* BADGES */
+    .badge {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+    }
+    .badge-info    { background: var(--brand-blue-soft, #E0F2FE); color: #0369A1; }
+    .badge-success { background: #DCFCE7; color: #166534; }
+    .badge-warning { background: #FEF3C7; color: #92400E; }
+    .badge-error   { background: #FEE2E2; color: #991B1B; }
+    .badge-gold    { background: #F5E9C0; color: var(--brand-gold-deep); }
+    .badge-navy    { background: var(--brand-navy); color: #FFFFFF; }
+
+    /* TABLES */
+    table.summary { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; background: #FFFFFF; border-radius: 8px; overflow: hidden; border: 1px solid var(--slate-200); }
+    table.summary th, table.summary td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--slate-200); }
+    table.summary th { background: var(--slate-100); color: var(--slate-500); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+    table.summary tr:last-child td { border-bottom: 0; }
+    table.summary tfoot td { background: var(--slate-100); font-weight: 700; color: var(--brand-navy); border-top: 2px solid var(--brand-gold); }
+
+    /* CODE MONO */
+    .code-mono {
+      font-family: 'Courier New', Courier, monospace;
+      letter-spacing: 4px;
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--brand-navy);
+      background: var(--slate-100);
+      padding: 18px 28px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+
+    /* CALLOUTS */
+    .callout { border-radius: 10px; padding: 14px 18px; margin: 16px 0; border: 1px solid; font-size: 13px; line-height: 1.6; }
+    .callout strong { display: inline; }
+    .callout-info { background: var(--brand-blue-soft, #E0F2FE); border-color: var(--brand-blue); color: #1E3A8A; }
+    .callout-success { background: #DCFCE7; border-color: #16A34A; color: #166534; }
+    .callout-warning { background: #FEF3C7; border-color: #D97706; color: #92400E; }
+    .callout-danger { background: #FEE2E2; border-color: #DC2626; color: #991B1B; }
+
+    /* DIVIDER */
+    .divider { border-top: 1px solid var(--slate-100); margin: 28px 0; }
+
+    /* FOOTER */
+    .footer {
+      background-color: var(--slate-100);
+      padding: 28px 24px;
+      text-align: center;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 12px;
+      color: var(--slate-500);
+      border-top: 1px solid var(--slate-200);
+    }
+    .footer-wordmark { font-weight: 700; color: var(--brand-navy); letter-spacing: 0.4px; font-size: 13px; }
+    .footer-tagline { color: var(--brand-gold-deep); font-weight: 600; font-size: 11px; letter-spacing: 0.6px; margin: 4px 0 14px; }
+    .footer a { color: var(--brand-blue); font-weight: 600; }
+    .footer-divider { width: 44px; height: 2px; background: var(--brand-gold); margin: 0 auto 14px; border: 0; }
+    .footer p { margin: 0 0 6px 0; }
+    .footer small { font-size: 11px; color: var(--slate-400); line-height: 1.4; }
+
+    /* MOBILE */
+    @media screen and (max-width: 600px) {
+      .email-wrapper { padding: 12px 0 !important; }
+      .content { padding: 28px 22px !important; }
+      .header { padding: 28px 18px 22px !important; }
+      .email-container { width: 100% !important; border-radius: 0 !important; border-left: none !important; border-right: none !important; }
+      .content h1 { font-size: 22px !important; }
+      .code-mono { font-size: 28px !important; letter-spacing: 3px !important; padding: 14px 18px !important; }
+      table.summary th, table.summary td { padding: 10px 12px !important; }
+    }
+
+    /* DARK MODE */
+    @media (prefers-color-scheme: dark) {
+      html, body { background-color: var(--slate-900) !important; }
+      .email-container { background-color: var(--slate-900) !important; border-color: #1E293B !important; }
+      .header { background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%) !important; border-bottom-color: var(--brand-gold) !important; }
+      .brand-wordmark { color: var(--brand-cream) !important; }
+      .content { background-color: var(--slate-900) !important; color: #CBD5E1 !important; }
+      .content h1 { color: var(--brand-gold) !important; }
+      .content h1 span { color: var(--brand-gold) !important; }
+      .content h2 { color: var(--brand-gold) !important; border-bottom-color: #334155 !important; }
+      .content h3 { color: var(--brand-cream) !important; }
+      .content p   { color: #CBD5E1 !important; }
+      .content a   { color: #93C5FD !important; }
+      .content .subtitle { color: var(--slate-400) !important; }
+      .meta-card { background: #1E293B !important; border-color: #334155 !important; }
+      .meta-card dt { color: var(--brand-gold) !important; }
+      .meta-card dd { color: #CBD5E1 !important; }
+      .button { background-color: var(--brand-blue) !important; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.30) !important; }
+      .button-gold { background: linear-gradient(135deg, var(--brand-gold) 0%, var(--brand-gold-deep) 100%) !important; color: var(--slate-900) !important; }
+      table.summary { background: #1E293B !important; border-color: #334155 !important; }
+      table.summary th { background: #0F172A !important; color: var(--slate-400) !important; }
+      table.summary td { border-color: #334155 !important; color: #CBD5E1 !important; }
+      table.summary tfoot td { background: #0F172A !important; color: var(--brand-gold) !important; }
+      .code-mono { background: #1E293B !important; color: var(--brand-gold) !important; }
+      .callout-info { background: #1E3A8A !important; color: #BFDBFE !important; border-color: #3B82F6 !important; }
+      .callout-success { background: #14532D !important; color: #BBF7D0 !important; border-color: var(--success) !important; }
+      .callout-warning { background: #78350F !important; color: #FDE68A !important; border-color: var(--warning) !important; }
+      .callout-danger { background: #7F1D1D !important; color: #FECACA !important; border-color: var(--danger) !important; }
+      .divider { border-top-color: #334155 !important; }
+      .footer { background-color: #1E293B !important; border-top-color: #334155 !important; color: var(--slate-400) !important; }
+      .footer-wordmark { color: var(--brand-cream) !important; }
+      .footer a { color: #93C5FD !important; }
+      .footer small { color: var(--slate-500) !important; }
+    }
+  </style>
+</head>
+<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #F8FAFC;">
+  <center class="email-wrapper" style="width: 100%; background-color: #F8FAFC; padding: 40px 0;">
+    <!--[if mso | IE]>
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" align="center" style="width:600px;">
+    <tr>
+    <td>
+    <![endif]-->
+    <div class="email-container">
+      <!-- HEADER -->
+      <div class="header">
+        <a href="http://localhost:8000">
+          <img src="https://res.cloudinary.com/nifbnyz2/image/upload/v1786023287/caldan/caldan/logo.png"
+               alt="Caldan Construction and Consultancy Firm"
+               class="logo-img"
+               width="130"
+               border="0">
+        </a>
+        <p class="brand-wordmark">Caldan Construction and Consultancy Firm</p>
+        <p class="brand-tagline">Building Kenya&#x27;s Future, One Project at a Time.</p>
+        <span class="badge badge-info" style="margin-top: 14px;">📋 Audit Report</span>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="content">
+        
+  <h1>Bi-weekly <span>audit</span></h1>
+  <p class="subtitle">July 15, 2026 — August 1, 2026</p>
+
+  <p>Summary of system activity over the last two weeks.</p>
+
+  <div style="display: block; margin: 22px 0;">
+    <table width="100%" cellpadding="0" cellspacing="6" border="0">
+      <tr>
+        <td align="center" style="background: #FFFFFF; border: 1px solid var(--slate-200); border-radius: 10px; padding: 16px 12px;">
+          <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500);">Total Actions</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--brand-navy); margin-top: 4px;">120</div>
+        </td>
+        <td align="center" style="background: #FFFFFF; border: 1px solid var(--slate-200); border-radius: 10px; padding: 16px 12px;">
+          <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-500);">Unique Users</div>
+          <div style="font-size: 22px; font-weight: 700; color: var(--brand-blue); margin-top: 4px;">4</div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  
+  <div class="button-row">
+    <a href="http://localhost:8000/dashboard/admin/audit/" class="button">Open audit log →</a>
+  </div>
+  
+
+
+        <div class="divider"></div>
+        <p style="margin-bottom: 0; color: var(--slate-500); font-size: 13px;">
+          Warm regards,<br>
+          <strong style="color: var(--brand-navy);">The Caldan Construction and Consultancy Firm Team</strong>
+        </p>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="footer">
+        <hr class="footer-divider">
+        <p class="footer-wordmark">Caldan Construction and Consultancy Firm</p>
+        <p class="footer-tagline">Building Kenya&#x27;s Future, One Project at a Time.</p>
+        <p>&copy; 2026 Caldan Construction and Consultancy Firm · Nairobi · Kenya</p>
+        <p>Need help? <a href="mailto:info.caldanconstruction@gmail.com">info.caldanconstruction@gmail.com</a></p>
+        
+        <p style="margin-top: 12px;"><small>This is a transactional email related to your activity on Caldan Construction and Consultancy Firm.</small></p>
+      </div>
+    </div>
+    <!--[if mso | IE]>
+    </td>
+    </tr>
+    </table>
+    <![endif]-->
+  </center>
+</body>
+</html>
+</body></html>

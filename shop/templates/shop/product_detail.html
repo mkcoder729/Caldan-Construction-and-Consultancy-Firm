@@ -1,0 +1,219 @@
+{% extends "shop/base_shop.html" %}
+{% load static %}
+{% load humanize %}
+{% load shop_extras %}
+
+{% block title %}{{ product.name }} — Caldan Construction and Consultancy Firm Shop{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="{{ product.short_description|default:product.description|truncatewords:20 }}">
+{% if product.image %}<meta property="og:image" content="{{ product.image.url }}">{% endif %}
+{% endblock %}
+
+{% block shop_hero %}
+<section class="shop-hero" style="background-image: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80');">
+    <div class="overlay"></div>
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="{% url 'website:index' %}">Home</a>
+            <span class="sep">/</span>
+            <a href="{% url 'shop:index' %}">Shop</a>
+            <span class="sep">/</span>
+            <a href="{% url 'shop:index' %}?category={{ product.category }}">{{ product.get_category_display }}</a>
+            <span class="sep">/</span>
+            <span class="current">{{ product.name }}</span>
+        </nav>
+
+        <div class="icon-wrap">
+            <i class="fas fa-box"></i>
+        </div>
+
+        <p class="eyebrow">
+            <i class="fas fa-tag"></i> {{ product.get_category_display }}
+        </p>
+
+        <h1>{{ product.name }}</h1>
+
+        <p class="subtitle">
+            {{ product.short_description|default:product.description|truncatewords:15 }}
+        </p>
+
+        <div class="gold-line"></div>
+
+        <div style="display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;">
+            <span style="font-size: 1.6rem; font-weight: 700; color: #D4AF37;">KES {{ product.price|floatformat:0|intcomma }}</span>
+            <span style="font-size: 0.9rem; color: rgba(255,255,255,0.6);">/ {{ product.get_unit_display }}</span>
+            <span style="padding: 4px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+                {% if product.in_stock %}background: #27AE60; color: #FFFFFF;
+                {% elif product.is_low_stock %}background: #F39C12; color: #FFFFFF;
+                {% else %}background: #B9342B; color: #FFFFFF;{% endif %}">
+                {% if product.in_stock %}In Stock{% elif product.is_low_stock %}Low Stock{% else %}Out of Stock{% endif %}
+            </span>
+        </div>
+
+        <a href="{% url 'shop:cart_view' %}" class="hero-cart-link">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+            <span class="badge" id="heroCartBadge">{{ cart_count|default:0 }}</span>
+        </a>
+    </div>
+</section>
+{% endblock %}
+
+{% block shop_content %}
+
+<!-- ============================================================
+     PRODUCT DETAIL
+     ============================================================ -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px;">
+
+    <!-- IMAGE -->
+    <div>
+        <div style="border-radius: var(--radius-lg); overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-primary);">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 100%; height: auto; display: block;">
+            {% else %}
+            <div style="width: 100%; min-height: 400px; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); font-size: 4rem; background: var(--bg-secondary);">
+                <i class="fas fa-box"></i>
+            </div>
+            {% endif %}
+        </div>
+        {% if product.additional_images %}
+        <div style="display: flex; gap: 12px; margin-top: 16px; overflow-x: auto; padding-bottom: 8px;">
+            {% for img in product.additional_images %}
+            <img src="{{ img }}" alt="{{ product.name }}" style="width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--border-primary); cursor: pointer; transition: all 0.3s ease;">
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- DETAILS -->
+    <div>
+        <p style="font-size: 0.8rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">{{ product.get_category_display }}</p>
+        <h1 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; color: var(--text-primary);">{{ product.name }}</h1>
+
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+            <span style="font-size: 1.6rem; font-weight: 700; color: var(--accent-secondary);">KES {{ product.price|floatformat:0|intcomma }}</span>
+            <span style="font-size: 0.9rem; color: var(--text-tertiary);">/ {{ product.get_unit_display }}</span>
+            <span style="padding: 4px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+                {% if product.in_stock %}background: var(--accent-success); color: #FFFFFF;
+                {% elif product.is_low_stock %}background: var(--accent-warning); color: #FFFFFF;
+                {% else %}background: var(--accent-danger); color: #FFFFFF;{% endif %}">
+                {% if product.in_stock %}In Stock{% elif product.is_low_stock %}Low Stock{% else %}Out of Stock{% endif %}
+            </span>
+        </div>
+
+        <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 24px;">{{ product.description }}</p>
+
+        <!-- Add to Cart -->
+        <form method="POST" action="{% url 'shop:cart_add' %}" class="add-to-cart-form" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <div style="display: flex; align-items: center; border: 2px solid var(--border-primary); border-radius: var(--radius-md); overflow: hidden; background: var(--bg-card);">
+                <button type="button" onclick="decrementQty()" style="padding: 10px 16px; background: var(--bg-secondary); border: none; color: var(--text-primary); font-size: 1.1rem; cursor: pointer; transition: background 0.3s ease;">−</button>
+                <input type="number" name="quantity" id="qtyInput" value="1" min="1" max="999" style="width: 60px; padding: 10px 8px; border: none; border-left: 2px solid var(--border-primary); border-right: 2px solid var(--border-primary); text-align: center; background: var(--bg-card); color: var(--text-primary); font-size: 1rem;">
+                <button type="button" onclick="incrementQty()" style="padding: 10px 16px; background: var(--bg-secondary); border: none; color: var(--text-primary); font-size: 1.1rem; cursor: pointer; transition: background 0.3s ease;">+</button>
+            </div>
+            <button type="submit" {% if not product.in_stock %}disabled{% endif %} style="flex: 1; padding: 14px 32px; border: none; border-radius: var(--radius-md); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease;
+                {% if product.in_stock %}background: var(--accent-primary); color: #FFFFFF;{% else %}background: var(--bg-secondary); color: var(--text-tertiary); cursor: not-allowed;{% endif %}">
+                <i class="fas fa-cart-plus"></i>
+                {% if product.in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
+            </button>
+        </form>
+
+        <!-- Product Meta -->
+        <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border-primary);">
+            <div style="display: flex; gap: 24px; flex-wrap: wrap; font-size: 0.9rem; color: var(--text-secondary);">
+                <span><strong>Category:</strong> {{ product.get_category_display }}</span>
+                <span><strong>Unit:</strong> {{ product.get_unit_display }}</span>
+                {% if product.inventory_material and product.inventory_material.sku %}
+                <span><strong>SKU:</strong> {{ product.inventory_material.sku }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="margin-top: 16px; padding: 16px; background: var(--bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--border-primary);">
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0;">
+                <i class="fas fa-truck" style="color: var(--accent-secondary); margin-right: 8px;"></i>
+                Delivery available across Kenya. Estimated delivery: 2-5 business days.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     RELATED PRODUCTS
+     ============================================================ -->
+{% if related_products %}
+<div style="margin-top: 60px;">
+    <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; color: var(--text-primary);">Related Products</h2>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+        {% for related in related_products %}
+        <div style="background: var(--bg-card); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-primary); transition: all 0.3s ease;">
+            <div style="height: 160px; overflow: hidden; background: var(--bg-secondary);">
+                {% if related.image %}
+                <img src="{{ related.image.url }}" alt="{{ related.name }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" loading="lazy">
+                {% else %}
+                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); font-size: 2rem;">
+                    <i class="fas fa-box"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div style="padding: 12px 16px 16px;">
+                <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">
+                    <a href="{% url 'shop:product_detail' related.slug %}" style="color: var(--text-primary); text-decoration: none;">{{ related.name }}</a>
+                </h4>
+                <span style="font-size: 0.95rem; font-weight: 700; color: var(--accent-secondary);">KES {{ related.price|floatformat:0|intcomma }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+    function incrementQty() {
+        const input = document.getElementById('qtyInput');
+        let val = parseInt(input.value) || 1;
+        if (val < 999) input.value = val + 1;
+    }
+    function decrementQty() {
+        const input = document.getElementById('qtyInput');
+        let val = parseInt(input.value) || 1;
+        if (val > 1) input.value = val - 1;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.add-to-cart-form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const qtyInput = document.getElementById('qtyInput');
+                if (qtyInput) {
+                    const qtyField = form.querySelector('input[name="quantity"]');
+                    if (qtyField) qtyField.value = qtyInput.value;
+                }
+            });
+        }
+    });
+</script>
+
+<style>
+    .related-product:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--accent-secondary);
+    }
+    @media (max-width: 992px) {
+        .product-detail-grid { grid-template-columns: 1fr !important; }
+        .related-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+    @media (max-width: 576px) {
+        .related-grid { grid-template-columns: 1fr !important; }
+        .product-detail-image { min-height: 250px !important; }
+    }
+</style>
+
+{% endblock %}

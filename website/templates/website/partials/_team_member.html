@@ -1,0 +1,59 @@
+{% load static %}
+
+<div class="team-member" style="text-align: center; background: var(--bg-card); border-radius: 16px; padding: 32px 24px; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); border: 1px solid var(--border-primary); box-shadow: 0 4px 20px rgba(0,0,0,0.04);">
+
+    <!-- Photo -->
+    <div style="width: 100px; height: 100px; margin: 0 auto 16px; border-radius: 50%; overflow: hidden; border: 3px solid var(--accent-secondary); padding: 3px;">
+        {% if member.photo %}
+            <img src="{{ member.photo.url }}" alt="{{ member.name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+        {% else %}
+            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 700; color: #FFFFFF; font-family: var(--font-display);">
+                {{ member.name|first|upper }}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Name -->
+    <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 2px; color: var(--text-primary);">{{ member.name }}</h4>
+
+    <!-- Role -->
+    <p style="color: var(--accent-secondary); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px;">
+        <i class="fas fa-briefcase" style="font-size: 0.6rem; margin-right: 4px;"></i>
+        {{ member.get_role_display }}
+    </p>
+
+    <!-- Title/Bio -->
+    {% if member.title %}
+    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 14px; line-height: 1.5;">{{ member.title }}</p>
+    {% endif %}
+
+    <!-- Social Links -->
+    <div style="display: flex; justify-content: center; gap: 8px;">
+        {% if member.linkedin %}
+        <a href="{{ member.linkedin }}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" style="display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: var(--bg-secondary); border-radius: 50%; color: var(--text-secondary); transition: all 0.3s ease; text-decoration: none;">
+            <i class="fab fa-linkedin-in" style="font-size: 0.8rem;"></i>
+        </a>
+        {% endif %}
+        {% if member.twitter %}
+        <a href="{{ member.twitter }}" target="_blank" rel="noopener noreferrer" aria-label="Twitter" style="display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: var(--bg-secondary); border-radius: 50%; color: var(--text-secondary); transition: all 0.3s ease; text-decoration: none;">
+            <i class="fab fa-twitter" style="font-size: 0.8rem;"></i>
+        </a>
+        {% endif %}
+        <a href="#" aria-label="Email" style="display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: var(--bg-secondary); border-radius: 50%; color: var(--text-secondary); transition: all 0.3s ease; text-decoration: none;">
+            <i class="fas fa-envelope" style="font-size: 0.8rem;"></i>
+        </a>
+    </div>
+
+</div>
+
+<style>
+    .team-member:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--accent-secondary) !important;
+    }
+    .team-member:hover .social-links a {
+        background: var(--accent-primary) !important;
+        color: #FFFFFF !important;
+    }
+</style>

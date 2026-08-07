@@ -1,0 +1,402 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}{{ client.name|default:client.company_name }} - Client Details{% endblock %}
+
+{% block extra_css %}
+<style>
+.client-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+.page-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+.page-hero::before {
+    content: ''; position: absolute; top: -100%; right: -10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 65%);
+    border-radius: 50%; pointer-events: none;
+}
+.hero-main {
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    position: relative; z-index: 1;
+}
+.hero-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: rgba(212, 175, 55, 0.2);
+    border: 2px solid rgba(212, 175, 55, 0.4);
+    backdrop-filter: blur(10px);
+    color: var(--brand-gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 800; flex-shrink: 0;
+}
+.hero-info { flex: 1; min-width: 240px; }
+.hero-title {
+    font-size: 24px; font-weight: 800; color: #fff;
+    margin: 0 0 4px; letter-spacing: -0.3px;
+}
+.hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.85); }
+.hero-actions {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    position: relative; z-index: 1;
+}
+
+.profile-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-xs);
+    overflow: hidden;
+}
+.profile-card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.profile-card-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.profile-card-header h3 i {
+    color: var(--brand-gold);
+    font-size: 13px;
+    width: 28px;
+    height: 28px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.profile-card-body { padding: 24px; }
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+.info-item {
+    padding: 14px 16px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+}
+.info-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.info-label i {
+    color: var(--brand-gold);
+    width: 12px;
+}
+.info-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+    font-size: 12px;
+    font-weight: 700;
+}
+.status-active { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); border: 1px solid rgba(39, 174, 96, 0.3); }
+.status-inactive { background: rgba(185, 52, 43, 0.12); color: var(--sem-danger); border: 1px solid rgba(185, 52, 43, 0.3); }
+.status-lead { background: rgba(243, 156, 18, 0.12); color: var(--sem-warning); border: 1px solid rgba(243, 156, 18, 0.3); }
+.status-converted { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); border: 1px solid rgba(11, 102, 195, 0.3); }
+
+.related-section {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-subtle);
+}
+.related-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.related-title i { color: var(--brand-gold); }
+.related-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.related-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(212, 175, 55, 0.08);
+    color: var(--brand-gold-deep);
+    border-radius: var(--r-pill);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    transition: all var(--t-fast) var(--ease-spring);
+}
+.related-tag:hover {
+    background: rgba(212, 175, 55, 0.15);
+    border-color: var(--brand-gold);
+    transform: translateY(-1px);
+}
+
+.notes-block {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-subtle);
+}
+.notes-block .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+.notes-block p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+}
+
+.profile-actions {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: var(--bg-canvas);
+}
+
+.btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.3px;
+}
+.btn-primary { background: var(--brand-gold); color: var(--brand-navy); box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3); }
+.btn-primary:hover { background: var(--brand-gold-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4); }
+.btn-secondary { background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+.btn-secondary:hover { background: var(--bg-secondary); border-color: var(--border-default); color: var(--text-primary); }
+.btn-ghost { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); }
+.btn-ghost:hover { background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.3); }
+.btn-success { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); border: 1px solid rgba(39, 174, 96, 0.3); }
+.btn-success:hover { background: var(--sem-success); color: #fff; }
+.btn-danger { background: rgba(185, 52, 43, 0.12); color: var(--sem-danger); border: 1px solid rgba(185, 52, 43, 0.3); margin-left: auto; }
+.btn-danger:hover { background: var(--sem-danger); color: #fff; }
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.page-hero, .profile-card { animation: fade-up 0.4s ease both; }
+.profile-card:nth-child(2) { animation-delay: 0.05s; }
+
+@media (max-width: 768px) {
+    .info-grid { grid-template-columns: 1fr; }
+    .page-hero { padding: 22px; }
+    .hero-title { font-size: 20px; }
+    .hero-avatar { width: 56px; height: 56px; font-size: 22px; }
+    .profile-card-header { padding: 16px 20px; }
+    .profile-card-body { padding: 16px 20px; }
+    .profile-actions { padding: 14px 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .page-hero, .profile-card { animation: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="client-page">
+
+    <div class="page-hero">
+        <div class="hero-main">
+            <div class="hero-avatar">{{ client.name|default:client.company_name|default:"C"|first|upper }}</div>
+            <div class="hero-info">
+                <h1 class="hero-title">{{ client.name|default:client.company_name|default:"Client" }}</h1>
+                <p class="hero-sub">{{ client.email|default:"No email" }} · {{ client.phone|default:"No phone" }}</p>
+            </div>
+        </div>
+        <div class="hero-actions">
+            <a href="{% url 'clients:client_list' %}" class="btn btn-ghost">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <a href="{% url 'clients:client_edit' client.id %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+        </div>
+    </div>
+
+    <div class="profile-card">
+        <div class="profile-card-header">
+            <h3><i class="fas fa-info-circle"></i> Client Information</h3>
+            <span class="status-pill status-{{ client.status|lower }}">
+                {% if client.status == 'ACTIVE' %}<i class="fas fa-check-circle"></i>
+                {% elif client.status == 'INACTIVE' %}<i class="fas fa-pause-circle"></i>
+                {% elif client.status == 'LEAD' %}<i class="fas fa-user-clock"></i>
+                {% else %}<i class="fas fa-check"></i>{% endif %}
+                {{ client.get_status_display|default:client.status }}
+            </span>
+        </div>
+        <div class="profile-card-body">
+            <div class="info-grid">
+                {% if client.company_name %}
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-building"></i> Company</div>
+                    <div class="info-value">{{ client.company_name }}</div>
+                </div>
+                {% endif %}
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-user-tag"></i> Client Type</div>
+                    <div class="info-value">{{ client.get_type_display|default:client.type|default:"—" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-envelope"></i> Email</div>
+                    <div class="info-value">{{ client.email|default:"—" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-phone"></i> Phone</div>
+                    <div class="info-value">{{ client.phone|default:"—" }}</div>
+                </div>
+                {% if client.alternative_phone %}
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-phone-alt"></i> Alt Phone</div>
+                    <div class="info-value">{{ client.alternative_phone }}</div>
+                </div>
+                {% endif %}
+                {% if client.source %}
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-tag"></i> Source</div>
+                    <div class="info-value">{{ client.source }}</div>
+                </div>
+                {% endif %}
+                {% if client.address or client.county or client.town %}
+                <div class="info-item" style="grid-column: 1 / -1;">
+                    <div class="info-label"><i class="fas fa-map-marker-alt"></i> Location</div>
+                    <div class="info-value">
+                        {% if client.address %}{{ client.address }}{% endif %}
+                        {% if client.county %}{% if client.address %}, {% endif %}{{ client.county }}{% endif %}
+                        {% if client.town %}{% if client.county or client.address %}, {% endif %}{{ client.town }}{% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-calendar-plus"></i> Added</div>
+                    <div class="info-value">{{ client.created_at|date:"M d, Y"|default:"—" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label"><i class="fas fa-phone-square"></i> Last Contact</div>
+                    <div class="info-value">{{ client.last_contact|date:"M d, Y"|default:"Never" }}</div>
+                </div>
+            </div>
+        </div>
+
+        {% if client.notes %}
+        <div class="notes-block">
+            <div class="label">Notes</div>
+            <p>{{ client.notes }}</p>
+        </div>
+        {% endif %}
+
+        {% if projects %}
+        <div class="related-section">
+            <div class="related-title"><i class="fas fa-building"></i> Linked Projects</div>
+            <div class="related-tags">
+                {% for project in projects %}
+                    <a href="{% url 'admin_projects:project_detail' project.id %}" class="related-tag">
+                        <i class="fas fa-building"></i> {{ project.name }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if orders %}
+        <div class="related-section">
+            <div class="related-title"><i class="fas fa-shopping-bag"></i> Linked Orders</div>
+            <div class="related-tags">
+                {% for order in orders %}
+                    <a href="{% url 'shop:order_detail' order.id %}" class="related-tag">
+                        <i class="fas fa-shopping-bag"></i> {{ order.order_number }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="profile-actions">
+            <a href="{% url 'clients:client_edit' client.id %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit Client
+            </a>
+            {% if client.status == 'LEAD' %}
+            <form method="post" action="{% url 'clients:client_convert' client.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check-circle"></i> Convert to Active
+                </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'clients:client_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+            <form method="post" action="{% url 'clients:client_delete' client.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this client?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Delete Client
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

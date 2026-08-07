@@ -1,0 +1,75 @@
+{% load static %}
+{% load dashboard_extras %}
+
+<aside class="sidebar" id="sidebar">
+    {% comment %}
+        Header — logo + close button (mobile only).
+    {% endcomment %}
+    <div class="sidebar-header">
+        <a href="{% url 'dashboard:overview' %}" class="sidebar-brand" aria-label="Caldan Construction — Home">
+            <img src="{% static 'images/logo_light.png' %}" alt="Caldan Construction" class="sidebar-logo sidebar-logo-light">
+            <img src="{% static 'images/logo_dark.png' %}" alt="Caldan Construction" class="sidebar-logo sidebar-logo-dark">
+        </a>
+        <button class="sidebar-close" id="sidebarClose" aria-label="Close sidebar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    {% comment %}
+        Search — quick filter across every section + item.
+    {% endcomment %}
+    <div class="sidebar-search">
+        <i class="fas fa-search sidebar-search__icon" aria-hidden="true"></i>
+        <input type="search"
+               class="sidebar-search__input"
+               id="sidebarSearch"
+               placeholder="Find a page…"
+               aria-label="Search sidebar"
+               autocomplete="off">
+        <button type="button" class="sidebar-search__clear" id="sidebarSearchClear" aria-label="Clear search">
+            <i class="fas fa-xmark"></i>
+        </button>
+    </div>
+
+    {% comment %}
+        Navigation — collapsible sections, one <details> per section.
+        Rendered as includes so the markup for "what a menu item looks
+        like" lives in exactly one place (`_item.html`).
+    {% endcomment %}
+    <nav class="sidebar-nav" id="sidebarNav" aria-label="Primary navigation">
+        {% for section in sidebar_menu.sections %}
+            {% include "dashboard/dashboard/partials/_sidebars/_section.html" with section=section %}
+        {% endfor %}
+
+        {% comment %}
+            Empty-state when the active filter matches nothing. Shown by JS,
+            hidden by default, kept here so it lives in the same flex column
+            as the sections (so it can replace them visually on filter).
+        {% endcomment %}
+        <div class="sidebar-empty" id="sidebarEmpty" hidden>
+            <i class="fas fa-circle-question"></i>
+            <p>No pages match your search.</p>
+        </div>
+    </nav>
+
+    {% comment %}
+        Profile banner — admin's avatar + name.
+    {% endcomment %}
+    <div class="sidebar-footer-section">
+        {% include "dashboard/dashboard/partials/_components/__profile_banner.html" %}
+    </div>
+
+    {% comment %}
+        Footer — version chip + dark-mode toggle.
+    {% endcomment %}
+    <div class="sidebar-footer">
+        <span class="sidebar-version">
+            <i class="fas fa-code-branch"></i>
+            v{{ settings.DASHBOARD_VERSION|default:'1.0' }}
+        </span>
+        <button class="sidebar-theme-toggle-btn" id="sidebarThemeToggle" aria-label="Toggle theme">
+            <i class="fas fa-moon theme-toggle-icon"></i>
+            <span>Dark</span>
+        </button>
+    </div>
+</aside>

@@ -1,0 +1,119 @@
+{% extends "pdf/_base_report.html" %}
+
+{% block badge %}INVENTORY FULL REPORT{% endblock %}
+
+{% block title %}Inventory <span>Full Report</span>{% endblock %}
+
+{% block content %}
+<div class="section">
+    <h2>Materials</h2>
+    {% if materials %}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>SKU</th>
+                <th>Stock</th>
+                <th>Min</th>
+                <th>Unit Cost</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in materials %}
+            <tr>
+                <td><strong>{{ m.name }}</strong></td>
+                <td>{{ m.get_category_display|default:m.category|default:"—" }}</td>
+                <td>{{ m.sku|default:"—" }}</td>
+                <td>{{ m.current_quantity }} {{ m.get_unit_display|default:m.unit|default:"" }}</td>
+                <td>{{ m.minimum_threshold }}</td>
+                <td>KES {{ m.unit_cost|floatformat:2 }}</td>
+                <td>
+                    {% if m.is_low_stock %}
+                        <span class="pill pill-danger">Low Stock</span>
+                    {% else %}
+                        <span class="pill pill-success">OK</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No materials recorded.</div>
+    {% endif %}
+</div>
+
+<div class="section">
+    <h2>Suppliers</h2>
+    {% if suppliers %}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Contact Person</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in suppliers %}
+            <tr>
+                <td><strong>{{ s.name }}</strong></td>
+                <td>{{ s.contact_person|default:"—" }}</td>
+                <td>{{ s.phone|default:"—" }}</td>
+                <td>{{ s.email|default:"—" }}</td>
+                <td>
+                    {% if s.is_active %}
+                        <span class="pill pill-success">Active</span>
+                    {% else %}
+                        <span class="pill pill-neutral">Inactive</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No suppliers recorded.</div>
+    {% endif %}
+</div>
+
+<div class="section">
+    <h2>Recent Stock Transactions</h2>
+    {% if transactions %}
+    <table>
+        <thead>
+            <tr>
+                <th>Material</th>
+                <th>Type</th>
+                <th>Quantity</th>
+                <th>Reference</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in transactions %}
+            <tr>
+                <td><strong>{{ t.material.name|default:"—" }}</strong></td>
+                <td>
+                    {% if t.transaction_type == 'IN' %}
+                        <span class="pill pill-success">IN</span>
+                    {% else %}
+                        <span class="pill pill-danger">OUT</span>
+                    {% endif %}
+                </td>
+                <td>{{ t.quantity }}</td>
+                <td>{{ t.reference|default:"—" }}</td>
+                <td>{{ t.created_at|date:"M d, Y"|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No transactions recorded.</div>
+    {% endif %}
+</div>
+{% endblock %}

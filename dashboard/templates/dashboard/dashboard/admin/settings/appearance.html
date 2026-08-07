@@ -1,0 +1,316 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Appearance - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+.settings-page {
+    max-width: 720px;
+}
+
+.page-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 20px; flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative; overflow: hidden;
+    margin-bottom: 24px;
+}
+.page-hero::before {
+    content: ''; position: absolute; top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+}
+.page-hero-main {
+    display: flex; align-items: center; gap: 16px;
+    flex: 1; min-width: 240px; position: relative; z-index: 1;
+}
+.page-hero-icon {
+    width: 52px; height: 52px; border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+}
+.page-hero-title {
+    font-size: 22px; font-weight: 800; color: #fff;
+    margin: 0 0 4px; letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 10px;
+}
+.page-hero-title i { color: var(--brand-gold); }
+.page-hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+.settings-card {
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.settings-card .card-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.settings-card .card-header h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-card .card-body {
+    padding: 20px;
+}
+
+.theme-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.theme-option {
+    border: 2px solid var(--border-default);
+    border-radius: var(--r-md);
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-standard);
+    background: var(--bg-input);
+}
+
+.theme-option:hover {
+    border-color: var(--border-strong);
+}
+
+.theme-option.selected {
+    border-color: var(--brand-gold);
+    background: rgba(212, 175, 55, 0.05);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.08);
+}
+
+.theme-option .theme-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--r-pill);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.theme-option.selected .theme-icon {
+    background: var(--brand-gold);
+    color: var(--text-inverse);
+}
+
+.theme-option .theme-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.theme-option .theme-desc {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+}
+
+.theme-preview {
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--bg-canvas);
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-subtle);
+}
+
+.theme-preview .preview-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.theme-preview .preview-box {
+    padding: 6px 14px;
+    border-radius: var(--r-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.theme-preview .preview-box.bg-primary {
+    background: var(--brand-blue);
+    color: var(--text-inverse);
+}
+.theme-preview .preview-box.bg-secondary {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+}
+.theme-preview .preview-box.bg-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+}
+.theme-preview .preview-box.text-primary {
+    color: var(--text-primary);
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+}
+.theme-preview .preview-box.text-secondary {
+    color: var(--text-secondary);
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 640px) {
+    .theme-options {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .settings-card .card-body {
+        padding: 16px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-page settings-page">
+    <div class="page-hero">
+        <div class="page-hero-main">
+            <div class="page-hero-icon"><i class="fas fa-palette"></i></div>
+            <div>
+                <h1 class="page-hero-title">Appearance</h1>
+                <p class="page-hero-sub">Customize how the dashboard looks and feels</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Settings -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h3><i class="fas fa-moon"></i> Theme Preference</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'dashboard:appearance_settings' %}">
+                {% csrf_token %}
+
+                <div class="theme-options">
+                    <div class="theme-option {% if profile.theme == 'light' %}selected{% endif %}"
+                         data-theme="light" onclick="selectTheme('light')">
+                        <span class="theme-icon"><i class="fas fa-sun"></i></span>
+                        <div class="theme-label">Light</div>
+                        <div class="theme-desc">Bright and clean</div>
+                    </div>
+                    <div class="theme-option {% if profile.theme == 'dark' %}selected{% endif %}"
+                         data-theme="dark" onclick="selectTheme('dark')">
+                        <span class="theme-icon"><i class="fas fa-moon"></i></span>
+                        <div class="theme-label">Dark</div>
+                        <div class="theme-desc">Easy on the eyes</div>
+                    </div>
+                    <div class="theme-option {% if profile.theme == 'device' %}selected{% endif %}"
+                         data-theme="device" onclick="selectTheme('device')">
+                        <span class="theme-icon"><i class="fas fa-laptop"></i></span>
+                        <div class="theme-label">Device Default</div>
+                        <div class="theme-desc">Follows system preference</div>
+                    </div>
+                </div>
+
+                <input type="hidden" name="theme" id="selectedTheme" value="{{ profile.theme|default:'light' }}">
+
+                <!-- Live Preview -->
+                <div class="theme-preview">
+                    <p style="font-size:0.8rem;color:var(--text-secondary);margin:0 0 8px;">Live Preview</p>
+                    <div class="preview-row" id="themePreview">
+                        <span class="preview-box bg-primary">Primary</span>
+                        <span class="preview-box bg-secondary">Accent</span>
+                        <span class="preview-box bg-card">Card</span>
+                        <span class="preview-box text-primary">Text</span>
+                        <span class="preview-box text-secondary">Secondary</span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-gold">Save Theme</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Customization -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h3><i class="fas fa-columns"></i> Dashboard Layout</h3>
+        </div>
+        <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div class="form-group">
+                    <label for="sidebar_position">Sidebar Position</label>
+                    <select class="form-control" id="sidebar_position" disabled>
+                        <option value="left" selected>Left</option>
+                        <option value="right">Right</option>
+                    </select>
+                    <span class="form-hint">Coming soon</span>
+                </div>
+                <div class="form-group">
+                    <label for="sidebar_collapsed">Default Sidebar</label>
+                    <select class="form-control" id="sidebar_collapsed" disabled>
+                        <option value="expanded" selected>Expanded</option>
+                        <option value="collapsed">Collapsed</option>
+                    </select>
+                    <span class="form-hint">Coming soon</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectTheme(theme) {
+    document.querySelectorAll('.theme-option').forEach(function(el) {
+        el.classList.remove('selected');
+    });
+    var selected = document.querySelector('.theme-option[data-theme="' + theme + '"]');
+    if (selected) {
+        selected.classList.add('selected');
+    }
+    document.getElementById('selectedTheme').value = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var currentTheme = document.getElementById('selectedTheme').value || 'light';
+    selectTheme(currentTheme);
+});
+</script>
+{% endblock %}

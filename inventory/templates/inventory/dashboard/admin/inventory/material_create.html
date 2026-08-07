@@ -1,0 +1,386 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Create Material - Inventory - Caldan Construction{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   MATERIAL CREATE — PREMIUM ADMIN
+   ================================================================ */
+
+.material-form-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+/* ---- Hero ---- */
+.project-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+.project-hero::before {
+    content: ''; position: absolute; top: -100%; right: -10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 65%);
+    border-radius: 50%; pointer-events: none;
+}
+.hero-main { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; position: relative; z-index: 1; }
+.hero-icon {
+    width: 56px; height: 56px;
+    border-radius: var(--r-md);
+    background: rgba(212, 175, 55, 0.18);
+    border: 1.5px solid rgba(212, 175, 55, 0.3);
+    backdrop-filter: blur(10px);
+    color: var(--brand-gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+}
+.hero-info { flex: 1; min-width: 240px; }
+.hero-title { font-size: 24px; font-weight: 800; color: #fff; margin: 0 0 4px; letter-spacing: -0.3px; }
+.hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.85); margin: 0; }
+.hero-actions { display: flex; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; }
+
+.btn { padding: 8px 16px; border: none; border-radius: var(--r-sm); font-size: 12px; font-weight: 600; cursor: pointer; transition: all var(--t-fast) var(--ease-spring); font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.2px; }
+.btn-light { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); }
+.btn-light:hover { background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.3); transform: translateY(-1px); }
+.btn-primary { background: var(--brand-gold); color: var(--brand-navy); box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3); }
+.btn-primary:hover { background: var(--brand-gold-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4); }
+.btn-outline { background: transparent; border: 1px solid var(--border-default); color: var(--text-secondary); }
+.btn-outline:hover { background: var(--bg-secondary); border-color: var(--border-strong); color: var(--text-primary); }
+
+/* ---- Breadcrumb ---- */
+.breadcrumb-bar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-tertiary); }
+.breadcrumb-bar a { color: var(--text-secondary); text-decoration: none; }
+.breadcrumb-bar a:hover { color: var(--brand-gold-deep); }
+.breadcrumb-bar i.sep { font-size: 9px; }
+.breadcrumb-bar .current { color: var(--text-primary); font-weight: 600; }
+
+/* ---- Form card ---- */
+.form-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+.form-section {
+    padding: 22px 26px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+.form-section:last-child { border-bottom: 0; }
+
+.section-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+.section-header i {
+    color: var(--brand-gold);
+    width: 30px; height: 30px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px;
+}
+.section-header h3 {
+    font-size: 14px; font-weight: 700; color: var(--text-primary);
+    margin: 0; text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+/* ---- Form grid ---- */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+.form-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.form-grid.cols-1 { grid-template-columns: 1fr; }
+
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-field.full { grid-column: 1 / -1; }
+
+.form-field label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.form-field label .req { color: var(--sem-danger); margin-left: 2px; }
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+.form-field textarea { resize: vertical; min-height: 90px; }
+
+.form-field .help-text { font-size: 11px; color: var(--text-tertiary); }
+.form-field .errors { font-size: 12px; color: var(--sem-danger); margin-top: 2px; }
+.form-field input.is-invalid,
+.form-field select.is-invalid { border-color: var(--sem-danger); }
+
+.form-field .form-check {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-canvas);
+    transition: all var(--t-fast);
+}
+.form-field .form-check:hover { border-color: var(--brand-gold); }
+.form-field .form-check input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--brand-gold); margin: 0; }
+.form-field .form-check label { text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--text-primary); cursor: pointer; }
+
+/* ---- Form actions ---- */
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 26px;
+    background: var(--bg-canvas);
+    border-top: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+}
+.form-actions .spacer { flex: 1; }
+
+/* ---- Animations ---- */
+.project-hero, .form-card { animation: fade-up 0.4s ease both; }
+@keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ---- Responsive ---- */
+@media (max-width: 1100px) {
+    .form-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+    .project-hero { padding: 22px; }
+    .hero-title { font-size: 20px; }
+    .hero-icon { width: 44px; height: 44px; font-size: 18px; }
+    .form-grid, .form-grid.cols-2 { grid-template-columns: 1fr; }
+    .form-section { padding: 18px 18px; }
+    .form-actions { padding: 14px 18px; }
+}
+@media (max-width: 480px) {
+    .hero-actions { width: 100%; }
+    .hero-actions .btn { flex: 1; justify-content: center; }
+    .form-actions { flex-direction: column; align-items: stretch; }
+    .form-actions .btn { justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .project-hero, .form-card { animation: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="material-form-page">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+        <a href="{% url 'inventory:materials_list' %}">Materials</a>
+        <i class="fas fa-chevron-right sep"></i>
+        <span class="current">Create Material</span>
+    </div>
+
+    <!-- Hero -->
+    <div class="project-hero">
+        <div class="hero-main">
+            <div class="hero-icon"><i class="fas fa-plus-circle"></i></div>
+            <div class="hero-info">
+                <h1 class="hero-title">Create Material</h1>
+                <p class="hero-sub">Add a new material to your inventory</p>
+            </div>
+            <div class="hero-actions">
+                <a href="{% url 'inventory:materials_list' %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left"></i> Back to Materials
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form method="post" enctype="multipart/form-data" class="form-card">
+        {% csrf_token %}
+
+        <!-- Section: Basic Info -->
+        <div class="form-section">
+            <div class="section-header">
+                <i class="fas fa-info-circle"></i>
+                <h3>Basic Information</h3>
+            </div>
+            <div class="form-grid">
+                <div class="form-field full">
+                    <label for="{{ form.name.id_for_label }}">Name{% if form.name.field.required %} <span class="req">*</span>{% endif %}</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}<div class="errors">{{ form.name.errors }}</div>{% endif %}
+                    {% if form.name.help_text %}<div class="help-text">{{ form.name.help_text }}</div>{% endif %}
+                </div>
+                <div class="form-field">
+                    <label for="{{ form.category.id_for_label }}">Category{% if form.category.field.required %} <span class="req">*</span>{% endif %}</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}<div class="errors">{{ form.category.errors }}</div>{% endif %}
+                </div>
+                <div class="form-field">
+                    <label for="{{ form.unit.id_for_label }}">Unit{% if form.unit.field.required %} <span class="req">*</span>{% endif %}</label>
+                    {{ form.unit }}
+                    {% if form.unit.errors %}<div class="errors">{{ form.unit.errors }}</div>{% endif %}
+                </div>
+                <div class="form-field">
+                    <label for="{{ form.sku.id_for_label }}">SKU</label>
+                    {{ form.sku }}
+                    {% if form.sku.errors %}<div class="errors">{{ form.sku.errors }}</div>{% endif %}
+                    {% if form.sku.help_text %}<div class="help-text">{{ form.sku.help_text }}</div>{% endif %}
+                </div>
+                <div class="form-field full">
+                    <label for="{{ form.description.id_for_label }}">Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}<div class="errors">{{ form.description.errors }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Stock Levels -->
+        <div class="form-section">
+            <div class="section-header">
+                <i class="fas fa-cubes"></i>
+                <h3>Stock Levels</h3>
+            </div>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="{{ form.current_quantity.id_for_label }}">Current Quantity</label>
+                    {{ form.current_quantity }}
+                    {% if form.current_quantity.errors %}<div class="errors">{{ form.current_quantity.errors }}</div>{% endif %}
+                    {% if form.current_quantity.help_text %}<div class="help-text">{{ form.current_quantity.help_text }}</div>{% endif %}
+                </div>
+                <div class="form-field">
+                    <label for="{{ form.minimum_threshold.id_for_label }}">Minimum Threshold</label>
+                    {{ form.minimum_threshold }}
+                    {% if form.minimum_threshold.errors %}<div class="errors">{{ form.minimum_threshold.errors }}</div>{% endif %}
+                    {% if form.minimum_threshold.help_text %}<div class="help-text">{{ form.minimum_threshold.help_text }}</div>{% endif %}
+                </div>
+                <div class="form-field">
+                    <label for="{{ form.reorder_quantity.id_for_label }}">Reorder Quantity</label>
+                    {{ form.reorder_quantity }}
+                    {% if form.reorder_quantity.errors %}<div class="errors">{{ form.reorder_quantity.errors }}</div>{% endif %}
+                    {% if form.reorder_quantity.help_text %}<div class="help-text">{{ form.reorder_quantity.help_text }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Pricing & Supplier -->
+        <div class="form-section">
+            <div class="section-header">
+                <i class="fas fa-money-bill-wave"></i>
+                <h3>Pricing & Supplier</h3>
+            </div>
+            <div class="form-grid cols-2">
+                <div class="form-field">
+                    <label for="{{ form.unit_cost.id_for_label }}">Unit Cost (KES)</label>
+                    {{ form.unit_cost }}
+                    {% if form.unit_cost.errors %}<div class="errors">{{ form.unit_cost.errors }}</div>{% endif %}
+                    {% if form.unit_cost.help_text %}<div class="help-text">{{ form.unit_cost.help_text }}</div>{% endif %}
+                </div>
+                <div class="form-field">
+                    <label for="{{ form.supplier.id_for_label }}">Supplier</label>
+                    {{ form.supplier }}
+                    {% if form.supplier.errors %}<div class="errors">{{ form.supplier.errors }}</div>{% endif %}
+                    {% if form.supplier.help_text %}<div class="help-text">{{ form.supplier.help_text }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Shop Settings -->
+        <div class="form-section">
+            <div class="section-header">
+                <i class="fas fa-shop"></i>
+                <h3>Shop Settings</h3>
+            </div>
+            <div class="form-grid cols-2">
+                <div class="form-field">
+                    <div class="form-check">
+                        {{ form.is_available_in_shop }}
+                        <label for="{{ form.is_available_in_shop.id_for_label }}">Available in Shop</label>
+                    </div>
+                    {% if form.is_available_in_shop.help_text %}<div class="help-text">{{ form.is_available_in_shop.help_text }}</div>{% endif %}
+                </div>
+                <div class="form-field" id="shopPriceField">
+                    <label for="{{ form.shop_price.id_for_label }}">Shop Price (KES)</label>
+                    {{ form.shop_price }}
+                    {% if form.shop_price.errors %}<div class="errors">{{ form.shop_price.errors }}</div>{% endif %}
+                    {% if form.shop_price.help_text %}<div class="help-text">{{ form.shop_price.help_text }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Status -->
+        <div class="form-section">
+            <div class="section-header">
+                <i class="fas fa-toggle-on"></i>
+                <h3>Status</h3>
+            </div>
+            <div class="form-grid cols-2">
+                <div class="form-field">
+                    <div class="form-check">
+                        {{ form.is_active }}
+                        <label for="{{ form.is_active.id_for_label }}">Active</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Create Material
+            </button>
+            <a href="{% url 'inventory:materials_list' %}" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var shopCheckbox = document.getElementById('id_is_available_in_shop');
+    var shopPriceField = document.getElementById('shopPriceField');
+    function toggleShopPrice() {
+        if (shopCheckbox && shopPriceField) {
+            shopPriceField.style.display = shopCheckbox.checked ? 'flex' : 'none';
+        }
+    }
+    if (shopCheckbox) {
+        shopCheckbox.addEventListener('change', toggleShopPrice);
+        toggleShopPrice();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,929 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}{{ project.name }} - Milestones{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   PROJECT MILESTONES — PREMIUM ADMIN
+   ================================================================ */
+
+.project-milestones {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+/* ---- Hero ---- */
+.project-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.project-hero::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.hero-main {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--r-md);
+    background: rgba(212, 175, 55, 0.18);
+    border: 1.5px solid rgba(212, 175, 55, 0.3);
+    backdrop-filter: blur(10px);
+    color: var(--brand-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.hero-info { flex: 1; min-width: 240px; }
+
+.hero-code {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--brand-gold);
+    background: rgba(212, 175, 55, 0.15);
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.hero-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+}
+
+.hero-sub {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.hero-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+/* ---- Tabs ---- */
+.project-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 6px;
+    box-shadow: var(--shadow-xs);
+    overflow-x: auto;
+}
+
+.tab {
+    flex: 1;
+    min-width: 110px;
+    padding: 10px 18px;
+    border-radius: var(--r-md);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    transition: all var(--t-fast) var(--ease-spring);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.tab:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.tab.active {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+/* ---- Stats ---- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: all var(--t-base) var(--ease-spring);
+    border-top: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 50%, var(--stat-accent, transparent) 130%);
+    opacity: 0;
+    transition: opacity var(--t-base) var(--ease-standard);
+    pointer-events: none;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--stat-accent, var(--border-subtle));
+}
+
+.stat-card:hover::after { opacity: 0.06; }
+
+.stat-card.blue   { --stat-accent: var(--brand-blue); border-top-color: var(--brand-blue); }
+.stat-card.gold   { --stat-accent: var(--brand-gold); border-top-color: var(--brand-gold); }
+.stat-card.green  { --stat-accent: var(--sem-success); border-top-color: var(--sem-success); }
+.stat-card.red    { --stat-accent: var(--sem-danger); border-top-color: var(--sem-danger); }
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--r-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: transform var(--t-base) var(--ease-spring);
+}
+
+.stat-card:hover .stat-icon { transform: scale(1.08) rotate(-4deg); }
+
+.stat-icon.blue   { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); }
+.stat-icon.gold   { background: rgba(212, 175, 55, 0.14); color: var(--brand-gold-deep); }
+.stat-icon.green  { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); }
+.stat-icon.red    { background: rgba(185, 52, 43, 0.12); color: var(--sem-danger); }
+
+.stat-body { flex: 1; min-width: 0; }
+.stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+}
+.stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.stat-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+}
+
+/* ---- Inline Add Milestone Panel ---- */
+.add-milestone-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-xs);
+    overflow: hidden;
+    scroll-margin-top: 20px;
+}
+.add-milestone-header {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, transparent 100%);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.add-milestone-header-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--r-sm);
+    background: rgba(212, 175, 55, 0.15);
+    color: var(--brand-gold);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.add-milestone-header h3 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.add-milestone-header p {
+    margin: 2px 0 0;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+.add-milestone-body {
+    padding: 20px;
+}
+.ms-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+.ms-form-grid .ms-form-row-full { grid-column: 1 / -1; }
+.ms-form-field { display: flex; flex-direction: column; gap: 6px; }
+.ms-form-field label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.ms-form-field label .required { color: var(--sem-danger); margin-left: 3px; }
+.ms-form-field input[type="text"],
+.ms-form-field input[type="date"],
+.ms-form-field input[type="number"],
+.ms-form-field input[type="file"],
+.ms-form-field select,
+.ms-form-field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+.ms-form-field input:hover,
+.ms-form-field select:hover,
+.ms-form-field textarea:hover {
+    border-color: var(--border-default);
+    background: var(--bg-card);
+}
+.ms-form-field input:focus,
+.ms-form-field select:focus,
+.ms-form-field textarea:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+.ms-form-field textarea { min-height: 70px; resize: vertical; line-height: 1.5; }
+.ms-form-field .helptext {
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+.ms-form-field .errorlist {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+    font-size: 11px;
+    color: var(--sem-danger);
+    font-weight: 600;
+}
+.add-milestone-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 18px;
+    margin-top: 18px;
+    border-top: 1px solid var(--border-subtle);
+}
+.btn-cancel {
+    padding: 10px 18px;
+    background: var(--bg-canvas);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.btn-cancel:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+.btn-submit {
+    padding: 10px 22px;
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all var(--t-fast) var(--ease-spring);
+}
+.btn-submit:hover {
+    background: var(--brand-gold-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+/* ---- Board ---- */
+.milestone-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.column {
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.column-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.column-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.column-title i {
+    width: 22px;
+    height: 22px;
+    border-radius: var(--r-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+}
+
+.column.completed .column-title i { background: rgba(39, 174, 96, 0.15); color: var(--sem-success); }
+.column.in_progress .column-title i { background: rgba(11, 102, 195, 0.15); color: var(--brand-blue); }
+.column.pending .column-title i { background: var(--bg-secondary); color: var(--text-tertiary); }
+.column.overdue .column-title i { background: rgba(185, 52, 43, 0.15); color: var(--sem-danger); }
+
+.column-count {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    background: var(--bg-canvas);
+    padding: 3px 8px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--border-subtle);
+}
+
+.column-body {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 200px;
+}
+
+/* ---- Milestone card ---- */
+.ms-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    padding: 14px;
+    transition: all var(--t-fast) var(--ease-spring);
+    position: relative;
+}
+
+.ms-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--brand-gold);
+    box-shadow: var(--shadow-md);
+}
+
+.ms-card.overdue {
+    border-left: 3px solid var(--sem-danger);
+}
+
+.ms-card.completed {
+    border-left: 3px solid var(--sem-success);
+    opacity: 0.92;
+}
+
+.ms-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 8px;
+    line-height: 1.4;
+}
+
+.ms-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.ms-meta i {
+    color: var(--brand-gold);
+    width: 12px;
+}
+
+.ms-progress {
+    height: 6px;
+    background: var(--bg-canvas);
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.ms-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--brand-gold) 0%, var(--brand-gold-hover) 100%);
+    border-radius: var(--r-pill);
+    transition: width 0.6s ease;
+}
+
+.ms-progress-text {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--brand-gold-deep);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ---- Empty state ---- */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: var(--bg-card);
+    border: 1px dashed var(--border-default);
+    border-radius: var(--r-lg);
+}
+
+.empty-state-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin-bottom: 16px;
+}
+
+.empty-state h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 6px;
+}
+
+.empty-state p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 18px;
+}
+
+/* ---- Buttons ---- */
+.btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.3px;
+}
+
+.btn-primary {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary:hover {
+    background: var(--brand-gold-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-ghost {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ---- Animations ---- */
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.project-hero, .stat-card, .column { animation: fade-up 0.4s ease both; }
+.column:nth-child(2) { animation-delay: 0.05s; }
+.column:nth-child(3) { animation-delay: 0.1s; }
+.column:nth-child(4) { animation-delay: 0.15s; }
+
+/* ---- Responsive ---- */
+@media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .milestone-board { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 18px; }
+    .stat-icon { width: 40px; height: 40px; font-size: 16px; }
+    .project-hero { padding: 22px; }
+    .hero-title { font-size: 20px; }
+    .hero-icon { width: 44px; height: 44px; font-size: 18px; }
+    .milestone-board { grid-template-columns: 1fr; }
+    .project-tabs { flex-wrap: nowrap; }
+    .tab { min-width: 90px; padding: 8px 12px; font-size: 11px; }
+    .ms-form-grid { grid-template-columns: 1fr; }
+    .add-milestone-body { padding: 16px; }
+    .add-milestone-actions { flex-direction: column-reverse; }
+    .btn-cancel, .btn-submit { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .project-hero, .stat-card, .column, .ms-card { animation: none; }
+    .ms-card:hover { transform: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="project-milestones">
+
+    <!-- Hero -->
+    <div class="project-hero">
+        <div class="hero-main">
+            <div class="hero-icon"><i class="fas fa-flag-checkered"></i></div>
+            <div class="hero-info">
+                <span class="hero-code"><i class="fas fa-hashtag"></i>{{ project.project_code }}</span>
+                <h1 class="hero-title">{{ project.name }} — Milestones</h1>
+                <p class="hero-sub">Track project deliverables, deadlines, and completion status</p>
+            </div>
+        </div>
+        <div class="hero-actions">
+            <a href="{% url 'admin_projects:project_detail' project.id %}" class="btn btn-ghost">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <a href="#add-milestone" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Milestone
+            </a>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="project-tabs">
+        <a href="{% url 'admin_projects:project_detail' project.id %}" class="tab">
+            <i class="fas fa-info-circle"></i> Overview
+        </a>
+        <a href="{% url 'admin_projects:project_progress' project.id %}" class="tab">
+            <i class="fas fa-chart-bar"></i> Progress
+        </a>
+        <a href="{% url 'admin_projects:project_milestones' project.id %}" class="tab active">
+            <i class="fas fa-flag-checkered"></i> Milestones
+        </a>
+        <a href="{% url 'admin_projects:project_timeline' project.id %}" class="tab">
+            <i class="fas fa-calendar-alt"></i> Timeline
+        </a>
+        <a href="{% url 'admin_projects:project_budget' project.id %}" class="tab">
+            <i class="fas fa-money-bill-wave"></i> Budget
+        </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-flag"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ milestones.count }}</div>
+                <div class="stat-label">Total Milestones</div>
+                <div class="stat-sub">All deliverables</div>
+            </div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ completed_count|default:0 }}</div>
+                <div class="stat-label">Completed</div>
+                <div class="stat-sub">Finished</div>
+            </div>
+        </div>
+        <div class="stat-card gold">
+            <div class="stat-icon gold"><i class="fas fa-spinner"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ in_progress_count|default:0 }}</div>
+                <div class="stat-label">In Progress</div>
+                <div class="stat-sub">Currently active</div>
+            </div>
+        </div>
+        <div class="stat-card red">
+            <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ overdue_count|default:0 }}</div>
+                <div class="stat-label">Overdue</div>
+                <div class="stat-sub">Needs attention</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Milestone Form Panel -->
+    <div id="add-milestone" class="add-milestone-panel">
+        <div class="add-milestone-header">
+            <div class="add-milestone-header-icon"><i class="fas fa-plus"></i></div>
+            <div>
+                <h3>Add New Milestone</h3>
+                <p>Define a new deliverable, deadline, or completion checkpoint for this project</p>
+            </div>
+        </div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="add-milestone-body">
+                <div class="ms-form-grid">
+                    <div class="ms-form-field ms-form-row-full">
+                        <label for="{{ form.title.id_for_label }}">Milestone Title<span class="required">*</span></label>
+                        {{ form.title }}
+                        {% if form.title.errors %}<ul class="errorlist">{{ form.title.errors }}</ul>{% endif %}
+                    </div>
+                    <div class="ms-form-field ms-form-row-full">
+                        <label for="{{ form.description.id_for_label }}">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}<ul class="errorlist">{{ form.description.errors }}</ul>{% endif %}
+                    </div>
+                    <div class="ms-form-field">
+                        <label for="{{ form.target_date.id_for_label }}">Target Date<span class="required">*</span></label>
+                        {{ form.target_date }}
+                        {% if form.target_date.errors %}<ul class="errorlist">{{ form.target_date.errors }}</ul>{% endif %}
+                    </div>
+                    <div class="ms-form-field">
+                        <label for="{{ form.completed_date.id_for_label }}">Completed Date</label>
+                        {{ form.completed_date }}
+                        {% if form.completed_date.errors %}<ul class="errorlist">{{ form.completed_date.errors }}</ul>{% endif %}
+                    </div>
+                    <div class="ms-form-field">
+                        <label for="{{ form.completion_percentage.id_for_label }}">Completion (%)</label>
+                        {{ form.completion_percentage }}
+                        {% if form.completion_percentage.help_text %}<span class="helptext">{{ form.completion_percentage.help_text }}</span>{% endif %}
+                        {% if form.completion_percentage.errors %}<ul class="errorlist">{{ form.completion_percentage.errors }}</ul>{% endif %}
+                    </div>
+                    <div class="ms-form-field">
+                        <label for="{{ form.status.id_for_label }}">Status</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}<ul class="errorlist">{{ form.status.errors }}</ul>{% endif %}
+                    </div>
+                    <div class="ms-form-field">
+                        <label for="{{ form.order.id_for_label }}">Order</label>
+                        {{ form.order }}
+                        {% if form.order.help_text %}<span class="helptext">{{ form.order.help_text }}</span>{% endif %}
+                        {% if form.order.errors %}<ul class="errorlist">{{ form.order.errors }}</ul>{% endif %}
+                    </div>
+                    <div class="ms-form-field">
+                        <label for="{{ form.photo.id_for_label }}">Photo</label>
+                        {{ form.photo }}
+                        {% if form.photo.errors %}<ul class="errorlist">{{ form.photo.errors }}</ul>{% endif %}
+                    </div>
+                    <div class="ms-form-field ms-form-row-full">
+                        <label for="{{ form.notes.id_for_label }}">Notes</label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}<ul class="errorlist">{{ form.notes.errors }}</ul>{% endif %}
+                    </div>
+                </div>
+                <div class="add-milestone-actions">
+                    <a href="{% url 'admin_projects:project_milestones' project.id %}" class="btn-cancel">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-flag-checkered"></i> Create Milestone
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Board -->
+    {% if milestones %}
+        <div class="milestone-board">
+            <div class="column pending">
+                <div class="column-header">
+                    <h3 class="column-title"><i class="fas fa-clock"></i> Pending</h3>
+                    <span class="column-count">{{ pending_count|default:0 }}</span>
+                </div>
+                <div class="column-body">
+                    {% for m in milestones %}
+                        {% if m.status == 'PENDING' %}
+                            <div class="ms-card">
+                                <h4 class="ms-title">{{ m.title }}</h4>
+                                <div class="ms-meta">
+                                    <i class="far fa-calendar-alt"></i>
+                                    Target: {{ m.target_date|date:"M d, Y"|default:'TBD' }}
+                                </div>
+                                <div class="ms-progress">
+                                    <div class="ms-progress-bar" style="width: {{ m.completion_percentage|default:0 }}%"></div>
+                                </div>
+                                <div class="ms-progress-text">
+                                    <span>{{ m.completion_percentage|default:0|floatformat:0 }}%</span>
+                                    <span style="color:var(--brand-gold-deep);">
+                                        <i class="fas fa-edit"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="column in_progress">
+                <div class="column-header">
+                    <h3 class="column-title"><i class="fas fa-spinner"></i> In Progress</h3>
+                    <span class="column-count">{{ in_progress_count|default:0 }}</span>
+                </div>
+                <div class="column-body">
+                    {% for m in milestones %}
+                        {% if m.status == 'IN_PROGRESS' %}
+                            <div class="ms-card">
+                                <h4 class="ms-title">{{ m.title }}</h4>
+                                <div class="ms-meta">
+                                    <i class="far fa-calendar-alt"></i>
+                                    Target: {{ m.target_date|date:"M d, Y"|default:'TBD' }}
+                                </div>
+                                <div class="ms-progress">
+                                    <div class="ms-progress-bar" style="width: {{ m.completion_percentage|default:0 }}%"></div>
+                                </div>
+                                <div class="ms-progress-text">
+                                    <span>{{ m.completion_percentage|default:0|floatformat:0 }}%</span>
+                                    <span style="color:var(--brand-gold-deep);">
+                                        <i class="fas fa-edit"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="column completed">
+                <div class="column-header">
+                    <h3 class="column-title"><i class="fas fa-check"></i> Completed</h3>
+                    <span class="column-count">{{ completed_count|default:0 }}</span>
+                </div>
+                <div class="column-body">
+                    {% for m in milestones %}
+                        {% if m.status == 'COMPLETED' %}
+                            <div class="ms-card completed">
+                                <h4 class="ms-title">{{ m.title }}</h4>
+                                <div class="ms-meta">
+                                    <i class="far fa-calendar-check"></i>
+                                    Done: {{ m.completed_date|date:"M d, Y"|default:'—' }}
+                                </div>
+                                <div class="ms-progress">
+                                    <div class="ms-progress-bar" style="width: 100%"></div>
+                                </div>
+                                <div class="ms-progress-text">
+                                    <span style="color:var(--sem-success);">100%</span>
+                                    <span style="color:var(--text-tertiary);">
+                                        <i class="fas fa-edit"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="column overdue">
+                <div class="column-header">
+                    <h3 class="column-title"><i class="fas fa-exclamation"></i> Overdue</h3>
+                    <span class="column-count">{{ overdue_count|default:0 }}</span>
+                </div>
+                <div class="column-body">
+                    {% for m in milestones %}
+                        {% if m.status == 'OVERDUE' %}
+                            <div class="ms-card overdue">
+                                <h4 class="ms-title">{{ m.title }}</h4>
+                                <div class="ms-meta">
+                                    <i class="far fa-calendar-alt"></i>
+                                    Was due: {{ m.target_date|date:"M d, Y"|default:'TBD' }}
+                                </div>
+                                <div class="ms-progress">
+                                    <div class="ms-progress-bar" style="width: {{ m.completion_percentage|default:0 }}%; background: linear-gradient(90deg, var(--sem-danger) 0%, #e74c3c 100%);"></div>
+                                </div>
+                                <div class="ms-progress-text">
+                                    <span style="color:var(--sem-danger);">{{ m.completion_percentage|default:0|floatformat:0 }}%</span>
+                                    <span style="color:var(--sem-danger);">
+                                        <i class="fas fa-edit"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="fas fa-flag-checkered"></i></div>
+            <h3>No milestones yet</h3>
+            <p>Add the first milestone to start tracking project deliverables.</p>
+            <a href="#add-milestone" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create First Milestone
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

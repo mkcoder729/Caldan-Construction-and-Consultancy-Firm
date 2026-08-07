@@ -1,0 +1,96 @@
+<section class="projects-showcase" style="padding: 96px 0; background: var(--bg-primary);">
+    <div class="container">
+
+        <div class="section-head" style="text-align: center; margin-bottom: 48px;">
+            <p class="eyebrow" style="color: var(--accent-secondary); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;">Our work</p>
+            <h2 class="section-title" style="font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Featured Projects</h2>
+            <p class="section-subtitle" style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">Explore some of our recent construction projects across Kenya.</p>
+        </div>
+
+        <div class="projects-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px;">
+
+            {% for project in featured_projects %}
+            <div class="project-card" style="background: var(--bg-card); border-radius: 16px; overflow: hidden; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid var(--border-primary);">
+
+                <!-- Image -->
+                <div class="project-image" style="position: relative; overflow: hidden; height: 240px; background: var(--bg-secondary);">
+                    {% if project.cover_photo %}
+                        <img src="{{ project.cover_photo.url }}" alt="{{ project.name }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease;">
+                    {% else %}
+                        <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600&h=400&fit=crop&q=80" alt="{{ project.name }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease;">
+                    {% endif %}
+
+                    <!-- Status Badge -->
+                    <span class="project-status" style="position: absolute; top: 16px; right: 16px; padding: 6px 18px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; backdrop-filter: blur(8px);
+                        {% if project.status == 'COMPLETED' %}background: rgba(39, 174, 96, 0.9); color: #FFFFFF;
+                        {% elif project.status == 'ACTIVE' %}background: rgba(11, 102, 195, 0.9); color: #FFFFFF;
+                        {% elif project.status == 'ON_HOLD' %}background: rgba(243, 156, 18, 0.9); color: #FFFFFF;
+                        {% else %}background: rgba(107, 114, 128, 0.9); color: #FFFFFF;{% endif %}">
+                        {{ project.get_status_display }}
+                    </span>
+                </div>
+
+                <!-- Content -->
+                <div style="padding: 24px 28px 28px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+                        <span style="font-size: 0.75rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500;">{{ project.category|default:"Construction" }}</span>
+                    </div>
+                    <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">{{ project.name }}</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 12px;">
+                        <i class="fas fa-map-marker-alt" style="color: var(--accent-secondary); margin-right: 6px; font-size: 0.8rem;"></i>
+                        {{ project.town }}, {{ project.county }}
+                    </p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.85rem; color: var(--text-secondary);">
+                            {% if project.status == 'COMPLETED' %}
+                            <i class="fas fa-check-circle" style="color: #27AE60;"></i> Completed
+                            {% elif project.status == 'ACTIVE' %}
+                            <i class="fas fa-spinner" style="color: #0B66C3;"></i> In Progress
+                            {% else %}
+                            <i class="fas fa-clock" style="color: #F39C12;"></i> {{ project.get_status_display }}
+                            {% endif %}
+                        </span>
+                        <a href="{% url 'website:project_detail' project.id %}" style="display: inline-flex; align-items: center; gap: 6px; color: var(--accent-primary); font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: all 0.3s ease;">
+                            View Project <i class="fas fa-arrow-right" style="font-size: 0.75rem; transition: transform 0.3s ease;"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            {% empty %}
+            <div style="text-align: center; padding: 60px 20px; color: var(--text-secondary); grid-column: 1 / -1; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-primary);">
+                <i class="fas fa-building" style="font-size: 2.5rem; color: var(--border-primary); margin-bottom: 16px; display: block;"></i>
+                <p>No featured projects available.</p>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <div style="text-align: center; margin-top: 48px;">
+            <a href="{% url 'website:projects' %}" class="btn btn-primary btn-lg" style="display: inline-flex; align-items: center; gap: 10px; padding: 14px 36px; background: var(--accent-primary); color: #FFFFFF; border-radius: 10px; font-weight: 600; text-decoration: none; transition: all 0.3s ease;">
+                View All Projects <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+    </div>
+</section>
+
+<style>
+    .project-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.10);
+        border-color: var(--accent-secondary) !important;
+    }
+    .project-card:hover .project-image img {
+        transform: scale(1.05);
+    }
+    .project-card:hover .fa-arrow-right {
+        transform: translateX(6px);
+    }
+
+    @media (max-width: 768px) {
+        .projects-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
+        .project-image { height: 200px !important; }
+        .project-card .flex-between { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+    }
+</style>

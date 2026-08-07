@@ -1,0 +1,100 @@
+{% extends "pdf/_base_report.html" %}
+
+{% block badge %}PROJECT REPORT{% endblock %}
+
+{% block title %}{{ project.name }} <span>Report</span>{% endblock %}
+
+{% block meta_extra %}
+  <span><strong>Project Code:</strong> {{ project.project_code }}</span>
+{% endblock %}
+
+{% block content %}
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="label">Status</div>
+      <div class="value">{{ project.get_status_display }}</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Location</div>
+      <div class="value" style="font-size: 11pt;">{{ project.location|default:"—" }}, {{ project.town|default:"" }}</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Days Active</div>
+      <div class="value">{{ project.days_active|default:0 }}</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Progress</div>
+      <div class="value gold">{{ project.progress|floatformat:0 }}%</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Project Information</h2>
+    <div class="breakdown-grid">
+      <div class="breakdown-box">
+        <h3>Details</h3>
+        <div class="item"><span class="name">Status</span><span class="amount">{{ project.get_status_display }}</span></div>
+        <div class="item"><span class="name">Location</span><span class="amount">{{ project.location|default:"—" }}</span></div>
+        <div class="item"><span class="name">County</span><span class="amount">{{ project.county|default:"—" }}</span></div>
+        <div class="item"><span class="name">Town</span><span class="amount">{{ project.town|default:"—" }}</span></div>
+      </div>
+      <div class="breakdown-box">
+        <h3>Timeline</h3>
+        <div class="item"><span class="name">Start Date</span><span class="amount">{{ project.start_date|date:"M d, Y"|default:"—" }}</span></div>
+        <div class="item"><span class="name">Est. Completion</span><span class="amount">{{ project.estimated_completion|date:"M d, Y"|default:"Not set" }}</span></div>
+        <div class="item"><span class="name">Days Active</span><span class="amount">{{ project.days_active|default:0 }} days</span></div>
+        <div class="item"><span class="name">Progress</span><span class="amount">{{ project.progress|floatformat:0 }}%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Milestones</h2>
+    {% if milestones %}
+    <table>
+      <thead>
+        <tr>
+          <th>Milestone</th>
+          <th class="text-right">Target Date</th>
+          <th class="text-right">Progress</th>
+          <th class="text-right">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for milestone in milestones %}
+        <tr>
+          <td><strong>{{ milestone.title }}</strong></td>
+          <td class="text-right">{{ milestone.target_date|date:"M d, Y" }}</td>
+          <td class="text-right">{{ milestone.completion_percentage|floatformat:0 }}%</td>
+          <td class="text-right">
+            {% if milestone.status == 'COMPLETED' %}
+              <span class="pill pill-success">{{ milestone.get_status_display }}</span>
+            {% elif milestone.status == 'OVERDUE' %}
+              <span class="pill pill-danger">{{ milestone.get_status_display }}</span>
+            {% else %}
+              <span class="pill pill-warning">{{ milestone.get_status_display }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="text-align: right; font-size: 9pt; margin-top: 6px; opacity: 0.5;">
+      {{ milestones|length }} milestones · {{ completed_milestones }} completed · {{ overdue_milestones }} overdue
+    </p>
+    {% else %}
+    <div class="empty">No milestones defined.</div>
+    {% endif %}
+  </div>
+
+  <div class="section">
+    <h2>Financial Summary</h2>
+    <div class="summary-box">
+      <div class="row"><span class="label">Total Budget</span><span class="value">KES {{ total_budget|floatformat:2 }}</span></div>
+      <div class="row"><span class="label">Total Spent</span><span class="value">KES {{ total_spent|floatformat:2 }}</span></div>
+      <div class="row"><span class="label">Remaining</span><span class="value">KES {{ remaining_budget|floatformat:2 }}</span></div>
+      <div class="row"><span class="label">Budget Used</span><span class="value">{{ budget_used_percentage|floatformat:0 }}%</span></div>
+      <div class="row total"><span class="label">Net Position</span><span class="value">KES {{ net_position|floatformat:2 }}</span></div>
+    </div>
+  </div>
+{% endblock %}

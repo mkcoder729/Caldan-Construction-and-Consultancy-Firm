@@ -1,0 +1,269 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}General Settings - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+.settings-page {
+    max-width: 720px;
+}
+
+.page-hero {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 20px; flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative; overflow: hidden;
+    margin-bottom: 24px;
+}
+.page-hero::before {
+    content: ''; position: absolute; top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%; pointer-events: none;
+}
+.page-hero-main {
+    display: flex; align-items: center; gap: 16px;
+    flex: 1; min-width: 240px; position: relative; z-index: 1;
+}
+.page-hero-icon {
+    width: 52px; height: 52px; border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+}
+.page-hero-title {
+    font-size: 22px; font-weight: 800; color: #fff;
+    margin: 0 0 4px; letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 10px;
+}
+.page-hero-title i { color: var(--brand-gold); }
+.page-hero-sub { font-size: 13px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+.settings-card {
+    background: var(--bg-card);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.settings-card .card-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.settings-card .card-header h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-card .card-body {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.form-hint {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    display: block;
+}
+
+.form-control {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-md);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: border-color var(--t-fast) var(--ease-standard),
+                box-shadow var(--t-fast) var(--ease-standard),
+                background var(--t-fast) var(--ease-standard);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.12);
+    background: var(--bg-card);
+}
+
+.form-control:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.system-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.system-info-item {
+    padding: 8px 0;
+}
+
+.system-info-item .info-label {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.system-info-item .info-value {
+    font-weight: 600;
+    margin: 2px 0 0;
+    color: var(--text-primary);
+}
+
+@media (max-width: 640px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .system-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-card .card-body {
+        padding: 16px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-page settings-page">
+    <div class="page-hero">
+        <div class="page-hero-main">
+            <div class="page-hero-icon"><i class="fas fa-cog"></i></div>
+            <div>
+                <h1 class="page-hero-title">General Settings</h1>
+                <p class="page-hero-sub">Manage your platform configuration and preferences</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Settings -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h3><i class="fas fa-server"></i> System Configuration</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'dashboard:general_settings' %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="site_name">Site Name</label>
+                    <input type="text" class="form-control" id="site_name"
+                           value="Caldan Construction and Consultancy Firm" disabled>
+                    <span class="form-hint">System-wide site name</span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="timezone">Time Zone</label>
+                        <select class="form-control" id="timezone" disabled>
+                            <option value="Africa/Nairobi" selected>Africa/Nairobi (EAT)</option>
+                        </select>
+                        <span class="form-hint">System time zone</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="currency">Currency</label>
+                        <select class="form-control" id="currency" disabled>
+                            <option value="KES" selected>Kenyan Shilling (KES)</option>
+                        </select>
+                        <span class="form-hint">System currency</span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" disabled>Save changes</button>
+                    <span style="font-size:0.8rem;color:var(--text-tertiary);display:flex;align-items:center;gap:6px;">
+                        <i class="fas fa-lock"></i> System settings are read-only
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- System Info -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h3><i class="fas fa-info-circle"></i> System Information</h3>
+        </div>
+        <div class="card-body">
+            <div class="system-info-grid">
+                <div class="system-info-item">
+                    <div class="info-label">Version</div>
+                    <p class="info-value">{{ settings.DASHBOARD_VERSION|default:'1.0.0' }}</p>
+                </div>
+                <div class="system-info-item">
+                    <div class="info-label">Environment</div>
+                    <p class="info-value">{{ settings.ENVIRONMENT|default:'Production' }}</p>
+                </div>
+                <div class="system-info-item">
+                    <div class="info-label">Database</div>
+                    <p class="info-value">MySQL 8.0</p>
+                </div>
+                <div class="system-info-item">
+                    <div class="info-label">Python</div>
+                    <p class="info-value">{{ settings.PYTHON_VERSION|default:'3.11+' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

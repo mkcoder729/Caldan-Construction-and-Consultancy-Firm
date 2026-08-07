@@ -1,0 +1,687 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}Project Report - Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ================================================================
+   PROJECT REPORT — PREMIUM ADMIN
+   ================================================================ */
+
+.report-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+.page-header {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.page-header-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+    z-index: 1;
+}
+
+.page-header-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.page-header-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-header-title i { color: var(--brand-gold); font-size: 22px; }
+.page-header-sub { font-size: 13px; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+.page-header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.selector-bar {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 14px 18px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: var(--shadow-xs);
+}
+
+.selector-label {
+    font-weight: 700;
+    color: var(--text-secondary);
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.selector-label i { color: var(--brand-gold-deep); }
+
+.selector-select {
+    flex: 1;
+    min-width: 220px;
+    padding: 10px 14px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.selector-select:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+}
+
+.section-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.section-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.section-title i {
+    color: var(--brand-gold);
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.section-badge {
+    padding: 4px 12px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--brand-gold-deep);
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.section-body { padding: 20px 22px; }
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+}
+
+.info-item {
+    padding: 14px;
+    background: var(--bg-canvas);
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-subtle);
+}
+
+.info-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #fff;
+}
+
+.status-pill.active    { background: var(--sem-success); }
+.status-pill.planning  { background: #95A5A6; }
+.status-pill.completed { background: var(--brand-blue); }
+.status-pill.on_hold   { background: var(--brand-gold-deep); }
+.status-pill.cancelled { background: var(--sem-danger); }
+
+.milestone-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.milestone-stat {
+    text-align: center;
+    padding: 14px;
+    background: var(--bg-canvas);
+    border-radius: var(--r-md);
+    border: 1px solid var(--border-subtle);
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.milestone-stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+
+.milestone-stat .num {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+}
+
+.milestone-stat .lbl {
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.milestone-stat.total   .num { color: var(--text-primary); }
+.milestone-stat.done    { background: rgba(39, 174, 96, 0.08); }
+.milestone-stat.done    .num { color: var(--sem-success); }
+.milestone-stat.overdue { background: rgba(185, 52, 43, 0.08); }
+.milestone-stat.overdue .num { color: var(--sem-danger); }
+.milestone-stat.rate    { background: rgba(11, 102, 195, 0.08); }
+.milestone-stat.rate    .num { color: var(--brand-blue); }
+
+.milestone-list {
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+}
+
+.milestone-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background var(--t-fast) var(--ease-standard);
+}
+
+.milestone-row:last-child { border-bottom: none; }
+.milestone-row:hover { background: var(--bg-canvas); }
+
+.milestone-name { font-weight: 600; color: var(--text-primary); font-size: 13px; }
+.milestone-due  { font-size: 11px; color: var(--text-secondary); margin-left: 8px; }
+.milestone-right { display: inline-flex; align-items: center; gap: 8px; }
+
+.milestone-status {
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #fff;
+}
+
+.milestone-status.completed { background: var(--sem-success); }
+.milestone-status.progress  { background: var(--brand-gold-deep); }
+.milestone-status.pending   { background: #95A5A6; }
+.milestone-status.overdue   { background: var(--sem-danger); }
+
+.milestone-pct {
+    font-size: 12px;
+    color: var(--text-primary);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.budget-bar {
+    height: 10px;
+    background: var(--border-default);
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    margin-top: 12px;
+}
+
+.budget-bar .fill {
+    height: 100%;
+    border-radius: var(--r-pill);
+    transition: width 0.3s ease;
+}
+
+.budget-bar .fill.green  { background: var(--sem-success); }
+.budget-bar .fill.yellow { background: var(--brand-gold-deep); }
+.budget-bar .fill.red    { background: var(--sem-danger); }
+
+.budget-legend {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    font-weight: 600;
+}
+
+.chart-container {
+    height: 240px;
+    position: relative;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 40px 20px;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 12px;
+    opacity: 0.3;
+    color: var(--brand-gold);
+}
+
+.empty-state h3 { color: var(--text-primary); font-size: 1.1rem; margin: 0 0 8px; font-weight: 700; }
+
+.export-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    padding: 12px 16px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-spring);
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.2px;
+}
+
+.btn-primary {
+    background: var(--brand-gold);
+    color: var(--brand-navy);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary:hover {
+    background: var(--brand-gold-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-default);
+    color: var(--text-primary);
+}
+
+.btn-ghost {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.section-card { animation: fade-up 0.4s ease both; }
+.section-card:nth-child(2) { animation-delay: 0.05s; }
+.section-card:nth-child(3) { animation-delay: 0.1s; }
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1100px) {
+    .milestone-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .page-header { padding: 20px; }
+    .page-header-title { font-size: 18px; }
+    .page-header-icon { width: 44px; height: 44px; font-size: 18px; }
+    .section-body { padding: 16px; }
+}
+
+@media (max-width: 480px) {
+    .export-bar { flex-direction: column; }
+    .export-bar .btn { width: 100%; justify-content: center; }
+    .milestone-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .section-card { animation: none; }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="report-page">
+
+    <div class="page-header">
+        <div class="page-header-main">
+            <div class="page-header-icon"><i class="fas fa-file-alt"></i></div>
+            <div>
+                <h1 class="page-header-title">Project Report</h1>
+                <p class="page-header-sub">Detailed project progress, budget, and milestone tracking</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="selector-bar">
+        <span class="selector-label"><i class="fas fa-building"></i> Select Project:</span>
+        <select id="project-selector" class="selector-select"
+                onchange="window.location.href='/reports/project/' + this.value + '/'">
+            <option value="">-- Select a project --</option>
+            {% for p in projects %}
+            <option value="{{ p.id }}" {% if selected_project and selected_project.id == p.id %}selected{% endif %}>
+                {{ p.name }} ({{ p.project_code }})
+            </option>
+            {% endfor %}
+        </select>
+        {% if selected_project %}
+        <a href="{{ selected_project.get_absolute_url }}" class="btn btn-secondary" target="_blank">
+            <i class="fas fa-external-link-alt"></i> View Project
+        </a>
+        {% endif %}
+    </div>
+
+    {% if report %}
+    <div class="section-card">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fas fa-info-circle"></i> Project Overview</h2>
+            <span class="section-badge">Summary</span>
+        </div>
+        <div class="section-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Project Code</div>
+                    <div class="info-value">{{ report.project.project_code }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Status</div>
+                    <div class="info-value">
+                        <span class="status-pill {{ report.project.status|lower }}">{{ report.project.get_status_display }}</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Location</div>
+                    <div class="info-value">{{ report.project.county }}, {{ report.project.town }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Progress</div>
+                    <div class="info-value">{{ report.project.progress|floatformat:1 }}%</div>
+                </div>
+            </div>
+            {% if report.project.description %}
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-subtle);">
+                <div class="info-label">Description</div>
+                <div style="color: var(--text-primary); margin-top: 6px; font-size: 13px; line-height: 1.6;">{{ report.project.description }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fas fa-flag-checkered"></i> Milestone Progress</h2>
+            <span class="section-badge">Milestones</span>
+        </div>
+        <div class="section-body">
+            <div class="milestone-grid">
+                <div class="milestone-stat total">
+                    <div class="num">{{ report.milestones.total }}</div>
+                    <div class="lbl">Total</div>
+                </div>
+                <div class="milestone-stat done">
+                    <div class="num">{{ report.milestones.completed }}</div>
+                    <div class="lbl">Completed</div>
+                </div>
+                <div class="milestone-stat overdue">
+                    <div class="num">{{ report.milestones.overdue }}</div>
+                    <div class="lbl">Overdue</div>
+                </div>
+                <div class="milestone-stat rate">
+                    <div class="num">{{ report.milestones.completion_rate }}%</div>
+                    <div class="lbl">Completion</div>
+                </div>
+            </div>
+
+            {% if report.milestones.list %}
+            <div class="milestone-list">
+                {% for milestone in report.milestones.list %}
+                <div class="milestone-row">
+                    <div>
+                        <span class="milestone-name">{{ milestone.title }}</span>
+                        <span class="milestone-due">Due: {{ milestone.target_date|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="milestone-right">
+                        <span class="milestone-status {{ milestone.status|lower }}">{{ milestone.get_status_display }}</span>
+                        <span class="milestone-pct">{{ milestone.completion_percentage|floatformat:0 }}%</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No milestones defined for this project.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fas fa-money-bill-wave"></i> Financial Summary</h2>
+            <span class="section-badge">Budget</span>
+        </div>
+        <div class="section-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Total Budget</div>
+                    <div class="info-value">KES {{ report.financial.total_budget|floatformat:0|intcomma }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Total Spent</div>
+                    <div class="info-value" style="color: var(--brand-gold-deep);">KES {{ report.financial.total_spent|floatformat:0|intcomma }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Remaining</div>
+                    <div class="info-value" style="color: var(--sem-success);">KES {{ report.financial.remaining_budget|floatformat:0|intcomma }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Used</div>
+                    <div class="info-value">{{ report.financial.budget_used_percentage }}%</div>
+                </div>
+            </div>
+
+            {% if report.financial.total_budget > 0 %}
+            <div class="budget-bar">
+                <div class="fill {% if report.financial.budget_used_percentage < 70 %}green{% elif report.financial.budget_used_percentage < 90 %}yellow{% else %}red{% endif %}"
+                     style="width: {{ report.financial.budget_used_percentage }}%;"></div>
+            </div>
+            <div class="budget-legend">
+                <span>0%</span>
+                <span>{{ report.financial.budget_used_percentage }}% Used</span>
+                <span>100%</span>
+            </div>
+            {% endif %}
+
+            {% if chart_data %}
+            <div class="chart-container"><canvas id="budgetChart"></canvas></div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="export-bar">
+        <a href="{% url 'reports:export_center' %}?report_type=project&project={{ report.project.id }}&format=pdf" class="btn btn-primary">
+            <i class="fas fa-file-pdf"></i> Export PDF
+        </a>
+        <a href="{% url 'reports:export_center' %}?report_type=project&project={{ report.project.id }}&format=csv" class="btn btn-secondary">
+            <i class="fas fa-file-csv"></i> Export CSV
+        </a>
+        <a href="{% url 'reports:export_center' %}?report_type=project&project={{ report.project.id }}&format=excel" class="btn btn-secondary">
+            <i class="fas fa-file-excel"></i> Export Excel
+        </a>
+    </div>
+
+    {% else %}
+    <div class="section-card">
+        <div class="section-body">
+            <div class="empty-state">
+                <i class="fas fa-folder-open"></i>
+                <h3>No Project Selected</h3>
+                <p>Please select a project from the dropdown above to view the report.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if report and chart_data %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('budgetChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_data.labels|safe }},
+            datasets: [{
+                label: 'Amount (KES)',
+                data: {{ chart_data.values|safe }},
+                backgroundColor: {{ chart_data.colors|safe }},
+                borderColor: {{ chart_data.colors|safe }},
+                borderWidth: 1,
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { callback: function(value) { return 'KES ' + value.toLocaleString(); } }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

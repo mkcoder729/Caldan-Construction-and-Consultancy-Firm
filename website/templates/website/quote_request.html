@@ -1,0 +1,422 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Request a Quote — Caldan Construction and Consultancy Firm{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="Request a free quote for your construction project. Fill out our form and we'll get back to you within 24 hours.">
+{% endblock %}
+
+{% block content %}
+
+<!-- Quote Hero -->
+<section class="quote-hero" style="min-height: 45vh; display: flex; align-items: center; position: relative; background: linear-gradient(160deg, rgba(11, 20, 32, 0.82) 0%, rgba(11, 102, 195, 0.65) 100%), url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1600&q=80'); background-size: cover; background-position: center; background-attachment: fixed; padding: 120px 0 80px; color: #FFFFFF;">
+    <div class="container" style="position: relative; z-index: 2;">
+        <div style="max-width: 700px; margin: 0 auto; text-align: center;">
+            <p class="eyebrow" style="justify-content: center; color: #D4AF37; font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 12px;">
+                <i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Get a Quote
+            </p>
+            <h1 style="font-size: clamp(2.5rem, 4vw, 3.5rem); font-weight: 700; margin-bottom: 16px; color: #FFFFFF;">
+                Request a <span style="color: #D4AF37;">Free Quote</span>
+            </h1>
+            <p style="color: rgba(255,255,255,0.85); font-size: 1.15rem; line-height: 1.7; max-width: 600px; margin: 0 auto;">
+                Tell us about your project and we'll get back to you within 24 hours.
+            </p>
+            <div style="width: 60px; height: 3px; background: #D4AF37; margin: 16px auto 18px;"></div>
+            <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: rgba(212, 175, 55, 0.18); color: #D4AF37; border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 999px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.4px;">
+                <i class="fas fa-bolt" style="font-size: 0.7rem;"></i>
+                Average reply: 2 hours
+            </span>
+        </div>
+    </div>
+</section>
+
+<!-- Quote Form -->
+<section class="quote-section" style="padding: 60px 0; background: var(--bg-primary);">
+    <div class="container">
+        <div style="max-width: 800px; margin: 0 auto;">
+
+            <div style="background: var(--bg-card); border-radius: 12px; padding: 40px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-primary);">
+
+                <!-- Progress Steps -->
+                <div id="progressSteps" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; padding: 0 20px;">
+                    <div style="text-align: center; flex: 1;">
+                        <div class="progress-step" data-step="1" style="width: 32px; height: 32px; margin: 0 auto 4px; background: var(--accent-primary); color: #FFFFFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; transition: all 0.3s ease;">1</div>
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">Your Details</span>
+                    </div>
+                    <div class="progress-connector" data-connector="1" style="flex: 0 0 40px; height: 2px; background: var(--border-primary); transition: background 0.3s ease;"></div>
+                    <div style="text-align: center; flex: 1;">
+                        <div class="progress-step" data-step="2" style="width: 32px; height: 32px; margin: 0 auto 4px; background: var(--border-primary); color: var(--text-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; transition: all 0.3s ease;">2</div>
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">Project Details</span>
+                    </div>
+                    <div class="progress-connector" data-connector="2" style="flex: 0 0 40px; height: 2px; background: var(--border-primary); transition: background 0.3s ease;"></div>
+                    <div style="text-align: center; flex: 1;">
+                        <div class="progress-step" data-step="3" style="width: 32px; height: 32px; margin: 0 auto 4px; background: var(--border-primary); color: var(--text-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; transition: all 0.3s ease;">3</div>
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">Additional Info</span>
+                    </div>
+                </div>
+
+                <form method="POST" action="{% url 'website:quote_request' %}" class="quote-form">
+                    {% csrf_token %}
+
+                    <!-- Step 1: Your Details -->
+                    <div class="form-step" id="step1">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 16px; color: var(--text-primary);">Your Details</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <label for="id_name" style="display: block; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">Full Name <span style="color: #E74C3C;">*</span></label>
+                                {{ form.name }}
+                            </div>
+                            <div>
+                                <label for="id_email" style="display: block; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">Email <span style="color: #E74C3C;">*</span></label>
+                                {{ form.email }}
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <label for="id_phone" style="display: block; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">Phone <span style="color: #E74C3C;">*</span></label>
+                            {{ form.phone }}
+                        </div>
+                        <div style="margin-top: 20px; text-align: right;">
+                            <button type="button" class="btn btn-primary next-step" style="padding: 10px 32px; background: var(--accent-primary); color: #FFFFFF; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                                Next Step <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Project Details -->
+                    <div class="form-step" id="step2" style="display: none;">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 16px; color: var(--text-primary);">Project Details</h3>
+                        <div>
+                            <label for="id_project_type" style="display: block; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">Project Type <span style="color: #E74C3C;">*</span></label>
+                            {{ form.project_type }}
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <label for="id_budget_range" style="display: block; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">Budget Range <span style="color: #E74C3C;">*</span></label>
+                            {{ form.budget_range }}
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <label for="id_timeline" style="display: block; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">Timeline <span style="color: #E74C3C;">*</span></label>
+                            {{ form.timeline }}
+                        </div>
+                        <div style="margin-top: 20px; display: flex; justify-content: space-between;">
+                            <button type="button" class="btn btn-outline-primary prev-step" style="padding: 10px 32px; border: 2px solid var(--border-primary); color: var(--text-secondary); background: transparent; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </button>
+                            <button type="button" class="btn btn-primary next-step" style="padding: 10px 32px; background: var(--accent-primary); color: #FFFFFF; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                                Next Step <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Additional Info -->
+                    <div class="form-step" id="step3" style="display: none;">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 16px; color: var(--text-primary);">Additional Information</h3>
+                        <div>
+                            <label for="id_details" style="display: block; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">Project Details <span style="color: #E74C3C;">*</span></label>
+                            {{ form.details }}
+                            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">Tell us more about your project requirements.</p>
+                        </div>
+
+                        <!-- Schedule a Call (eye-catching block) -->
+                        <div class="call-scheduler" id="callScheduler" style="margin-top: 28px; padding: 22px 22px 24px; border: 2px solid rgba(212, 175, 55, 0.35); border-radius: 16px; background: linear-gradient(135deg, rgba(212, 175, 55, 0.06) 0%, rgba(11, 102, 195, 0.04) 100%); box-shadow: 0 6px 24px rgba(212, 175, 55, 0.1), inset 0 1px 0 rgba(255,255,255,0.6); position: relative; overflow: hidden;">
+                            <div class="call-scheduler__head" style="display: flex; align-items: flex-start; gap: 14px;">
+                                <span class="call-scheduler__pulse" style="display: inline-block; width: 10px; height: 10px; min-width: 10px; border-radius: 50%; background: #D4AF37; margin-top: 8px; box-shadow: 0 0 0 0 rgba(212,175,55,0.7); animation: csPulse 2s infinite;"></span>
+                                <i class="fas fa-headset call-scheduler__icon" style="font-size: 1.5rem; color: #D4AF37; margin-top: 2px;"></i>
+                                <div style="flex: 1; min-width: 0;">
+                                    <h4 style="margin: 0 0 4px; font-size: 1.05rem; color: var(--text-primary); font-weight: 700;">Prefer a quick call?</h4>
+                                    <p style="margin: 0; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">One of our estimators can call you to walk through the brief. Tick the box and tell us when you're free.</p>
+                                </div>
+                                <label class="call-scheduler__toggle" style="position: relative; display: inline-block; width: 54px; height: 30px; flex-shrink: 0; cursor: pointer;">
+                                    <input type="checkbox" id="id_schedule_call_requested" name="schedule_call_requested" style="opacity: 0; width: 0; height: 0; position: absolute;">
+                                    <span class="call-scheduler__track" style="position: absolute; inset: 0; background: #C9CED6; border-radius: 30px; transition: background 0.35s ease;"></span>
+                                    <span class="call-scheduler__thumb" style="position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; background: #FFFFFF; border-radius: 50%; transition: transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1); box-shadow: 0 2px 6px rgba(0,0,0,0.2);"></span>
+                                </label>
+                            </div>
+
+                            <div class="call-scheduler__reveal" id="preferred_call_time_wrap" style="max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.45s cubic-bezier(0.4,0.0,0.2,1), opacity 0.35s ease, margin-top 0.35s ease;">
+                                <div style="margin-top: 18px; padding-top: 18px; border-top: 1px dashed rgba(212, 175, 55, 0.4);">
+                                    <label for="id_preferred_call_time" style="display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 6px; color: var(--text-primary);">
+                                        <i class="far fa-clock" style="color: #D4AF37;"></i> Preferred call window <span style="color: #E74C3C;">*</span>
+                                    </label>
+                                    {{ form.preferred_call_time }}
+                                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px;">e.g. Mon–Fri 9am–12pm, Sat morning, or any weekday after 4pm.</p>
+                                    <p class="call-scheduler__hint" style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: #6b7280; margin-top: 8px; font-style: italic;">
+                                        <i class="fas fa-shield-halved" style="color: #6b7280;"></i>
+                                        We'll only call during the window you specify. No spam.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if form.errors %}
+                            <div style="margin-top: 16px; padding: 12px 16px; background: #FDECEA; border: 1px solid #F5C2C0; border-radius: 8px; color: #B02A37; font-size: 0.9rem;">
+                                {{ form.errors }}
+                            </div>
+                        {% endif %}
+
+                        <div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center;">
+                            <button type="button" class="btn btn-outline-primary prev-step" style="padding: 10px 32px; border: 2px solid var(--border-primary); color: var(--text-secondary); background: transparent; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </button>
+                            <button type="submit" class="btn-submit" style="padding: 14px 36px; background: linear-gradient(135deg, #D4AF37 0%, #E8C84A 100%); color: #0D2B36; border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);">
+                                Send My Request <i class="fas fa-paper-plane" style="margin-left: 6px;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+            <!-- Trust Message -->
+            <div style="text-align: center; margin-top: 24px; padding: 16px; background: var(--bg-secondary); border-radius: 8px;">
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">
+                    <i class="fas fa-lock" style="color: var(--accent-secondary); margin-right: 8px;"></i>
+                    Your information is secure. We'll respond within 24 hours.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+{% include "website/partials/_cta.html" %}
+
+<style>
+    .quote-form input,
+    .quote-form select,
+    .quote-form textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--border-primary);
+        border-radius: 8px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+        font-family: inherit;
+    }
+    .quote-form input:focus,
+    .quote-form select:focus,
+    .quote-form textarea:focus {
+        border-color: var(--accent-primary) !important;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(11, 102, 195, 0.1);
+    }
+    .quote-form textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+    .quote-form button:hover {
+        transform: translateY(-2px);
+    }
+    .form-step {
+        animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .btn-primary:hover {
+        background: #0A55A8 !important;
+    }
+    .prev-step:hover {
+        border-color: var(--text-primary) !important;
+        color: var(--text-primary) !important;
+    }
+    .btn-submit:hover {
+        background: linear-gradient(135deg, #E8C84A 0%, #D4AF37 100%) !important;
+        box-shadow: 0 6px 22px rgba(212, 175, 55, 0.5) !important;
+    }
+
+    /* ---- Call-scheduler block ---- */
+    .call-scheduler__reveal.is-open {
+        max-height: 320px !important;
+        opacity: 1 !important;
+    }
+
+    /* When the checkbox is checked, repaint the track gold and slide the thumb right */
+    .call-scheduler__toggle input:checked ~ .call-scheduler__track {
+        background: linear-gradient(135deg, #D4AF37 0%, #E8C84A 100%);
+        box-shadow: 0 0 0 4px rgba(212,175,55,0.18);
+    }
+    .call-scheduler__toggle input:checked ~ .call-scheduler__thumb {
+        transform: translateX(24px);
+    }
+    .call-scheduler__toggle input:focus-visible ~ .call-scheduler__track {
+        outline: 3px solid rgba(212,175,55,0.45);
+        outline-offset: 3px;
+    }
+
+    /* Pulse animation — draws the eye to the gold dot next to the icon */
+    @keyframes csPulse {
+        0%   { box-shadow: 0 0 0 0 rgba(212,175,55,0.7); }
+        70%  { box-shadow: 0 0 0 12px rgba(212,175,55,0); }
+        100% { box-shadow: 0 0 0 0 rgba(212,175,55,0); }
+    }
+
+    /* Progress step states — completed (gold tick / circle), active (blue ring + glow), pending (gray) */
+    .progress-step.is-active {
+        background: var(--accent-primary) !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 0 0 4px rgba(11, 102, 195, 0.18);
+    }
+    .progress-step.is-completed {
+        background: linear-gradient(135deg,#D4AF37 0%,#E8C84A 100%) !important;
+        color: #0D2B36 !important;
+    }
+    .progress-connector.is-completed {
+        background: linear-gradient(90deg, #D4AF37 0%, #E8C84A 100%) !important;
+    }
+
+    @media (max-width: 576px) {
+        .quote-section .card {
+            padding: 24px 16px !important;
+        }
+        .quote-section .grid-2 {
+            grid-template-columns: 1fr !important;
+        }
+        .form-step .flex-between {
+            flex-direction: column;
+            gap: 12px;
+        }
+        .form-step .flex-between button {
+            width: 100%;
+            justify-content: center;
+        }
+        .call-scheduler__head {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let currentStep = 1;
+        const steps = document.querySelectorAll('.form-step');
+        const nextBtns = document.querySelectorAll('.next-step');
+        const prevBtns = document.querySelectorAll('.prev-step');
+
+        function showStep(step) {
+            steps.forEach(function(el, index) {
+                el.style.display = (index + 1 === step) ? 'block' : 'none';
+            });
+            currentStep = step;
+            updateProgress(step);
+        }
+
+        // Update progress indicators with completed/active/pending states
+        function updateProgress(step) {
+            const stepEls = document.querySelectorAll('.progress-step');
+            const connectorEls = document.querySelectorAll('.progress-connector');
+
+            stepEls.forEach(function(el, index) {
+                const n = index + 1;
+                el.classList.remove('is-active', 'is-completed');
+                if (n < step) {
+                    el.classList.add('is-completed');
+                    el.innerHTML = '<i class="fas fa-check" style="font-size:0.8rem;"></i>';
+                } else if (n === step) {
+                    el.classList.add('is-active');
+                    el.textContent = String(n);
+                } else {
+                    el.textContent = String(n);
+                }
+            });
+
+            connectorEls.forEach(function(el, index) {
+                const n = index + 1; // connector 1 sits between steps 1 and 2
+                el.classList.toggle('is-completed', n < step);
+            });
+        }
+
+        nextBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                if (currentStep < 3) {
+                    showStep(currentStep + 1);
+                }
+            });
+        });
+
+        prevBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                if (currentStep > 1) {
+                    showStep(currentStep - 1);
+                }
+            });
+        });
+
+        // Initial paint of progress state
+        updateProgress(currentStep);
+
+        // Toggle preferred call time input with animated reveal
+        const scheduleCheckbox = document.getElementById('id_schedule_call_requested');
+        const preferredWrap = document.getElementById('preferred_call_time_wrap');
+        const preferredInput = document.getElementById('id_preferred_call_time');
+        function syncCallFields() {
+            if (!scheduleCheckbox || !preferredWrap) return;
+            const on = scheduleCheckbox.checked;
+            if (on) {
+                preferredWrap.classList.add('is-open');
+                preferredWrap.style.marginTop = '0';
+            } else {
+                preferredWrap.classList.remove('is-open');
+                preferredWrap.style.marginTop = '0';
+            }
+            if (preferredInput) {
+                preferredInput.required = on;
+                preferredInput.disabled = !on;
+                if (!on) preferredInput.value = '';
+            }
+        }
+        if (scheduleCheckbox) {
+            scheduleCheckbox.addEventListener('change', syncCallFields);
+            syncCallFields();
+        }
+
+        // Form validation on submit
+        document.querySelector('.quote-form').addEventListener('submit', function(e) {
+            const name = document.getElementById('id_name');
+            const email = document.getElementById('id_email');
+            const phone = document.getElementById('id_phone');
+            const projectType = document.getElementById('id_project_type');
+            const budgetRange = document.getElementById('id_budget_range');
+            const timeline = document.getElementById('id_timeline');
+            const details = document.getElementById('id_details');
+
+            // Check required fields across all steps
+            let missing = [];
+            if (!name.value.trim()) missing.push('Full Name');
+            if (!email.value.trim()) missing.push('Email');
+            if (!phone.value.trim()) missing.push('Phone');
+            if (!projectType.value) missing.push('Project Type');
+            if (!budgetRange.value) missing.push('Budget Range');
+            if (!timeline.value) missing.push('Timeline');
+            if (!details.value.trim()) missing.push('Project Details');
+
+            // Conditional: if schedule call is ticked, preferred window required
+            if (scheduleCheckbox && scheduleCheckbox.checked) {
+                if (!preferredInput || !preferredInput.value.trim()) {
+                    missing.push('Preferred call window');
+                }
+            }
+
+            if (missing.length > 0) {
+                e.preventDefault();
+                alert('Please fill in all required fields:\n• ' + missing.join('\n• '));
+                // Show step 1 if missing basic info
+                if (missing.includes('Full Name') || missing.includes('Email') || missing.includes('Phone')) {
+                    showStep(1);
+                } else if (missing.includes('Project Type') || missing.includes('Budget Range') || missing.includes('Timeline')) {
+                    showStep(2);
+                } else {
+                    showStep(3);
+                }
+                return false;
+            }
+
+            return true;
+        });
+    });
+</script>
+{% endblock %}
