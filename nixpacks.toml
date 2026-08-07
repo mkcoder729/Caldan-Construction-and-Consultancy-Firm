@@ -1,0 +1,18 @@
+# =====================================================================
+# Railway nixpacks build config
+# Installs system libs needed by mysqlclient (Python C extension).
+# =====================================================================
+
+[phases.setup]
+aptPkgs = ["default-libmysqlclient-dev", "pkg-config", "build-essential"]
+
+[phases.install]
+cmds = [
+    "pip install --upgrade pip",
+    "pip install -r requirements-prod.txt",
+    "python -m playwright install chromium",
+    "python -m playwright install-deps chromium"
+]
+
+[start]
+cmd = "bash entrypoint.sh"

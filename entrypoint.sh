@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # ============================================================================
-# CALDAN CONSTRUCTION - RAILWAY ENTRYPOINT
-# Production-grade startup script
+# CALDAN CONSTRUCTION - RAILWAY RELEASE HOOK
+# Runs ONCE before each deploy. Does NOT start gunicorn — the Procfile's
+# `web:` line handles that. Keep this script idempotent.
 # ============================================================================
 
 set -e
@@ -56,27 +57,6 @@ python manage.py check --deploy || {
     echo "⚠️ Deployment check warnings (non-fatal)"
 }
 
-# ============================================================================
-# LOGGING CONFIGURATION
-# ============================================================================
-echo "📋 Logging to: ./logs/"
 echo "=========================================="
-echo "✅ Entrypoint complete! Starting Gunicorn..."
+echo "✅ Entrypoint complete! Gunicorn will now start via Procfile."
 echo "=========================================="
-
-# ============================================================================
-# START GUNICORN
-# ============================================================================
-exec gunicorn calsite.wsgi:application \
-    --bind 0.0.0.0:$PORT \
-    --workers 2 \
-    --threads 4 \
-    --worker-class gthread \
-    --timeout 120 \
-    --max-requests 1000 \
-    --max-requests-jitter 50 \
-    --access-logfile - \
-    --error-logfile - \
-    --log-level warning \
-    --logger-class gunicorn.glogging.Logger \
-    --access-logformat '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
