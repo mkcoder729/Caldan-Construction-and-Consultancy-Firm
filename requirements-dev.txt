@@ -1,10 +1,10 @@
 # =====================================================================
 # CALDAN CONSTRUCTION - DEV DEPENDENCIES (local only)
-# Railway uses requirements-prod.txt for production builds.
-# Install locally with: pip install -r requirements-dev.txt
+# Local install: pip install -r requirements-dev.txt
+# Railway uses requirements.txt for production builds.
 # =====================================================================
 
--r requirements-prod.txt
+-r requirements.txt
 
 # Dev / test tooling
 django-debug-toolbar==4.3.0
