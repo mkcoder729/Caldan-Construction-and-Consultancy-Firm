@@ -14,14 +14,15 @@ from django.core.management.base import BaseCommand
 
 # Order matters: seed foundational reference data first, then
 # anything that has foreign keys to those.
+#
+# NOTE: seed_clients, seed_materials, seed_payments, seed_products are
+# intentionally OMITTED from the deploy seed. These modules have
+# transactional/PII data and are managed through the dashboard, not
+# populated from fixtures on every deploy. See project README.
 SEED_COMMANDS = [
     "seed_team",          # staff/test users
     "seed_services",      # service catalog
-    "seed_clients",       # client/customer records
-    "seed_materials",     # inventory materials (no FKs to projects)
     "seed_projects",      # projects (may reference clients)
-    "seed_payments",      # payments (FK to projects)
-    "seed_products",      # shop products
     "seed_blog",          # blog posts
     "seed_testimonials",  # testimonials (may reference clients)
 ]
@@ -46,6 +47,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.NOTICE(f"\n=== {name} ==="))
             try:
                 call_command(name)
+                succeeded.append(name)
             except KeyboardInterrupt:
                 raise
             except Exception as exc:
@@ -64,3 +66,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING(
                 "Failed commands: " + ", ".join(n for n, _ in failed)
             ))
+            # Re-raise the first failure so callers (e.g. entrypoint.sh)
+            # can detect and exit non-zero when --stop-on-error is set.
+            if stop_on_error:
+                raise failed[0][1]

@@ -75,13 +75,18 @@ echo "🌱 Checking seed state..."
 
 # Check if any data exists (services is a reliable signal)
 SERVICE_COUNT=$(python manage.py shell -c "from services.models import Service; print(Service.objects.count())" 2>/dev/null || echo "0")
+echo "📊 Current service count: $SERVICE_COUNT"
 
 if [ "${FORCE_SEED:-false}" = "true" ]; then
     echo "🌱 FORCE_SEED=true — running seed_all (idempotent: skips existing rows)..."
-    python manage.py seed_all --stop-on-error || echo "⚠️ seed_all reported issues"
+    python manage.py seed_all --stop-on-error
+    echo "✅ Seed_all completed"
 elif [ "$SERVICE_COUNT" -eq "0" ]; then
     echo "🌱 Empty database detected — running seed_all for initial content..."
-    python manage.py seed_all --stop-on-error || echo "⚠️ seed_all reported issues"
+    python manage.py seed_all --stop-on-error
+    echo "✅ Seed_all completed"
+    NEW_SERVICE_COUNT=$(python manage.py shell -c "from services.models import Service; print(Service.objects.count())" 2>/dev/null || echo "0")
+    echo "📊 Post-seed service count: $NEW_SERVICE_COUNT"
 else
     echo "ℹ️ Data already exists ($SERVICE_COUNT services). Skipping seed."
     echo "   Set FORCE_SEED=true in Railway Variables to re-run."
