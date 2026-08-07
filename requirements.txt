@@ -1,7 +1,9 @@
 # =====================================================================
 # CALDAN CONSTRUCTION - PRODUCTION DEPENDENCIES
-# Django 4.2.19 LTS - XAMPP Compatible
+# Django 4.2.19 LTS - MySQL - Docker Optimized
 # "Building Kenya's Future, One Project at a Time."
+# Version: 1.0.0
+# Platform: Railway (Docker + MySQL)
 # =====================================================================
 
 # =====================================================================
@@ -14,14 +16,14 @@ django-crispy-forms==2.1
 crispy-bootstrap5==0.7
 
 # =====================================================================
-# DATABASE (MySQL via XAMPP)
+# DATABASE - MySQL (Native C extension - compiled in Docker)
 # =====================================================================
 mysqlclient==2.2.4
 
 # =====================================================================
 # CACHE & TASK QUEUE (Redis + Celery)
 # =====================================================================
-redis==4.6.0
+redis==5.0.1
 django-redis==5.4.0
 celery==5.3.6
 django-celery-beat==2.5.0
@@ -53,7 +55,6 @@ django-cloudinary-storage==0.3.0
 # PDF GENERATION (Playwright)
 # =====================================================================
 playwright==1.40.0
-# django-playwright==1.0.0  <-- COMMENTED OUT - NOT NEEDED
 
 # =====================================================================
 # DATA EXPORT (Excel)
@@ -65,6 +66,7 @@ xlsxwriter==3.2.0
 # ENVIRONMENT VARIABLES
 # =====================================================================
 python-decouple==3.8
+python-dotenv==1.0.0
 
 # =====================================================================
 # AUTHENTICATION & SECURITY
@@ -84,7 +86,7 @@ django-widget-tweaks==1.5.0
 django-allauth==0.60.0
 
 # =====================================================================
-# PRODUCTION SERVER
+# PRODUCTION SERVER (Railway Compatible)
 # =====================================================================
 gunicorn==21.2.0
 whitenoise==6.6.0
@@ -95,17 +97,28 @@ whitenoise==6.6.0
 sentry-sdk==1.40.0
 
 # =====================================================================
-# TESTING
+# TEMPLATE & MARKDOWN
 # =====================================================================
-pytest==7.4.4
-pytest-django==4.7.0
-pytest-cov==4.1.0
-pytest-xdist==3.5.0
-coverage==7.4.1
-factory-boy==3.3.0
-faker==20.1.0
+markdown==3.5.2
+beautifulsoup4==4.12.3
 
 # =====================================================================
-# KENYA-SPECIFIC PAYMENTS (M-Pesa)
+# ADDITIONAL DJANGO PACKAGES
 # =====================================================================
-django-paystack==1.0.0
+django-ckeditor==6.7.0
+django-import-export==3.3.6
+django-filter==23.5
+django-taggit==5.0.1
+django-htmx==1.17.0
+django-cleanup==8.0.0
+
+# =====================================================================
+# TESTING (Production - Comment out to save space)
+# =====================================================================
+# pytest==7.4.4
+# pytest-django==4.7.0
+# pytest-cov==4.1.0
+# pytest-xdist==3.5.0
+# coverage==7.4.1
+# factory-boy==3.3.0
+# faker==20.1.0
