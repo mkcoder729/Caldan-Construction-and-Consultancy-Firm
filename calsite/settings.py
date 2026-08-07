@@ -45,10 +45,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-fallback-key-change-m
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # ALLOWED_HOSTS — auto-allow any Railway-generated domain.
-# Railway sets RAILWAY_PUBLIC_DOMAIN on web services; if not present
-# (or empty), we still fall back to a safe local default. Operators
-# can still tighten this via the ALLOWED_HOSTS env var.
-_default_hosts = ['localhost', '127.0.0.1', '.up.railway.app']
+_default_hosts = ['localhost', '127.0.0.1', '.up.railway.app', '.railway.app']
 _railway_host = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
 if _railway_host:
     _default_hosts.append(_railway_host)
@@ -136,14 +133,8 @@ WSGI_APPLICATION = 'calsite.wsgi.application'
 ASGI_APPLICATION = 'calsite.asgi.application'
 
 # =====================================================================
-# DATABASE CONFIGURATION (MySQL)
+# DATABASE CONFIGURATION - FIXED FOR RAILWAY
 # =====================================================================
-# Local dev: reads from .env (XAMPP defaults below).
-# Railway prod: parses MYSQL_URL which the Railway MySQL add-on
-# auto-injects into linked services as a single connection URL like:
-#   mysql://user:password@host:port/database
-#
-# Format example: mysql://root:abc123@containers-us-west-123.railway.app:6543/railway
 import urllib.parse as _urlparse
 
 def _parse_mysql_url(url):
@@ -164,12 +155,20 @@ def _parse_mysql_url(url):
         'CONN_HEALTH_CHECKS': True,
     }
 
-_mysql_url = os.environ.get('MYSQL_URL', '').strip()
-if _mysql_url:
+# Try multiple possible environment variable names
+_db_url = (
+    os.environ.get('DATABASE_URL', '') or
+    os.environ.get('MYSQL_URL', '') or
+    os.environ.get('CLEARDB_DATABASE_URL', '')
+).strip()
+
+if _db_url:
     # Railway: parse the auto-injected connection URL
-    DATABASES = {'default': _parse_mysql_url(_mysql_url)}
+    DATABASES = {'default': _parse_mysql_url(_db_url)}
+    print(f"✅ Using database from URL: {_db_url.split('@')[0]}@...")
 else:
     # Local dev: read individual DB_* vars from .env
+    print("ℹ️ No DATABASE_URL found, using individual DB_* variables")
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -556,4 +555,3 @@ ADMIN_URL = 'admin/'
 # DEFAULT AUTO FIELD
 # =====================================================================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
