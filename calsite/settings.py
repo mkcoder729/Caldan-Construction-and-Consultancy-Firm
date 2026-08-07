@@ -131,24 +131,41 @@ WSGI_APPLICATION = 'calsite.wsgi.application'
 ASGI_APPLICATION = 'calsite.asgi.application'
 
 # =====================================================================
-# DATABASE CONFIGURATION (MySQL via XAMPP)
+# DATABASE CONFIGURATION - RAILWAY NATIVE (UPDATED)
 # =====================================================================
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME', default='caldan_construction'),
-        'USER': config('DB_USER', default='root'),
-        'PASSWORD': config('DB_PASSWORD', default=''),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='3306'),
-        'CONN_MAX_AGE': 600,
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
-        'ATOMIC_REQUESTS': True,
+import dj_database_url
+
+# Get DATABASE_URL from Railway (auto-injected) or fallback
+DATABASE_URL = config('DATABASE_URL', default='')
+
+if DATABASE_URL:
+    # Production on Railway - use the injected URL
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+            ssl_require=False
+        )
     }
-}
+else:
+    # Local development - use individual variables
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': config('DB_NAME', default='caldan_construction'),
+            'USER': config('DB_USER', default='root'),
+            'PASSWORD': config('DB_PASSWORD', default=''),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': int(config('DB_PORT', default='3306')),
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
+            'CONN_MAX_AGE': 600,
+            'CONN_HEALTH_CHECKS': True,
+        }
+    }
 
 # =====================================================================
 # DATABASE ROUTING
