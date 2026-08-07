@@ -44,8 +44,11 @@ APPS_DIR = BASE_DIR
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-fallback-key-change-me')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# ALLOWED_HOSTS — combine default localhost, Railway auto-domain, and any explicit ALLOWED_HOSTS env var
-_default_hosts = ['localhost', '127.0.0.1']
+# ALLOWED_HOSTS — auto-allow any Railway-generated domain.
+# Railway sets RAILWAY_PUBLIC_DOMAIN on web services; if not present
+# (or empty), we still fall back to a safe local default. Operators
+# can still tighten this via the ALLOWED_HOSTS env var.
+_default_hosts = ['localhost', '127.0.0.1', '.up.railway.app']
 _railway_host = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
 if _railway_host:
     _default_hosts.append(_railway_host)

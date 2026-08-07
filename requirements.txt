@@ -1,0 +1,3 @@
+# Thin shim — Railway's build pipeline expects a file named requirements.txt.
+# All real production deps live in requirements-prod.txt.
+-r requirements-prod.txt
