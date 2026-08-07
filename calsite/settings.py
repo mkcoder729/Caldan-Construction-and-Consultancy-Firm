@@ -28,8 +28,6 @@ APPS_DIR = BASE_DIR
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 _default_hosts = ['localhost', '127.0.0.1']
-# Railway injects RAILWAY_PUBLIC_DOMAIN on every service — auto-allow it
-# without forcing the operator to list it manually in ALLOWED_HOSTS.
 _railway_host = config('RAILWAY_PUBLIC_DOMAIN', default='')
 if _railway_host:
     _default_hosts.append(_railway_host)
@@ -56,28 +54,17 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-    # REST Framework
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-
-    # Database & Cache
     'django_celery_beat',
     'django_celery_results',
-
-    # Forms & Templates
     'crispy_forms',
     'crispy_bootstrap5',
     'widget_tweaks',
-
-    # Security
     'axes',
-
-    # Cloud Storage
     'cloudinary',
     'cloudinary_storage',
-
-    # Utilities
     'django_extensions',
 ]
 
@@ -113,11 +100,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-
-    # Axes middleware for login attempt tracking
     'axes.middleware.AxesMiddleware',
-
-    # Custom middleware
     'accounts.middleware.auth_middleware.AuthMiddleware',
     'accounts.middleware.otp_middleware.OTPMiddleware',
     'accounts.middleware.force_password_change_middleware.PasswordChangeRequiredMiddleware',
@@ -131,15 +114,22 @@ WSGI_APPLICATION = 'calsite.wsgi.application'
 ASGI_APPLICATION = 'calsite.asgi.application'
 
 # =====================================================================
-# DATABASE CONFIGURATION - RAILWAY READY (UPDATED)
+# DATABASE CONFIGURATION - FIXED FOR RAILWAY
 # =====================================================================
 import dj_database_url
 
-# Get DATABASE_URL from environment
-DATABASE_URL = config('DATABASE_URL', default='')
+# Get database credentials directly from environment
+# Railway injects these when MySQL is connected
+DB_HOST = os.environ.get('MYSQL_HOST', os.environ.get('DB_HOST', 'localhost'))
+DB_PORT = os.environ.get('MYSQL_PORT', os.environ.get('DB_PORT', '3306'))
+DB_NAME = os.environ.get('MYSQL_DATABASE', os.environ.get('DB_NAME', 'railway'))
+DB_USER = os.environ.get('MYSQL_USER', os.environ.get('DB_USER', 'root'))
+DB_PASSWORD = os.environ.get('MYSQL_PASSWORD', os.environ.get('DB_PASSWORD', ''))
+
+# Try DATABASE_URL first
+DATABASE_URL = os.environ.get('DATABASE_URL', '')
 
 if DATABASE_URL and DATABASE_URL.startswith('mysql://'):
-    # Use DATABASE_URL if available and valid
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
@@ -148,13 +138,7 @@ if DATABASE_URL and DATABASE_URL.startswith('mysql://'):
         )
     }
 else:
-    # Fallback: Use individual MySQL variables
-    DB_HOST = config('MYSQL_HOST', default='mysql.railway.internal')
-    DB_PORT = config('MYSQL_PORT', default='3306')
-    DB_NAME = config('MYSQL_DATABASE', default='railway')
-    DB_USER = config('MYSQL_USER', default='root')
-    DB_PASSWORD = config('MYSQL_PASSWORD', default='')
-
+    # Build from individual variables
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -180,7 +164,7 @@ DATABASE_ROUTERS = ['calsite.db_router.CaldanRouter']
 # =====================================================================
 # CACHE CONFIGURATION (Redis Primary + Database Fallback)
 # =====================================================================
-REDIS_URL = config('REDIS_URL', default='redis://localhost:6379/0')
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 
 try:
     CACHES = {
@@ -197,32 +181,30 @@ try:
                 },
                 'MAX_CONNECTIONS': 1000,
                 'PICKLE_VERSION': -1,
-                'DEFAULT_TIMEOUT': config('REDIS_CACHE_TIMEOUT', default=300, cast=int),
+                'DEFAULT_TIMEOUT': int(os.environ.get('REDIS_CACHE_TIMEOUT', 300)),
             },
             'KEY_PREFIX': 'caldan',
         }
     }
 except Exception:
-    # Fallback to database caching if Redis fails
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
             'LOCATION': 'cache_table',
-            'TIMEOUT': config('CACHE_FALLBACK_TIMEOUT', default=60, cast=int),
+            'TIMEOUT': int(os.environ.get('CACHE_FALLBACK_TIMEOUT', 60)),
         }
     }
 
 # =====================================================================
-# SESSION CONFIGURATION — ✅ FIXED
+# SESSION CONFIGURATION
 # =====================================================================
-# Use database-backed sessions (not cache) so sessions persist across restarts
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # ✅ FIXED
-SESSION_COOKIE_AGE = 2592000  # 30 days in seconds (was 86400) ✅ FIXED
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 2592000
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
+SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
 SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_EXPIRE_AT_BROWSER_CLOSE = config('SESSION_EXPIRE_AT_BROWSER_CLOSE', default=False, cast=bool)
-SESSION_SAVE_EVERY_REQUEST = True  # Refreshes expiry on each request
+SESSION_EXPIRE_AT_BROWSER_CLOSE = os.environ.get('SESSION_EXPIRE_AT_BROWSER_CLOSE', 'False').lower() == 'true'
+SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_NAME = 'caldan_session'
 
 # =====================================================================
@@ -231,9 +213,7 @@ SESSION_COOKIE_NAME = 'caldan_session'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            BASE_DIR / 'templates',
-        ],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -244,8 +224,6 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
-
-                # Custom context processors
                 'dashboard.context_processors.dashboard_context',
                 'website.context_processors.trust_counter',
                 'website.context_processors.site_settings',
@@ -271,9 +249,6 @@ LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'dashboard:overview'
 LOGOUT_REDIRECT_URL = 'website:index'
 
-# =====================================================================
-# AUTHENTICATION BACKENDS
-# =====================================================================
 AUTHENTICATION_BACKENDS = [
     'axes.backends.AxesStandaloneBackend',
     'django.contrib.auth.backends.ModelBackend',
@@ -283,26 +258,15 @@ AUTHENTICATION_BACKENDS = [
 # PASSWORD VALIDATION
 # =====================================================================
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        'OPTIONS': {
-            'min_length': config('PASSWORD_MIN_LENGTH', default=8, cast=int),
-        }
+        'OPTIONS': {'min_length': int(os.environ.get('PASSWORD_MIN_LENGTH', 8))}
     },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# =====================================================================
-# PASSWORD HASHING (bcrypt with cost factor 12)
-# =====================================================================
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
     'django.contrib.auth.hashers.BCryptPasswordHasher',
@@ -314,50 +278,31 @@ PASSWORD_HASHERS = [
 # =====================================================================
 # CSRF CONFIGURATION
 # =====================================================================
-CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
+CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'False').lower() == 'true'
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://localhost:8000', cast=Csv())
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(',')
 
 # =====================================================================
 # CORS CONFIGURATION
 # =====================================================================
-CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:8000', cast=Csv())
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:8000').split(',')
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
-CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
-]
+CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
+CORS_ALLOW_HEADERS = ['accept', 'accept-encoding', 'authorization', 'content-type', 'dnt', 'origin', 'user-agent', 'x-csrftoken', 'x-requested-with']
 
 # =====================================================================
 # AXES (Login Attempt Limiting)
 # =====================================================================
 AXES_ENABLED = True
 AXES_FAILURE_LIMIT = 5
-AXES_COOLOFF_TIME = 15  # minutes
+AXES_COOLOFF_TIME = 15
 AXES_LOCKOUT_URL = '/accounts/account-locked/'
 AXES_USERNAME_FORM_FIELD = 'email'
 AXES_LOCKOUT_TEMPLATE = 'accounts/shared/account_locked.html'
 AXES_VERBOSE = True
 AXES_LOCK_OUT_AT_FAILURE = True
 
-# During local development, do not count failed login attempts against your own IP.
-# Whitelist localhost-ish IPs so dev work doesn't lock you out.
 import socket
 _AXES_WHITELIST_IPS = ['127.0.0.1', '::1']
 try:
@@ -367,25 +312,24 @@ try:
         if _lan_ip and _lan_ip not in _AXES_WHITELIST_IPS:
             _AXES_WHITELIST_IPS.append(_lan_ip)
 except (socket.gaierror, OSError):
-    # No network / DNS unavailable — skip LAN IP detection
     pass
 AXES_IP_WHITELIST = _AXES_WHITELIST_IPS
 del _AXES_WHITELIST_IPS
 
 # =====================================================================
-# OTP CONFIGURATION (8-Digit, SHA-256 Hashed)
+# OTP CONFIGURATION
 # =====================================================================
-OTP_EXPIRY_MINUTES = config('OTP_EXPIRY_MINUTES', default=5, cast=int)
-OTP_MAX_ATTEMPTS = config('OTP_MAX_ATTEMPTS', default=3, cast=int)
-OTP_RESEND_COOLDOWN_SECONDS = config('OTP_RESEND_COOLDOWN_SECONDS', default=60, cast=int)
-OTP_MAX_RESENDS_PER_HOUR = config('OTP_MAX_RESENDS_PER_HOUR', default=5, cast=int)
-OTP_LENGTH = config('OTP_LENGTH', default=8, cast=int)
+OTP_EXPIRY_MINUTES = int(os.environ.get('OTP_EXPIRY_MINUTES', 5))
+OTP_MAX_ATTEMPTS = int(os.environ.get('OTP_MAX_ATTEMPTS', 3))
+OTP_RESEND_COOLDOWN_SECONDS = int(os.environ.get('OTP_RESEND_COOLDOWN_SECONDS', 60))
+OTP_MAX_RESENDS_PER_HOUR = int(os.environ.get('OTP_MAX_RESENDS_PER_HOUR', 5))
+OTP_LENGTH = int(os.environ.get('OTP_LENGTH', 8))
 
 # =====================================================================
 # TRUSTED DEVICE CONFIGURATION
 # =====================================================================
-TRUSTED_DEVICE_DAYS = config('TRUSTED_DEVICE_DAYS', default=30, cast=int)
-MAX_TRUSTED_DEVICES = config('MAX_TRUSTED_DEVICES', default=10, cast=int)
+TRUSTED_DEVICE_DAYS = int(os.environ.get('TRUSTED_DEVICE_DAYS', 30))
+MAX_TRUSTED_DEVICES = int(os.environ.get('MAX_TRUSTED_DEVICES', 10))
 
 # =====================================================================
 # INTERNATIONALIZATION (Kenya-First)
@@ -401,48 +345,45 @@ USE_L10N = True
 # =====================================================================
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
-STATICFILES_STORAGE = (
-    'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    if not DEBUG
-    else 'whitenoise.storage.CompressedStaticFilesStorage'
-)
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage' if not DEBUG else 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # =====================================================================
-# MEDIA FILES (Cloudinary for production)
+# MEDIA FILES (Cloudinary - Optional, falls back to local)
 # =====================================================================
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
-    'API_KEY': config('CLOUDINARY_API_KEY', default=''),
-    'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
-    'SECURE': True,
-    'EXIF_DISABLE': True,
-}
-CLOUDINARY_URL = f"cloudinary://{config('CLOUDINARY_API_KEY')}:{config('CLOUDINARY_API_SECRET')}@{config('CLOUDINARY_CLOUD_NAME')}"
+CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
+CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY', '')
+CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET', '')
 
-# =====================================================================
-# MEDIA SETTINGS
-# =====================================================================
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+if CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET:
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
+        'API_KEY': CLOUDINARY_API_KEY,
+        'API_SECRET': CLOUDINARY_API_SECRET,
+        'SECURE': True,
+        'EXIF_DISABLE': True,
+    }
+    CLOUDINARY_URL = f"cloudinary://{CLOUDINARY_API_KEY}:{CLOUDINARY_API_SECRET}@{CLOUDINARY_CLOUD_NAME}"
+else:
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 # =====================================================================
 # FILE UPLOAD LIMITS
 # =====================================================================
-MAX_UPLOAD_SIZE = config('MAX_UPLOAD_SIZE', default=5242880, cast=int)
+MAX_UPLOAD_SIZE = int(os.environ.get('MAX_UPLOAD_SIZE', 5242880))
 FILE_UPLOAD_MAX_MEMORY_SIZE = MAX_UPLOAD_SIZE
 FILE_UPLOAD_PERMISSIONS = 0o644
 
 # =====================================================================
 # EMAIL CONFIGURATION (Resend)
 # =====================================================================
-RESEND_API_KEY = config('RESEND_API_KEY', default='')
-SEND_REAL_EMAILS = config('SEND_REAL_EMAILS', default=False, cast=bool)
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Caldan Construction and Consultancy Firm <noreply@caldanconstruction.com>')
-ADMIN_EMAIL = config('ADMIN_EMAIL', default='info.caldanconstruction@gmail.com')
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+SEND_REAL_EMAILS = os.environ.get('SEND_REAL_EMAILS', 'False').lower() == 'true'
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Caldan Construction and Consultancy Firm <noreply@caldanconstruction.com>')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'info.caldanconstruction@gmail.com')
 
 if SEND_REAL_EMAILS and RESEND_API_KEY:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -455,45 +396,40 @@ else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # =====================================================================
-# SMS CONFIGURATION (Africa's Talking + Celcom)
+# SMS CONFIGURATION
 # =====================================================================
-SMS_PROVIDER = config('SMS_PROVIDER', default='africastalking')
-SEND_REAL_SMS = config('SEND_REAL_SMS', default=False, cast=bool)
-
-# Africa's Talking
-AFRICASTALKING_API_KEY = config('AFRICASTALKING_API_KEY', default='')
-AFRICASTALKING_USERNAME = config('AFRICASTALKING_USERNAME', default='sandbox')
-AFRICASTALKING_SANDBOX = config('AFRICASTALKING_SANDBOX', default=True, cast=bool)
-
-# Celcom Africa
-CELCOM_API_URL = config('CELCOM_API_URL', default='https://isms.celcomafrica.com/api/services/sendsms')
-CELCOM_API_KEY = config('CELCOM_API_KEY', default='')
-CELCOM_PARTNER_ID = config('CELCOM_PARTNER_ID', default='')
-CELCOM_SHORTCODE = config('CELCOM_SHORTCODE', default='CALDAN')
+SMS_PROVIDER = os.environ.get('SMS_PROVIDER', 'africastalking')
+SEND_REAL_SMS = os.environ.get('SEND_REAL_SMS', 'False').lower() == 'true'
+AFRICASTALKING_API_KEY = os.environ.get('AFRICASTALKING_API_KEY', '')
+AFRICASTALKING_USERNAME = os.environ.get('AFRICASTALKING_USERNAME', 'sandbox')
+AFRICASTALKING_SANDBOX = os.environ.get('AFRICASTALKING_SANDBOX', 'True').lower() == 'true'
+CELCOM_API_URL = os.environ.get('CELCOM_API_URL', 'https://isms.celcomafrica.com/api/services/sendsms')
+CELCOM_API_KEY = os.environ.get('CELCOM_API_KEY', '')
+CELCOM_PARTNER_ID = os.environ.get('CELCOM_PARTNER_ID', '')
+CELCOM_SHORTCODE = os.environ.get('CELCOM_SHORTCODE', 'CALDAN')
 
 # =====================================================================
-# PAYMENT CONFIGURATION (Paystack + M-Pesa)
+# PAYMENT CONFIGURATION
 # =====================================================================
-PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY', default='')
-PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY', default='')
-PAYSTACK_LIVE = config('PAYSTACK_LIVE', default=False, cast=bool)
-PAYSTACK_CALLBACK_URL = config('PAYSTACK_CALLBACK_URL', default='http://localhost:8000/shop/payment/verify/')
-PAYSTACK_WEBHOOK_URL = config('PAYSTACK_WEBHOOK_URL', default='http://localhost:8000/shop/payment/webhook/')
+PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY', '')
+PAYSTACK_PUBLIC_KEY = os.environ.get('PAYSTACK_PUBLIC_KEY', '')
+PAYSTACK_LIVE = os.environ.get('PAYSTACK_LIVE', 'False').lower() == 'true'
+PAYSTACK_CALLBACK_URL = os.environ.get('PAYSTACK_CALLBACK_URL', 'http://localhost:8000/shop/payment/verify/')
+PAYSTACK_WEBHOOK_URL = os.environ.get('PAYSTACK_WEBHOOK_URL', 'http://localhost:8000/shop/payment/webhook/')
 
-# M-Pesa STK Push
-MPESA_STK_PUSH_ENABLED = config('MPESA_STK_PUSH_ENABLED', default=True, cast=bool)
-MPESA_BUSINESS_SHORTCODE = config('MPESA_BUSINESS_SHORTCODE', default='174379')
-MPESA_PASSKEY = config('MPESA_PASSKEY', default='')
-MPESA_CALLBACK_URL = config('MPESA_CALLBACK_URL', default='http://localhost:8000/shop/payment/mpesa-callback/')
-MPESA_CONSUMER_KEY = config('MPESA_CONSUMER_KEY', default='')
-MPESA_CONSUMER_SECRET = config('MPESA_CONSUMER_SECRET', default='')
-MPESA_ENVIRONMENT = config('MPESA_ENVIRONMENT', default='sandbox')
+MPESA_STK_PUSH_ENABLED = os.environ.get('MPESA_STK_PUSH_ENABLED', 'True').lower() == 'true'
+MPESA_BUSINESS_SHORTCODE = os.environ.get('MPESA_BUSINESS_SHORTCODE', '174379')
+MPESA_PASSKEY = os.environ.get('MPESA_PASSKEY', '')
+MPESA_CALLBACK_URL = os.environ.get('MPESA_CALLBACK_URL', 'http://localhost:8000/shop/payment/mpesa-callback/')
+MPESA_CONSUMER_KEY = os.environ.get('MPESA_CONSUMER_KEY', '')
+MPESA_CONSUMER_SECRET = os.environ.get('MPESA_CONSUMER_SECRET', '')
+MPESA_ENVIRONMENT = os.environ.get('MPESA_ENVIRONMENT', 'sandbox')
 
 # =====================================================================
 # CELERY CONFIGURATION
 # =====================================================================
-CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -507,7 +443,7 @@ CELERY_RESULT_EXPIRES = 86400
 CELERY_TASK_ALWAYS_EAGER = DEBUG
 
 # =====================================================================
-# LOGGING CONFIGURATION (7 Log Files with Rotation)
+# LOGGING CONFIGURATION
 # =====================================================================
 LOG_DIR = BASE_DIR / 'logs'
 if not LOG_DIR.exists():
@@ -530,28 +466,11 @@ LOGGING = {
             'style': '{',
         },
     },
-    'filters': {
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        },
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse',
-        },
-    },
     'handlers': {
         'console': {
             'level': 'INFO',
-            'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
-        },
-        'file_debug': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_DIR / 'debug.log',
-            'maxBytes': 1024 * 1024 * 10,
-            'backupCount': 30,
-            'formatter': 'verbose',
         },
         'file_error': {
             'level': 'ERROR',
@@ -561,130 +480,32 @@ LOGGING = {
             'backupCount': 90,
             'formatter': 'verbose',
         },
-        'file_audit': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_DIR / 'audit.log',
-            'maxBytes': 1024 * 1024 * 50,
-            'backupCount': 365,
-            'formatter': 'audit',
-        },
-        'file_payments': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_DIR / 'payments.log',
-            'maxBytes': 1024 * 1024 * 10,
-            'backupCount': 365,
-            'formatter': 'verbose',
-        },
-        'file_shop': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_DIR / 'shop.log',
-            'maxBytes': 1024 * 1024 * 10,
-            'backupCount': 90,
-            'formatter': 'verbose',
-        },
-        'file_sms': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_DIR / 'sms.log',
-            'maxBytes': 1024 * 1024 * 10,
-            'backupCount': 90,
-            'formatter': 'verbose',
-        },
-        'file_email': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_DIR / 'email.log',
-            'maxBytes': 1024 * 1024 * 10,
-            'backupCount': 90,
-            'formatter': 'verbose',
-        },
-        'file_reports': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_DIR / 'reports.log',
-            'maxBytes': 1024 * 1024 * 10,
-            'backupCount': 90,
-            'formatter': 'verbose',
-        },
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file_debug', 'file_error'],
-            'level': config('DJANGO_LOG_LEVEL', default='INFO'),
-            'propagate': False,
-        },
-        'django.request': {
-            'handlers': ['file_error'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
-        'django.db.backends': {
-            'handlers': ['file_debug'],
-            'level': 'DEBUG' if DEBUG else 'ERROR',
+            'handlers': ['console', 'file_error'],
+            'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO'),
             'propagate': False,
         },
         'caldan': {
-            'handlers': ['console', 'file_debug', 'file_error'],
-            'level': config('LOG_LEVEL', default='INFO'),
-            'propagate': False,
-        },
-        'caldan.audit': {
-            'handlers': ['file_audit'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'caldan.payments': {
-            'handlers': ['file_payments'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'caldan.shop': {
-            'handlers': ['file_shop'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'caldan.sms': {
-            'handlers': ['file_sms'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'caldan.email': {
-            'handlers': ['file_email'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'caldan.reports': {
-            'handlers': ['file_reports'],
-            'level': 'INFO',
+            'handlers': ['console', 'file_error'],
+            'level': os.environ.get('LOG_LEVEL', 'INFO'),
             'propagate': False,
         },
     },
 }
 
 # =====================================================================
-# SECURITY HEADERS (Production Settings)
+# SECURITY HEADERS
 # =====================================================================
-SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
-SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=0, cast=int)
-SECURE_HSTS_INCLUDE_SUBDOMAINS = config('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=False, cast=bool)
-SECURE_HSTS_PRELOAD = config('SECURE_HSTS_PRELOAD', default=False, cast=bool)
+SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'False').lower() == 'true'
+SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', 0))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'False').lower() == 'true'
+SECURE_HSTS_PRELOAD = os.environ.get('SECURE_HSTS_PRELOAD', 'False').lower() == 'true'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
-
-# =====================================================================
-# CONTENT SECURITY POLICY (CSP)
-# =====================================================================
-CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://unpkg.com", "https://js.paystack.co")
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com")
-CSP_IMG_SRC = ("'self'", "data:", "https://res.cloudinary.com", "https://cdnjs.cloudflare.com")
-CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com")
-CSP_CONNECT_SRC = ("'self'", "https://api.paystack.co", "https://api.resend.com")
 
 # =====================================================================
 # REST FRAMEWORK CONFIGURATION
@@ -694,32 +515,14 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
+    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
     'DEFAULT_THROTTLE_CLASSES': (
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
     ),
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/day',
-        'user': '1000/hour',
-    },
+    'DEFAULT_THROTTLE_RATES': {'anon': '100/day', 'user': '1000/hour'},
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ),
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework.parsers.JSONParser',
-        'rest_framework.parsers.FormParser',
-        'rest_framework.parsers.MultiPartParser',
-    ),
-    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
-    'DEFAULT_VERSION': 'v1',
-    'ALLOWED_VERSIONS': ['v1', 'v2'],
-    'VERSION_PARAM': 'version',
 }
 
 # =====================================================================
@@ -735,52 +538,28 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': True,
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
-    'VERIFYING_KEY': None,
-    'AUDIENCE': None,
-    'ISSUER': None,
-    'JWK_URL': None,
-    'LEEWAY': 0,
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    'TOKEN_TYPE_CLAIM': 'token_type',
-    'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
-    'JTI_CLAIM': 'jti',
-    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(hours=1),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=7),
 }
 
 # =====================================================================
 # CALDAN-SPECIFIC CONFIGURATION
 # =====================================================================
-CALDAN_OTP_EXPIRY_MINUTES = config('CALDAN_OTP_EXPIRY_MINUTES', default=5, cast=int)
-CALDAN_GRACE_PERIOD_HOURS = config('CALDAN_GRACE_PERIOD_HOURS', default=48, cast=int)
-CALDAN_PROJECT_CODE_PREFIX = config('CALDAN_PROJECT_CODE_PREFIX', default='PRJ')
-CALDAN_ORDER_CODE_PREFIX = config('CALDAN_ORDER_CODE_PREFIX', default='ORD')
-CALDAN_INVOICE_CODE_PREFIX = config('CALDAN_INVOICE_CODE_PREFIX', default='INV')
+CALDAN_OTP_EXPIRY_MINUTES = int(os.environ.get('CALDAN_OTP_EXPIRY_MINUTES', 5))
+CALDAN_GRACE_PERIOD_HOURS = int(os.environ.get('CALDAN_GRACE_PERIOD_HOURS', 48))
+CALDAN_PROJECT_CODE_PREFIX = os.environ.get('CALDAN_PROJECT_CODE_PREFIX', 'PRJ')
+CALDAN_ORDER_CODE_PREFIX = os.environ.get('CALDAN_ORDER_CODE_PREFIX', 'ORD')
+CALDAN_INVOICE_CODE_PREFIX = os.environ.get('CALDAN_INVOICE_CODE_PREFIX', 'INV')
 
 # =====================================================================
 # AUDIT LOG SETTINGS
 # =====================================================================
-AUDIT_LOG_RETENTION_DAYS = config('AUDIT_LOG_RETENTION_DAYS', default=365, cast=int)
+AUDIT_LOG_RETENTION_DAYS = int(os.environ.get('AUDIT_LOG_RETENTION_DAYS', 365))
 AUDIT_LOG_HASH_ALGORITHM = 'SHA256'
 
 # =====================================================================
 # BI-WEEKLY AUDIT REPORT
 # =====================================================================
-AUDIT_REPORT_ENABLED = config('AUDIT_REPORT_ENABLED', default=True, cast=bool)
-AUDIT_REPORT_FREQUENCY_DAYS = config('AUDIT_REPORT_FREQUENCY_DAYS', default=14, cast=int)
-
-# =====================================================================
-# DATA EXPORT SETTINGS
-# =====================================================================
-EXPORT_MAX_RECORDS = 10000
-EXPORT_TEMP_DIR = BASE_DIR / 'tmp' / 'exports'
-EXPORT_RETENTION_DAYS = 7
+AUDIT_REPORT_ENABLED = os.environ.get('AUDIT_REPORT_ENABLED', 'True').lower() == 'true'
+AUDIT_REPORT_FREQUENCY_DAYS = int(os.environ.get('AUDIT_REPORT_FREQUENCY_DAYS', 14))
 
 # =====================================================================
 # KENYA-SPECIFIC SETTINGS
