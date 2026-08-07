@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Django
+*.log
+*.pot
+*.pyc
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Testing
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+tests/e2e/
+tests/fixtures/
+
+# Node modules
+node_modules/
+
+# Misc
+*.db
+*.sqlite3
+*.pyo
+*.pyd
+*.orig
+*.bak
+*.tmp
+logs/*.log
+*.md
+docs/
+previews/
+scripts/

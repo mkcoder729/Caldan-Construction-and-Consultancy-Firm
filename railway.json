@@ -1,13 +1,8 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "pip install -r requirements.txt",
-    "environment": {
-      "MISE_PYTHON_GITHUB_ATTESTATIONS": "false",
-      "RAILPACK_PYTHON_PLAYWRIGHT_INSTALL": "0",
-      "PYTHON_VERSION": "3.11.7"
-    }
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "Dockerfile"
   },
   "deploy": {
     "startCommand": "./entrypoint.sh",
