@@ -172,3 +172,26 @@ def truncate_words(value, num_words):
         return ' '.join(words[:int(num_words)]) + '...'
     except (ValueError, TypeError):
         return str(value)
+
+
+@register.filter
+def display_section(section_code):
+    """
+    Convert a ShopSection code (e.g. 'CONSTRUCTION') to a friendly
+    display label ('Construction Shop').
+    Usage: {{ current_section|display_section }}
+    """
+    from shop.models import Product
+    return dict(Product.ShopSection.choices).get(section_code, section_code or '')
+
+
+@register.filter
+def section_categories(section_code, categories_by_section):
+    """
+    Return the list of category tuples that belong to the given
+    section. Falls back to an empty list when the input is missing.
+    Usage: {% for cat in current_section|section_categories:categories_by_section %}
+    """
+    if not section_code or not categories_by_section:
+        return []
+    return categories_by_section.get(section_code, [])

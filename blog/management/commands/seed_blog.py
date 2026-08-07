@@ -76,6 +76,7 @@ At Caldan Construction, we are committed to building a sustainable future. We in
 
 We believe that building Kenya's future means building responsibly — for our clients, our communities, and our planet.
                 """,
+                "category": BlogPost.Category.CONSTRUCTION,
                 "is_published": True,
                 "published_at": timezone.now() - timezone.timedelta(days=1),
                 "image_url": "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&q=80",
@@ -108,6 +109,7 @@ If something doesn't feel right, it probably isn't. Choose a partner you trust a
 
 At Caldan Construction, we pride ourselves on being a trusted partner for our clients. We're transparent, communicative, and committed to delivering excellence.
                 """,
+                "category": BlogPost.Category.CONSULTANCY,
                 "is_published": True,
                 "published_at": timezone.now() - timezone.timedelta(days=3),
                 "image_url": "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&q=80",
@@ -140,6 +142,7 @@ From architects to contractors, the right team is crucial. Look for professional
 
 With over a decade of experience in renovations across Kenya, Caldan Construction has transformed countless homes. Our team brings expertise, attention to detail, and a commitment to quality to every project.
                 """,
+                "category": BlogPost.Category.CONSTRUCTION,
                 "is_published": True,
                 "published_at": timezone.now() - timezone.timedelta(days=7),
                 "image_url": "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&q=80",
@@ -174,6 +177,7 @@ While quality materials may cost more upfront, they save money in the long run b
 
 At Caldan Construction, we never compromise on quality. We source the best materials for every project and ensure they meet the highest standards.
                 """,
+                "category": BlogPost.Category.CONSULTANCY,
                 "is_published": True,
                 "published_at": timezone.now() - timezone.timedelta(days=14),
                 "image_url": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80",
@@ -206,6 +210,7 @@ Every project presents unique challenges, and this one was no exception. From si
 
 This project represents our continued commitment to building Kenya's future, one project at a time. We're excited to take on more residential developments across the country.
                 """,
+                "category": BlogPost.Category.NEWS,
                 "is_published": True,
                 "published_at": timezone.now() - timezone.timedelta(days=5),
                 "image_url": "https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?w=800&q=80",
@@ -241,6 +246,7 @@ Preventing water damage is significantly cheaper than repairing it.
 
 At Caldan Construction, we specialize in comprehensive waterproofing solutions for all types of buildings. Our team uses the latest materials and techniques to ensure your building stays dry and protected for years to come.
                 """,
+                "category": BlogPost.Category.CONSTRUCTION,
                 "is_published": True,
                 "published_at": timezone.now() - timezone.timedelta(days=10),
                 "image_url": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80",
@@ -273,6 +279,7 @@ Eco-friendly materials and furniture are no longer niche — they're becoming th
 
 At Caldan Construction, we offer comprehensive interior design services. Our team works closely with you to create spaces that reflect your style and meet your needs.
                 """,
+                "category": BlogPost.Category.CONSTRUCTION,
                 "is_published": True,
                 "published_at": timezone.now() - timezone.timedelta(days=8),
                 "image_url": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80",
@@ -291,6 +298,7 @@ At Caldan Construction, we offer comprehensive interior design services. Our tea
                     "title": data["title"],
                     "excerpt": data["excerpt"],
                     "content": data["content"],
+                    "category": data["category"],
                     "is_published": data["is_published"],
                     "published_at": data["published_at"],
                 },
@@ -300,6 +308,7 @@ At Caldan Construction, we offer comprehensive interior design services. Our tea
             post.title = data["title"]
             post.excerpt = data["excerpt"]
             post.content = data["content"]
+            post.category = data["category"]
             post.is_published = data["is_published"]
             post.published_at = data["published_at"]
 

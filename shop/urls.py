@@ -21,6 +21,10 @@ urlpatterns = [
     # =====================================================================
     path('', public_views.shop_home, name='index'),
     path('', public_views.shop_home, name='shop_home'),
+    # Storefront switcher routes — declared BEFORE the catch-all category
+    # route so /shop/section/construction/ doesn't get matched as a
+    # category name.
+    path('section/<str:section>/', public_views.section_products, name='section_products'),
     path('product/<slug:slug>/', public_views.product_detail, name='product_detail'),
     path('category/<str:category>/', public_views.category_products, name='category_products'),
     path('search/', public_views.search_products, name='search_products'),

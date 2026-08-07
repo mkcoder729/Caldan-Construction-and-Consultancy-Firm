@@ -25,6 +25,7 @@ class ProductForm(forms.ModelForm):
         model = Product
         fields = [
             'name',
+            'shop_section',
             'category',
             'unit',
             'short_description',
@@ -44,6 +45,7 @@ class ProductForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'e.g., Portland Cement (50kg)',
             }),
+            'shop_section': forms.Select(attrs={'class': 'form-select'}),
             'category': forms.Select(attrs={'class': 'form-select'}),
             'unit': forms.Select(attrs={'class': 'form-select'}),
             'short_description': forms.TextInput(attrs={
@@ -128,6 +130,22 @@ class ProductForm(forms.ModelForm):
         if not self.instance.pk:
             self.fields['image'].required = True
 
+        # Narrow the Category dropdown to only valid choices for the
+        # selected ShopSection. We do this in Python (rather than via
+        # AJAX + JS) because the section is decided when the form is
+        # rendered; if the user changes the section, the whole form
+        # re-renders on submit and clean() will validate the pair.
+        section_value = (
+            self.data.get('shop_section')
+            or getattr(self.instance, 'shop_section', None)
+            or Product.ShopSection.CONSTRUCTION
+        )
+        valid_categories = [
+            cat for cat in Product.Category.choices
+            if Product.CATEGORY_TO_SECTION.get(cat[0]) == section_value
+        ]
+        self.fields['category'].choices = valid_categories
+
     # ---- Field-level validators ----
 
     def clean_name(self):
@@ -175,6 +193,9 @@ class ProductForm(forms.ModelForm):
         cleaned = super().clean()
         price = cleaned.get('price')
         compare_price = cleaned.get('compare_price')
+        section = cleaned.get('shop_section')
+        category = cleaned.get('category')
+        inventory_material = cleaned.get('inventory_material')
 
         if compare_price is not None and price is not None:
             if compare_price <= price:
@@ -183,6 +204,28 @@ class ProductForm(forms.ModelForm):
                     'Compare-at price must be greater than the selling price '
                     'to display as a discount.'
                 )
+
+        # Cross-field validation: a category must belong to the chosen
+        # section (so a Construction product can't be tagged STATIONERY).
+        if category and section:
+            cat_section = Product.CATEGORY_TO_SECTION.get(category)
+            if cat_section and cat_section != section:
+                self.add_error(
+                    'category',
+                    f"The category '{category}' belongs to the "
+                    f"'{cat_section}' section, not '{section}'. "
+                    "Pick a category that matches the chosen storefront."
+                )
+
+        # General-store products don't link to inventory.Material; only
+        # construction products can carry an inventory_material link.
+        if inventory_material and section and section != Product.ShopSection.CONSTRUCTION:
+            self.add_error(
+                'inventory_material',
+                'Inventory linking is only available for Construction Shop '
+                "products. Clear the inventory link or switch the section to "
+                "'Construction Shop'."
+            )
 
         # Auto-fill meta_title with product name if blank
         if not cleaned.get('meta_title') and cleaned.get('name'):

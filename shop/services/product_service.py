@@ -37,6 +37,7 @@ class ProductService:
         filters:
             search (str)        - matches name, description, slug
             category (str)      - exact category code (e.g. 'CEMENT')
+            section (str)       - exact shop_section code (CONSTRUCTION / GENERAL_STORE)
             is_active (bool)    - filter by active flag
             is_featured (bool)  - filter by featured flag
             in_stock (bool)     - filter by stock availability
@@ -58,6 +59,10 @@ class ProductService:
             category = filters.get('category')
             if category:
                 queryset = queryset.filter(category=category)
+
+            section = filters.get('section')
+            if section:
+                queryset = queryset.filter(shop_section=section)
 
             if filters.get('is_active') is not None:
                 queryset = queryset.filter(is_active=filters['is_active'])

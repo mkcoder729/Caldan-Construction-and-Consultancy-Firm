@@ -3,20 +3,26 @@
 {% load humanize %}
 {% load shop_extras %}
 
-{% block title %}Shop — Construction Materials — Caldan Construction and Consultancy Firm{% endblock %}
+{% block title %}
+{% if current_section == 'GENERAL_STORE' %}General Store — Caldan Construction and Consultancy Firm{% elif current_section == 'CONSTRUCTION' %}Construction Shop — Caldan Construction and Consultancy Firm{% else %}Shop — Construction & General Store — Caldan Construction and Consultancy Firm{% endif %}
+{% endblock %}
 
 {% block meta_description %}
-<meta name="description" content="Buy quality construction materials online from Caldan Construction and Consultancy Firm. Cement, steel, sand, blocks, paint, and more. Shop now for delivery across Kenya.">
+<meta name="description" content="{% if current_section == 'GENERAL_STORE' %}Shop stationery, household items, snacks, personal care and electronics online from Caldan Construction and Consultancy Firm.{% elif current_section == 'CONSTRUCTION' %}Buy quality construction materials online from Caldan Construction and Consultancy Firm. Cement, steel, sand, blocks, paint, and more.{% else %}Shop construction materials and general-store essentials online from Caldan Construction and Consultancy Firm.{% endif %}">
 {% endblock %}
 
 {% block shop_hero %}
-<section class="shop-hero" style="background-image: url('https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1600&q=80');">
+<section class="shop-hero" style="background-image: url('{% if current_section == 'GENERAL_STORE' %}https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=1600&q=80{% else %}https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1600&q=80{% endif %}');">
     <div class="overlay"></div>
     <div class="container">
         <nav class="breadcrumb">
             <a href="{% url 'website:index' %}">Home</a>
             <span class="sep">/</span>
-            <span class="current">Shop</span>
+            <a href="{% url 'shop:index' %}">Shop</a>
+            {% if current_section %}
+            <span class="sep">/</span>
+            <span class="current">{{ current_section|display_section }}</span>
+            {% endif %}
             {% if current_category %}
             <span class="sep">/</span>
             <span class="current">{{ current_category }}</span>
@@ -24,29 +30,40 @@
         </nav>
 
         <div class="icon-wrap">
-            <i class="fas fa-shopping-cart"></i>
+            <i class="fas {% if current_section == 'GENERAL_STORE' %}fa-store{% else %}fa-shopping-cart{% endif %}"></i>
         </div>
 
         <p class="eyebrow">
-            <i class="fas fa-tools"></i> Construction Materials
+            <i class="fas {% if current_section == 'GENERAL_STORE' %}fa-store{% else %}fa-tools{% endif %}"></i>
+            {% if current_section == 'GENERAL_STORE' %}General Store{% elif current_section == 'CONSTRUCTION' %}Construction Materials{% else %}Construction Shop & General Store{% endif %}
         </p>
 
-        <h1>{% if current_category %}{{ current_category }}{% else %}Construction Materials Shop{% endif %}</h1>
+        <h1>
+            {% if current_category %}{{ current_category }}
+            {% elif current_section == 'GENERAL_STORE' %}General Store
+            {% elif current_section == 'CONSTRUCTION' %}Construction Materials Shop
+            {% else %}Shop Caldan{% endif %}
+        </h1>
 
         <p class="subtitle">
             {% if current_category %}
             Browse our selection of {{ current_category|lower }} products.
-            {% else %}
+            {% elif current_section == 'GENERAL_STORE' %}
+            Stationery, household essentials, snacks, personal care and electronics — all in one place.
+            {% elif current_section == 'CONSTRUCTION' %}
             Quality materials for your construction projects. Order online and get delivery across Kenya.
+            {% else %}
+            Switch between our Construction Shop and General Store — one cart, one checkout.
             {% endif %}
         </p>
 
         <div class="gold-line"></div>
 
-        <form method="GET" action="{% url 'shop:index' %}" class="hero-search">
+        <form method="GET" action="{% if current_section %}{% url 'shop:section_products' current_section %}{% else %}{% url 'shop:index' %}{% endif %}" class="hero-search">
+            {% if current_section %}<input type="hidden" name="section" value="{{ current_section }}">{% endif %}
             {% if current_category %}<input type="hidden" name="category" value="{{ current_category }}">{% endif %}
             {% if current_sort and current_sort != 'newest' %}<input type="hidden" name="sort" value="{{ current_sort }}">{% endif %}
-            <input type="text" name="search" placeholder="Search products..." value="{{ search_query|default:'' }}" aria-label="Search products">
+            <input type="text" name="search" placeholder="{% if current_section == 'GENERAL_STORE' %}Search general store…{% else %}Search products…{% endif %}" value="{{ search_query|default:'' }}" aria-label="Search products">
             <button type="submit" class="search-btn">
                 <i class="fas fa-search"></i> Search
             </button>
@@ -64,6 +81,38 @@
 {% block shop_content %}
 
 <!-- ============================================================
+     STOREFRONT SWITCHER
+     Pills that toggle between Construction Shop, General Store,
+     and All Products. Visible on every shop list view.
+     ============================================================ -->
+<div class="storefront-switcher" role="tablist" aria-label="Storefront">
+    <a href="{% url 'shop:section_products' 'CONSTRUCTION' %}"
+       class="storefront-pill {% if current_section == 'CONSTRUCTION' %}is-active{% endif %}"
+       role="tab"
+       aria-selected="{% if current_section == 'CONSTRUCTION' %}true{% else %}false{% endif %}">
+        <i class="fas fa-hard-hat"></i>
+        <span class="pill-label">Construction Shop</span>
+        <span class="pill-count">{{ section_counts.CONSTRUCTION|default:0 }}</span>
+    </a>
+    <a href="{% url 'shop:section_products' 'GENERAL_STORE' %}"
+       class="storefront-pill {% if current_section == 'GENERAL_STORE' %}is-active{% endif %}"
+       role="tab"
+       aria-selected="{% if current_section == 'GENERAL_STORE' %}true{% else %}false{% endif %}">
+        <i class="fas fa-store"></i>
+        <span class="pill-label">General Store</span>
+        <span class="pill-count">{{ section_counts.GENERAL_STORE|default:0 }}</span>
+    </a>
+    <a href="{% url 'shop:index' %}"
+       class="storefront-pill {% if not current_section %}is-active{% endif %}"
+       role="tab"
+       aria-selected="{% if not current_section %}true{% else %}false{% endif %}">
+        <i class="fas fa-th-large"></i>
+        <span class="pill-label">All Products</span>
+        <span class="pill-count">{{ total_products|default:0 }}</span>
+    </a>
+</div>
+
+<!-- ============================================================
      FILTER BAR
      ============================================================ -->
 <div class="filter-bar" style="margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; background: var(--bg-card); padding: 14px 20px; border-radius: var(--radius-lg); border: 1px solid var(--border-primary);">
@@ -71,15 +120,25 @@
         <span style="font-size: 0.85rem; color: var(--text-secondary);">
             <strong style="color: var(--text-primary);">{{ products.paginator.count }}</strong>
             {% if products.paginator.count == 1 %}product{% else %}products{% endif %}
-            {% if current_category %}<span style="color: var(--text-tertiary);">in <span style="color: var(--accent-primary); font-weight: 600;">{{ current_category }}</span></span>{% endif %}
+            {% if current_section %}<span style="color: var(--text-tertiary);">in <span style="color: var(--accent-primary); font-weight: 600;">{{ current_section|display_section }}</span></span>{% endif %}
         </span>
         <div class="filter-chips" style="display: flex; flex-wrap: wrap; gap: 6px; margin-left: 8px;">
-            <a href="{% url 'shop:index' %}{% if search_query %}?search={{ search_query }}{% endif %}{% if current_sort and current_sort != 'newest' %}{% if search_query %}&{% else %}?{% endif %}sort={{ current_sort }}{% endif %}"
+            <a href="{% if current_section %}{% url 'shop:section_products' current_section %}{% else %}{% url 'shop:index' %}{% endif %}{% if search_query %}?search={{ search_query }}{% endif %}{% if current_sort and current_sort != 'newest' %}{% if search_query %}&{% else %}?{% endif %}sort={{ current_sort }}{% endif %}"
                class="chip {% if not current_category %}chip-active{% endif %}"
                style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; text-decoration: none; background: {% if not current_category %}var(--accent-primary); color: #FFFFFF;{% else %}var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-primary);{% endif %} transition: all 0.2s ease;">
                 All
                 <span style="font-size: 0.7rem; opacity: 0.7;">{{ total_products|default:0 }}</span>
             </a>
+            {% if current_section %}
+            {% for cat in categories_by_section|get_item:current_section %}
+            <a href="{% url 'shop:section_products' current_section %}?category={{ cat.0 }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort and current_sort != 'newest' %}&sort={{ current_sort }}{% endif %}"
+               class="chip {% if current_category == cat.0 %}chip-active{% endif %}"
+               style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; text-decoration: none; background: {% if current_category == cat.0 %}var(--accent-primary); color: #FFFFFF;{% else %}var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-primary);{% endif %} transition: all 0.2s ease;">
+                {{ cat.1 }}
+                <span style="font-size: 0.7rem; opacity: 0.7;">{{ category_counts|get_item:cat.0|default:0 }}</span>
+            </a>
+            {% endfor %}
+            {% else %}
             {% for cat in categories %}
             <a href="{% url 'shop:index' %}?category={{ cat.0 }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort and current_sort != 'newest' %}&sort={{ current_sort }}{% endif %}"
                class="chip {% if current_category == cat.0 %}chip-active{% endif %}"
@@ -88,9 +147,11 @@
                 <span style="font-size: 0.7rem; opacity: 0.7;">{{ category_counts|get_item:cat.0|default:0 }}</span>
             </a>
             {% endfor %}
+            {% endif %}
         </div>
     </div>
-    <form method="GET" action="{% url 'shop:index' %}" style="display: flex; align-items: center; gap: 8px;">
+    <form method="GET" action="{% if current_section %}{% url 'shop:section_products' current_section %}{% else %}{% url 'shop:index' %}{% endif %}" style="display: flex; align-items: center; gap: 8px;">
+        {% if current_section %}<input type="hidden" name="section" value="{{ current_section }}">{% endif %}
         {% if current_category %}<input type="hidden" name="category" value="{{ current_category }}">{% endif %}
         {% if search_query %}<input type="hidden" name="search" value="{{ search_query }}">{% endif %}
         <label for="sortSelect" style="font-size: 0.8rem; color: var(--text-tertiary); font-weight: 500;">Sort:</label>
@@ -108,20 +169,20 @@
 <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; align-items: center;">
     <span style="font-size: 0.8rem; color: var(--text-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Active filters:</span>
     {% if search_query %}
-    <a href="{% url 'shop:index' %}{% if current_category %}?category={{ current_category }}{% endif %}{% if current_sort and current_sort != 'newest' %}{% if current_category %}&{% else %}?{% endif %}sort={{ current_sort }}{% endif %}"
+    <a href="{% if current_category %}{% url 'shop:section_products' current_section %}?category={{ current_category }}{% elif current_section %}{% url 'shop:section_products' current_section %}{% else %}{% url 'shop:index' %}{% endif %}{% if current_sort and current_sort != 'newest' %}&sort={{ current_sort }}{% endif %}"
        style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(11, 102, 195, 0.08); color: var(--accent-primary); border: 1px solid rgba(11, 102, 195, 0.15); border-radius: 20px; font-size: 0.8rem; text-decoration: none; font-weight: 500;">
         <i class="fas fa-search" style="font-size: 0.7rem;"></i> "{{ search_query }}"
         <i class="fas fa-times" style="font-size: 0.6rem; opacity: 0.6;"></i>
     </a>
     {% endif %}
     {% if current_category %}
-    <a href="{% url 'shop:index' %}{% if search_query %}?search={{ search_query }}{% endif %}{% if current_sort and current_sort != 'newest' %}{% if search_query %}&{% else %}?{% endif %}sort={{ current_sort }}{% endif %}"
+    <a href="{% if current_section %}{% url 'shop:section_products' current_section %}{% else %}{% url 'shop:index' %}{% endif %}{% if search_query %}?search={{ search_query }}{% endif %}{% if current_sort and current_sort != 'newest' %}{% if search_query %}&{% else %}?{% endif %}sort={{ current_sort }}{% endif %}"
        style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(212, 175, 55, 0.1); color: #B8960F; border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 20px; font-size: 0.8rem; text-decoration: none; font-weight: 500;">
         <i class="fas fa-tag" style="font-size: 0.7rem;"></i> {{ current_category }}
         <i class="fas fa-times" style="font-size: 0.6rem; opacity: 0.6;"></i>
     </a>
     {% endif %}
-    <a href="{% url 'shop:index' %}" style="font-size: 0.75rem; color: var(--accent-danger); font-weight: 600; text-decoration: none; margin-left: 4px;">Clear all</a>
+    <a href="{% if current_section %}{% url 'shop:section_products' current_section %}{% else %}{% url 'shop:index' %}{% endif %}" style="font-size: 0.75rem; color: var(--accent-danger); font-weight: 600; text-decoration: none; margin-left: 4px;">Clear all</a>
 </div>
 {% endif %}
 
@@ -185,7 +246,7 @@
 {% if products.has_other_pages %}
 <div style="display: flex; justify-content: center; gap: 8px; margin-top: 40px; flex-wrap: wrap;">
     {% if products.has_previous %}
-    <a href="?page={{ products.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort and current_sort != 'newest' %}&sort={{ current_sort }}{% endif %}"
+    <a href="?page={{ products.previous_page_number }}{% if current_section %}&section={{ current_section }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort and current_sort != 'newest' %}&sort={{ current_sort }}{% endif %}"
        style="padding: 8px 16px; border: 1px solid var(--border-primary); border-radius: var(--radius-sm); color: var(--text-primary); text-decoration: none; transition: all 0.3s ease;">
         <i class="fas fa-chevron-left"></i> Previous
     </a>
@@ -194,12 +255,12 @@
         {% if products.number == num %}
         <span style="padding: 8px 16px; background: var(--accent-primary); color: #FFFFFF; border-radius: var(--radius-sm); font-weight: 600;">{{ num }}</span>
         {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
-        <a href="?page={{ num }}{% if current_category %}&category={{ current_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort and current_sort != 'newest' %}&sort={{ current_sort }}{% endif %}"
+        <a href="?page={{ num }}{% if current_section %}&section={{ current_section }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort and current_sort != 'newest' %}&sort={{ current_sort }}{% endif %}"
            style="padding: 8px 16px; border: 1px solid var(--border-primary); border-radius: var(--radius-sm); color: var(--text-primary); text-decoration: none; transition: all 0.3s ease;">{{ num }}</a>
         {% endif %}
     {% endfor %}
     {% if products.has_next %}
-    <a href="?page={{ products.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort and current_sort != 'newest' %}&sort={{ current_sort }}{% endif %}"
+    <a href="?page={{ products.next_page_number }}{% if current_section %}&section={{ current_section }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_sort and current_sort != 'newest' %}&sort={{ current_sort }}{% endif %}"
        style="padding: 8px 16px; border: 1px solid var(--border-primary); border-radius: var(--radius-sm); color: var(--text-primary); text-decoration: none; transition: all 0.3s ease;">
         Next <i class="fas fa-chevron-right"></i>
     </a>
@@ -211,6 +272,65 @@
 {% endif %}
 
 <style>
+    /* ============================================================
+       STOREFRONT SWITCHER (Construction / General / All)
+       ============================================================ */
+    .storefront-switcher {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 22px;
+        padding: 6px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-primary);
+        border-radius: 14px;
+        box-shadow: 0 2px 6px rgba(13, 43, 54, 0.04);
+    }
+    .storefront-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-decoration: none;
+        color: var(--text-secondary);
+        background: transparent;
+        border: 1px solid transparent;
+        transition: transform 0.2s ease, background 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        flex: 1 1 200px;
+        justify-content: center;
+    }
+    .storefront-pill i { font-size: 1rem; opacity: 0.85; }
+    .storefront-pill .pill-count {
+        background: var(--bg-secondary);
+        color: var(--text-tertiary);
+        padding: 2px 9px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+    .storefront-pill:hover {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        transform: translateY(-1px);
+    }
+    .storefront-pill.is-active {
+        background: linear-gradient(135deg, #D4AF37 0%, #E8C84A 100%);
+        color: #0D2B36;
+        border-color: #D4AF37;
+        box-shadow: 0 6px 18px -6px rgba(212, 175, 55, 0.45);
+    }
+    .storefront-pill.is-active .pill-count {
+        background: rgba(13, 43, 54, 0.18);
+        color: #0D2B36;
+    }
+    @media (max-width: 576px) {
+        .storefront-switcher { flex-direction: column; }
+        .storefront-pill { flex: 1 1 auto; }
+    }
+
     .product-card:hover {
         transform: translateY(-4px);
         box-shadow: var(--shadow-lg);

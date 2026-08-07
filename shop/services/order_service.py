@@ -141,15 +141,28 @@ class OrderService:
     @classmethod
     def send_order_confirmation(cls, order):
         """
-        Send order confirmation email to client.
+        Send order confirmation email to client AND alert the admin.
+
+        Every place that calls this method (checkout view, payment webhook,
+        Celery task) now also notifies the admin so they can start
+        fulfilment right away.
         """
+        client_ok = False
         try:
             EmailService.send_order_confirmation(order)
-            logger.info(f"Order confirmation sent for {order.order_number}")
-            return True
+            client_ok = True
+            logger.info(f"Order confirmation sent to client for {order.order_number}")
         except Exception as e:
             logger.error(f"Failed to send order confirmation: {str(e)}")
-            return False
+
+        # Always alert the admin in parallel — failures here don't block the
+        # customer receipt.
+        try:
+            EmailService.send_admin_order_alert(order)
+        except Exception as e:
+            logger.error(f"Failed to send admin order alert for {order.order_number}: {str(e)}")
+
+        return client_ok
 
     @classmethod
     def send_status_notification(cls, order, old_status):

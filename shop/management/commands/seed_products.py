@@ -1,7 +1,9 @@
 """
-Seed command for Shop Products - Caldan Construction
+Seed command for Construction Shop Products - Caldan Construction
 Creates 24+ construction materials with images and stock.
-Downloads images from Unsplash and saves to Cloudinary/Django media.
+
+Every product is tagged shop_section=CONSTRUCTION. For general-store
+products (stationery, household, snacks, etc.) run seed_general_store.
 """
 
 from django.core.management.base import BaseCommand
@@ -9,25 +11,41 @@ from django.utils.text import slugify
 from django.core.files.base import ContentFile
 from shop.models import Product
 import requests
-from io import BytesIO
+
+
+def download_image(url, stdout=None):
+    """
+    Module-level helper: fetch an image and return a Django ContentFile.
+
+    Lives at module scope (not a Command method) so it can be reused by
+    other seed commands like seed_general_store.
+
+    Args:
+        url: Remote image URL.
+        stdout: Optional stream to write warnings to. Pass
+            ``self.stdout`` from a Command to mirror user-facing logs.
+
+    Returns:
+        ContentFile on success, ``None`` on any failure (logged once).
+    """
+    try:
+        response = requests.get(url, timeout=10)
+        if response.status_code == 200:
+            return ContentFile(response.content, name='product.jpg')
+        if stdout is not None:
+            stdout.write(f"  ⚠️ Failed to download image: HTTP {response.status_code}")
+        return None
+    except Exception as exc:
+        if stdout is not None:
+            stdout.write(f"  ⚠️ Failed to download image: {exc}")
+        return None
 
 
 class Command(BaseCommand):
-    help = "Seed shop products data into the database with images and stock"
-
-    def download_image(self, url):
-        """Download image from URL and return ContentFile."""
-        try:
-            response = requests.get(url, timeout=10)
-            if response.status_code == 200:
-                return ContentFile(response.content, name='product.jpg')
-            return None
-        except Exception as e:
-            self.stdout.write(f"  ⚠️ Failed to download image: {str(e)}")
-            return None
+    help = "Seed construction shop products with images and stock"
 
     def handle(self, *args, **options):
-        self.stdout.write("🌱 Seeding shop products with images and stock...")
+        self.stdout.write("🌱 Seeding construction shop products with images and stock...")
 
         products_data = [
             # Cement
@@ -340,7 +358,7 @@ class Command(BaseCommand):
             # Download image
             image_file = None
             if data.get("image_url"):
-                image_file = self.download_image(data["image_url"])
+                image_file = download_image(data["image_url"], stdout=self.stdout)
                 if image_file:
                     self.stdout.write(f"  📷 Downloaded image for: {data['name']}")
 
@@ -348,6 +366,7 @@ class Command(BaseCommand):
                 slug=slug,
                 defaults={
                     "name": data["name"],
+                    "shop_section": Product.ShopSection.CONSTRUCTION,
                     "category": data["category"],
                     "unit": data["unit"],
                     "description": data["description"],
@@ -360,10 +379,8 @@ class Command(BaseCommand):
                 },
             )
 
-            # Save image if downloaded
-            if image_file and created:
-                product.image.save(f"{slug}.jpg", image_file, save=True)
-            elif image_file and not created:
+            # Save image (always — refreshes if URL changed; safe no-op otherwise)
+            if image_file:
                 product.image.save(f"{slug}.jpg", image_file, save=True)
 
             if created:
@@ -371,6 +388,7 @@ class Command(BaseCommand):
                 created_count += 1
             else:
                 product.name = data["name"]
+                product.shop_section = Product.ShopSection.CONSTRUCTION
                 product.category = data["category"]
                 product.unit = data["unit"]
                 product.description = data["description"]
@@ -386,6 +404,6 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"\n✅ Products seeding complete! Created: {created_count}, Updated: {updated_count}"
+                f"\n✅ Construction products seeding complete! Created: {created_count}, Updated: {updated_count}"
             )
         )

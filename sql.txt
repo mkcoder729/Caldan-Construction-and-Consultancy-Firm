@@ -1,0 +1,1328 @@
+-- ============================================================
+-- CALDAN CONSTRUCTION — Manual SQL seed (MySQL on Railway)
+-- Safe to re-run; each block is idempotent.
+-- ============================================================
+
+
+-- ============================================================
+-- SECTION 1: SERVICES
+-- ============================================================
+
+INSERT INTO services (name, category, slug, description, long_description, icon, features, is_active, display_order, created_at, updated_at) VALUES
+
+('Design & Construction', 'DESIGN', 'design-construction',
+ 'Full design and construction services from concept to completion. We handle everything from architectural design to final handover.',
+ '',
+ 'fas fa-drafting-compass',
+ JSON_ARRAY(),
+ 1, 1, NOW(), NOW()),
+
+('Renovations', 'RENOVATION', 'renovations',
+ 'Home, office, and commercial renovations with attention to detail. We transform existing spaces into modern, functional environments.',
+ '',
+ 'fas fa-hard-hat',
+ JSON_ARRAY(),
+ 1, 2, NOW(), NOW()),
+
+('Interior Design', 'INTERIOR', 'interior-design',
+ 'Beautiful interior fit-out and design for any space. We create stunning interiors that reflect your style and needs.',
+ '',
+ 'fas fa-paint-roller',
+ JSON_ARRAY(),
+ 1, 3, NOW(), NOW()),
+
+('Welding & Fabrication', 'WELDING', 'welding-fabrication',
+ 'Metalwork, gates, railings, and structural steel fabrication. Quality craftsmanship for all your metal needs.',
+ '',
+ 'fas fa-wrench',
+ JSON_ARRAY(),
+ 1, 4, NOW(), NOW()),
+
+('Concrete Products', 'CONCRETE', 'concrete-products',
+ 'Pre-cast concrete, blocks, slabs, and custom concrete products. Durable and reliable construction materials.',
+ '',
+ 'fas fa-cubes',
+ JSON_ARRAY(),
+ 1, 5, NOW(), NOW()),
+
+('Industrial Floor Solutions', 'INDUSTRIAL', 'industrial-floor-solutions',
+ 'Epoxy, polished concrete, and industrial flooring solutions. Durable, safe, and easy to maintain.',
+ '',
+ 'fas fa-layer-group',
+ JSON_ARRAY(),
+ 1, 6, NOW(), NOW()),
+
+('Waterproofing Works', 'WATERPROOFING', 'waterproofing-works',
+ 'Roof, basement, and tank waterproofing solutions. Protect your structure from water damage.',
+ '',
+ 'fas fa-water',
+ JSON_ARRAY(),
+ 1, 7, NOW(), NOW()),
+
+('Roads & Stormwater Infrastructure', 'INFRASTRUCTURE', 'roads-stormwater-infrastructure',
+ 'Roads, drainage systems, culverts, and stormwater management. Building Kenya''s infrastructure.',
+ '',
+ 'fas fa-road',
+ JSON_ARRAY(),
+ 1, 8, NOW(), NOW()),
+
+('Construction Chemicals', 'CHEMICALS', 'construction-chemicals',
+ 'Admixtures, sealants, grouts, and chemical solutions for construction. Enhance durability and performance.',
+ '',
+ 'fas fa-flask',
+ JSON_ARRAY(),
+ 1, 9, NOW(), NOW())
+
+ON DUPLICATE KEY UPDATE
+  name = VALUES(name),
+  category = VALUES(category),
+  description = VALUES(description),
+  long_description = VALUES(long_description),
+  icon = VALUES(icon),
+  is_active = VALUES(is_active),
+  display_order = VALUES(display_order),
+  updated_at = NOW();
+
+
+-- ============================================================
+-- SECTION 2: TEAM MEMBERS
+-- Table: team_members
+-- No unique constraint on `name`, so we use a 2-step flow:
+--   1. UPDATE existing rows in place (matched by name)
+--   2. INSERT only rows that weren't matched (INSERT IGNORE)
+-- ============================================================
+
+UPDATE team_members SET
+  role           = 'DIRECTOR',
+  title          = 'Director, Building Construction',
+  bio            = 'Dr. Daniel O. Siringi has over 30 years of experience in the construction industry. He leads the company with a focus on quality, integrity, and client satisfaction.',
+  display_order  = 1,
+  is_active      = 1,
+  is_featured    = 1,
+  updated_at     = NOW()
+WHERE name = 'Dr. Daniel O. Siringi';
+
+UPDATE team_members SET
+  role           = 'ADMIN',
+  title          = 'Director, Project Administration',
+  bio            = 'Mrs. Callen K. Manoti oversees project administration and ensures smooth operations across all projects.',
+  display_order  = 2,
+  is_active      = 1,
+  is_featured    = 1,
+  updated_at     = NOW()
+WHERE name = 'Mrs. Callen K. Manoti';
+
+UPDATE team_members SET
+  role           = 'MANAGER',
+  title          = 'Managing Director',
+  bio            = 'Lawrence Njoroge leads the management team with a dynamic and motivated approach to construction management.',
+  display_order  = 3,
+  is_active      = 1,
+  is_featured    = 0,
+  updated_at     = NOW()
+WHERE name = 'Lawrence Njoroge';
+
+UPDATE team_members SET
+  role           = 'ENGINEER',
+  title          = 'Civil Engineer',
+  bio            = 'Gerishon Ngugi is a dedicated civil engineer with expertise in structural design and project execution.',
+  display_order  = 4,
+  is_active      = 1,
+  is_featured    = 0,
+  updated_at     = NOW()
+WHERE name = 'Gerishon Ngugi';
+
+UPDATE team_members SET
+  role           = 'ENGINEER',
+  title          = 'Civil Engineer',
+  bio            = 'James Ngugi brings extensive experience in civil engineering and construction project management.',
+  display_order  = 5,
+  is_active      = 1,
+  is_featured    = 0,
+  updated_at     = NOW()
+WHERE name = 'James Ngugi';
+
+INSERT IGNORE INTO team_members
+  (name, role, title, bio, display_order, is_active, is_featured, created_at, updated_at)
+VALUES
+  ('Dr. Daniel O. Siringi', 'DIRECTOR', 'Director, Building Construction',
+   'Dr. Daniel O. Siringi has over 30 years of experience in the construction industry. He leads the company with a focus on quality, integrity, and client satisfaction.',
+   1, 1, 1, NOW(), NOW()),
+  ('Mrs. Callen K. Manoti', 'ADMIN', 'Director, Project Administration',
+   'Mrs. Callen K. Manoti oversees project administration and ensures smooth operations across all projects.',
+   2, 1, 1, NOW(), NOW()),
+  ('Lawrence Njoroge', 'MANAGER', 'Managing Director',
+   'Lawrence Njoroge leads the management team with a dynamic and motivated approach to construction management.',
+   3, 1, 0, NOW(), NOW()),
+  ('Gerishon Ngugi', 'ENGINEER', 'Civil Engineer',
+   'Gerishon Ngugi is a dedicated civil engineer with expertise in structural design and project execution.',
+   4, 1, 0, NOW(), NOW()),
+  ('James Ngugi', 'ENGINEER', 'Civil Engineer',
+   'James Ngugi brings extensive experience in civil engineering and construction project management.',
+   5, 1, 0, NOW(), NOW());
+
+
+-- ============================================================
+-- SECTION 3: PROJECTS
+-- Table: projects (project_code is UNIQUE → true upsert)
+-- Cover photos are skipped — they need Django/Cloudinary; upload them
+-- from the admin or by re-running seed_projects when convenient.
+-- ============================================================
+
+INSERT INTO projects
+  (name, project_code, description, location, county, town, estate,
+   start_date, end_date, estimated_completion, actual_completion,
+   budget, spent, progress, status, is_archived, archived_at,
+   cover_photo, created_at, updated_at)
+VALUES
+  ('Munanda Secondary School', 'PRJ-2026-0001',
+   'Construction of a modern secondary school facility in Gilgil, Nakuru County. The project included 8 classrooms, administrative block, and a library.',
+   'Gilgil', 'Nakuru', 'Gilgil', '',
+   '2024-01-15', '2024-08-20', NULL, '2024-08-20',
+   2000000.00, 2000000.00, 100.00, 'COMPLETED', 0, NULL,
+   NULL, NOW(), NOW()),
+
+  ('25 Units Apartment - Nakuru', 'PRJ-2026-0002',
+   'Development of 25 modern residential apartment units in Nakuru town. Features include 2-bedroom and 3-bedroom units with parking.',
+   'Nakuru Town', 'Nakuru', 'Nakuru', '',
+   '2024-03-01', NULL, '2026-12-31', NULL,
+   35000000.00, 18200000.00, 35.00, 'ACTIVE', 0, NULL,
+   NULL, NOW(), NOW()),
+
+  ('18 Units Apartment - Dr. Nyangara', 'PRJ-2026-0003',
+   'Construction of 18 high-end apartment units for Dr. Nyangara Naphtali. Modern finishes with premium amenities.',
+   'Nakuru', 'Nakuru', 'Nakuru', '',
+   '2024-02-01', '2024-12-15', NULL, '2024-12-15',
+   22000000.00, 22000000.00, 100.00, 'COMPLETED', 0, NULL,
+   NULL, NOW(), NOW()),
+
+  ('Oyarai Primary School', 'PRJ-2026-0004',
+   'Construction of classrooms and administrative block at Oyarai Primary School. Project included 6 classrooms and staff offices.',
+   'Nakuru', 'Nakuru', 'Nakuru', '',
+   '2024-04-01', '2024-07-30', NULL, '2024-07-30',
+   1100000.00, 1100000.00, 100.00, 'COMPLETED', 0, NULL,
+   NULL, NOW(), NOW()),
+
+  ('Oljorai Secondary School', 'PRJ-2026-0005',
+   'Construction of a modern secondary school facility for the Ministry of Education. Includes 12 classrooms, science labs, and a hall.',
+   'Nakuru', 'Nakuru', 'Nakuru', '',
+   '2024-05-01', '2024-11-30', '2026-09-30', NULL,
+   21000000.00, 9800000.00, 50.00, 'ACTIVE', 0, NULL,
+   NULL, NOW(), NOW()),
+
+  ('Gilgil Secondary School - Koto Housing', 'PRJ-2026-0006',
+   'Construction of dormitories and classrooms for Koto Housing at Gilgil Secondary School. Modern boarding facilities.',
+   'Gilgil', 'Nakuru', 'Gilgil', '',
+   '2024-06-01', '2024-12-20', '2026-11-30', NULL,
+   6500000.00, 3600000.00, 55.00, 'ACTIVE', 0, NULL,
+   NULL, NOW(), NOW()),
+
+  ('Massonnaitte - James Mwangi', 'PRJ-2026-0007',
+   'Construction of a modern massonnaitte residential building in Nakuru. Contemporary design with quality finishes.',
+   'Nakuru', 'Nakuru', 'Nakuru', '',
+   '2024-07-01', '2025-01-15', '2026-08-31', NULL,
+   4200000.00, 2500000.00, 60.00, 'ACTIVE', 0, NULL,
+   NULL, NOW(), NOW()),
+
+  ('Nakuru CBD Commercial Building', 'PRJ-2026-0008',
+   'Construction of a 5-storey commercial building in Nakuru CBD. Includes retail spaces and office floors.',
+   'Nakuru CBD', 'Nakuru', 'Nakuru', '',
+   '2025-01-10', NULL, '2027-03-31', NULL,
+   18000000.00, 5400000.00, 30.00, 'ACTIVE', 0, NULL,
+   NULL, NOW(), NOW()),
+
+  ('Nairobi Industrial Floor Project', 'PRJ-2026-0009',
+   'Industrial epoxy flooring solution for a manufacturing facility in Nairobi. High-durability chemical-resistant flooring.',
+   'Nairobi', 'Nairobi', 'Nairobi', '',
+   '2025-02-01', '2025-03-15', NULL, '2025-03-15',
+   3500000.00, 3500000.00, 100.00, 'COMPLETED', 0, NULL,
+   NULL, NOW(), NOW()),
+
+  ('Nakuru Waterproofing Project', 'PRJ-2026-0010',
+   'Complete waterproofing solution for a commercial building in Nakuru. Roof and basement waterproofing.',
+   'Nakuru', 'Nakuru', 'Nakuru', '',
+   '2025-03-01', '2025-04-30', '2026-10-31', NULL,
+   1200000.00, 0.00, 0.00, 'PLANNING', 0, NULL,
+   NULL, NOW(), NOW())
+
+ON DUPLICATE KEY UPDATE
+  name = VALUES(name),
+  description = VALUES(description),
+  location = VALUES(location),
+  county = VALUES(county),
+  town = VALUES(town),
+  start_date = VALUES(start_date),
+  end_date = VALUES(end_date),
+  estimated_completion = VALUES(estimated_completion),
+  actual_completion = VALUES(actual_completion),
+  budget = VALUES(budget),
+  spent = VALUES(spent),
+  progress = VALUES(progress),
+  status = VALUES(status),
+  is_archived = VALUES(is_archived),
+  updated_at = NOW();
+
+
+-- ============================================================
+-- SECTION 4: PROJECT ↔ SERVICE LINKS
+-- Table: project_service_links (unique_together = ['project','service'])
+-- Use INSERT IGNORE so re-runs don't duplicate.
+-- The project_id is resolved by name (unique business key).
+-- ============================================================
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 1, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Munanda Secondary School' AND s.slug = 'design-construction';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Munanda Secondary School' AND s.slug = 'concrete-products';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 1, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = '25 Units Apartment - Nakuru' AND s.slug = 'design-construction';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = '25 Units Apartment - Nakuru' AND s.slug = 'renovations';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = '25 Units Apartment - Nakuru' AND s.slug = 'interior-design';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 1, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = '18 Units Apartment - Dr. Nyangara' AND s.slug = 'design-construction';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = '18 Units Apartment - Dr. Nyangara' AND s.slug = 'renovations';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = '18 Units Apartment - Dr. Nyangara' AND s.slug = 'concrete-products';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 1, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Oyarai Primary School' AND s.slug = 'design-construction';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Oyarai Primary School' AND s.slug = 'concrete-products';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 1, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Oljorai Secondary School' AND s.slug = 'design-construction';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Oljorai Secondary School' AND s.slug = 'concrete-products';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Oljorai Secondary School' AND s.slug = 'roads-stormwater-infrastructure';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 1, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Gilgil Secondary School - Koto Housing' AND s.slug = 'design-construction';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Gilgil Secondary School - Koto Housing' AND s.slug = 'renovations';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Gilgil Secondary School - Koto Housing' AND s.slug = 'welding-fabrication';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 1, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Massonnaitte - James Mwangi' AND s.slug = 'design-construction';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Massonnaitte - James Mwangi' AND s.slug = 'renovations';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Massonnaitte - James Mwangi' AND s.slug = 'interior-design';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Massonnaitte - James Mwangi' AND s.slug = 'concrete-products';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 1, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Nakuru CBD Commercial Building' AND s.slug = 'design-construction';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Nakuru CBD Commercial Building' AND s.slug = 'industrial-floor-solutions';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Nakuru CBD Commercial Building' AND s.slug = 'waterproofing-works';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 0, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Nakuru CBD Commercial Building' AND s.slug = 'roads-stormwater-infrastructure';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 1, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Nairobi Industrial Floor Project' AND s.slug = 'industrial-floor-solutions';
+
+INSERT IGNORE INTO project_service_links (project_id, service_id, is_primary_service, created_at, updated_at)
+SELECT p.id, s.id, 1, NOW(), NOW()
+FROM projects p, services s
+WHERE p.name = 'Nakuru Waterproofing Project' AND s.slug = 'waterproofing-works';
+
+
+-- ============================================================
+-- SECTION 5: PROJECT MILESTONES
+-- Table: project_milestones
+-- No unique constraint on (project_id, title), so we use a
+-- anti-join pattern: only INSERT when no row exists for (project,title).
+-- Status pattern follows the seed command:
+--   COMPLETED -> all 9 milestones at 100%
+--   ACTIVE    -> varies (this run uses representative samples)
+--   PLANNING  -> first 3 pending
+-- ============================================================
+
+-- 5.1 Munanda Secondary School (COMPLETED) — 9 milestones, all done
+INSERT INTO project_milestones (project_id, title, description, target_date, completed_date, completion_percentage, status, `order`, created_at, updated_at)
+SELECT p.id, m.title, m.description, m.target_date, m.completed_date, m.completion_percentage, m.status, m.ord, NOW(), NOW()
+FROM projects p
+JOIN (
+  SELECT 'Site Survey & Mobilization'                AS title, 'Site Survey & Mobilization phase for Munanda Secondary School.' AS description, '2024-01-30' AS target_date, '2024-01-28' AS completed_date, 100.00 AS completion_percentage, 'COMPLETED' AS status, 0 AS ord UNION ALL
+  SELECT 'Foundation Excavation & Casting',         'Foundation Excavation & Casting phase for Munanda Secondary School.', '2024-02-20', '2024-02-18', 100.00, 'COMPLETED', 1 UNION ALL
+  SELECT 'Structural Framing',                       'Structural Framing phase for Munanda Secondary School.',              '2024-03-25', '2024-03-23', 100.00, 'COMPLETED', 2 UNION ALL
+  SELECT 'Wall Construction',                        'Wall Construction phase for Munanda Secondary School.',               '2024-04-30', '2024-04-28', 100.00, 'COMPLETED', 3 UNION ALL
+  SELECT 'Roofing & Waterproofing',                  'Roofing & Waterproofing phase for Munanda Secondary School.',         '2024-05-30', '2024-05-29', 100.00, 'COMPLETED', 4 UNION ALL
+  SELECT 'Plumbing & Electrical Rough-in',           'Plumbing & Electrical Rough-in phase for Munanda Secondary School.',  '2024-06-25', '2024-06-24', 100.00, 'COMPLETED', 5 UNION ALL
+  SELECT 'Finishes (Plastering, Painting, Flooring)','Finishes phase for Munanda Secondary School.',                       '2024-07-25', '2024-07-24', 100.00, 'COMPLETED', 6 UNION ALL
+  SELECT 'Final Fittings & Inspection',              'Final Fittings & Inspection phase for Munanda Secondary School.',     '2024-08-15', '2024-08-14', 100.00, 'COMPLETED', 7 UNION ALL
+  SELECT 'Handover & Commissioning',                 'Handover & Commissioning phase for Munanda Secondary School.',        '2024-08-20', '2024-08-20', 100.00, 'COMPLETED', 8
+) m
+WHERE p.name = 'Munanda Secondary School'
+  AND NOT EXISTS (
+    SELECT 1 FROM project_milestones pm
+    WHERE pm.project_id = p.id AND pm.title = m.title
+  );
+
+-- 5.2 25 Units Apartment - Nakuru (ACTIVE) — 9 milestones, ~40% done
+INSERT INTO project_milestones (project_id, title, description, target_date, completed_date, completion_percentage, status, `order`, created_at, updated_at)
+SELECT p.id, m.title, m.description, m.target_date, m.completed_date, m.completion_percentage, m.status, m.ord, NOW(), NOW()
+FROM projects p
+JOIN (
+  SELECT 'Site Survey & Mobilization'                AS title, 'Site Survey & Mobilization phase for 25 Units Apartment - Nakuru.' AS description, '2024-03-15' AS target_date, '2024-03-14' AS completed_date, 100.00 AS completion_percentage, 'COMPLETED' AS status, 0 AS ord UNION ALL
+  SELECT 'Foundation Excavation & Casting',         'Foundation Excavation & Casting phase for 25 Units Apartment - Nakuru.', '2024-04-30', '2024-04-29', 100.00, 'COMPLETED', 1 UNION ALL
+  SELECT 'Structural Framing',                       'Structural Framing phase for 25 Units Apartment - Nakuru.',              '2024-07-15', '2024-07-14', 100.00, 'COMPLETED', 2 UNION ALL
+  SELECT 'Wall Construction',                        'Wall Construction phase for 25 Units Apartment - Nakuru.',               '2024-10-01', '2024-09-30', 100.00, 'COMPLETED', 3 UNION ALL
+  SELECT 'Roofing & Waterproofing',                  'Roofing & Waterproofing phase for 25 Units Apartment - Nakuru.',         '2025-01-15', NULL,                  45.00, 'IN_PROGRESS', 4 UNION ALL
+  SELECT 'Plumbing & Electrical Rough-in',           'Plumbing & Electrical Rough-in phase for 25 Units Apartment - Nakuru.',  '2025-04-30', NULL,                   0.00, 'PENDING', 5 UNION ALL
+  SELECT 'Finishes (Plastering, Painting, Flooring)','Finishes phase for 25 Units Apartment - Nakuru.',                       '2025-08-15', NULL,                   0.00, 'PENDING', 6 UNION ALL
+  SELECT 'Final Fittings & Inspection',              'Final Fittings & Inspection phase for 25 Units Apartment - Nakuru.',     '2025-11-30', NULL,                   0.00, 'PENDING', 7 UNION ALL
+  SELECT 'Handover & Commissioning',                 'Handover & Commissioning phase for 25 Units Apartment - Nakuru.',        '2026-03-15', NULL,                   0.00, 'PENDING', 8
+) m
+WHERE p.name = '25 Units Apartment - Nakuru'
+  AND NOT EXISTS (
+    SELECT 1 FROM project_milestones pm
+    WHERE pm.project_id = p.id AND pm.title = m.title
+  );
+
+-- 5.3 18 Units Apartment - Dr. Nyangara (COMPLETED) — 9 milestones, all done
+INSERT INTO project_milestones (project_id, title, description, target_date, completed_date, completion_percentage, status, `order`, created_at, updated_at)
+SELECT p.id, m.title, m.description, m.target_date, m.completed_date, m.completion_percentage, m.status, m.ord, NOW(), NOW()
+FROM projects p
+JOIN (
+  SELECT 'Site Survey & Mobilization'                AS title, 'Site Survey & Mobilization phase for 18 Units Apartment - Dr. Nyangara.' AS description, '2024-02-20' AS target_date, '2024-02-19' AS completed_date, 100.00 AS completion_percentage, 'COMPLETED' AS status, 0 AS ord UNION ALL
+  SELECT 'Foundation Excavation & Casting',         'Foundation Excavation & Casting phase for 18 Units Apartment - Dr. Nyangara.', '2024-04-15', '2024-04-14', 100.00, 'COMPLETED', 1 UNION ALL
+  SELECT 'Structural Framing',                       'Structural Framing phase for 18 Units Apartment - Dr. Nyangara.',              '2024-06-30', '2024-06-29', 100.00, 'COMPLETED', 2 UNION ALL
+  SELECT 'Wall Construction',                        'Wall Construction phase for 18 Units Apartment - Dr. Nyangara.',               '2024-08-30', '2024-08-29', 100.00, 'COMPLETED', 3 UNION ALL
+  SELECT 'Roofing & Waterproofing',                  'Roofing & Waterproofing phase for 18 Units Apartment - Dr. Nyangara.',         '2024-10-15', '2024-10-14', 100.00, 'COMPLETED', 4 UNION ALL
+  SELECT 'Plumbing & Electrical Rough-in',           'Plumbing & Electrical Rough-in phase for 18 Units Apartment - Dr. Nyangara.',  '2024-11-15', '2024-11-14', 100.00, 'COMPLETED', 5 UNION ALL
+  SELECT 'Finishes (Plastering, Painting, Flooring)','Finishes phase for 18 Units Apartment - Dr. Nyangara.',                       '2024-12-05', '2024-12-04', 100.00, 'COMPLETED', 6 UNION ALL
+  SELECT 'Final Fittings & Inspection',              'Final Fittings & Inspection phase for 18 Units Apartment - Dr. Nyangara.',     '2024-12-12', '2024-12-11', 100.00, 'COMPLETED', 7 UNION ALL
+  SELECT 'Handover & Commissioning',                 'Handover & Commissioning phase for 18 Units Apartment - Dr. Nyangara.',        '2024-12-15', '2024-12-15', 100.00, 'COMPLETED', 8
+) m
+WHERE p.name = '18 Units Apartment - Dr. Nyangara'
+  AND NOT EXISTS (
+    SELECT 1 FROM project_milestones pm
+    WHERE pm.project_id = p.id AND pm.title = m.title
+  );
+
+-- 5.4 Oyarai Primary School (COMPLETED) — 9 milestones, all done
+INSERT INTO project_milestones (project_id, title, description, target_date, completed_date, completion_percentage, status, `order`, created_at, updated_at)
+SELECT p.id, m.title, m.description, m.target_date, m.completed_date, m.completion_percentage, m.status, m.ord, NOW(), NOW()
+FROM projects p
+JOIN (
+  SELECT 'Site Survey & Mobilization'                AS title, 'Site Survey & Mobilization phase for Oyarai Primary School.' AS description, '2024-04-15' AS target_date, '2024-04-14' AS completed_date, 100.00 AS completion_percentage, 'COMPLETED' AS status, 0 AS ord UNION ALL
+  SELECT 'Foundation Excavation & Casting',         'Foundation Excavation & Casting phase for Oyarai Primary School.', '2024-05-10', '2024-05-09', 100.00, 'COMPLETED', 1 UNION ALL
+  SELECT 'Structural Framing',                       'Structural Framing phase for Oyarai Primary School.',              '2024-05-30', '2024-05-29', 100.00, 'COMPLETED', 2 UNION ALL
+  SELECT 'Wall Construction',                        'Wall Construction phase for Oyarai Primary School.',               '2024-06-15', '2024-06-14', 100.00, 'COMPLETED', 3 UNION ALL
+  SELECT 'Roofing & Waterproofing',                  'Roofing & Waterproofing phase for Oyarai Primary School.',         '2024-06-30', '2024-06-29', 100.00, 'COMPLETED', 4 UNION ALL
+  SELECT 'Plumbing & Electrical Rough-in',           'Plumbing & Electrical Rough-in phase for Oyarai Primary School.',  '2024-07-10', '2024-07-09', 100.00, 'COMPLETED', 5 UNION ALL
+  SELECT 'Finishes (Plastering, Painting, Flooring)','Finishes phase for Oyarai Primary School.',                       '2024-07-20', '2024-07-19', 100.00, 'COMPLETED', 6 UNION ALL
+  SELECT 'Final Fittings & Inspection',              'Final Fittings & Inspection phase for Oyarai Primary School.',     '2024-07-27', '2024-07-26', 100.00, 'COMPLETED', 7 UNION ALL
+  SELECT 'Handover & Commissioning',                 'Handover & Commissioning phase for Oyarai Primary School.',        '2024-07-30', '2024-07-30', 100.00, 'COMPLETED', 8
+) m
+WHERE p.name = 'Oyarai Primary School'
+  AND NOT EXISTS (
+    SELECT 1 FROM project_milestones pm
+    WHERE pm.project_id = p.id AND pm.title = m.title
+  );
+
+-- 5.5 Oljorai Secondary School (ACTIVE) — 9 milestones, ~50% done
+INSERT INTO project_milestones (project_id, title, description, target_date, completed_date, completion_percentage, status, `order`, created_at, updated_at)
+SELECT p.id, m.title, m.description, m.target_date, m.completed_date, m.completion_percentage, m.status, m.ord, NOW(), NOW()
+FROM projects p
+JOIN (
+  SELECT 'Site Survey & Mobilization'                AS title, 'Site Survey & Mobilization phase for Oljorai Secondary School.' AS description, '2024-05-15' AS target_date, '2024-05-14' AS completed_date, 100.00 AS completion_percentage, 'COMPLETED' AS status, 0 AS ord UNION ALL
+  SELECT 'Foundation Excavation & Casting',         'Foundation Excavation & Casting phase for Oljorai Secondary School.', '2024-06-30', '2024-06-29', 100.00, 'COMPLETED', 1 UNION ALL
+  SELECT 'Structural Framing',                       'Structural Framing phase for Oljorai Secondary School.',              '2024-08-15', '2024-08-14', 100.00, 'COMPLETED', 2 UNION ALL
+  SELECT 'Wall Construction',                        'Wall Construction phase for Oljorai Secondary School.',               '2024-10-15', '2024-10-14', 100.00, 'COMPLETED', 3 UNION ALL
+  SELECT 'Roofing & Waterproofing',                  'Roofing & Waterproofing phase for Oljorai Secondary School.',         '2024-12-15', '2024-12-14', 100.00, 'COMPLETED', 4 UNION ALL
+  SELECT 'Plumbing & Electrical Rough-in',           'Plumbing & Electrical Rough-in phase for Oljorai Secondary School.',  '2025-03-15', NULL,                  35.00, 'IN_PROGRESS', 5 UNION ALL
+  SELECT 'Finishes (Plastering, Painting, Flooring)','Finishes phase for Oljorai Secondary School.',                       '2025-06-30', NULL,                   0.00, 'PENDING', 6 UNION ALL
+  SELECT 'Final Fittings & Inspection',              'Final Fittings & Inspection phase for Oljorai Secondary School.',     '2025-09-30', NULL,                   0.00, 'PENDING', 7 UNION ALL
+  SELECT 'Handover & Commissioning',                 'Handover & Commissioning phase for Oljorai Secondary School.',        '2025-11-30', NULL,                   0.00, 'PENDING', 8
+) m
+WHERE p.name = 'Oljorai Secondary School'
+  AND NOT EXISTS (
+    SELECT 1 FROM project_milestones pm
+    WHERE pm.project_id = p.id AND pm.title = m.title
+  );
+
+-- 5.6 Gilgil Secondary School - Koto Housing (ACTIVE) — 9 milestones, ~55% done
+INSERT INTO project_milestones (project_id, title, description, target_date, completed_date, completion_percentage, status, `order`, created_at, updated_at)
+SELECT p.id, m.title, m.description, m.target_date, m.completed_date, m.completion_percentage, m.status, m.ord, NOW(), NOW()
+FROM projects p
+JOIN (
+  SELECT 'Site Survey & Mobilization'                AS title, 'Site Survey & Mobilization phase for Gilgil Secondary School - Koto Housing.' AS description, '2024-06-15' AS target_date, '2024-06-14' AS completed_date, 100.00 AS completion_percentage, 'COMPLETED' AS status, 0 AS ord UNION ALL
+  SELECT 'Foundation Excavation & Casting',         'Foundation Excavation & Casting phase for Gilgil Secondary School - Koto Housing.', '2024-07-30', '2024-07-29', 100.00, 'COMPLETED', 1 UNION ALL
+  SELECT 'Structural Framing',                       'Structural Framing phase for Gilgil Secondary School - Koto Housing.',              '2024-09-15', '2024-09-14', 100.00, 'COMPLETED', 2 UNION ALL
+  SELECT 'Wall Construction',                        'Wall Construction phase for Gilgil Secondary School - Koto Housing.',               '2024-10-30', '2024-10-29', 100.00, 'COMPLETED', 3 UNION ALL
+  SELECT 'Roofing & Waterproofing',                  'Roofing & Waterproofing phase for Gilgil Secondary School - Koto Housing.',         '2024-12-15', '2024-12-14', 100.00, 'COMPLETED', 4 UNION ALL
+  SELECT 'Plumbing & Electrical Rough-in',           'Plumbing & Electrical Rough-in phase for Gilgil Secondary School - Koto Housing.',  '2025-03-15', NULL,                  40.00, 'IN_PROGRESS', 5 UNION ALL
+  SELECT 'Finishes (Plastering, Painting, Flooring)','Finishes phase for Gilgil Secondary School - Koto Housing.',                       '2025-06-30', NULL,                   0.00, 'PENDING', 6 UNION ALL
+  SELECT 'Final Fittings & Inspection',              'Final Fittings & Inspection phase for Gilgil Secondary School - Koto Housing.',     '2025-09-30', NULL,                   0.00, 'PENDING', 7 UNION ALL
+  SELECT 'Handover & Commissioning',                 'Handover & Commissioning phase for Gilgil Secondary School - Koto Housing.',        '2024-12-20', NULL,                   0.00, 'PENDING', 8
+) m
+WHERE p.name = 'Gilgil Secondary School - Koto Housing'
+  AND NOT EXISTS (
+    SELECT 1 FROM project_milestones pm
+    WHERE pm.project_id = p.id AND pm.title = m.title
+  );
+
+-- 5.7 Massonnaitte - James Mwangi (ACTIVE) — 9 milestones, ~60% done
+INSERT INTO project_milestones (project_id, title, description, target_date, completed_date, completion_percentage, status, `order`, created_at, updated_at)
+SELECT p.id, m.title, m.description, m.target_date, m.completed_date, m.completion_percentage, m.status, m.ord, NOW(), NOW()
+FROM projects p
+JOIN (
+  SELECT 'Site Survey & Mobilization'                AS title, 'Site Survey & Mobilization phase for Massonnaitte - James Mwangi.' AS description, '2024-07-15' AS target_date, '2024-07-14' AS completed_date, 100.00 AS completion_percentage, 'COMPLETED' AS status, 0 AS ord UNION ALL
+  SELECT 'Foundation Excavation & Casting',         'Foundation Excavation & Casting phase for Massonnaitte - James Mwangi.', '2024-08-30', '2024-08-29', 100.00, 'COMPLETED', 1 UNION ALL
+  SELECT 'Structural Framing',                       'Structural Framing phase for Massonnaitte - James Mwangi.',              '2024-10-15', '2024-10-14', 100.00, 'COMPLETED', 2 UNION ALL
+  SELECT 'Wall Construction',                        'Wall Construction phase for Massonnaitte - James Mwangi.',               '2024-11-30', '2024-11-29', 100.00, 'COMPLETED', 3 UNION ALL
+  SELECT 'Roofing & Waterproofing',                  'Roofing & Waterproofing phase for Massonnaitte - James Mwangi.',         '2025-01-15', '2025-01-14', 100.00, 'COMPLETED', 4 UNION ALL
+  SELECT 'Plumbing & Electrical Rough-in',           'Plumbing & Electrical Rough-in phase for Massonnaitte - James Mwangi.',  '2025-03-30', '2025-03-29', 100.00, 'COMPLETED', 5 UNION ALL
+  SELECT 'Finishes (Plastering, Painting, Flooring)','Finishes phase for Massonnaitte - James Mwangi.',                       '2025-06-15', NULL,                  50.00, 'IN_PROGRESS', 6 UNION ALL
+  SELECT 'Final Fittings & Inspection',              'Final Fittings & Inspection phase for Massonnaitte - James Mwangi.',     '2025-09-30', NULL,                   0.00, 'PENDING', 7 UNION ALL
+  SELECT 'Handover & Commissioning',                 'Handover & Commissioning phase for Massonnaitte - James Mwangi.',        '2025-01-15', NULL,                   0.00, 'PENDING', 8
+) m
+WHERE p.name = 'Massonnaitte - James Mwangi'
+  AND NOT EXISTS (
+    SELECT 1 FROM project_milestones pm
+    WHERE pm.project_id = p.id AND pm.title = m.title
+  );
+
+-- 5.8 Nakuru CBD Commercial Building (ACTIVE) — 9 milestones, ~30% done
+INSERT INTO project_milestones (project_id, title, description, target_date, completed_date, completion_percentage, status, `order`, created_at, updated_at)
+SELECT p.id, m.title, m.description, m.target_date, m.completed_date, m.completion_percentage, m.status, m.ord, NOW(), NOW()
+FROM projects p
+JOIN (
+  SELECT 'Site Survey & Mobilization'                AS title, 'Site Survey & Mobilization phase for Nakuru CBD Commercial Building.' AS description, '2025-01-30' AS target_date, '2025-01-29' AS completed_date, 100.00 AS completion_percentage, 'COMPLETED' AS status, 0 AS ord UNION ALL
+  SELECT 'Foundation Excavation & Casting',         'Foundation Excavation & Casting phase for Nakuru CBD Commercial Building.', '2025-03-30', '2025-03-29', 100.00, 'COMPLETED', 1 UNION ALL
+  SELECT 'Structural Framing',                       'Structural Framing phase for Nakuru CBD Commercial Building.',              '2025-06-30', NULL,                  30.00, 'IN_PROGRESS', 2 UNION ALL
+  SELECT 'Wall Construction',                        'Wall Construction phase for Nakuru CBD Commercial Building.',               '2025-10-15', NULL,                   0.00, 'PENDING', 3 UNION ALL
+  SELECT 'Roofing & Waterproofing',                  'Roofing & Waterproofing phase for Nakuru CBD Commercial Building.',         '2026-01-15', NULL,                   0.00, 'PENDING', 4 UNION ALL
+  SELECT 'Plumbing & Electrical Rough-in',           'Plumbing & Electrical Rough-in phase for Nakuru CBD Commercial Building.',  '2026-04-30', NULL,                   0.00, 'PENDING', 5 UNION ALL
+  SELECT 'Finishes (Plastering, Painting, Flooring)','Finishes phase for Nakuru CBD Commercial Building.',                       '2026-08-30', NULL,                   0.00, 'PENDING', 6 UNION ALL
+  SELECT 'Final Fittings & Inspection',              'Final Fittings & Inspection phase for Nakuru CBD Commercial Building.',     '2026-11-30', NULL,                   0.00, 'PENDING', 7 UNION ALL
+  SELECT 'Handover & Commissioning',                 'Handover & Commissioning phase for Nakuru CBD Commercial Building.',        '2027-03-31', NULL,                   0.00, 'PENDING', 8
+) m
+WHERE p.name = 'Nakuru CBD Commercial Building'
+  AND NOT EXISTS (
+    SELECT 1 FROM project_milestones pm
+    WHERE pm.project_id = p.id AND pm.title = m.title
+  );
+
+-- 5.9 Nairobi Industrial Floor Project (COMPLETED) — 9 milestones, all done
+INSERT INTO project_milestones (project_id, title, description, target_date, completed_date, completion_percentage, status, `order`, created_at, updated_at)
+SELECT p.id, m.title, m.description, m.target_date, m.completed_date, m.completion_percentage, m.status, m.ord, NOW(), NOW()
+FROM projects p
+JOIN (
+  SELECT 'Site Survey & Mobilization'                AS title, 'Site Survey & Mobilization phase for Nairobi Industrial Floor Project.' AS description, '2025-02-08' AS target_date, '2025-02-07' AS completed_date, 100.00 AS completion_percentage, 'COMPLETED' AS status, 0 AS ord UNION ALL
+  SELECT 'Foundation Excavation & Casting',         'Foundation Excavation & Casting phase for Nairobi Industrial Floor Project.', '2025-02-15', '2025-02-14', 100.00, 'COMPLETED', 1 UNION ALL
+  SELECT 'Structural Framing',                       'Structural Framing phase for Nairobi Industrial Floor Project.',              '2025-02-20', '2025-02-19', 100.00, 'COMPLETED', 2 UNION ALL
+  SELECT 'Wall Construction',                        'Wall Construction phase for Nairobi Industrial Floor Project.',               '2025-02-25', '2025-02-24', 100.00, 'COMPLETED', 3 UNION ALL
+  SELECT 'Roofing & Waterproofing',                  'Roofing & Waterproofing phase for Nairobi Industrial Floor Project.',         '2025-03-01', '2025-02-28', 100.00, 'COMPLETED', 4 UNION ALL
+  SELECT 'Plumbing & Electrical Rough-in',           'Plumbing & Electrical Rough-in phase for Nairobi Industrial Floor Project.',  '2025-03-05', '2025-03-04', 100.00, 'COMPLETED', 5 UNION ALL
+  SELECT 'Finishes (Plastering, Painting, Flooring)','Finishes phase for Nairobi Industrial Floor Project.',                       '2025-03-10', '2025-03-09', 100.00, 'COMPLETED', 6 UNION ALL
+  SELECT 'Final Fittings & Inspection',              'Final Fittings & Inspection phase for Nairobi Industrial Floor Project.',     '2025-03-13', '2025-03-12', 100.00, 'COMPLETED', 7 UNION ALL
+  SELECT 'Handover & Commissioning',                 'Handover & Commissioning phase for Nairobi Industrial Floor Project.',        '2025-03-15', '2025-03-15', 100.00, 'COMPLETED', 8
+) m
+WHERE p.name = 'Nairobi Industrial Floor Project'
+  AND NOT EXISTS (
+    SELECT 1 FROM project_milestones pm
+    WHERE pm.project_id = p.id AND pm.title = m.title
+  );
+
+-- 5.10 Nakuru Waterproofing Project (PLANNING) — first 3 milestones, all pending
+INSERT INTO project_milestones (project_id, title, description, target_date, completed_date, completion_percentage, status, `order`, created_at, updated_at)
+SELECT p.id, m.title, m.description, m.target_date, m.completed_date, m.completion_percentage, m.status, m.ord, NOW(), NOW()
+FROM projects p
+JOIN (
+  SELECT 'Site Survey & Mobilization'         AS title, 'Site Survey & Mobilization phase for Nakuru Waterproofing Project.' AS description, '2026-09-15' AS target_date, NULL AS completed_date, 0.00 AS completion_percentage, 'PENDING' AS status, 0 AS ord UNION ALL
+  SELECT 'Foundation Excavation & Casting',    'Foundation Excavation & Casting phase for Nakuru Waterproofing Project.', '2026-10-01', NULL, 0.00, 'PENDING', 1 UNION ALL
+  SELECT 'Structural Framing',                  'Structural Framing phase for Nakuru Waterproofing Project.',              '2026-10-15', NULL, 0.00, 'PENDING', 2
+) m
+WHERE p.name = 'Nakuru Waterproofing Project'
+  AND NOT EXISTS (
+    SELECT 1 FROM project_milestones pm
+    WHERE pm.project_id = p.id AND pm.title = m.title
+  );
+
+
+-- ============================================================
+-- SECTION 6: CLIENTS
+-- Table: clients
+-- No unique constraint on `email` at the DB level (only an index),
+-- so we use the same UPDATE+INSERT IGNORE pattern as team_members.
+-- Match key is `email` (the natural dedupe key).
+-- ============================================================
+
+UPDATE clients SET
+  type         = 'INDIVIDUAL',
+  company_name = '',
+  phone        = '0712345678',
+  county       = 'Nakuru',
+  town         = 'Nakuru',
+  status       = 'ACTIVE',
+  source       = 'Referral',
+  notes        = 'Completed 25-unit apartment project.',
+  updated_at   = NOW()
+WHERE email = 'kennedy.onyancha@example.com';
+
+UPDATE clients SET
+  type         = 'INDIVIDUAL',
+  company_name = '',
+  phone        = '0723456789',
+  county       = 'Nakuru',
+  town         = 'Nakuru',
+  status       = 'ACTIVE',
+  source       = 'Referral',
+  notes        = 'Completed 18-unit apartment project.',
+  updated_at   = NOW()
+WHERE email = 'nyangara.naphtali@example.com';
+
+UPDATE clients SET
+  type         = 'INDIVIDUAL',
+  company_name = '',
+  phone        = '0734567890',
+  county       = 'Nakuru',
+  town         = 'Nakuru',
+  status       = 'ACTIVE',
+  source       = 'Website',
+  notes        = 'Completed massonnaitte project.',
+  updated_at   = NOW()
+WHERE email = 'james.mwangi@example.com';
+
+UPDATE clients SET
+  type         = 'INSTITUTION',
+  company_name = 'Munanda Secondary School',
+  phone        = '0745678901',
+  county       = 'Nakuru',
+  town         = 'Gilgil',
+  status       = 'ACTIVE',
+  source       = 'Direct',
+  notes        = 'Completed secondary school construction.',
+  updated_at   = NOW()
+WHERE email = 'info@munanda.sc.ke';
+
+UPDATE clients SET
+  type         = 'INSTITUTION',
+  company_name = 'Oyarai Primary School',
+  phone        = '0756789012',
+  county       = 'Nakuru',
+  town         = 'Nakuru',
+  status       = 'ACTIVE',
+  source       = 'Direct',
+  notes        = 'Completed classroom construction.',
+  updated_at   = NOW()
+WHERE email = 'info@oyaraiprimary.sc.ke';
+
+UPDATE clients SET
+  type         = 'COMPANY',
+  company_name = 'Koto Housing',
+  phone        = '0767890123',
+  county       = 'Nakuru',
+  town         = 'Gilgil',
+  status       = 'ACTIVE',
+  source       = 'Direct',
+  notes        = 'Gilgil Secondary School project.',
+  updated_at   = NOW()
+WHERE email = 'info@kotohousing.co.ke';
+
+UPDATE clients SET
+  type         = 'INSTITUTION',
+  company_name = 'Ministry of Education',
+  phone        = '0778901234',
+  county       = 'Nairobi',
+  town         = 'Nairobi',
+  status       = 'ACTIVE',
+  source       = 'Tender',
+  notes        = 'Oljorai Secondary School project.',
+  updated_at   = NOW()
+WHERE email = 'info@education.go.ke';
+
+UPDATE clients SET
+  type         = 'INSTITUTION',
+  company_name = 'Gilgil Secondary School',
+  phone        = '0789012345',
+  county       = 'Nakuru',
+  town         = 'Gilgil',
+  status       = 'ACTIVE',
+  source       = 'Referral',
+  notes        = 'Koto Housing project.',
+  updated_at   = NOW()
+WHERE email = 'info@gilgilsecondary.sc.ke';
+
+UPDATE clients SET
+  type         = 'COMPANY',
+  company_name = 'Lakeside Heights Developers Ltd',
+  phone        = '0790123456',
+  county       = 'Nakuru',
+  town         = 'Naivasha',
+  status       = 'ACTIVE',
+  source       = 'Website',
+  notes        = 'Residential development partner — 4 active sites.',
+  updated_at   = NOW()
+WHERE email = 'projects@lakesideheights.co.ke';
+
+UPDATE clients SET
+  type         = 'INSTITUTION',
+  company_name = 'St. Mary''s Academy',
+  phone        = '0701234567',
+  county       = 'Nairobi',
+  town         = 'Westlands',
+  status       = 'ACTIVE',
+  source       = 'Referral',
+  notes        = 'Perimeter wall and classroom block extension.',
+  updated_at   = NOW()
+WHERE email = 'admin@stmarysacademy.sc.ke';
+
+UPDATE clients SET
+  type         = 'INDIVIDUAL',
+  company_name = '',
+  phone        = '0711223344',
+  county       = 'Kiambu',
+  town         = 'Thika',
+  status       = 'LEAD',
+  source       = 'Referral',
+  notes        = 'Lead — interested in residential interior fit-out.',
+  updated_at   = NOW()
+WHERE email = 'ann.wambui@example.com';
+
+UPDATE clients SET
+  type         = 'COMPANY',
+  company_name = 'Riverside Logistics Ltd',
+  phone        = '0733445566',
+  county       = 'Nakuru',
+  town         = 'Nakuru',
+  status       = 'ACTIVE',
+  source       = 'Direct',
+  notes        = 'Warehouse floor resurfacing and roof waterproofing.',
+  updated_at   = NOW()
+WHERE email = 'facilities@riversidelogistics.co.ke';
+
+UPDATE clients SET
+  type         = 'INDIVIDUAL',
+  company_name = '',
+  phone        = '0788990011',
+  county       = 'Nakuru',
+  town         = 'Nakuru',
+  status       = 'CONVERTED',
+  source       = 'Website',
+  notes        = 'Converted lead — completed kitchen renovation.',
+  updated_at   = NOW()
+WHERE email = 'peter.kamau@example.com';
+
+INSERT IGNORE INTO clients
+  (name, type, company_name, email, phone, county, town, status, source, notes, created_at, updated_at)
+VALUES
+  ('Kennedy Onyancha', 'INDIVIDUAL', '',
+   'kennedy.onyancha@example.com', '0712345678', 'Nakuru', 'Nakuru',
+   'ACTIVE', 'Referral', 'Completed 25-unit apartment project.', NOW(), NOW()),
+  ('Dr. Nyangara Naphtali', 'INDIVIDUAL', '',
+   'nyangara.naphtali@example.com', '0723456789', 'Nakuru', 'Nakuru',
+   'ACTIVE', 'Referral', 'Completed 18-unit apartment project.', NOW(), NOW()),
+  ('James Mwangi', 'INDIVIDUAL', '',
+   'james.mwangi@example.com', '0734567890', 'Nakuru', 'Nakuru',
+   'ACTIVE', 'Website', 'Completed massonnaitte project.', NOW(), NOW()),
+  ('Munanda Secondary School', 'INSTITUTION', 'Munanda Secondary School',
+   'info@munanda.sc.ke', '0745678901', 'Nakuru', 'Gilgil',
+   'ACTIVE', 'Direct', 'Completed secondary school construction.', NOW(), NOW()),
+  ('Oyarai Primary School', 'INSTITUTION', 'Oyarai Primary School',
+   'info@oyaraiprimary.sc.ke', '0756789012', 'Nakuru', 'Nakuru',
+   'ACTIVE', 'Direct', 'Completed classroom construction.', NOW(), NOW()),
+  ('Koto Housing', 'COMPANY', 'Koto Housing',
+   'info@kotohousing.co.ke', '0767890123', 'Nakuru', 'Gilgil',
+   'ACTIVE', 'Direct', 'Gilgil Secondary School project.', NOW(), NOW()),
+  ('Ministry of Education', 'INSTITUTION', 'Ministry of Education',
+   'info@education.go.ke', '0778901234', 'Nairobi', 'Nairobi',
+   'ACTIVE', 'Tender', 'Oljorai Secondary School project.', NOW(), NOW()),
+  ('Gilgil Secondary School', 'INSTITUTION', 'Gilgil Secondary School',
+   'info@gilgilsecondary.sc.ke', '0789012345', 'Nakuru', 'Gilgil',
+   'ACTIVE', 'Referral', 'Koto Housing project.', NOW(), NOW()),
+  ('Lakeside Heights Developers', 'COMPANY', 'Lakeside Heights Developers Ltd',
+   'projects@lakesideheights.co.ke', '0790123456', 'Nakuru', 'Naivasha',
+   'ACTIVE', 'Website', 'Residential development partner — 4 active sites.', NOW(), NOW()),
+  ('St. Mary''s Academy', 'INSTITUTION', 'St. Mary''s Academy',
+   'admin@stmarysacademy.sc.ke', '0701234567', 'Nairobi', 'Westlands',
+   'ACTIVE', 'Referral', 'Perimeter wall and classroom block extension.', NOW(), NOW()),
+  ('Ann Wambui', 'INDIVIDUAL', '',
+   'ann.wambui@example.com', '0711223344', 'Kiambu', 'Thika',
+   'LEAD', 'Referral', 'Lead — interested in residential interior fit-out.', NOW(), NOW()),
+  ('Riverside Logistics', 'COMPANY', 'Riverside Logistics Ltd',
+   'facilities@riversidelogistics.co.ke', '0733445566', 'Nakuru', 'Nakuru',
+   'ACTIVE', 'Direct', 'Warehouse floor resurfacing and roof waterproofing.', NOW(), NOW()),
+  ('Peter Kamau', 'INDIVIDUAL', '',
+   'peter.kamau@example.com', '0788990011', 'Nakuru', 'Nakuru',
+   'CONVERTED', 'Website', 'Converted lead — completed kitchen renovation.', NOW(), NOW());
+
+
+-- ============================================================
+-- SECTION 7: BLOG POSTS
+-- Table: blog_posts (slug is UNIQUE → true upsert)
+-- `category` drives the public blog filter pills
+-- (construction / consultancy / news).
+-- `content` is markdown-ish plain text with `##` and `###` headings.
+-- `published_at` is a fixed offset from NOW() — close enough to look
+-- realistic in the listing without depending on a fixed wall clock.
+-- Cover photos are skipped — they need Django/Cloudinary; upload them
+-- from the admin or by re-running seed_blog when convenient.
+-- ============================================================
+
+INSERT INTO blog_posts
+  (title, slug, excerpt, content, category, is_published, published_at,
+   created_at, updated_at)
+VALUES
+  ('The Future of Sustainable Construction in Kenya',
+   'the-future-of-sustainable-construction-in-kenya',
+   'Exploring eco-friendly building practices and sustainable materials shaping Kenya''s construction industry.',
+   'Sustainable construction is no longer a trend — it''s a necessity. As Kenya continues to urbanize rapidly, the construction industry faces increasing pressure to adopt environmentally responsible practices.\n\n## Why Sustainability Matters\n\nThe construction sector accounts for approximately 40% of global carbon emissions. In Kenya, with our growing population and expanding cities, the need for sustainable building practices has never been more urgent.\n\n## Key Sustainable Practices\n\n### 1. Green Building Materials\nUsing locally sourced, recycled, and renewable materials reduces the carbon footprint of construction projects. Materials like bamboo, reclaimed timber, and recycled steel are becoming increasingly popular.\n\n### 2. Energy Efficiency\nIncorporating energy-efficient designs — from solar panels to natural ventilation systems — helps reduce long-term operational costs and environmental impact.\n\n### 3. Water Conservation\nRainwater harvesting systems, greywater recycling, and water-efficient fixtures are essential for sustainable construction in Kenya.\n\n## Caldan''s Commitment\n\nAt Caldan Construction, we are committed to building a sustainable future. We incorporate green building practices into every project, from residential homes to commercial developments.\n\nWe believe that building Kenya''s future means building responsibly — for our clients, our communities, and our planet.',
+   'construction', 1, DATE_SUB(NOW(), INTERVAL 1 DAY),
+   DATE_SUB(NOW(), INTERVAL 1 DAY), NOW()),
+
+  ('5 Tips for Choosing the Right Construction Partner',
+   '5-tips-for-choosing-the-right-construction-partner',
+   'How to select a reliable construction company for your project — from credentials to communication.',
+   'Choosing the right construction partner is one of the most important decisions you''ll make for your project. Whether you''re building a home, an office, or a commercial development, the right partner can make all the difference.\n\n## 1. Check Credentials and Experience\n\nAlways verify that your construction partner is properly licensed and registered. Look for industry certifications and a proven track record of successful projects similar to yours.\n\n## 2. Review Past Projects\n\nA reputable construction company should have a portfolio of completed projects. Request references and, if possible, visit past project sites to see the quality of their work firsthand.\n\n## 3. Communication is Key\n\nYour construction partner should communicate clearly and regularly. They should be responsive to your questions and proactive about project updates.\n\n## 4. Understand the Contract\n\nBefore signing anything, make sure you fully understand the scope of work, payment terms, timelines, and what happens if things change.\n\n## 5. Trust Your Instincts\n\nIf something doesn''t feel right, it probably isn''t. Choose a partner you trust and feel comfortable working with.\n\nAt Caldan Construction, we pride ourselves on being a trusted partner for our clients. We''re transparent, communicative, and committed to delivering excellence.',
+   'consultancy', 1, DATE_SUB(NOW(), INTERVAL 3 DAY),
+   DATE_SUB(NOW(), INTERVAL 3 DAY), NOW()),
+
+  ('Renovating Your Home? Here''s What You Need to Know',
+   'renovating-your-home-heres-what-you-need-to-know',
+   'Essential tips for a successful home renovation — from planning to completion.',
+   'Home renovations can be exciting and overwhelming in equal measure. Whether you''re updating your kitchen, adding a room, or transforming your entire home, careful planning is essential.\n\n## Planning Your Renovation\n\n### 1. Define Your Goals\nWhat do you want to achieve? More space? Modern finishes? Increased property value? Be clear about your objectives before you start.\n\n### 2. Set a Realistic Budget\nRenovations almost always cost more than expected. Set a budget and add a 15-20% contingency for unexpected expenses.\n\n### 3. Choose the Right Team\nFrom architects to contractors, the right team is crucial. Look for professionals with experience in your type of renovation.\n\n## Common Mistakes to Avoid\n\n- **Underestimating Costs** — Always overestimate your budget.\n- **Skipping Permits** — Ensure all necessary permits are obtained.\n- **Choosing Trends over Function** — Design for longevity, not just current trends.\n- **Ignoring Energy Efficiency** — Invest in insulation, windows, and efficient systems.\n\n## Why Choose Caldan?\n\nWith over a decade of experience in renovations across Kenya, Caldan Construction has transformed countless homes. Our team brings expertise, attention to detail, and a commitment to quality to every project.',
+   'construction', 1, DATE_SUB(NOW(), INTERVAL 7 DAY),
+   DATE_SUB(NOW(), INTERVAL 7 DAY), NOW()),
+
+  ('The Importance of Quality Materials in Construction',
+   'the-importance-of-quality-materials-in-construction',
+   'Why cutting corners on materials is never worth it — and how to choose the right ones for your project.',
+   'Quality materials are the foundation of any successful construction project. Whether you''re building from the ground up or renovating an existing structure, the materials you choose determine the longevity, safety, and appearance of the final result.\n\n## Why Quality Matters\n\n### 1. Durability\nHigh-quality materials last longer, reducing the need for frequent repairs or replacements.\n\n### 2. Safety\nSubstandard materials can compromise the structural integrity of your building, putting occupants at risk.\n\n### 3. Aesthetic Appeal\nPremium materials look better and retain their appearance longer.\n\n### 4. Cost Effectiveness\nWhile quality materials may cost more upfront, they save money in the long run by reducing maintenance and replacement costs.\n\n## How to Choose Quality Materials\n\n- **Research** — Understand what you''re buying. Research different brands and products.\n- **Trust Your Builder** — A reputable builder will recommend quality materials.\n- **Check Certifications** — Look for recognized certifications and standards.\n\n## Caldan''s Commitment\n\nAt Caldan Construction, we never compromise on quality. We source the best materials for every project and ensure they meet the highest standards.',
+   'consultancy', 1, DATE_SUB(NOW(), INTERVAL 14 DAY),
+   DATE_SUB(NOW(), INTERVAL 14 DAY), NOW()),
+
+  ('Caldan Construction Completes 25-Unit Apartment Project in Nakuru',
+   'caldan-construction-completes-25-unit-apartment-project-in-nakuru',
+   'A milestone achievement for Caldan Construction as we deliver 25 modern residential units in Nakuru.',
+   'We are proud to announce the successful completion of a 25-unit apartment project in Nakuru — one of our largest residential developments to date.\n\n## The Project\n\nLocated in the heart of Nakuru, this development features 25 modern residential apartments, each designed with comfort, functionality, and style in mind. The project includes:\n\n- 2-bedroom and 3-bedroom units\n- Spacious living areas\n- Modern kitchens and bathrooms\n- Secure parking\n- Landscaped common areas\n\n## Key Challenges\n\nEvery project presents unique challenges, and this one was no exception. From site preparation to weather delays, our team remained focused on delivering quality results.\n\n## Client Feedback\n\n"Caldan Construction delivered our project on time and within budget. Their professionalism and attention to detail was exceptional." — Kennedy Onyancha\n\n## Looking Forward\n\nThis project represents our continued commitment to building Kenya''s future, one project at a time. We''re excited to take on more residential developments across the country.',
+   'news', 1, DATE_SUB(NOW(), INTERVAL 5 DAY),
+   DATE_SUB(NOW(), INTERVAL 5 DAY), NOW()),
+
+  ('Waterproofing 101: Protecting Your Building from Water Damage',
+   'waterproofing-101-protecting-your-building-from-water-damage',
+   'Understanding the importance of waterproofing and how to ensure your building stays dry.',
+   'Water damage is one of the most common and costly issues facing building owners in Kenya. From roof leaks to basement flooding, water intrusion can compromise structural integrity and lead to expensive repairs.\n\n## Why Waterproofing Matters\n\n### 1. Structural Protection\nWater infiltration can weaken foundations, cause corrosion, and lead to structural failure.\n\n### 2. Health and Safety\nDamp conditions promote mold growth, which can cause respiratory problems and other health issues.\n\n### 3. Property Value\nBuildings with effective waterproofing retain their value and appeal.\n\n### 4. Cost Savings\nPreventing water damage is significantly cheaper than repairing it.\n\n## Types of Waterproofing\n\n- **Roof Waterproofing** — Protects the building from rain and UV damage\n- **Basement Waterproofing** — Prevents groundwater infiltration\n- **Wall Waterproofing** — Protects walls from moisture ingress\n- **Tank Waterproofing** — Ensures water storage structures remain watertight\n\n## Caldan''s Expertise\n\nAt Caldan Construction, we specialize in comprehensive waterproofing solutions for all types of buildings. Our team uses the latest materials and techniques to ensure your building stays dry and protected for years to come.',
+   'construction', 1, DATE_SUB(NOW(), INTERVAL 10 DAY),
+   DATE_SUB(NOW(), INTERVAL 10 DAY), NOW()),
+
+  ('Interior Design Trends for 2024 and Beyond',
+   'interior-design-trends-for-2024-and-beyond',
+   'Discover the latest interior design trends that are shaping Kenya''s homes and offices.',
+   'Interior design trends evolve constantly, but the best designs are those that combine style with functionality. Here are the top trends shaping Kenya''s interior spaces in 2024.\n\n## 1. Natural Materials\nWood, stone, and natural fibers continue to dominate, bringing warmth and texture to modern interiors.\n\n## 2. Earth Tones\nNeutral palettes — warm beiges, soft greens, and terracottas — are replacing stark whites and grays.\n\n## 3. Multi-Functional Spaces\nWith more people working from home, spaces that serve multiple purposes are in high demand.\n\n## 4. Statement Lighting\nUnique light fixtures are becoming a focal point in many designs.\n\n## 5. Indoor Plants\nBiophilic design continues to be popular, with indoor plants bringing nature into living and working spaces.\n\n## 6. Sustainable Design\nEco-friendly materials and furniture are no longer niche — they''re becoming the standard.\n\n## Caldan''s Design Services\n\nAt Caldan Construction, we offer comprehensive interior design services. Our team works closely with you to create spaces that reflect your style and meet your needs.',
+   'construction', 1, DATE_SUB(NOW(), INTERVAL 8 DAY),
+   DATE_SUB(NOW(), INTERVAL 8 DAY), NOW())
+
+ON DUPLICATE KEY UPDATE
+  title        = VALUES(title),
+  excerpt      = VALUES(excerpt),
+  content      = VALUES(content),
+  category     = VALUES(category),
+  is_published = VALUES(is_published),
+  published_at = VALUES(published_at),
+  updated_at   = NOW();
+
+
+-- ============================================================
+-- SECTION 8: TESTIMONIALS
+-- Table: testimonials
+-- No unique constraint on `author_name`, so UPDATE + INSERT IGNORE.
+-- `author_photo` is skipped — it needs Django/Media upload.
+-- ============================================================
+
+UPDATE testimonials SET
+  author_title  = 'Developer, Kennedy Apartments',
+  content       = 'Caldan Construction delivered our 25-unit apartment project on time and within budget. Their professionalism, attention to detail, and clear communication throughout made the entire process smooth and stress-free.',
+  rating        = 5,
+  display_order = 1,
+  is_active     = 1,
+  updated_at    = NOW()
+WHERE author_name = 'Kennedy Onyancha';
+
+UPDATE testimonials SET
+  author_title  = 'Property Developer',
+  content       = 'The team at Caldan built my 18-unit apartment to a standard I didn''t think was possible in this market. The finishes, the structural work, and the follow-up after handover were all exceptional.',
+  rating        = 5,
+  display_order = 2,
+  is_active     = 1,
+  updated_at    = NOW()
+WHERE author_name = 'Dr. Nyangara Naphtali';
+
+UPDATE testimonials SET
+  author_title  = 'Homeowner',
+  content       = 'My massonnaitte came out beautifully. Lawrence and the team kept me updated every week, the site was always tidy, and they finished ahead of schedule. I''ve already recommended them to friends.',
+  rating        = 5,
+  display_order = 3,
+  is_active     = 1,
+  updated_at    = NOW()
+WHERE author_name = 'James Mwangi';
+
+UPDATE testimonials SET
+  author_title  = 'Principal, Munanda Secondary School',
+  content       = 'The new school block has transformed our learning environment. Caldan''s team worked closely with the school board, met every milestone, and delivered a facility our students and teachers are proud of.',
+  rating        = 5,
+  display_order = 4,
+  is_active     = 1,
+  updated_at    = NOW()
+WHERE author_name = 'Sarah Wairimu';
+
+UPDATE testimonials SET
+  author_title  = 'Facilities Manager, Riverside Logistics',
+  content       = 'Caldan resurfaced our warehouse floor and waterproofed the roof in a tight two-week window with no disruption to our operations. The finish has held up brilliantly under heavy forklift traffic.',
+  rating        = 5,
+  display_order = 5,
+  is_active     = 1,
+  updated_at    = NOW()
+WHERE author_name = 'Daniel Kiprop';
+
+INSERT IGNORE INTO testimonials
+  (author_name, author_title, content, rating, display_order, is_active, created_at, updated_at)
+VALUES
+  ('Kennedy Onyancha', 'Developer, Kennedy Apartments',
+   'Caldan Construction delivered our 25-unit apartment project on time and within budget. Their professionalism, attention to detail, and clear communication throughout made the entire process smooth and stress-free.',
+   5, 1, 1, NOW(), NOW()),
+  ('Dr. Nyangara Naphtali', 'Property Developer',
+   'The team at Caldan built my 18-unit apartment to a standard I didn''t think was possible in this market. The finishes, the structural work, and the follow-up after handover were all exceptional.',
+   5, 2, 1, NOW(), NOW()),
+  ('James Mwangi', 'Homeowner',
+   'My massonnaitte came out beautifully. Lawrence and the team kept me updated every week, the site was always tidy, and they finished ahead of schedule. I''ve already recommended them to friends.',
+   5, 3, 1, NOW(), NOW()),
+  ('Sarah Wairimu', 'Principal, Munanda Secondary School',
+   'The new school block has transformed our learning environment. Caldan''s team worked closely with the school board, met every milestone, and delivered a facility our students and teachers are proud of.',
+   5, 4, 1, NOW(), NOW()),
+  ('Daniel Kiprop', 'Facilities Manager, Riverside Logistics',
+   'Caldan resurfaced our warehouse floor and waterproofed the roof in a tight two-week window with no disruption to our operations. The finish has held up brilliantly under heavy forklift traffic.',
+   5, 5, 1, NOW(), NOW());
+
+
+-- ============================================================
+-- SECTION 9: PRODUCTS — CONSTRUCTION SHOP
+-- Table: shop_products (slug is UNIQUE → true upsert)
+-- shop_section = 'CONSTRUCTION' for every row here.
+-- Image uploads are skipped — they need Django/Cloudinary; upload
+-- them from the admin or by re-running seed_products when convenient.
+-- additional_images is JSON; an empty list is fine for a starter seed.
+-- ============================================================
+
+INSERT INTO shop_products
+  (name, slug, shop_section, category, unit, description, short_description,
+   price, stock_quantity, in_stock, is_active, is_featured,
+   additional_images, created_at, updated_at)
+VALUES
+  ('Portland Cement - 50kg', 'portland-cement-50kg', 'CONSTRUCTION', 'CEMENT', 'BAG',
+   'High-quality Portland cement for all construction needs. 50kg bag.',
+   'Premium Portland cement, 50kg bag',
+   850.00, 150, 1, 1, 1,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Cement - 25kg', 'cement-25kg', 'CONSTRUCTION', 'CEMENT', 'BAG',
+   'Quality Portland cement for smaller projects. 25kg bag.',
+   'Portland cement, 25kg bag',
+   450.00, 200, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('12mm Reinforcing Steel Bar', '12mm-reinforcing-steel-bar', 'CONSTRUCTION', 'STEEL', 'PIECE',
+   'High-quality 12mm reinforcing steel bar for concrete reinforcement.',
+   '12mm steel bar for reinforcement',
+   1200.00, 200, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('16mm Reinforcing Steel Bar', '16mm-reinforcing-steel-bar', 'CONSTRUCTION', 'STEEL', 'PIECE',
+   'High-quality 16mm reinforcing steel bar for heavy-duty concrete reinforcement.',
+   '16mm steel bar for heavy reinforcement',
+   1600.00, 100, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Steel Mesh - 2.4m x 1.2m', 'steel-mesh-2-4m-x-1-2m', 'CONSTRUCTION', 'STEEL', 'PIECE',
+   'Welded steel mesh for concrete slab reinforcement.',
+   'Welded steel mesh, 2.4m x 1.2m',
+   3500.00, 50, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('River Sand - 1 Tonne', 'river-sand-1-tonne', 'CONSTRUCTION', 'SAND', 'TONNE',
+   'Clean river sand suitable for concrete mixing and plastering.',
+   'Clean river sand, 1 tonne',
+   2500.00, 20, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Building Sand - 1 Tonne', 'building-sand-1-tonne', 'CONSTRUCTION', 'SAND', 'TONNE',
+   'Fine building sand for plastering and finishing work.',
+   'Fine building sand, 1 tonne',
+   2800.00, 15, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Ballast - 1 Tonne', 'ballast-1-tonne', 'CONSTRUCTION', 'AGGREGATE', 'TONNE',
+   'Crushed stone ballast for concrete production.',
+   'Crushed ballast, 1 tonne',
+   3200.00, 10, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Crushed Stone - 1 Tonne', 'crushed-stone-1-tonne', 'CONSTRUCTION', 'AGGREGATE', 'TONNE',
+   'Crushed stone for drainage and landscaping.',
+   'Crushed stone, 1 tonne',
+   3000.00, 12, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Concrete Blocks - 6"', 'concrete-blocks-6', 'CONSTRUCTION', 'BLOCKS', 'PIECE',
+   'Durable 6-inch concrete blocks for wall construction.',
+   '6-inch concrete blocks',
+   350.00, 500, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Concrete Blocks - 4"', 'concrete-blocks-4', 'CONSTRUCTION', 'BLOCKS', 'PIECE',
+   'Durable 4-inch concrete blocks for partition walls.',
+   '4-inch concrete blocks',
+   280.00, 400, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Emulsion Paint - White 20L', 'emulsion-paint-white-20l', 'CONSTRUCTION', 'PAINT', 'LITRE',
+   'Premium quality white emulsion paint for interior walls. 20L bucket.',
+   'White emulsion paint, 20L',
+   2800.00, 30, 1, 1, 1,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Exterior Paint - 20L', 'exterior-paint-20l', 'CONSTRUCTION', 'PAINT', 'LITRE',
+   'Weather-resistant exterior paint for outdoor walls. 20L bucket.',
+   'Exterior paint, 20L',
+   3200.00, 20, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Timber - 4x2', 'timber-4x2', 'CONSTRUCTION', 'TIMBER', 'METRE',
+   'Kiln-dried 4x2 timber for construction and framing.',
+   '4x2 timber, per metre',
+   450.00, 300, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Timber - 6x2', 'timber-6x2', 'CONSTRUCTION', 'TIMBER', 'METRE',
+   'Kiln-dried 6x2 timber for heavy-duty framing and roofing.',
+   '6x2 timber, per metre',
+   650.00, 200, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('PVC Pipes - 4"', 'pvc-pipes-4', 'CONSTRUCTION', 'PLUMBING', 'METRE',
+   'Durable 4-inch PVC pipes for plumbing and drainage.',
+   '4-inch PVC pipes',
+   280.00, 100, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('PVC Pipes - 2"', 'pvc-pipes-2', 'CONSTRUCTION', 'PLUMBING', 'METRE',
+   'Durable 2-inch PVC pipes for plumbing and drainage.',
+   '2-inch PVC pipes',
+   180.00, 150, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Electrical Cable - 2.5mm', 'electrical-cable-2-5mm', 'CONSTRUCTION', 'ELECTRICAL', 'METRE',
+   'High-quality 2.5mm electrical cable for wiring.',
+   '2.5mm electrical cable',
+   180.00, 200, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Electrical Cable - 1.5mm', 'electrical-cable-1-5mm', 'CONSTRUCTION', 'ELECTRICAL', 'METRE',
+   'High-quality 1.5mm electrical cable for lighting.',
+   '1.5mm electrical cable',
+   120.00, 250, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Trowel - Professional', 'trowel-professional', 'CONSTRUCTION', 'TOOLS', 'PIECE',
+   'Professional-grade trowel for plastering and finishing.',
+   'Professional trowel',
+   650.00, 25, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Concrete Mixer - Portable', 'concrete-mixer-portable', 'CONSTRUCTION', 'TOOLS', 'PIECE',
+   'Portable concrete mixer for small to medium projects.',
+   'Portable concrete mixer',
+   45000.00, 5, 1, 1, 1,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Wheelbarrow - Heavy Duty', 'wheelbarrow-heavy-duty', 'CONSTRUCTION', 'TOOLS', 'PIECE',
+   'Heavy-duty wheelbarrow for construction sites.',
+   'Heavy-duty wheelbarrow',
+   8500.00, 10, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Sandwich Panel - Roofing', 'sandwich-panel-roofing', 'CONSTRUCTION', 'OTHER', 'SQUARE_METRE',
+   'Insulated sandwich roofing panels for commercial and industrial buildings.',
+   'Insulated roofing panels',
+   1800.00, 80, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Waterproofing Membrane - 10m Roll', 'waterproofing-membrane-10m-roll', 'CONSTRUCTION', 'OTHER', 'PIECE',
+   'High-quality waterproofing membrane for roofs and basements.',
+   'Waterproofing membrane, 10m roll',
+   5500.00, 20, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW())
+
+ON DUPLICATE KEY UPDATE
+  name               = VALUES(name),
+  shop_section       = VALUES(shop_section),
+  category           = VALUES(category),
+  unit               = VALUES(unit),
+  description        = VALUES(description),
+  short_description  = VALUES(short_description),
+  price              = VALUES(price),
+  stock_quantity     = VALUES(stock_quantity),
+  in_stock           = VALUES(in_stock),
+  is_active          = VALUES(is_active),
+  is_featured        = VALUES(is_featured),
+  updated_at         = NOW();
+
+
+-- ============================================================
+-- SECTION 10: PRODUCTS — GENERAL STORE
+-- Table: shop_products (slug is UNIQUE → true upsert)
+-- shop_section = 'GENERAL_STORE' for every row here.
+-- inventory_material is intentionally NULL — general-store stock is
+-- managed directly via stock_quantity, not from inventory.Material.
+-- additional_images is JSON; an empty list is fine for a starter seed.
+-- ============================================================
+
+INSERT INTO shop_products
+  (name, slug, shop_section, category, unit, description, short_description,
+   price, stock_quantity, in_stock, is_active, is_featured,
+   additional_images, created_at, updated_at)
+VALUES
+  ('Bic Crystal Ballpoint Pens (Pack of 10)', 'bic-crystal-ballpoint-pens-pack-of-10',
+   'GENERAL_STORE', 'STATIONERY', 'PIECE',
+   'Smooth-writing blue ballpoint pens from Bic. Pack of 10 — perfect for the office or school.',
+   'Pack of 10 blue ballpoint pens',
+   250.00, 80, 1, 1, 1,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('A4 Hardcover Notebook - 200 Pages', 'a4-hardcover-notebook-200-pages',
+   'GENERAL_STORE', 'STATIONERY', 'PIECE',
+   'Premium A4 hardcover notebook, 200 ruled pages. Lay-flat binding, ribbon marker.',
+   'A4 hardcover notebook, 200 pages',
+   650.00, 60, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Heavy-Duty Stapler with 1000 Staples', 'heavy-duty-stapler-with-1000-staples',
+   'GENERAL_STORE', 'STATIONERY', 'PIECE',
+   'Staples up to 25 sheets at once. Includes a starter pack of 1000 #26 staples.',
+   'Heavy-duty stapler + 1000 staples',
+   950.00, 25, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Manila File Folders (Pack of 50)', 'manila-file-folders-pack-of-50',
+   'GENERAL_STORE', 'OFFICE_SUPPLIES', 'PIECE',
+   'Letter-size manila file folders, tabbed. Pack of 50 for organizing documents.',
+   'Tabbed manila folders, pack of 50',
+   1200.00, 40, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('White Business Envelopes (Pack of 100)', 'white-business-envelopes-pack-of-100',
+   'GENERAL_STORE', 'OFFICE_SUPPLIES', 'PIECE',
+   'DL-size white envelopes with peel-and-seal closure. Pack of 100.',
+   'DL envelopes, pack of 100',
+   850.00, 35, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Clear Packing Tape - 48mm x 100m', 'clear-packing-tape-48mm-x-100m',
+   'GENERAL_STORE', 'OFFICE_SUPPLIES', 'PIECE',
+   'Heavy-duty clear packaging tape. 48mm wide, 100m roll. Strong adhesion.',
+   'Clear packing tape, 100m roll',
+   350.00, 100, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Multi-Surface Cleaner - 1 Litre', 'multi-surface-cleaner-1-litre',
+   'GENERAL_STORE', 'HOUSEHOLD', 'LITRE',
+   'All-purpose multi-surface cleaner. Cuts grease, safe for floors, counters, and tiles.',
+   'Multi-surface cleaner, 1L',
+   450.00, 70, 1, 1, 1,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Laundry Detergent Powder - 2kg', 'laundry-detergent-powder-2kg',
+   'GENERAL_STORE', 'HOUSEHOLD', 'KILOGRAM',
+   'High-foam laundry powder for whites and colours. 2kg pouch.',
+   'Laundry detergent, 2kg',
+   750.00, 55, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Bar Soap - Family Pack (6 bars)', 'bar-soap-family-pack-6-bars',
+   'GENERAL_STORE', 'HOUSEHOLD', 'PIECE',
+   'Moisturising family-size bar soap. Pack of 6, gentle on skin.',
+   'Family soap pack of 6',
+   380.00, 90, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Soft-Bristle Broom with Handle', 'soft-bristle-broom-with-handle',
+   'GENERAL_STORE', 'HOUSEHOLD', 'PIECE',
+   'Indoor broom with hardwood handle and stiff synthetic bristles. Long-lasting.',
+   'Indoor broom with handle',
+   550.00, 30, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Fluoride Toothpaste - 150ml (Twin Pack)', 'fluoride-toothpaste-150ml-twin-pack',
+   'GENERAL_STORE', 'PERSONAL_CARE', 'PIECE',
+   'Cavity-protection fluoride toothpaste, fresh mint flavour. Twin pack, 150ml each.',
+   'Fluoride toothpaste, twin pack',
+   480.00, 65, 1, 1, 1,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Moisturising Shampoo - 400ml', 'moisturising-shampoo-400ml',
+   'GENERAL_STORE', 'PERSONAL_CARE', 'PIECE',
+   'Daily-use shampoo with coconut oil. Suitable for all hair types. 400ml bottle.',
+   'Moisturising shampoo, 400ml',
+   650.00, 50, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Roll-On Deodorant - 50ml', 'roll-on-deodorant-50ml',
+   'GENERAL_STORE', 'PERSONAL_CARE', 'PIECE',
+   '48-hour protection roll-on deodorant. Fresh scent, alcohol-free.',
+   'Roll-on deodorant, 50ml',
+   280.00, 80, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Assorted Biscuits - 800g Tin', 'assorted-biscuits-800g-tin',
+   'GENERAL_STORE', 'SNACKS_DRINKS', 'KILOGRAM',
+   'Premium assorted cream biscuits. Sealed tin for freshness. 800g.',
+   'Assorted biscuits, 800g tin',
+   950.00, 45, 1, 1, 1,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Mango Fruit Juice - 1 Litre', 'mango-fruit-juice-1-litre',
+   'GENERAL_STORE', 'SNACKS_DRINKS', 'LITRE',
+   '100% mango juice, no added sugar. Refrigerate after opening. 1L carton.',
+   'Mango juice, 1L',
+   320.00, 60, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Bottled Drinking Water - 1.5L (Pack of 6)', 'bottled-drinking-water-1-5l-pack-of-6',
+   'GENERAL_STORE', 'SNACKS_DRINKS', 'PIECE',
+   'Purified bottled water, 1.5L each. Pack of 6 for home or office.',
+   'Bottled water 1.5L, pack of 6',
+   480.00, 120, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('AA Alkaline Batteries (Pack of 8)', 'aa-alkaline-batteries-pack-of-8',
+   'GENERAL_STORE', 'ELECTRONICS', 'PIECE',
+   'Long-lasting AA alkaline batteries. Pack of 8 — ideal for remotes and toys.',
+   'AA batteries, pack of 8',
+   550.00, 75, 1, 1, 1,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Dual USB Wall Charger - 2.4A', 'dual-usb-wall-charger-2-4a',
+   'GENERAL_STORE', 'ELECTRONICS', 'PIECE',
+   'Compact 2-port USB wall charger, 2.4A total output. Smart IC for safe fast charging.',
+   'Dual USB wall charger',
+   850.00, 40, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Braided USB-C Cable - 1m', 'braided-usb-c-cable-1m',
+   'GENERAL_STORE', 'ELECTRONICS', 'PIECE',
+   'Durable braided USB-C to USB-A cable, 1 metre. Tangle-free, fast charging.',
+   'USB-C cable, 1m braided',
+   450.00, 55, 1, 1, 0,
+   JSON_ARRAY(), NOW(), NOW()),
+
+  ('Wooden Building Blocks (50 pieces)', 'wooden-building-blocks-50-pieces',
+   'GENERAL_STORE', 'TOYS_GAMES', 'PIECE',
+   'Coloured wooden building blocks, 50-piece set. Safe, non-toxic paint. Ages 3+.',
+   'Wooden blocks, 50 pieces',
+   1450.00, 20, 1, 1, 1,
+   JSON_ARRAY(), NOW(), NOW())
+
+ON DUPLICATE KEY UPDATE
+  name               = VALUES(name),
+  shop_section       = VALUES(shop_section),
+  category           = VALUES(category),
+  unit               = VALUES(unit),
+  description        = VALUES(description),
+  short_description  = VALUES(short_description),
+  price              = VALUES(price),
+  stock_quantity     = VALUES(stock_quantity),
+  in_stock           = VALUES(in_stock),
+  is_active          = VALUES(is_active),
+  is_featured        = VALUES(is_featured),
+  updated_at         = NOW();
+
+
+-- ============================================================
+-- VERIFY
+-- ============================================================
+-- SELECT id, name, category, display_order, is_active FROM services ORDER BY display_order;
+-- SELECT id, name, role, title, display_order, is_active, is_featured FROM team_members ORDER BY display_order;
+-- SELECT id, project_code, name, status, progress, budget, spent FROM projects ORDER BY project_code;
+-- SELECT p.project_code, sl.is_primary_service, s.name FROM project_service_links sl JOIN projects p ON p.id=sl.project_id JOIN services s ON s.id=sl.service_id ORDER BY p.project_code, sl.is_primary_service DESC;
+-- SELECT p.name, COUNT(m.id) AS milestones FROM projects p LEFT JOIN project_milestones m ON m.project_id=p.id GROUP BY p.name ORDER BY p.name;
+-- SELECT id, name, email, type, status, source FROM clients ORDER BY status, name;
+-- SELECT id, title, category, is_published, published_at FROM blog_posts ORDER BY published_at DESC;
+-- SELECT id, author_name, author_title, rating, display_order, is_active FROM testimonials ORDER BY display_order;
+-- SELECT id, name, shop_section, category, unit, price, stock_quantity, is_featured FROM shop_products ORDER BY shop_section, is_featured DESC, name;

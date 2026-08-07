@@ -629,6 +629,15 @@
                        value="{{ search|default:'' }}">
             </div>
             <div class="filter-group">
+                <label for="id_section">Storefront</label>
+                <select name="section" id="id_section" class="form-select">
+                    <option value="">All storefronts</option>
+                    {% for code, label in section_choices %}
+                        <option value="{{ code }}" {% if section == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
                 <label for="id_category">Category</label>
                 <select name="category" id="id_category" class="form-select">
                     <option value="">All categories</option>
@@ -672,6 +681,7 @@
                 <thead>
                     <tr>
                         <th>Product</th>
+                        <th>Storefront</th>
                         <th>Category</th>
                         <th>Price</th>
                         <th>Stock</th>
@@ -701,6 +711,17 @@
                                     <div class="product-slug">{{ product.slug }}</div>
                                 </div>
                             </div>
+                        </td>
+                        <td>
+                            {% if product.shop_section == 'CONSTRUCTION' %}
+                                <span class="category-pill" style="background: rgba(11, 102, 195, 0.12); color: #0B66C3;">
+                                    <i class="fas fa-hard-hat" style="font-size: 0.7rem;"></i> Construction
+                                </span>
+                            {% else %}
+                                <span class="category-pill" style="background: rgba(39, 174, 96, 0.12); color: #27AE60;">
+                                    <i class="fas fa-store" style="font-size: 0.7rem;"></i> General Store
+                                </span>
+                            {% endif %}
                         </td>
                         <td><span class="category-pill">{{ product.get_category_display }}</span></td>
                         <td>
@@ -752,7 +773,7 @@
                 </div>
                 <div class="pagination-controls">
                     {% if page > 1 %}
-                        <a class="page-link" href="?{% if search %}search={{ search }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if is_active %}is_active={{ is_active }}&{% endif %}{% if in_stock %}in_stock={{ in_stock }}&{% endif %}page={{ page|add:'-1' }}">
+                        <a class="page-link" href="?{% if search %}search={{ search }}&{% endif %}{% if section %}section={{ section }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if is_active %}is_active={{ is_active }}&{% endif %}{% if in_stock %}in_stock={{ in_stock }}&{% endif %}page={{ page|add:'-1' }}">
                             <i class="fas fa-chevron-left"></i>
                         </a>
                     {% else %}
@@ -762,7 +783,7 @@
                     <span class="page-link current">{{ page }}</span>
 
                     {% if page < total_pages %}
-                        <a class="page-link" href="?{% if search %}search={{ search }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if is_active %}is_active={{ is_active }}&{% endif %}{% if in_stock %}in_stock={{ in_stock }}&{% endif %}page={{ page|add:'1' }}">
+                        <a class="page-link" href="?{% if search %}search={{ search }}&{% endif %}{% if section %}section={{ section }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if is_active %}is_active={{ is_active }}&{% endif %}{% if in_stock %}in_stock={{ in_stock }}&{% endif %}page={{ page|add:'1' }}">
                             <i class="fas fa-chevron-right"></i>
                         </a>
                     {% else %}

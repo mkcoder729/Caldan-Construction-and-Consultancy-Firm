@@ -16,6 +16,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     list_display = (
         'name',
+        'shop_section_display',
         'category_display',
         'price_display',
         'stock_quantity',
@@ -24,15 +25,15 @@ class ProductAdmin(admin.ModelAdmin):
         'is_featured',
         'image_preview',
     )
-    list_filter = ('category', 'is_active', 'is_featured', 'in_stock')
-    search_fields = ('name', 'description', 'sku')
+    list_filter = ('shop_section', 'category', 'is_active', 'is_featured', 'in_stock')
+    search_fields = ('name', 'description', 'short_description', 'slug')
     readonly_fields = ('created_at', 'updated_at')
     prepopulated_fields = {'slug': ('name',)}
     ordering = ('-created_at',)
 
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'slug', 'category', 'unit')
+            'fields': ('name', 'slug', 'shop_section', 'category', 'unit')
         }),
         ('Description', {
             'fields': ('description', 'short_description')
@@ -59,6 +60,10 @@ class ProductAdmin(admin.ModelAdmin):
     def category_display(self, obj):
         return obj.get_category_display()
     category_display.short_description = 'Category'
+
+    def shop_section_display(self, obj):
+        return obj.get_shop_section_display()
+    shop_section_display.short_description = 'Storefront'
 
     def price_display(self, obj):
         return format_html('<strong>KES {}</strong>', f"{obj.price:,.2f}")

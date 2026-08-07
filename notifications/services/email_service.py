@@ -303,6 +303,71 @@ class EmailService:
         )
 
     @classmethod
+    def send_admin_order_alert(cls, order):
+        """
+        Notify the admin when a new order is confirmed / paid.
+
+        The admin should always know when a customer has placed (and paid for)
+        an order so they can start fulfilment right away.
+        Recipient is settings.ADMIN_EMAIL (or the first superuser as a fallback).
+        """
+        from accounts.models.user import User
+        admin = User.objects.filter(is_superuser=True).first()
+        admin_email = getattr(settings, 'ADMIN_EMAIL', '') or (
+            admin.email if admin else 'info.caldanconstruction@gmail.com'
+        )
+        if not admin_email:
+            logger.warning("send_admin_order_alert: no admin recipient resolved; skipping.")
+            return False
+        return cls.send_template(
+            to_email=admin_email,
+            subject=f"New Order Received - #{order.order_number} (KES {order.total})",
+            template_name='email/admin_order_alert.html',
+            context={
+                'order': order,
+                'client_name': order.client_name,
+                'client_email': getattr(order, 'client_email', ''),
+                'client_phone': getattr(order, 'client_phone', ''),
+                'items': list(order.items.select_related('product')) if hasattr(order, 'items') else [],
+            },
+            user=admin,
+            email_type='ADMIN_ORDER_ALERT',
+        )
+
+    @classmethod
+    def send_admin_tracking_alert(cls, order, tracking_number='', estimated_delivery=None):
+        """
+        Notify the admin when an order is marked as SHIPPED (tracking started).
+
+        Mirrors the customer-facing send_tracking_update, but routes to the
+        admin inbox so the operator can confirm the courier handoff happened.
+        """
+        from accounts.models.user import User
+        admin = User.objects.filter(is_superuser=True).first()
+        admin_email = getattr(settings, 'ADMIN_EMAIL', '') or (
+            admin.email if admin else 'info.caldanconstruction@gmail.com'
+        )
+        if not admin_email:
+            logger.warning("send_admin_tracking_alert: no admin recipient resolved; skipping.")
+            return False
+        return cls.send_template(
+            to_email=admin_email,
+            subject=f"Order #{order.order_number} shipped - tracking {tracking_number or 'TBD'}",
+            template_name='email/admin_order_alert.html',
+            context={
+                'order': order,
+                'client_name': order.client_name,
+                'client_email': getattr(order, 'client_email', ''),
+                'tracking_number': tracking_number,
+                'estimated_delivery': estimated_delivery,
+                'tracking_started': True,
+                'items': list(order.items.select_related('product')) if hasattr(order, 'items') else [],
+            },
+            user=admin,
+            email_type='ADMIN_TRACKING_ALERT',
+        )
+
+    @classmethod
     def send_payment_receipt(cls, payment):
         """Send a payment receipt to the customer (payer).
 

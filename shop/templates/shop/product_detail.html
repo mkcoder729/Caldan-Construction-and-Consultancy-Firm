@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block shop_hero %}
-<section class="shop-hero" style="background-image: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80');">
+<section class="shop-hero" style="background-image: url('{% if product.shop_section == 'GENERAL_STORE' %}https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=1600&q=80{% else %}https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80{% endif %}');">
     <div class="overlay"></div>
     <div class="container">
         <nav class="breadcrumb">
@@ -19,7 +19,9 @@
             <span class="sep">/</span>
             <a href="{% url 'shop:index' %}">Shop</a>
             <span class="sep">/</span>
-            <a href="{% url 'shop:index' %}?category={{ product.category }}">{{ product.get_category_display }}</a>
+            <a href="{% url 'shop:section_products' product.shop_section %}">{{ product.shop_section|display_section }}</a>
+            <span class="sep">/</span>
+            <a href="{% url 'shop:section_products' product.shop_section %}?category={{ product.category }}">{{ product.get_category_display }}</a>
             <span class="sep">/</span>
             <span class="current">{{ product.name }}</span>
         </nav>

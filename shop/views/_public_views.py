@@ -8,7 +8,7 @@ import logging
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, Http404, JsonResponse
 from django.contrib import messages
 from django.conf import settings
 from django.urls import reverse
@@ -41,8 +41,25 @@ def get_shop_sidebar_context(request):
     MUST merge this into its context so the sidebar looks identical
     on /shop/, /cart/, /checkout/, /order/track/, /order/history/,
     /order/<n>/, and /order/<n>/receipt/.
+
+    Exposes both top-level `sections` (CONSTRUCTION, GENERAL_STORE) and
+    the inner `categories` so templates can show section-aware filters.
     """
-    categories = Product.Category.choices
+    sections = Product.ShopSection.choices
+
+    # Section counts — total active products per top-level storefront.
+    section_counts_qs = (
+        Product.objects.filter(is_active=True)
+        .values('shop_section')
+        .annotate(count=Count('id'))
+    )
+    section_counts = {row['shop_section']: row['count'] for row in section_counts_qs}
+
+    # Categories scoped by section for the per-section filter chip loops.
+    categories_by_section = {}
+    for cat_value, cat_label in Product.Category.choices:
+        cat_section = Product.CATEGORY_TO_SECTION.get(cat_value)
+        categories_by_section.setdefault(cat_section, []).append((cat_value, cat_label))
 
     category_counts = {}
     for cat in Product.Category.choices:
@@ -51,7 +68,10 @@ def get_shop_sidebar_context(request):
             category_counts[cat[0]] = count
 
     return {
-        'categories': categories,
+        'sections': sections,
+        'section_counts': section_counts,
+        'categories_by_section': categories_by_section,
+        'categories': Product.Category.choices,
         'category_counts': category_counts,
         'total_products': Product.objects.filter(is_active=True).count(),
         'cart_count': get_cart_count(request),
@@ -60,13 +80,32 @@ def get_shop_sidebar_context(request):
 
 def shop_home(request: HttpRequest) -> HttpResponse:
     """
-    Shop homepage with product catalog.
+    Shop landing page.
+
+    Behaviour:
+    - Without ?section= and no other filters → shows the storefront
+      switcher (all products grouped by section).
+    - With ?section=CONSTRUCTION or =GENERAL_STORE → shows only that
+      storefront, with its own category chips.
     """
     products = Product.objects.filter(is_active=True)
 
     category_filter = request.GET.get('category')
     if category_filter:
         products = products.filter(category=category_filter)
+
+    section_filter = request.GET.get('section')
+    current_section = None
+    if section_filter:
+        # Accept either 'CONSTRUCTION' or 'construction' (case-insensitive)
+        valid = dict(Product.ShopSection.choices)
+        normalized = next(
+            (code for code in valid.keys() if code.upper() == section_filter.upper()),
+            None,
+        )
+        if normalized:
+            current_section = normalized
+            products = products.filter(shop_section=normalized)
 
     search_query = request.GET.get('search', '').strip()
     if search_query:
@@ -94,10 +133,74 @@ def shop_home(request: HttpRequest) -> HttpResponse:
         **get_shop_sidebar_context(request),
         'products': products_page,
         'current_category': category_filter,
+        'current_section': current_section,
         'search_query': search_query,
         'current_sort': sort or 'newest',
         'page_title': 'Shop - Caldan Construction',
-        'meta_description': 'Buy quality construction materials online from Caldan Construction.',
+        'meta_description': 'Buy construction materials and general-store essentials online from Caldan Construction.',
+    }
+
+    return render(request, 'shop/index.html', context)
+
+
+def section_products(request: HttpRequest, section: str) -> HttpResponse:
+    """
+    Storefront-scoped product list.
+
+    Validates the section slug against ShopSection.choices; renders the
+    same template as shop_home but with current_section set, so the
+    hero copy, storefront switcher, and category chips all reflect the
+    chosen storefront.
+    """
+    valid = dict(Product.ShopSection.choices)
+    normalized = next(
+        (code for code in valid.keys() if code.upper() == section.upper()),
+        None,
+    )
+    if not normalized:
+        # Unknown section → 404 rather than silently showing everything
+        raise Http404(f"Unknown shop section: {section}")
+
+    products = Product.objects.filter(is_active=True, shop_section=normalized)
+
+    # Optional ?category= sub-filter within the section
+    category_filter = request.GET.get('category')
+    if category_filter:
+        products = products.filter(category=category_filter)
+
+    search_query = request.GET.get('search', '').strip()
+    if search_query:
+        products = products.filter(
+            Q(name__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(short_description__icontains=search_query)
+        )
+
+    sort = request.GET.get('sort', '')
+    if sort == 'price_asc':
+        products = products.order_by('price')
+    elif sort == 'price_desc':
+        products = products.order_by('-price')
+    elif sort == 'name':
+        products = products.order_by('name')
+    else:
+        products = products.order_by('-created_at')
+
+    paginator = Paginator(products, 12)
+    page = request.GET.get('page', 1)
+    products_page = paginator.get_page(page)
+
+    section_label = valid[normalized]
+
+    context = {
+        **get_shop_sidebar_context(request),
+        'products': products_page,
+        'current_section': normalized,
+        'current_category': category_filter,
+        'search_query': search_query,
+        'current_sort': sort or 'newest',
+        'page_title': f'{section_label} - Caldan Shop',
+        'meta_description': f'Shop {section_label.lower()} online from Caldan Construction.',
     }
 
     return render(request, 'shop/index.html', context)
@@ -109,15 +212,20 @@ def product_detail(request: HttpRequest, slug: str) -> HttpResponse:
     """
     product = get_object_or_404(Product, slug=slug, is_active=True)
 
+    # Related products must share BOTH category AND shop_section so a
+    # cement product doesn't show a notebook as "related" simply because
+    # both happen to have category=OTHER.
     related_products = Product.objects.filter(
         category=product.category,
-        is_active=True
+        shop_section=product.shop_section,
+        is_active=True,
     ).exclude(id=product.id)[:4]
 
     context = {
         **get_shop_sidebar_context(request),
         'product': product,
         'related_products': related_products,
+        'current_section': product.shop_section,
         'page_title': f'{product.name} - Caldan Construction Shop',
         'meta_description': product.short_description or product.description[:150],
     }
@@ -128,10 +236,15 @@ def product_detail(request: HttpRequest, slug: str) -> HttpResponse:
 def category_products(request: HttpRequest, category: str) -> HttpResponse:
     """
     Products filtered by category.
+
+    Section is derived from the category via Product.CATEGORY_TO_SECTION
+    so the breadcrumb, hero copy, and related-products on the rendered
+    template all reflect the correct storefront.
     """
     products = Product.objects.filter(category=category, is_active=True)
 
     category_display = dict(Product.Category.choices).get(category, category)
+    current_section = Product.CATEGORY_TO_SECTION.get(category)
 
     paginator = Paginator(products, 12)
     page = request.GET.get('page', 1)
@@ -142,6 +255,7 @@ def category_products(request: HttpRequest, category: str) -> HttpResponse:
         'products': products_page,
         'category': category,
         'category_display': category_display,
+        'current_section': current_section,
         'current_category': category,
         'page_title': f'{category_display} - Shop - Caldan Construction',
     }

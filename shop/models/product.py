@@ -11,11 +11,26 @@ from django.conf import settings
 
 class Product(models.Model):
     """
-    Product model for construction materials in the online shop.
-    Links to inventory for stock management.
+    Product model for the online shop. Houses both the Construction Shop
+    (cement, steel, sand, …) and the General Store (stationery, household,
+    snacks, …) so a single cart, checkout, and admin can serve both.
+
+    The top-level split is `shop_section` (CONSTRUCTION vs GENERAL_STORE);
+    the sub-classification is `category` (Cement, Stationery, …).
     """
 
+    class ShopSection(models.TextChoices):
+        """
+        Top-level storefront grouping. A product lives in exactly one
+        section. The section drives the storefront switcher in the
+        navbar, the hero copy on the public shop pages, and the
+        dashboard product filter.
+        """
+        CONSTRUCTION = 'CONSTRUCTION', 'Construction Shop'
+        GENERAL_STORE = 'GENERAL_STORE', 'General Store'
+
     class Category(models.TextChoices):
+        # ── Construction sub-categories ────────────────────────────────
         CEMENT = 'CEMENT', 'Cement'
         STEEL = 'STEEL', 'Steel'
         SAND = 'SAND', 'Sand'
@@ -27,6 +42,37 @@ class Product(models.Model):
         ELECTRICAL = 'ELECTRICAL', 'Electrical'
         TOOLS = 'TOOLS', 'Tools'
         OTHER = 'OTHER', 'Other'
+        # ── General Store sub-categories ───────────────────────────────
+        STATIONERY = 'STATIONERY', 'Stationery'
+        OFFICE_SUPPLIES = 'OFFICE_SUPPLIES', 'Office Supplies'
+        HOUSEHOLD = 'HOUSEHOLD', 'Household & Cleaning'
+        PERSONAL_CARE = 'PERSONAL_CARE', 'Personal Care'
+        SNACKS_DRINKS = 'SNACKS_DRINKS', 'Snacks & Drinks'
+        TOYS_GAMES = 'TOYS_GAMES', 'Toys & Games'
+        ELECTRONICS = 'ELECTRONICS', 'Electronics & Accessories'
+
+    # Map every Category to its parent ShopSection so forms, templates,
+    # and seed commands can derive one from the other without branching.
+    CATEGORY_TO_SECTION = {
+        Category.CEMENT: ShopSection.CONSTRUCTION,
+        Category.STEEL: ShopSection.CONSTRUCTION,
+        Category.SAND: ShopSection.CONSTRUCTION,
+        Category.AGGREGATE: ShopSection.CONSTRUCTION,
+        Category.BLOCKS: ShopSection.CONSTRUCTION,
+        Category.PAINT: ShopSection.CONSTRUCTION,
+        Category.TIMBER: ShopSection.CONSTRUCTION,
+        Category.PLUMBING: ShopSection.CONSTRUCTION,
+        Category.ELECTRICAL: ShopSection.CONSTRUCTION,
+        Category.TOOLS: ShopSection.CONSTRUCTION,
+        Category.OTHER: ShopSection.CONSTRUCTION,
+        Category.STATIONERY: ShopSection.GENERAL_STORE,
+        Category.OFFICE_SUPPLIES: ShopSection.GENERAL_STORE,
+        Category.HOUSEHOLD: ShopSection.GENERAL_STORE,
+        Category.PERSONAL_CARE: ShopSection.GENERAL_STORE,
+        Category.SNACKS_DRINKS: ShopSection.GENERAL_STORE,
+        Category.TOYS_GAMES: ShopSection.GENERAL_STORE,
+        Category.ELECTRONICS: ShopSection.GENERAL_STORE,
+    }
 
     class Unit(models.TextChoices):
         BAG = 'BAG', 'Bag'
@@ -42,6 +88,16 @@ class Product(models.Model):
     # Basic Information
     name = models.CharField(max_length=200, db_index=True)
     slug = models.SlugField(unique=True, max_length=200, db_index=True)
+    shop_section = models.CharField(
+        max_length=20,
+        choices=ShopSection.choices,
+        default=ShopSection.CONSTRUCTION,
+        db_index=True,
+        help_text=(
+            'Top-level storefront grouping. CONSTRUCTION for materials, '
+            'GENERAL_STORE for stationery, household, snacks, etc.'
+        ),
+    )
     category = models.CharField(max_length=20, choices=Category.choices, db_index=True)
     unit = models.CharField(max_length=20, choices=Unit.choices)
 
@@ -101,6 +157,7 @@ class Product(models.Model):
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['category', 'is_active']),
+            models.Index(fields=['shop_section', 'is_active']),
             models.Index(fields=['is_featured']),
             models.Index(fields=['in_stock']),
             models.Index(fields=['slug']),

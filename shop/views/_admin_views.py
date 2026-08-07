@@ -141,6 +141,17 @@ def order_update(request, order_id):
                 except Exception as e:
                     logger.error(f"Failed to send tracking email: {str(e)}")
 
+                # ✅ NEW: Also notify the admin so they know fulfilment has begun.
+                try:
+                    EmailService.send_admin_tracking_alert(
+                        order,
+                        tracking_number=tracking_number,
+                        estimated_delivery=estimated_delivery,
+                    )
+                    logger.info(f"Admin tracking alert sent for order {order.order_number}")
+                except Exception as e:
+                    logger.error(f"Failed to send admin tracking alert: {str(e)}")
+
             messages.success(
                 request,
                 f'Order #{order.order_number} status updated to {order.get_status_display()}'
@@ -241,6 +252,7 @@ def product_list(request):
     """
     search = request.GET.get('search', '').strip()
     category = request.GET.get('category', '').strip()
+    section = request.GET.get('section', '').strip()
     is_active = request.GET.get('is_active')
     in_stock = request.GET.get('in_stock')
 
@@ -255,6 +267,7 @@ def product_list(request):
     filters = {
         'search': search or None,
         'category': category or None,
+        'section': section or None,
         'is_active': parse_flag(is_active),
         'in_stock': parse_flag(in_stock),
     }
@@ -271,9 +284,11 @@ def product_list(request):
         'total_pages': result['total_pages'],
         'search': search,
         'category': category,
+        'section': section,
         'is_active': is_active,
         'in_stock': in_stock,
         'category_choices': Product.Category.choices,
+        'section_choices': Product.ShopSection.choices,
         'unit_choices': Product.Unit.choices,
         'stats': stats,
         'page_title': 'Products',
