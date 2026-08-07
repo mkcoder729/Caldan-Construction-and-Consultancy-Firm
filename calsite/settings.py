@@ -139,16 +139,23 @@ ASGI_APPLICATION = 'calsite.asgi.application'
 # DATABASE CONFIGURATION (MySQL)
 # =====================================================================
 # Local dev: reads from .env (XAMPP defaults below).
-# Railway prod: Railway Variables override these automatically.
-# Required env vars on Railway: DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
-DATABASES = {
-    'default': {
+# Railway prod: parses MYSQL_URL which the Railway MySQL add-on
+# auto-injects into linked services as a single connection URL like:
+#   mysql://user:password@host:port/database
+#
+# Format example: mysql://root:abc123@containers-us-west-123.railway.app:6543/railway
+import urllib.parse as _urlparse
+
+def _parse_mysql_url(url):
+    """Parse a mysql:// URL into a Django DATABASES dict."""
+    parsed = _urlparse.urlparse(url)
+    return {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME', default='caldan_construction'),
-        'USER': config('DB_USER', default='root'),
-        'PASSWORD': config('DB_PASSWORD', default=''),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='3306'),
+        'NAME': (parsed.path or '/').lstrip('/'),
+        'USER': _urlparse.unquote(parsed.username or ''),
+        'PASSWORD': _urlparse.unquote(parsed.password or ''),
+        'HOST': parsed.hostname or 'localhost',
+        'PORT': str(parsed.port or '3306'),
         'OPTIONS': {
             'charset': 'utf8mb4',
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
@@ -156,7 +163,29 @@ DATABASES = {
         'CONN_MAX_AGE': 600,
         'CONN_HEALTH_CHECKS': True,
     }
-}
+
+_mysql_url = os.environ.get('MYSQL_URL', '').strip()
+if _mysql_url:
+    # Railway: parse the auto-injected connection URL
+    DATABASES = {'default': _parse_mysql_url(_mysql_url)}
+else:
+    # Local dev: read individual DB_* vars from .env
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': config('DB_NAME', default='caldan_construction'),
+            'USER': config('DB_USER', default='root'),
+            'PASSWORD': config('DB_PASSWORD', default=''),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='3306'),
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
+            'CONN_MAX_AGE': 600,
+            'CONN_HEALTH_CHECKS': True,
+        }
+    }
 
 # =====================================================================
 # CACHE CONFIGURATION
