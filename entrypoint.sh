@@ -1,41 +1,26 @@
 #!/usr/bin/env bash
-# ============================================================================
-# CALDAN CONSTRUCTION - RAILWAY RELEASE HOOK
-# Runs ONCE before each deploy. Does NOT start gunicorn — the Procfile's
-# `web:` line handles that. Keep this script idempotent.
-# ============================================================================
-
+# Railway release hook - runs before each deploy
 set -e
 
 echo "=========================================="
-echo "🚀 CALDAN CONSTRUCTION - PRODUCTION"
+echo "🚀 CALDAN CONSTRUCTION - RELEASE PHASE"
 echo "🇰🇪 Building Kenya's Future, One Project at a Time."
 echo "=========================================="
-echo "📦 Environment: ${ENVIRONMENT:-production}"
-echo "📦 Django Settings: ${DJANGO_SETTINGS_MODULE}"
-echo "📦 Database: MySQL (mysqlclient)"
-echo "📦 Cache: Redis"
 echo "🕐 Time: $(date)"
 echo "=========================================="
 
 # Create required directories
 mkdir -p logs staticfiles media
 
-# ============================================================================
-# DATABASE MIGRATIONS
-# ============================================================================
+# Run database migrations
 echo "📦 Running database migrations..."
 python manage.py migrate --noinput || {
-    echo "❌ Migration failed! Check database connection."
-    echo "🔍 Database Host: ${DB_HOST:-Not Set}"
-    echo "🔍 Database Name: ${DB_NAME:-Not Set}"
+    echo "❌ Migration failed!"
     exit 1
 }
-echo "✅ Migrations completed successfully"
+echo "✅ Migrations completed"
 
-# ============================================================================
-# COLLECT STATIC FILES
-# ============================================================================
+# Collect static files
 echo "📁 Collecting static files..."
 python manage.py collectstatic --noinput || {
     echo "❌ Static file collection failed!"
@@ -43,20 +28,10 @@ python manage.py collectstatic --noinput || {
 }
 echo "✅ Static files collected"
 
-# ============================================================================
-# CACHE TABLE (For database cache fallback)
-# ============================================================================
+# Create cache table
 echo "💾 Setting up cache table..."
-python manage.py createcachetable 2>/dev/null || echo "⚠️ Cache table creation skipped (may already exist)"
-
-# ============================================================================
-# DJANGO CHECKS (Validate production settings)
-# ============================================================================
-echo "🔍 Running Django production checks..."
-python manage.py check --deploy || {
-    echo "⚠️ Deployment check warnings (non-fatal)"
-}
+python manage.py createcachetable 2>/dev/null || echo "⚠️ Cache table creation skipped"
 
 echo "=========================================="
-echo "✅ Entrypoint complete! Gunicorn will now start via Procfile."
+echo "✅ Release phase complete!"
 echo "=========================================="
