@@ -44,12 +44,39 @@ APPS_DIR = BASE_DIR
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-fallback-key-change-me')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# ALLOWED_HOSTS — auto-allow any Railway-generated domain.
-_default_hosts = ['localhost', '127.0.0.1', '.up.railway.app', '.railway.app']
-_railway_host = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
-if _railway_host:
-    _default_hosts.append(_railway_host)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=','.join(_default_hosts), cast=Csv())
+# =====================================================================
+# ALLOWED_HOSTS - Professional Railway Configuration
+# =====================================================================
+# Start with safe defaults
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+# Read ALLOWED_HOSTS from environment variable
+allowed_hosts_env = os.environ.get('ALLOWED_HOSTS', '')
+if allowed_hosts_env:
+    # Split by comma and add each host
+    for host in allowed_hosts_env.split(','):
+        host = host.strip()
+        if host:
+            ALLOWED_HOSTS.append(host)
+
+# Always add Railway domains (as a safety net)
+ALLOWED_HOSTS.extend([
+    '.railway.app',
+    '.up.railway.app',
+])
+
+# Add the specific Railway public domain if it exists
+railway_public = os.environ.get('RAILWAY_PUBLIC_DOMAIN', '')
+if railway_public:
+    ALLOWED_HOSTS.append(railway_public)
+
+# Remove duplicates while preserving order
+seen = set()
+ALLOWED_HOSTS = [x for x in ALLOWED_HOSTS if not (x in seen or seen.add(x))]
+
+# Debug: Print allowed hosts (only when DEBUG=True)
+if DEBUG:
+    print(f"🔍 ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 
 ENVIRONMENT = config('ENVIRONMENT', default='development')
 
@@ -185,6 +212,11 @@ else:
             'CONN_HEALTH_CHECKS': True,
         }
     }
+
+# =====================================================================
+# DATABASE ROUTING
+# =====================================================================
+DATABASE_ROUTERS = ['calsite.db_router.CaldanRouter']
 
 # =====================================================================
 # CACHE CONFIGURATION
