@@ -4,6 +4,7 @@ from django.conf import settings
 from django.utils import timezone
 from clients.models.client import Client
 from services.models import Service
+from projects.models import Project
 from website.forms.newsletter_form import NewsletterForm
 
 logger = logging.getLogger(__name__)
@@ -84,6 +85,43 @@ def years_experience(request):
     except Exception as e:
         logger.exception(f"Failed to calculate years experience: {str(e)}")
         return {"years_experience": 0}
+
+
+def project_stats(request):
+    """
+    Inject dynamic project counts into all website templates.
+
+    Counts completed and active projects (cached for 5 min so we don't
+    hammer the DB on every request). Returns 0 on any DB error so the
+    template never breaks.
+
+    Returns:
+        dict: {
+            'completed_projects': int,
+            'active_projects': int,
+        }
+    """
+    out = {"completed_projects": 0, "active_projects": 0}
+    try:
+        cache_ttl = 300  # 5 minutes
+        completed = cache.get("stats_completed_projects")
+        if completed is None:
+            completed = (
+                Project.objects.filter(status="COMPLETED", is_archived=False).count()
+            )
+            cache.set("stats_completed_projects", completed, cache_ttl)
+        out["completed_projects"] = completed
+
+        active = cache.get("stats_active_projects")
+        if active is None:
+            active = (
+                Project.objects.filter(status="ACTIVE", is_archived=False).count()
+            )
+            cache.set("stats_active_projects", active, cache_ttl)
+        out["active_projects"] = active
+    except Exception as e:
+        logger.exception(f"Failed to calculate project stats: {e}")
+    return out
 
 
 def services_preview(request):

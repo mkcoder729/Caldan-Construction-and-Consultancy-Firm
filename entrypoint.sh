@@ -1,11 +1,22 @@
 #!/usr/bin/env bash
-# Professional Railway release hook with selective seeding
+# ============================================================================
+# CALDAN CONSTRUCTION - RAILWAY RELEASE HOOK
+# Runs ONCE before each deploy. Does NOT start gunicorn — the Procfile's
+# `web:` line handles that. Keep this script idempotent.
+# ============================================================================
+
 set -e
 
 echo "=========================================="
-echo "🚀 CALDAN CONSTRUCTION - RELEASE PHASE"
+echo "🚀 CALDAN CONSTRUCTION - PRODUCTION"
 echo "🇰🇪 Building Kenya's Future, One Project at a Time."
 echo "=========================================="
+echo "📦 Environment: ${ENVIRONMENT:-production}"
+echo "📦 Django Settings: ${DJANGO_SETTINGS_MODULE}"
+echo "📦 Database: MySQL (mysqlclient)"
+echo "📦 Cache: Redis"
+echo "📧 Real emails: ${SEND_REAL_EMAILS:-False}"
+echo "🌱 Force seed: ${FORCE_SEED:-False}"
 echo "🕐 Time: $(date)"
 echo "=========================================="
 
@@ -17,10 +28,12 @@ mkdir -p logs staticfiles media
 # ============================================================================
 echo "📦 Running database migrations..."
 python manage.py migrate --noinput || {
-    echo "❌ Migration failed!"
+    echo "❌ Migration failed! Check database connection."
+    echo "🔍 Database Host: ${MYSQL_HOST:-Not Set}"
+    echo "🔍 Database Name: ${MYSQL_DATABASE:-Not Set}"
     exit 1
 }
-echo "✅ Migrations completed"
+echo "✅ Migrations completed successfully"
 
 # ============================================================================
 # COLLECT STATIC FILES
@@ -33,10 +46,10 @@ python manage.py collectstatic --noinput || {
 echo "✅ Static files collected"
 
 # ============================================================================
-# CREATE CACHE TABLE
+# CACHE TABLE (For database cache fallback)
 # ============================================================================
 echo "💾 Setting up cache table..."
-python manage.py createcachetable 2>/dev/null || echo "⚠️ Cache table creation skipped"
+python manage.py createcachetable 2>/dev/null || echo "⚠️ Cache table creation skipped (may already exist)"
 
 # ============================================================================
 # REDIS CONNECTION CHECK
@@ -56,42 +69,32 @@ except Exception as e:
 " || echo "⚠️ Redis check skipped"
 
 # ============================================================================
-# SEED DATA (Only on first deploy)
+# SEED DATA (Single meta-command runs every seed_* in dependency order)
 # ============================================================================
-echo "🌱 Checking if seed data is needed..."
+echo "🌱 Checking seed state..."
 
-# Check if services exist
+# Check if any data exists (services is a reliable signal)
 SERVICE_COUNT=$(python manage.py shell -c "from services.models import Service; print(Service.objects.count())" 2>/dev/null || echo "0")
 
-if [ "$SERVICE_COUNT" -eq "0" ]; then
-    echo "🌱 No data found. Running seed scripts for initial content..."
-
-    echo "  📌 Seeding services..."
-    python manage.py seed_services || echo "⚠️ Services seed skipped"
-
-    echo "  📌 Seeding projects..."
-    python manage.py seed_projects || echo "⚠️ Projects seed skipped"
-
-    echo "  📌 Seeding team members..."
-    python manage.py seed_team || echo "⚠️ Team seed skipped"
-
-    echo "  📌 Seeding testimonials..."
-    python manage.py seed_testimonials || echo "⚠️ Testimonials seed skipped"
-
-    echo "  📌 Seeding blog posts..."
-    python manage.py seed_blog || echo "⚠️ Blog seed skipped"
-
-    echo "✅ Initial seed data completed!"
+if [ "${FORCE_SEED:-false}" = "true" ]; then
+    echo "🌱 FORCE_SEED=true — running seed_all (idempotent: skips existing rows)..."
+    python manage.py seed_all --stop-on-error || echo "⚠️ seed_all reported issues"
+elif [ "$SERVICE_COUNT" -eq "0" ]; then
+    echo "🌱 Empty database detected — running seed_all for initial content..."
+    python manage.py seed_all --stop-on-error || echo "⚠️ seed_all reported issues"
 else
-    echo "ℹ️ Data already exists. Skipping seed to avoid duplicates."
+    echo "ℹ️ Data already exists ($SERVICE_COUNT services). Skipping seed."
+    echo "   Set FORCE_SEED=true in Railway Variables to re-run."
 fi
 
 # ============================================================================
-# RUN DJANGO CHECKS
+# DJANGO CHECKS (Validate production settings)
 # ============================================================================
 echo "🔍 Running Django production checks..."
-python manage.py check --deploy || echo "⚠️ Deployment check warnings (non-fatal)"
+python manage.py check --deploy || {
+    echo "⚠️ Deployment check warnings (non-fatal)"
+}
 
 echo "=========================================="
-echo "✅ Release phase complete!"
+echo "✅ Entrypoint complete! Gunicorn will now start via Procfile."
 echo "=========================================="

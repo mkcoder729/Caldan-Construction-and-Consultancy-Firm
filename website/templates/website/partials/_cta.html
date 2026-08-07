@@ -1,92 +1,323 @@
-<section class="cta-section" style="padding: 80px 0; background: linear-gradient(135deg, #0B66C3 0%, #123B73 100%); position: relative; overflow: hidden; transition: background 0.3s ease;">
+{% comment %}
+    Caldan premium CTA — single, data-driven call-to-action section.
 
-    <!-- Background Pattern -->
-    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.06; background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.4"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+    Override any of the defaults via the template context. Example usage:
+      include the partial with overrides from any template
+    Defaults below are wired to existing Caldan URLs.
+{% endcomment %}
+<section class="caldan-cta"
+         aria-labelledby="caldan-cta-heading"
+         data-cta-section>
 
-    <!-- Accent Glow -->
-    <div style="position: absolute; top: -50%; right: -20%; width: 400px; height: 400px; background: rgba(212, 175, 55, 0.08); border-radius: 50%; filter: blur(80px);"></div>
-    <div style="position: absolute; bottom: -40%; left: -10%; width: 300px; height: 300px; background: rgba(11, 102, 195, 0.1); border-radius: 50%; filter: blur(80px);"></div>
+    <div class="caldan-cta__bg" aria-hidden="true">
+        <div class="caldan-cta__glow caldan-cta__glow--gold"></div>
+        <div class="caldan-cta__glow caldan-cta__glow--blue"></div>
+        <svg class="caldan-cta__pattern" xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 60 60" preserveAspectRatio="xMidYMid slice">
+            <g fill="none" fill-rule="evenodd">
+                <g fill="#ffffff" fill-opacity="0.06">
+                    <path d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/>
+                </g>
+            </g>
+        </svg>
+    </div>
 
-    <div class="container" style="position: relative; z-index: 2; text-align: center;">
+    <div class="container">
+        <div class="caldan-cta__inner">
 
-        <!-- Gold Eyebrow -->
-        <p class="eyebrow" style="justify-content: center; color: #D4AF37; font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; font-weight: 600;">
-            <i class="fas fa-rocket" style="margin-right: 8px;"></i> Let's Build Together
-        </p>
+            <p class="caldan-cta__eyebrow">
+                <i class="fas fa-rocket" aria-hidden="true"></i>
+                {{ cta_eyebrow|default:"Let's Build Together" }}
+            </p>
 
-        <!-- Heading -->
-        <h2 style="font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 700; color: #FFFFFF; margin-bottom: 12px; letter-spacing: -0.01em;">
-            Ready to Build Your <span style="color: #D4AF37;">Project</span>?
-        </h2>
+            <h2 id="caldan-cta-heading" class="caldan-cta__heading">
+                {{ cta_heading_pre|default:"Ready to build your" }}
+                <span class="caldan-cta__heading-accent">{{ cta_heading_accent|default:"Project" }}</span>{{ cta_heading_post|default:"?" }}
+            </h2>
 
-        <!-- Subtitle -->
-        <p style="font-size: 1.1rem; max-width: 560px; margin: 0 auto 28px; color: rgba(255,255,255,0.85); line-height: 1.7;">
-            Contact us today for a free consultation and quote.
-        </p>
+            <p class="caldan-cta__subtitle">
+                {{ cta_subtitle|default:"Contact us today for a free consultation and a transparent, no-obligation quote." }}
+            </p>
 
-        <!-- CTA Buttons -->
-        <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;">
-            <a href="{% url 'website:quote_request' %}" class="btn btn-gold btn-lg" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 44px; background: #D4AF37; color: #0D2B36; border-radius: 10px; font-weight: 700; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 6px 24px rgba(212, 175, 55, 0.35);">
-                <i class="fas fa-paper-plane"></i> Get a Free Quote
-            </a>
-            <a href="{% url 'website:projects' %}" class="btn btn-outline-light btn-lg" style="display: inline-flex; align-items: center; gap: 10px; padding: 16px 36px; border: 2px solid rgba(255,255,255,0.3); color: #FFFFFF; border-radius: 10px; font-weight: 600; text-decoration: none; transition: all 0.3s ease;">
-                <i class="fas fa-building"></i> View Our Projects
-            </a>
+            <div class="caldan-cta__actions">
+                {% with cta_primary_url|default:'website:quote_request' as primary_url %}
+                <a href="{% url primary_url %}"
+                   class="caldan-cta__btn caldan-cta__btn--primary">
+                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                    {{ cta_primary_label|default:"Get a Free Quote" }}
+                </a>
+                {% endwith %}
+                {% with cta_secondary_url|default:'website:projects' as secondary_url %}
+                <a href="{% url secondary_url %}"
+                   class="caldan-cta__btn caldan-cta__btn--ghost">
+                    <i class="fas fa-building" aria-hidden="true"></i>
+                    {{ cta_secondary_label|default:"View Our Projects" }}
+                </a>
+                {% endwith %}
+            </div>
+
+            <ul class="caldan-cta__badges" role="list">
+                <li class="caldan-cta__badge">
+                    <span class="caldan-cta__badge-icon caldan-cta__badge-icon--green" aria-hidden="true">
+                        <i class="fas fa-check"></i>
+                    </span>
+                    <span>{{ cta_badge_1|default:"15+ Years Experience" }}</span>
+                </li>
+                <li class="caldan-cta__badge">
+                    <span class="caldan-cta__badge-icon caldan-cta__badge-icon--green" aria-hidden="true">
+                        <i class="fas fa-check"></i>
+                    </span>
+                    <span>{{ cta_badge_2|default:"100% Client Satisfaction" }}</span>
+                </li>
+                <li class="caldan-cta__badge">
+                    <span class="caldan-cta__badge-icon caldan-cta__badge-icon--green" aria-hidden="true">
+                        <i class="fas fa-check"></i>
+                    </span>
+                    <span>{{ cta_badge_3|default:"Quality Guaranteed" }}</span>
+                </li>
+                <li class="caldan-cta__badge">
+                    <span class="caldan-cta__badge-icon caldan-cta__badge-icon--gold" aria-hidden="true">
+                        <i class="fas fa-star"></i>
+                    </span>
+                    <span>{{ cta_badge_4|default:"Trusted Across Kenya" }}</span>
+                </li>
+            </ul>
+
         </div>
-
-        <!-- Trust Badges -->
-        <div style="margin-top: 36px; display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.75); font-size: 0.85rem; font-weight: 500;">
-                <div style="width: 24px; height: 24px; border-radius: 50%; background: rgba(39, 174, 96, 0.2); display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-check" style="color: #27AE60; font-size: 0.7rem;"></i>
-                </div>
-                <span>15+ Years Experience</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.75); font-size: 0.85rem; font-weight: 500;">
-                <div style="width: 24px; height: 24px; border-radius: 50%; background: rgba(39, 174, 96, 0.2); display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-check" style="color: #27AE60; font-size: 0.7rem;"></i>
-                </div>
-                <span>100% Client Satisfaction</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.75); font-size: 0.85rem; font-weight: 500;">
-                <div style="width: 24px; height: 24px; border-radius: 50%; background: rgba(39, 174, 96, 0.2); display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-check" style="color: #27AE60; font-size: 0.7rem;"></i>
-                </div>
-                <span>Quality Guaranteed</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.75); font-size: 0.85rem; font-weight: 500;">
-                <div style="width: 24px; height: 24px; border-radius: 50%; background: rgba(212, 175, 55, 0.2); display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-star" style="color: #D4AF37; font-size: 0.7rem;"></i>
-                </div>
-                <span>Trusted in Kenya</span>
-            </div>
-        </div>
-
     </div>
 </section>
 
 <style>
-    .cta-section .btn-gold:hover {
-        background: #E8C84A !important;
-        transform: translateY(-3px) scale(1.02);
-        box-shadow: 0 8px 32px rgba(212, 175, 55, 0.45);
-    }
-    .cta-section .btn-outline-light:hover {
-        background: rgba(255,255,255,0.12) !important;
-        border-color: #FFFFFF !important;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(255,255,255,0.08);
+    .caldan-cta {
+        position: relative;
+        padding: 96px 0 104px;
+        background: linear-gradient(135deg, #0B66C3 0%, #123B73 100%);
+        overflow: hidden;
+        isolation: isolate;
     }
 
-    /* Dark Mode CTA */
-    [data-theme="dark"] .cta-section {
-        background: linear-gradient(135deg, #0D1F2A 0%, #0B172A 100%) !important;
+    .caldan-cta::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(115deg,
+                    rgba(11, 102, 195, 0.0) 0%,
+                    rgba(18, 59, 115, 0.0) 40%,
+                    rgba(212, 175, 55, 0.12) 60%,
+                    rgba(11, 102, 195, 0.0) 100%);
+        background-size: 220% 220%;
+        animation: caldan-cta-pan 18s ease-in-out infinite;
+        z-index: -1;
     }
-    [data-theme="dark"] .cta-section .btn-outline-light {
-        border-color: rgba(255,255,255,0.15) !important;
+    @keyframes caldan-cta-pan {
+        0%, 100% { background-position: 0% 50%; }
+        50%      { background-position: 100% 50%; }
     }
-    [data-theme="dark"] .cta-section .btn-outline-light:hover {
-        background: rgba(255,255,255,0.08) !important;
-        border-color: #FFFFFF !important;
+
+    .caldan-cta__bg {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        overflow: hidden;
+    }
+    .caldan-cta__glow {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+        will-change: transform;
+    }
+    .caldan-cta__glow--gold {
+        top: -50%;
+        right: -20%;
+        width: 420px;
+        height: 420px;
+        background: rgba(212, 175, 55, 0.18);
+        animation: caldan-cta-float 14s ease-in-out infinite;
+    }
+    .caldan-cta__glow--blue {
+        bottom: -45%;
+        left: -12%;
+        width: 340px;
+        height: 340px;
+        background: rgba(11, 102, 195, 0.22);
+        animation: caldan-cta-float 18s ease-in-out infinite reverse;
+    }
+    @keyframes caldan-cta-float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        50%      { transform: translate(20px, -30px) scale(1.05); }
+    }
+    .caldan-cta__pattern {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.55;
+    }
+
+    .caldan-cta__inner {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        max-width: 720px;
+        margin: 0 auto;
+    }
+
+    .caldan-cta__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #D4AF37;
+        font-size: 0.78rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin: 0 0 14px;
+        font-weight: 600;
+    }
+
+    .caldan-cta__heading {
+        font-size: clamp(2rem, 4vw, 3.1rem);
+        font-weight: 700;
+        color: #ffffff;
+        margin: 0 0 14px;
+        letter-spacing: -0.015em;
+        line-height: 1.12;
+    }
+    .caldan-cta__heading-accent {
+        background: linear-gradient(135deg, #D4AF37 0%, #E8C84A 60%, #F4DC8A 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+    }
+
+    .caldan-cta__subtitle {
+        font-size: 1.08rem;
+        max-width: 580px;
+        margin: 0 auto 32px;
+        color: rgba(255, 255, 255, 0.86);
+        line-height: 1.65;
+    }
+
+    .caldan-cta__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        justify-content: center;
+        margin-bottom: 40px;
+    }
+    .caldan-cta__btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 36px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.98rem;
+        text-decoration: none;
+        transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                    box-shadow 0.25s ease,
+                    background-color 0.25s ease,
+                    border-color 0.25s ease;
+        cursor: pointer;
+        white-space: nowrap;
+        line-height: 1.2;
+    }
+    .caldan-cta__btn:focus-visible {
+        outline: 3px solid #E8C84A;
+        outline-offset: 3px;
+    }
+    .caldan-cta__btn--primary {
+        background: linear-gradient(135deg, #D4AF37 0%, #E8C84A 100%);
+        color: #0D2B36;
+        box-shadow: 0 6px 24px rgba(212, 175, 55, 0.35),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+    .caldan-cta__btn--primary:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 10px 32px rgba(212, 175, 55, 0.5),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+    .caldan-cta__btn--ghost {
+        background: rgba(255, 255, 255, 0.04);
+        border: 2px solid rgba(255, 255, 255, 0.28);
+        color: #ffffff;
+        backdrop-filter: blur(6px);
+    }
+    .caldan-cta__btn--ghost:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    }
+
+    .caldan-cta__badges {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px 30px;
+        justify-content: center;
+        align-items: center;
+    }
+    .caldan-cta__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 0.86rem;
+        font-weight: 500;
+    }
+    .caldan-cta__badge-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+    }
+    .caldan-cta__badge-icon--green {
+        background: rgba(39, 174, 96, 0.22);
+        color: #6fcf97;
+    }
+    .caldan-cta__badge-icon--gold {
+        background: rgba(212, 175, 55, 0.24);
+        color: #E8C84A;
+    }
+
+    [data-theme="dark"] .caldan-cta {
+        background: linear-gradient(135deg, #0D1F2A 0%, #0B172A 100%);
+    }
+    [data-theme="dark"] .caldan-cta__btn--ghost {
+        background: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.18);
+    }
+    [data-theme="dark"] .caldan-cta__btn--ghost:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: #ffffff;
+    }
+
+    @media (max-width: 720px) {
+        .caldan-cta { padding: 72px 0 80px; }
+        .caldan-cta__subtitle { font-size: 1rem; margin-bottom: 26px; }
+        .caldan-cta__actions { gap: 12px; margin-bottom: 32px; }
+        .caldan-cta__btn { padding: 13px 28px; font-size: 0.94rem; }
+        .caldan-cta__badges { gap: 14px 20px; }
+        .caldan-cta__badge { font-size: 0.8rem; }
+    }
+    @media (max-width: 420px) {
+        .caldan-cta { padding: 60px 0 64px; }
+        .caldan-cta__actions { flex-direction: column; align-items: stretch; }
+        .caldan-cta__btn { justify-content: center; }
+        .caldan-cta__badges { gap: 12px 16px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .caldan-cta::before,
+        .caldan-cta__glow {
+            animation: none !important;
+        }
     }
 </style>

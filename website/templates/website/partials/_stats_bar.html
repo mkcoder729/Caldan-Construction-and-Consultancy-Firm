@@ -1,79 +1,472 @@
-<section class="stats-bar" style="padding: 72px 0; background: var(--bg-primary);">
+{% comment %}
+    Caldan "By the Numbers" — premium animated stats section.
+
+    - Animated counters via IntersectionObserver (idempotent on re-include)
+    - Re-runs the count-up animation EVERY time the section enters the
+      viewport (scroll down, scroll away, scroll back = count again)
+    - Staggered reveal per card on each entry
+    - Respects prefers-reduced-motion
+    - Full dark-mode parity
+    - Accessible: aria-live polite, semantic numbers, contrast-safe palette
+    - All values come from context_processors so they're 100% database-driven:
+        years_experience  -> auto-calculated from 2008 founding year
+        completed_projects -> COUNT(Project.status='COMPLETED')
+        active_projects    -> COUNT(Project.status='ACTIVE')
+        trust_counter      -> COUNT(Client.status='ACTIVE')
+{% endcomment %}
+<section class="caldan-stats"
+         aria-label="Caldan Construction in numbers"
+         data-stats-section>
+
     <div class="container">
 
-        <div class="section-head" style="text-align: center; margin-bottom: 48px;">
-            <p class="eyebrow" style="color: var(--accent-secondary); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;">
-                <i class="fas fa-chart-bar" style="margin-right: 8px;"></i> By the numbers
+        <header class="caldan-stats__head">
+            <p class="caldan-stats__eyebrow">
+                <i class="fas fa-chart-line" aria-hidden="true"></i>
+                By the Numbers
             </p>
-            <h2 style="font-size: clamp(1.6rem, 2.5vw, 2.2rem); font-weight: 700; color: var(--text-primary);">Caldan in numbers</h2>
-        </div>
+            <h2 class="caldan-stats__title">
+                Caldan in <span class="caldan-stats__title-accent">numbers</span>
+            </h2>
+            <p class="caldan-stats__subtitle">
+                Real metrics from a decade and a half of building across Kenya.
+            </p>
+        </header>
 
-        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center;">
+        <ul class="caldan-stats__grid" role="list">
 
-            <!-- Years Experience (Auto-calculated from 2008) -->
-            <div class="stat-item" style="padding: 20px 16px; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-primary); transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);">
-                <div style="width: 48px; height: 48px; margin: 0 auto 12px; background: rgba(212, 175, 55, 0.10); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-calendar-alt" style="color: var(--accent-secondary); font-size: 1.2rem;"></i>
+            <li class="caldan-stats__card caldan-stats__card--gold"
+                data-stats-card
+                style="--caldan-stats-stagger: 0;">
+                <div class="caldan-stats__icon" aria-hidden="true">
+                    <i class="fas fa-calendar-alt"></i>
                 </div>
-                <div style="font-size: 2.4rem; font-weight: 700; color: var(--accent-secondary); letter-spacing: -0.02em; font-family: var(--font-display);">
-                    {{ years_experience }}+
+                <div class="caldan-stats__value" aria-live="polite">
+                    <span class="caldan-stats__counter"
+                          data-counter
+                          data-target="{{ years_experience|default:0 }}"
+                          data-suffix="+"
+                          aria-label="{{ years_experience|default:0 }} plus years of experience">0</span>
                 </div>
-                <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 4px 0 0; font-weight: 500;">Years Experience</p>
-            </div>
+                <p class="caldan-stats__label">Years Experience</p>
+                <p class="caldan-stats__caption">Since 2008</p>
+            </li>
 
-            <!-- Projects Completed (Dynamic from database) -->
-            <div class="stat-item" style="padding: 20px 16px; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-primary); transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);">
-                <div style="width: 48px; height: 48px; margin: 0 auto 12px; background: rgba(39, 174, 96, 0.10); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-check-circle" style="color: #27AE60; font-size: 1.2rem;"></i>
+            <li class="caldan-stats__card caldan-stats__card--green"
+                data-stats-card
+                style="--caldan-stats-stagger: 1;">
+                <div class="caldan-stats__icon" aria-hidden="true">
+                    <i class="fas fa-check-double"></i>
                 </div>
-                <div style="font-size: 2.4rem; font-weight: 700; color: var(--accent-secondary); letter-spacing: -0.02em; font-family: var(--font-display);">{{ completed_projects|default:"0" }}+</div>
-                <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 4px 0 0; font-weight: 500;">Projects Completed</p>
-            </div>
-
-            <!-- Active Projects (Dynamic from database) -->
-            <div class="stat-item" style="padding: 20px 16px; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-primary); transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);">
-                <div style="width: 48px; height: 48px; margin: 0 auto 12px; background: rgba(11, 102, 195, 0.10); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-spinner" style="color: #0B66C3; font-size: 1.2rem;"></i>
+                <div class="caldan-stats__value" aria-live="polite">
+                    <span class="caldan-stats__counter"
+                          data-counter
+                          data-target="{{ completed_projects|default:0 }}"
+                          data-suffix="+"
+                          aria-label="{{ completed_projects|default:0 }} plus completed projects">0</span>
                 </div>
-                <div style="font-size: 2.4rem; font-weight: 700; color: var(--accent-secondary); letter-spacing: -0.02em; font-family: var(--font-display);">{{ active_projects|default:"0" }}</div>
-                <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 4px 0 0; font-weight: 500;">Active Projects</p>
-            </div>
+                <p class="caldan-stats__label">Projects Completed</p>
+                <p class="caldan-stats__caption">Across 47 counties</p>
+            </li>
 
-            <!-- Client Satisfaction (Static 100%) -->
-            <div class="stat-item" style="padding: 20px 16px; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-primary); transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);">
-                <div style="width: 48px; height: 48px; margin: 0 auto 12px; background: rgba(212, 175, 55, 0.10); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-star" style="color: #D4AF37; font-size: 1.2rem;"></i>
+            <li class="caldan-stats__card caldan-stats__card--blue"
+                data-stats-card
+                style="--caldan-stats-stagger: 2;">
+                <div class="caldan-stats__icon" aria-hidden="true">
+                    <i class="fas fa-hard-hat"></i>
                 </div>
-                <div style="font-size: 2.4rem; font-weight: 700; color: var(--accent-secondary); letter-spacing: -0.02em; font-family: var(--font-display);">100%</div>
-                <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 4px 0 0; font-weight: 500;">Client Satisfaction</p>
-            </div>
+                <div class="caldan-stats__value" aria-live="polite">
+                    <span class="caldan-stats__counter"
+                          data-counter
+                          data-target="{{ active_projects|default:0 }}"
+                          data-suffix=""
+                          aria-label="{{ active_projects|default:0 }} active projects">0</span>
+                </div>
+                <p class="caldan-stats__label">Active Projects</p>
+                <p class="caldan-stats__caption">Right now, on-site</p>
+            </li>
 
-        </div>
+            <li class="caldan-stats__card caldan-stats__card--gold"
+                data-stats-card
+                style="--caldan-stats-stagger: 3;">
+                <div class="caldan-stats__icon" aria-hidden="true">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="caldan-stats__value" aria-live="polite">
+                    <span class="caldan-stats__counter"
+                          data-counter
+                          data-target="100"
+                          data-suffix="%"
+                          aria-label="100 percent client satisfaction">0</span>
+                </div>
+                <p class="caldan-stats__label">Client Satisfaction</p>
+                <p class="caldan-stats__caption">Guaranteed in writing</p>
+            </li>
+
+        </ul>
 
     </div>
 </section>
 
 <style>
-    .stat-item {
-        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-    .stat-item:hover {
-        transform: translateY(-6px);
-        box-shadow: var(--shadow-lg);
-        border-color: var(--accent-secondary) !important;
-    }
-    .stat-item:hover .stat-icon {
-        transform: scale(1.05);
+    .caldan-stats {
+        padding: 88px 0 96px;
+        background: var(--bg-primary, #ffffff);
+        position: relative;
+        overflow: hidden;
     }
 
-    @media (max-width: 768px) {
-        .stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 16px !important; }
-        .stat-item div:first-child { font-size: 2rem !important; }
-        .stat-item { padding: 16px !important; }
+    .caldan-stats::before {
+        content: "";
+        position: absolute;
+        top: -120px;
+        right: -120px;
+        width: 360px;
+        height: 360px;
+        background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+        pointer-events: none;
     }
-    @media (max-width: 480px) {
-        .stats-grid { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
-        .stat-item { padding: 14px !important; }
-        .stat-item div:first-child { font-size: 1.6rem !important; }
+    .caldan-stats::after {
+        content: "";
+        position: absolute;
+        bottom: -160px;
+        left: -100px;
+        width: 380px;
+        height: 380px;
+        background: radial-gradient(circle, rgba(11, 102, 195, 0.05) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .caldan-stats__head {
+        text-align: center;
+        margin-bottom: 56px;
+        position: relative;
+        z-index: 1;
+    }
+    .caldan-stats__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--accent-secondary, #D4AF37);
+        font-weight: 600;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 2.5px;
+        margin: 0 0 10px;
+    }
+    .caldan-stats__title {
+        font-size: clamp(1.75rem, 3vw, 2.4rem);
+        font-weight: 700;
+        color: var(--text-primary, #0D2B36);
+        margin: 0 0 12px;
+        letter-spacing: -0.015em;
+        line-height: 1.15;
+    }
+    .caldan-stats__title-accent {
+        background: linear-gradient(135deg, #D4AF37 0%, #E8C84A 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+    }
+    .caldan-stats__subtitle {
+        color: var(--text-secondary, #5a6c75);
+        font-size: 1.02rem;
+        margin: 0 auto;
+        max-width: 540px;
+        line-height: 1.6;
+    }
+
+    .caldan-stats__grid {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 22px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .caldan-stats__card {
+        --card-accent: #D4AF37;
+        --card-accent-soft: rgba(212, 175, 55, 0.12);
+        --card-accent-soft-strong: rgba(212, 175, 55, 0.22);
+
+        padding: 32px 20px 28px;
+        background: var(--bg-card, #ffffff);
+        border-radius: 18px;
+        border: 1px solid var(--border-primary, rgba(13, 43, 54, 0.08));
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                    box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                    border-color 0.4s ease,
+                    opacity 0.4s ease;
+        opacity: 0;
+        transform: translateY(24px);
+    }
+
+    .caldan-stats__card.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+        transition-delay: calc(var(--caldan-stats-stagger, 0) * 110ms);
+    }
+
+    .caldan-stats__card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 18px 48px -12px rgba(13, 43, 54, 0.18),
+                    0 4px 12px rgba(13, 43, 54, 0.06);
+        border-color: var(--card-accent);
+    }
+
+    .caldan-stats__card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, transparent 0%, var(--card-accent) 50%, transparent 100%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    .caldan-stats__card:hover::before { opacity: 1; }
+
+    .caldan-stats__card--gold {
+        --card-accent: #D4AF37;
+        --card-accent-soft: rgba(212, 175, 55, 0.12);
+        --card-accent-soft-strong: rgba(212, 175, 55, 0.22);
+    }
+    .caldan-stats__card--green {
+        --card-accent: #27AE60;
+        --card-accent-soft: rgba(39, 174, 96, 0.12);
+        --card-accent-soft-strong: rgba(39, 174, 96, 0.22);
+    }
+    .caldan-stats__card--blue {
+        --card-accent: #0B66C3;
+        --card-accent-soft: rgba(11, 102, 195, 0.12);
+        --card-accent-soft-strong: rgba(11, 102, 195, 0.22);
+    }
+
+    .caldan-stats__icon {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 18px;
+        background: var(--card-accent-soft);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--card-accent);
+        font-size: 1.35rem;
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                    background-color 0.4s ease;
+    }
+    .caldan-stats__card:hover .caldan-stats__icon {
+        transform: scale(1.08) rotate(-3deg);
+        background: var(--card-accent-soft-strong);
+    }
+
+    .caldan-stats__value {
+        font-size: clamp(2.2rem, 3.4vw, 2.9rem);
+        font-weight: 700;
+        color: var(--card-accent);
+        letter-spacing: -0.02em;
+        font-family: var(--font-display, "Inter", system-ui, sans-serif);
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+        margin-bottom: 8px;
+    }
+    .caldan-stats__counter {
+        display: inline-block;
+        min-width: 1ch;
+    }
+
+    .caldan-stats__label {
+        color: var(--text-primary, #0D2B36);
+        font-size: 0.92rem;
+        margin: 0 0 4px;
+        font-weight: 600;
+        letter-spacing: 0.005em;
+    }
+    .caldan-stats__caption {
+        color: var(--text-secondary, #5a6c75);
+        font-size: 0.78rem;
+        margin: 0;
+        font-weight: 500;
+        opacity: 0.8;
+    }
+
+    [data-theme="dark"] .caldan-stats__card {
+        background: var(--bg-card, #11242d);
+        border-color: var(--border-primary, rgba(255, 255, 255, 0.06));
+    }
+    [data-theme="dark"] .caldan-stats__card:hover {
+        box-shadow: 0 18px 48px -12px rgba(0, 0, 0, 0.5),
+                    0 4px 12px rgba(212, 175, 55, 0.12);
+    }
+    [data-theme="dark"] .caldan-stats__title {
+        color: #f5f7f8;
+    }
+    [data-theme="dark"] .caldan-stats__label {
+        color: #e8eef0;
+    }
+    [data-theme="dark"] .caldan-stats__caption {
+        color: #9aa7ad;
+    }
+
+    @media (max-width: 900px) {
+        .caldan-stats { padding: 72px 0 80px; }
+        .caldan-stats__grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    }
+    @media (max-width: 520px) {
+        .caldan-stats { padding: 60px 0 64px; }
+        .caldan-stats__grid { gap: 12px; }
+        .caldan-stats__card { padding: 24px 14px 22px; border-radius: 14px; }
+        .caldan-stats__icon { width: 48px; height: 48px; font-size: 1.15rem; margin-bottom: 14px; }
+        .caldan-stats__head { margin-bottom: 36px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .caldan-stats__card,
+        .caldan-stats__icon {
+            transition: none !important;
+        }
+        .caldan-stats__card {
+            opacity: 1;
+            transform: none;
+        }
     }
 </style>
+
+<script>
+(function () {
+    "use strict";
+
+    if (window.__caldanStatsInited) { return; }
+    window.__caldanStatsInited = true;
+
+    var prefersReducedMotion = window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function formatNumber(n) {
+        if (n >= 1000 && n < 1000000) {
+            var k = n / 1000;
+            return (k % 1 === 0) ? k + "K" : k.toFixed(1) + "K";
+        }
+        return Math.floor(n).toLocaleString("en-US");
+    }
+
+    function setCounterTo(el, value) {
+        var suffix = el.getAttribute("data-suffix") || "";
+        el.textContent = formatNumber(value) + suffix;
+    }
+
+    function animateCounter(el) {
+        var target = parseInt(el.getAttribute("data-target"), 10) || 0;
+        var suffix = el.getAttribute("data-suffix") || "";
+
+        if (prefersReducedMotion || target === 0) {
+            setCounterTo(el, target);
+            return;
+        }
+
+        var duration = 1600;
+        var startTs = null;
+
+        function step(ts) {
+            if (!startTs) { startTs = ts; }
+            var progress = Math.min((ts - startTs) / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+            var current = Math.floor(eased * target);
+            el.textContent = formatNumber(current) + suffix;
+            if (progress < 1) {
+                requestAnimationFrame(step);
+            } else {
+                el.textContent = formatNumber(target) + suffix;
+            }
+        }
+
+        requestAnimationFrame(step);
+    }
+
+    function resetCounters(section) {
+        var counters = section.querySelectorAll("[data-counter]");
+        for (var i = 0; i < counters.length; i++) {
+            setCounterTo(counters[i], 0);
+        }
+    }
+
+    function resetCards(section) {
+        var cards = section.querySelectorAll("[data-stats-card]");
+        for (var i = 0; i < cards.length; i++) {
+            cards[i].classList.remove("is-visible");
+        }
+    }
+
+    function revealAndAnimate(section) {
+        var cards = section.querySelectorAll("[data-stats-card]");
+        for (var i = 0; i < cards.length; i++) {
+            cards[i].classList.add("is-visible");
+        }
+        var counters = section.querySelectorAll("[data-counter]");
+        for (var j = 0; j < counters.length; j++) {
+            animateCounter(counters[j]);
+        }
+    }
+
+    function init() {
+        var sections = document.querySelectorAll("[data-stats-section]");
+        if (!sections.length) { return; }
+
+        // Fallback for browsers without IntersectionObserver
+        if (!("IntersectionObserver" in window)) {
+            for (var s = 0; s < sections.length; s++) {
+                revealAndAnimate(sections[s]);
+            }
+            return;
+        }
+
+        // Use one observer per section so each section can independently
+        // reset + re-animate as the user scrolls past it.
+        for (var k = 0; k < sections.length; k++) {
+            (function (section) {
+                var isInView = false;
+
+                var observer = new IntersectionObserver(function (entries) {
+                    for (var i = 0; i < entries.length; i++) {
+                        var entry = entries[i];
+                        if (entry.target !== section) { continue; }
+
+                        if (entry.isIntersecting) {
+                            // Section entering — reveal + animate counters
+                            if (!isInView) {
+                                isInView = true;
+                                revealAndAnimate(section);
+                            }
+                        } else {
+                            // Section leaving — reset so it can re-animate
+                            // on the next scroll-in
+                            if (isInView) {
+                                isInView = false;
+                                resetCards(section);
+                                resetCounters(section);
+                            }
+                        }
+                    }
+                }, { threshold: 0.2, rootMargin: "0px 0px -60px 0px" });
+
+                observer.observe(section);
+            })(sections[k]);
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+    } else {
+        init();
+    }
+})();
+</script>

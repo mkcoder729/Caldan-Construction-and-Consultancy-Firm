@@ -286,6 +286,8 @@ TEMPLATES = [
                 'website.context_processors.site_settings',
                 'website.context_processors.services_preview',
                 'website.context_processors.cart_count',
+                'website.context_processors.years_experience',
+                'website.context_processors.project_stats',
             ],
             'debug': DEBUG,
         },
@@ -402,13 +404,12 @@ SEND_REAL_EMAILS = config('SEND_REAL_EMAILS', default=False, cast=bool)
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Caldan Construction <noreply@caldanconstruction.com>')
 ADMIN_EMAIL = config('ADMIN_EMAIL', default='info.caldanconstruction@gmail.com')
 
+# Resend does NOT expose SMTP — using smtp.resend.com silently fails.
+# When SEND_REAL_EMAILS is True we route through our HTTP-API backend
+# (calsite.backends.ResendEmailBackend). Otherwise Django prints to console.
 if SEND_REAL_EMAILS and RESEND_API_KEY:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.resend.com'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = 'resend'
-    EMAIL_HOST_PASSWORD = RESEND_API_KEY
+    EMAIL_BACKEND = 'calsite.backends.ResendEmailBackend'
+    DEFAULT_FROM_EMAIL_REAL = DEFAULT_FROM_EMAIL
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 

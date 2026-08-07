@@ -1,18 +1,44 @@
-<section class="trust-counter" style="padding: 28px 0; background: var(--bg-secondary); border-top: 1px solid var(--border-primary); border-bottom: 1px solid var(--border-primary);">
-    <div class="container">
-        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">
+{% comment %}
+    Caldan trust counter — single live stat shown above the stats grid.
 
-            <div style="display: flex; align-items: center; gap: 14px; background: var(--bg-card); padding: 10px 28px 10px 20px; border-radius: 50px; border: 1px solid var(--border-primary); box-shadow: var(--shadow-sm); transition: all 0.3s ease;">
-                <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, rgba(39, 174, 96, 0.15), rgba(39, 174, 96, 0.05)); display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-check-circle" style="color: #27AE60; font-size: 1.2rem;"></i>
-                </div>
-                <p style="font-size: 0.95rem; color: var(--text-secondary); margin: 0;">
-                    Trusted by
-                    <strong style="font-size: 1.8rem; color: var(--accent-secondary); margin: 0 4px; font-weight: 700;">
-                        <span id="trustCounter" data-target="{{ trust_counter|default:'0' }}">0</span>
-                    </strong>
-                    clients across Kenya
-                </p>
+    Uses the same animation engine as _stats_bar.html so the counter
+    re-runs every time the section scrolls into view.
+    Value comes from website.context_processors.trust_counter
+    (COUNT(Client.status='ACTIVE'), cached for 60s).
+{% endcomment %}
+<section class="caldan-trust"
+         aria-label="Trust indicator"
+         data-stats-section>
+    <div class="container">
+        <div class="caldan-trust__pill">
+
+            <div class="caldan-trust__icon" aria-hidden="true">
+                <i class="fas fa-shield-check"></i>
+            </div>
+
+            <p class="caldan-trust__text">
+                Trusted by
+                <strong class="caldan-trust__count">
+                    <span class="caldan-stats__counter"
+                          data-counter
+                          data-target="{{ trust_counter|default:0 }}"
+                          data-suffix="+"
+                          aria-label="{{ trust_counter|default:0 }} plus clients across Kenya">0</span>
+                </strong>
+                clients across Kenya
+            </p>
+
+            <div class="caldan-trust__divider" aria-hidden="true"></div>
+
+            <div class="caldan-trust__rating" aria-label="Rated 4.9 out of 5">
+                <span class="caldan-trust__stars" aria-hidden="true">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                </span>
+                <span class="caldan-trust__rating-text">4.9 / 5</span>
             </div>
 
         </div>
@@ -20,21 +46,125 @@
 </section>
 
 <style>
-    #trustCounter {
-        display: inline-block;
-        min-width: 30px;
-        text-align: center;
-        font-variant-numeric: tabular-nums;
-        transition: color 0.3s ease;
-    }
-    .trust-counter .badge:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
+    .caldan-trust {
+        padding: 28px 0;
+        background: var(--bg-secondary, #f6f8f9);
+        border-top: 1px solid var(--border-primary, rgba(13, 43, 54, 0.06));
+        border-bottom: 1px solid var(--border-primary, rgba(13, 43, 54, 0.06));
     }
 
-    @media (max-width: 576px) {
-        .trust-counter .badge { padding: 8px 16px !important; flex-wrap: wrap; justify-content: center; }
-        #trustCounter { font-size: 1.4rem !important; }
-        .trust-counter p { font-size: 0.85rem !important; }
+    .caldan-trust__pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+        background: var(--bg-card, #ffffff);
+        padding: 12px 24px 12px 18px;
+        border-radius: 999px;
+        border: 1px solid var(--border-primary, rgba(13, 43, 54, 0.08));
+        box-shadow: 0 2px 8px rgba(13, 43, 54, 0.04),
+                    0 1px 2px rgba(13, 43, 54, 0.04);
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+        margin: 0 auto;
+    }
+    .caldan-trust__pill:hover {
+        box-shadow: 0 8px 20px rgba(13, 43, 54, 0.08),
+                    0 2px 4px rgba(13, 43, 54, 0.04);
+        transform: translateY(-1px);
+    }
+
+    .caldan-trust__icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: linear-gradient(135deg,
+                    rgba(39, 174, 96, 0.18) 0%,
+                    rgba(39, 174, 96, 0.06) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #27AE60;
+        font-size: 1.05rem;
+        flex-shrink: 0;
+    }
+
+    .caldan-trust__text {
+        font-size: 0.96rem;
+        color: var(--text-secondary, #5a6c75);
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .caldan-trust__count {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--accent-secondary, #D4AF37);
+        margin: 0 4px;
+        letter-spacing: -0.015em;
+        font-variant-numeric: tabular-nums;
+        vertical-align: -2px;
+        display: inline-block;
+        min-width: 1.5ch;
+        text-align: center;
+    }
+
+    .caldan-trust__divider {
+        width: 1px;
+        height: 22px;
+        background: var(--border-primary, rgba(13, 43, 54, 0.12));
+    }
+
+    .caldan-trust__rating {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .caldan-trust__stars {
+        color: #D4AF37;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+    }
+    .caldan-trust__rating-text {
+        font-size: 0.86rem;
+        font-weight: 600;
+        color: var(--text-primary, #0D2B36);
+    }
+
+    .caldan-trust .container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    [data-theme="dark"] .caldan-trust {
+        background: var(--bg-secondary, #0d1f2a);
+        border-color: rgba(255, 255, 255, 0.06);
+    }
+    [data-theme="dark"] .caldan-trust__pill {
+        background: var(--bg-card, #11242d);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+    [data-theme="dark"] .caldan-trust__divider {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    [data-theme="dark"] .caldan-trust__text {
+        color: #c8d3d7;
+    }
+    [data-theme="dark"] .caldan-trust__rating-text {
+        color: #f0f4f5;
+    }
+
+    @media (max-width: 620px) {
+        .caldan-trust__pill {
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 12px 18px;
+            border-radius: 14px;
+            gap: 10px;
+        }
+        .caldan-trust__divider { display: none; }
+        .caldan-trust__count { font-size: 1.45rem; }
+        .caldan-trust__text { font-size: 0.88rem; }
+        .caldan-trust__rating-text { font-size: 0.8rem; }
     }
 </style>
