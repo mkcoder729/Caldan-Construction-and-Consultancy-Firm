@@ -524,3 +524,4 @@ ADMIN_URL = 'admin/'
 # DEFAULT AUTO FIELD
 # =====================================================================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
