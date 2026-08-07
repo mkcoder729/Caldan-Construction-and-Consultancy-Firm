@@ -27,7 +27,13 @@ APPS_DIR = BASE_DIR
 # =====================================================================
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+_default_hosts = ['localhost', '127.0.0.1']
+# Railway injects RAILWAY_PUBLIC_DOMAIN on every service — auto-allow it
+# without forcing the operator to list it manually in ALLOWED_HOSTS.
+_railway_host = config('RAILWAY_PUBLIC_DOMAIN', default='')
+if _railway_host:
+    _default_hosts.append(_railway_host)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=','.join(_default_hosts), cast=Csv())
 ENVIRONMENT = config('ENVIRONMENT', default='development')
 
 # =====================================================================
@@ -376,7 +382,11 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = (
+    'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    if not DEBUG
+    else 'whitenoise.storage.CompressedStaticFilesStorage'
+)
 
 # =====================================================================
 # MEDIA FILES (Cloudinary for production)

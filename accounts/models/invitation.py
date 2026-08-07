@@ -221,3 +221,4 @@ class AdminInvitation(models.Model):
             str: Full invitation URL.
         """
         return f"https://{domain}/accept-invite/{self.token}/"
+

@@ -14,9 +14,7 @@ venv/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-media/
 staticfiles/
-static/
 
 # Environment
 .env
@@ -25,6 +23,7 @@ static/
 # IDE
 .vscode/
 .idea/
+*.swp
 *.swp
 *.swo
 
@@ -36,3 +35,30 @@ htmlcov/
 
 # Logs
 logs/*.log
+
+# Claude Code local config (never ship)
+.claude/
+
+# Dev / one-off scripts (never ship to production)
+smoke_test_shop.py
+verify_blog_admin_bell_only.py
+verify_email_modernisation.py
+verify_newsletter_bugfix.py
+verify_pdf_modernisation.py
+__diag__.py
+generate_tree.py
+render_email_previews.py
+
+# Generated docs / artifacts
+promt.txt
+project_directory.txt
+project_directory_structure.md
+test_audit.pdf
+
+# Local-only runtime output
+previews/
+media/backups/
+tmp/
+
+# Railway build artifacts
+.railwayignore.bak

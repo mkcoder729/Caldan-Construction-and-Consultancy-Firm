@@ -1,0 +1,39 @@
+.venv/
+.idea/
+.claude/
+__pycache__/
+*.py[cod]
+*.pyc
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Dev / test scripts that should not ship to production
+smoke_test_shop.py
+verify_blog_admin_bell_only.py
+verify_email_modernisation.py
+verify_newsletter_bugfix.py
+verify_pdf_modernisation.py
+__diag__.py
+generate_tree.py
+render_email_previews.py
+
+# Generated docs / artifacts
+agents.md
+promt.txt
+project_directory.txt
+project_directory_structure.md
+test_audit.pdf
+
+# Local-only runtime output
+logs/
+previews/
+media/backups/
+staticfiles/
+tmp/
+
+# Local-only config
+.env
+.env.local
+db.sqlite3
+db.sqlite3-journal

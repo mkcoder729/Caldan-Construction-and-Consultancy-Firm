@@ -1,0 +1,127 @@
+/* =====================================================================
+   CALDAN CONSTRUCTION — RESPONSIVE STYLESHEET
+   Breakpoint-driven overrides for grids, navbar, preloader, and type.
+   Loaded after main.css; uses the same CSS custom properties.
+   ===================================================================== */
+
+
+/* ---------- Tablet & smaller (≤ 992px) ---------- */
+@media (max-width: 992px) {
+
+    /* 4-col grids collapse to 2-col */
+    .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    /* Hero & section padding trims down */
+    .hero,
+    section {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    /* Preloader card stays compact on shorter viewports */
+    #preloader .loader-container {
+        max-width: 320px;
+        padding: 32px 24px;
+    }
+}
+
+
+/* ---------- Mobile (≤ 768px) ---------- */
+@media (max-width: 768px) {
+
+    /* Grids drop to a single column on phones */
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    /* Navbar: hide the inline menu, let the toggle control it */
+    .navbar-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: var(--bg-card);
+        padding: 16px;
+        box-shadow: var(--shadow-md);
+        border-top: 1px solid var(--border-light);
+    }
+    .navbar-menu.active {
+        display: flex;
+    }
+    .navbar-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: 1px solid var(--border-primary);
+        border-radius: var(--radius-md);
+        padding: 8px 12px;
+        cursor: pointer;
+        color: var(--text-primary);
+    }
+
+    /* Preloader shrinks for narrow phones */
+    #preloader .construction-loader {
+        width: 80px;
+        height: 80px;
+    }
+    #preloader .loader-text {
+        font-size: 1.2rem;
+    }
+    #preloader .loader-subtext {
+        font-size: 0.75rem;
+    }
+    #preloader .progress-text {
+        font-size: 0.72rem;
+    }
+
+    /* Trust counter & large stats: reduce headline weight */
+    .trust-counter,
+    .stats-bar {
+        padding: 24px 16px;
+    }
+}
+
+
+/* ---------- Very small phones (≤ 480px) ---------- */
+@media (max-width: 480px) {
+
+    #preloader .loader-container {
+        padding: 24px 18px;
+        gap: 14px;
+    }
+    #preloader .construction-icon {
+        font-size: 2.1rem;
+    }
+    #preloader .loader-text {
+        font-size: 1.05rem;
+    }
+    #preloader .loader-subtext {
+        letter-spacing: 0.06em;
+    }
+
+    /* Buttons & inputs get a slightly larger tap target */
+    .btn,
+    button {
+        min-height: 44px;
+    }
+}
+
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .fade-in-up,
+    .fade-in,
+    .scale-in {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
