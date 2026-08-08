@@ -25,6 +25,13 @@ mkdir -p logs staticfiles media
 
 # ============================================================================
 # DATABASE MIGRATIONS
+#
+# NOTE: gunicorn.conf.py also runs `manage.py migrate` on every worker
+# startup as a self-heal guard (in case Railway's release phase was
+# skipped via "Restart" instead of "Redeploy"). Running it here too is
+# intentional — the release-phase run gives us early failure if the DB
+# is unreachable, while the gunicorn-side run catches Restart-only paths.
+# `migrate --noinput` is idempotent so double-running is safe.
 # ============================================================================
 echo "📦 Running database migrations..."
 python manage.py migrate --noinput || {
