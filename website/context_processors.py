@@ -129,28 +129,50 @@ def services_preview(request):
     Inject the first 6 active services into all website templates.
 
     Used by the shared footer partial so every page shows the same service list.
-    Cached for 5 minutes since the catalog rarely changes; invalidated when
-    services are saved/updated via the model save() signals (see apps.services).
+
+    Cache strategy:
+      • Read from cache first. If the cache backend is missing/broken on
+        live (e.g. the configured backend isn't installed) the cache call
+        raises — we catch it and fall through to a direct DB query so
+        the footer still renders.
+      • On a successful cache MISS, write back into cache. If THAT raises
+        we still return the freshly fetched services — never let the
+        cache layer be the reason the footer goes blank.
+      • Only fall back to an empty list when the DB itself is unreachable.
 
     Returns:
         dict: {'services_preview': list[Service]} - Up to 6 active services
     """
-    try:
-        cache_key = "footer_services_preview"
-        services = cache.get(cache_key)
+    cache_key = "footer_services_preview"
 
-        if services is None:
+    services = None
+    try:
+        services = cache.get(cache_key)
+    except Exception as exc:
+        # Cache backend failure on the host (Redis not reachable, bad
+        # config, etc.) — don't let it kill the whole page. We log it
+        # at WARNING so it's visible in Railway logs without spamming.
+        logger.warning("services_preview cache.get failed, falling back to DB: %s", exc)
+
+    if services is None:
+        try:
             services = list(
                 Service.objects.filter(is_active=True)
                 .order_by("display_order", "name")[:6]
             )
+        except Exception as exc:
+            # DB unreachable — there's nothing we can do, but at least
+            # log it loudly so the operator can see why the footer is
+            # showing the "Loading..." fallback.
+            logger.exception("services_preview DB fetch failed: %s", exc)
+            return {"services_preview": []}
+
+        try:
             cache.set(cache_key, services, 300)  # 5 minutes
+        except Exception as exc:
+            logger.warning("services_preview cache.set failed (ignored): %s", exc)
 
-        return {"services_preview": services}
-
-    except Exception as e:
-        logger.exception(f"Failed to get services preview: {str(e)}")
-        return {"services_preview": []}
+    return {"services_preview": services}
 
 
 def cart_count(request):
