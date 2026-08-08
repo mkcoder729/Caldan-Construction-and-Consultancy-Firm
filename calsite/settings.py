@@ -79,6 +79,7 @@ if DEBUG:
     print(f"🔍 ALLOWED_HOSTS: {ALLOWED_HOSTS}")
 
 ENVIRONMENT = config('ENVIRONMENT', default='development')
+IS_PRODUCTION = ENVIRONMENT == 'production'
 
 # =====================================================================
 # BASE URL
@@ -178,7 +179,7 @@ def _parse_mysql_url(url):
             'charset': 'utf8mb4',
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
-        'CONN_MAX_AGE': 600,
+        'CONN_MAX_AGE': 300,  # Reduced from 600 to save memory
         'CONN_HEALTH_CHECKS': True,
     }
 
@@ -208,7 +209,7 @@ else:
                 'charset': 'utf8mb4',
                 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
             },
-            'CONN_MAX_AGE': 600,
+            'CONN_MAX_AGE': 300,
             'CONN_HEALTH_CHECKS': True,
         }
     }
@@ -219,7 +220,7 @@ else:
 DATABASE_ROUTERS = ['calsite.db_router.CaldanRouter']
 
 # =====================================================================
-# CACHE CONFIGURATION
+# CACHE CONFIGURATION - MEMORY OPTIMIZED
 # =====================================================================
 REDIS_URL = config('REDIS_URL', default='redis://localhost:6379/0')
 
@@ -233,12 +234,12 @@ try:
                 'PARSER_CLASS': 'redis.connection.DefaultParser',
                 'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
                 'CONNECTION_POOL_CLASS_KWARGS': {
-                    'max_connections': 50,
-                    'timeout': 20,
+                    'max_connections': 20,  # Reduced from 50 to save memory
+                    'timeout': 10,  # Reduced from 20
                 },
-                'MAX_CONNECTIONS': 1000,
+                'MAX_CONNECTIONS': 100,  # Reduced from 1000
                 'PICKLE_VERSION': -1,
-                'DEFAULT_TIMEOUT': 300,
+                'DEFAULT_TIMEOUT': 60,  # Reduced from 300 to save memory
             },
             'KEY_PREFIX': 'caldan',
         }
@@ -265,7 +266,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_NAME = 'caldan_session'
 
 # =====================================================================
-# TEMPLATES
+# TEMPLATES - MEMORY OPTIMIZED
 # =====================================================================
 TEMPLATES = [
     {
@@ -289,7 +290,17 @@ TEMPLATES = [
                 'website.context_processors.years_experience',
                 'website.context_processors.project_stats',
             ],
-            'debug': DEBUG,
+            'debug': False,  # Always False in production
+            # Cache template loaders for better performance
+            'loaders': [
+                ('django.template.loaders.cached.Loader', [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                ]),
+            ] if IS_PRODUCTION else [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ],
         },
     },
 ]
@@ -457,7 +468,7 @@ CELERY_RESULT_EXPIRES = 86400
 CELERY_TASK_ALWAYS_EAGER = DEBUG
 
 # =====================================================================
-# LOGGING
+# LOGGING - REDUCED FOR MEMORY
 # =====================================================================
 LOG_DIR = BASE_DIR / 'logs'
 if not LOG_DIR.exists():
@@ -486,20 +497,20 @@ LOGGING = {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': LOG_DIR / 'error.log',
-            'maxBytes': 1024 * 1024 * 10,
-            'backupCount': 90,
+            'maxBytes': 1024 * 1024 * 5,  # Reduced from 10MB
+            'backupCount': 30,  # Reduced from 90
             'formatter': 'verbose',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console', 'file_error'],
-            'level': config('DJANGO_LOG_LEVEL', default='INFO'),
+            'level': config('DJANGO_LOG_LEVEL', default='WARNING'),  # Changed from INFO
             'propagate': False,
         },
         'caldan': {
             'handlers': ['console', 'file_error'],
-            'level': config('LOG_LEVEL', default='INFO'),
+            'level': config('LOG_LEVEL', default='WARNING'),  # Changed from INFO
             'propagate': False,
         },
     },
@@ -588,3 +599,27 @@ ADMIN_URL = 'admin/'
 # DEFAULT AUTO FIELD
 # =====================================================================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# =====================================================================
+# PERFORMANCE OPTIMIZATIONS FOR RAILWAY FREE TIER
+# =====================================================================
+
+# Disable debug toolbar in production
+if IS_PRODUCTION:
+    # Remove debug toolbar if present
+    if 'debug_toolbar' in INSTALLED_APPS:
+        INSTALLED_APPS.remove('debug_toolbar')
+
+    # Reduce database connection pooling
+    for db_config in DATABASES.values():
+        db_config['CONN_MAX_AGE'] = 300
+
+    # Disable unused middleware
+    # Keep it simple - only remove if we're sure
+    pass
+
+# Print memory optimization status
+if IS_PRODUCTION:
+    print("🚀 Running in production mode with memory optimizations")
+    print(f"📦 Workers: 2 (Gunicorn), Concurrency: 1 (Celery)")
+    print(f"💾 Database pool: 300s, Cache timeout: 60s")
