@@ -266,13 +266,13 @@ SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_NAME = 'caldan_session'
 
 # =====================================================================
-# TEMPLATES - MEMORY OPTIMIZED
+# TEMPLATES - FIXED (No app_dirs + loaders conflict)
 # =====================================================================
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
+        'APP_DIRS': True,  # Default for development
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -290,20 +290,21 @@ TEMPLATES = [
                 'website.context_processors.years_experience',
                 'website.context_processors.project_stats',
             ],
-            'debug': False,  # Always False in production
-            # Cache template loaders for better performance
-            'loaders': [
-                ('django.template.loaders.cached.Loader', [
-                    'django.template.loaders.filesystem.Loader',
-                    'django.template.loaders.app_directories.Loader',
-                ]),
-            ] if IS_PRODUCTION else [
-                'django.template.loaders.filesystem.Loader',
-                'django.template.loaders.app_directories.Loader',
-            ],
+            'debug': DEBUG,
         },
     },
 ]
+
+# In production, use cached template loaders for better performance
+if IS_PRODUCTION:
+    TEMPLATES[0]['APP_DIRS'] = False
+    TEMPLATES[0]['OPTIONS']['loaders'] = [
+        ('django.template.loaders.cached.Loader', [
+            'django.template.loaders.filesystem.Loader',
+            'django.template.loaders.app_directories.Loader',
+        ]),
+    ]
+    TEMPLATES[0]['OPTIONS']['debug'] = False
 
 # =====================================================================
 # CRISPY FORMS
@@ -613,10 +614,6 @@ if IS_PRODUCTION:
     # Reduce database connection pooling
     for db_config in DATABASES.values():
         db_config['CONN_MAX_AGE'] = 300
-
-    # Disable unused middleware
-    # Keep it simple - only remove if we're sure
-    pass
 
 # Print memory optimization status
 if IS_PRODUCTION:
