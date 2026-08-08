@@ -546,38 +546,30 @@ document.head.appendChild(styleSheet);
     'use strict';
 
     const header = document.getElementById('mainHeader');
-    let lastScrollY = 0;
     let ticking = false;
 
     if (!header) return;
 
-    header.classList.remove('visible');
-    header.style.transform = 'translateY(-100%)';
-    header.style.opacity = '0';
+    // Navbar is ALWAYS visible — the previous "hide until scrolled past 80px"
+    // behaviour was preventing the Shop dropdown from ever being hovered at
+    // the top of any page (most painfully obvious on /shop/ where users land
+    // and immediately try to switch storefronts). We still want the white
+    // background + shadow to appear once the user scrolls so the nav reads
+    // as floating on top of page content.
+    header.classList.add('visible');
+    header.style.transform = 'translateY(0)';
+    header.style.opacity = '1';
 
     function handleScroll() {
         const currentScrollY = window.scrollY;
 
         if (!ticking) {
             window.requestAnimationFrame(function() {
-                if (currentScrollY > 80) {
-                    header.classList.add('visible');
+                if (currentScrollY > 40) {
                     header.classList.add('scrolled');
-                    header.style.transform = 'translateY(0)';
-                    header.style.opacity = '1';
-                } else if (currentScrollY < 40) {
-                    header.classList.remove('visible');
-                    header.classList.remove('scrolled');
-                    header.style.transform = 'translateY(-100%)';
-                    header.style.opacity = '0';
                 } else {
-                    header.classList.add('visible');
                     header.classList.remove('scrolled');
-                    header.style.transform = 'translateY(0)';
-                    header.style.opacity = '1';
                 }
-
-                lastScrollY = currentScrollY;
                 ticking = false;
             });
 
@@ -586,21 +578,7 @@ document.head.appendChild(styleSheet);
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-
-    const preloader = document.getElementById('preloader');
-    if (preloader) {
-        const observer = new MutationObserver(function() {
-            if (preloader.classList.contains('hidden')) {
-                if (window.scrollY > 80) {
-                    header.classList.add('visible');
-                    header.classList.add('scrolled');
-                    header.style.transform = 'translateY(0)';
-                    header.style.opacity = '1';
-                }
-            }
-        });
-        observer.observe(preloader, { attributes: true, attributeFilter: ['class'] });
-    }
+    handleScroll();
 
 })();
 
