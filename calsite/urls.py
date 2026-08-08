@@ -27,27 +27,102 @@ def health_check(request):
 @require_GET
 def robots_txt(request):
     """
-    Serve /robots.txt with sensible defaults.
+    Serve /robots.txt.
 
     Allows everything by default and points crawlers at the sitemap so
-    Google Search Console picks up every public URL. Block /admin/,
-    /dashboard/, /api/ prefixes just in case.
+    Google Search Console picks up every public URL. Blocks admin,
+    dashboard, accounts, and any private endpoints.
 
-    NOTE: if you go live and want to control crawl rate, switch this to
-    read SITE_URL from settings and replace the hard-coded sitemap URL.
+    The Sitemap directive uses an absolute URL derived from the request
+    host — that's what Google requires (relative paths are technically
+    valid but rejected by some validators).
     """
+    # Build absolute sitemap URL from the request host. Falls back to
+    # SITE_URL if the request didn't carry a Host header (rare).
+    site_url = getattr(settings, "SITE_URL", None) or f"{request.scheme}://{request.get_host()}"
+    sitemap_url = f"{site_url.rstrip('/')}/sitemap.xml"
+
+    # Disallow rules — public crawler should never see these.
+    blocked_paths = [
+        "/admin/",
+        "/dashboard/",
+        "/accounts/",
+        "/setup/",
+        "/api/",
+        "/media/private/",
+        "/?s=",            # search result URLs
+        "/?search=",
+        "/?page=",         # paginated variants are still in the sitemap
+    ]
+
     lines = [
+        "# ============================================================",
+        "# Caldan Construction — robots.txt",
+        "# https://www.caldanconstruction.com/",
+        "# ============================================================",
+        "",
+        "# === Default rules: friendly crawlers ===",
         "User-Agent: *",
+        "Allow: /$",
+        "Allow: /static/",
+        "Allow: /media/",
+    ]
+    for path in blocked_paths:
+        lines.append(f"Disallow: {path}")
+
+    lines += [
+        "",
+        f"Sitemap: {sitemap_url}",
+        "",
+    ]
+
+    # === Specific bots ===
+    # Googlebot: respect the same rules but with a helpful crawl delay.
+    lines += [
+        "# === Googlebot ===",
+        "User-Agent: Googlebot",
+        "Allow: /",
         "Disallow: /admin/",
         "Disallow: /dashboard/",
         "Disallow: /accounts/",
-        "Allow: /",
-        "",
-        # The sitemap index — Google reads this from the host header so
-        # we leave the path relative-friendly.
-        "Sitemap: /sitemap.xml",
+        "Disallow: /setup/",
+        "Disallow: /api/",
+        "Crawl-delay: 1",
         "",
     ]
+
+    # Bingbot: similar.
+    lines += [
+        "# === Bingbot ===",
+        "User-Agent: Bingbot",
+        "Allow: /",
+        "Disallow: /admin/",
+        "Disallow: /dashboard/",
+        "Disallow: /accounts/",
+        "Disallow: /setup/",
+        "Disallow: /api/",
+        "Crawl-delay: 1",
+        "",
+    ]
+
+    # === Bad bots: keep out ===
+    bad_bots = [
+        "AhrefsBot",
+        "SemrushBot",
+        "MJ12bot",
+        "DotBot",
+        "BLEXBot",
+    ]
+    lines += [
+        "# === Aggressive SEO scrapers — keep out ===",
+    ]
+    for bot in bad_bots:
+        lines += [
+            f"User-Agent: {bot}",
+            "Disallow: /",
+            "",
+        ]
+
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
 
