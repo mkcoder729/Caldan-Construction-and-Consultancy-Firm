@@ -1,6 +1,6 @@
 {% load static %}
 
-<nav class="navbar" role="navigation" aria-label="Main navigation" style="position: relative; z-index: 1000; padding: 0 24px; height: 72px; display: flex; align-items: center;">
+<nav class="navbar" role="navigation" aria-label="Main navigation" style="position: relative; padding: 0 24px; height: 72px; display: flex; align-items: center;">
     <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0;">
 
         <!-- Logo -->
@@ -21,60 +21,7 @@
             <li><a href="{% url 'website:services' %}" class="nav-link" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">Services</a></li>
             <li><a href="{% url 'website:projects' %}" class="nav-link" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">Projects</a></li>
             <li><a href="{% url 'website:blog' %}" class="nav-link" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">Blog</a></li>
-            <li class="nav-dropdown" style="position: relative;">
-                <a href="{% url 'shop:index' %}" class="nav-link nav-dropdown-trigger"
-                   aria-haspopup="true"
-                   aria-expanded="false"
-                   style="display: inline-flex; align-items: center; gap: 6px; padding: 0; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">
-                    <span class="nav-dropdown-label" style="padding: 9px 10px 9px 16px;">Shop</span>
-                    <span class="nav-dropdown-caret-btn" role="button" tabindex="0" aria-label="Toggle shop menu"
-                          style="padding: 9px 16px 9px 4px; cursor: pointer; display: inline-flex; align-items: center;">
-                        <i class="fas fa-chevron-down nav-dropdown-caret" style="font-size: 0.7rem; opacity: 0.7; transition: transform 0.2s ease;"></i>
-                    </span>
-                </a>
-                <ul class="nav-dropdown-menu" role="menu"
-                    style="position: absolute; top: calc(100% + 8px); right: 0; min-width: 240px; padding: 8px; margin: 0; list-style: none; background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: 12px; box-shadow: 0 12px 32px -8px rgba(13, 43, 54, 0.18); opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s; z-index: 100;">
-                    <li role="none">
-                        <a role="menuitem" href="{% url 'shop:section_products' 'CONSTRUCTION' %}"
-                           class="nav-dropdown-item"
-                           style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; color: var(--text-primary); text-decoration: none; font-size: 0.92rem; font-weight: 500; transition: background 0.2s ease, color 0.2s ease;">
-                            <span style="width: 32px; height: 32px; border-radius: 8px; background: rgba(11, 102, 195, 0.12); color: #0B66C3; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                <i class="fas fa-hard-hat"></i>
-                            </span>
-                            <span style="flex: 1;">
-                                <span style="display: block; font-weight: 600;">Construction Shop</span>
-                                <span style="display: block; font-size: 0.75rem; color: var(--text-tertiary); font-weight: 500;">Cement, steel, sand, paint…</span>
-                            </span>
-                        </a>
-                    </li>
-                    <li role="none">
-                        <a role="menuitem" href="{% url 'shop:section_products' 'GENERAL_STORE' %}"
-                           class="nav-dropdown-item"
-                           style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; color: var(--text-primary); text-decoration: none; font-size: 0.92rem; font-weight: 500; transition: background 0.2s ease, color 0.2s ease;">
-                            <span style="width: 32px; height: 32px; border-radius: 8px; background: rgba(39, 174, 96, 0.12); color: #27AE60; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                <i class="fas fa-store"></i>
-                            </span>
-                            <span style="flex: 1;">
-                                <span style="display: block; font-weight: 600;">General Store</span>
-                                <span style="display: block; font-size: 0.75rem; color: var(--text-tertiary); font-weight: 500;">Stationery, snacks, household…</span>
-                            </span>
-                        </a>
-                    </li>
-                    <li role="none" style="border-top: 1px solid var(--border-primary); margin-top: 6px; padding-top: 6px;">
-                        <a role="menuitem" href="{% url 'shop:index' %}"
-                           class="nav-dropdown-item"
-                           style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; color: var(--text-primary); text-decoration: none; font-size: 0.92rem; font-weight: 500; transition: background 0.2s ease, color 0.2s ease;">
-                            <span style="width: 32px; height: 32px; border-radius: 8px; background: rgba(212, 175, 55, 0.14); color: #D4AF37; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                <i class="fas fa-th-large"></i>
-                            </span>
-                            <span style="flex: 1;">
-                                <span style="display: block; font-weight: 600;">All Products</span>
-                                <span style="display: block; font-size: 0.75rem; color: var(--text-tertiary); font-weight: 500;">Browse the whole shop</span>
-                            </span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
+            <li><a href="{% url 'shop:index' %}" class="nav-link" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">Shop</a></li>
             <li>
                 <a href="{% url 'shop:cart_view' %}" aria-label="View cart" id="globalCartLink" style="position: relative; display: inline-flex; align-items: center; justify-content: center; padding: 9px 12px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-size: 1.05rem; transition: all 0.25s ease;">
                     <i class="fas fa-shopping-cart"></i>
@@ -130,76 +77,6 @@
         display: none;
     }
 
-    /* ── Shop dropdown ───────────────────────────────────────────── */
-    /* Hover ANY part of the .nav-dropdown (trigger or menu) to open. */
-    .nav-dropdown:hover > .nav-dropdown-menu,
-    .nav-dropdown:focus-within > .nav-dropdown-menu,
-    .nav-dropdown.is-open > .nav-dropdown-menu {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
-    .nav-dropdown:hover > .nav-dropdown-trigger .nav-dropdown-caret,
-    .nav-dropdown:focus-within > .nav-dropdown-trigger .nav-dropdown-caret,
-    .nav-dropdown.is-open > .nav-dropdown-trigger .nav-dropdown-caret {
-        transform: rotate(180deg);
-    }
-    /* Make the caret-button feel like a button on hover. */
-    .nav-dropdown:hover .nav-dropdown-caret-btn,
-    .nav-dropdown:focus-within .nav-dropdown-caret-btn,
-    .nav-dropdown.is-open .nav-dropdown-caret-btn {
-        color: var(--accent-secondary);
-    }
-    .nav-dropdown-label:hover {
-        color: var(--accent-secondary);
-    }
-    .nav-dropdown-item:hover,
-    .nav-dropdown-item:focus-visible {
-        background: var(--bg-secondary);
-        color: var(--accent-primary) !important;
-    }
-    .nav-dropdown-item:hover span[style*="color: #0B66C3"],
-    .nav-dropdown-item:hover span[style*="color: #27AE60"],
-    .nav-dropdown-item:hover span[style*="color: #D4AF37"] {
-        /* keep icon coloured on hover */
-    }
-    @media (max-width: 992px) {
-        .nav-dropdown { width: 100%; }
-        .nav-dropdown > .nav-dropdown-trigger {
-            width: 100%;
-            justify-content: space-between;
-            padding: 0 !important;
-        }
-        .nav-dropdown-label {
-            padding: 12px 16px !important;
-            flex: 1;
-        }
-        .nav-dropdown-caret-btn {
-            padding: 12px 16px !important;
-        }
-        .nav-dropdown > .nav-dropdown-menu {
-            position: static !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            transform: none !important;
-            box-shadow: none !important;
-            border: none !important;
-            background: transparent !important;
-            padding-left: 16px !important;
-            min-width: 0 !important;
-            margin-top: 4px;
-            display: none;
-        }
-        .nav-dropdown.is-open > .nav-dropdown-menu { display: block; }
-        .nav-dropdown-item {
-            padding: 14px 12px !important;
-        }
-        .nav-dropdown-item span[style*="width: 32px"] {
-            width: 36px !important;
-            height: 36px !important;
-        }
-    }
-
     /* Mobile Styles */
     @media (max-width: 992px) {
         .navbar-toggle { display: block !important; }
@@ -235,53 +112,3 @@
         .navbar-menu .btn-gold { width: 100%; justify-content: center; }
     }
 </style>
-
-<script>
-(function () {
-    "use strict";
-    // The Shop TRIGGER wraps a label-link to /shop/ AND a caret-button
-    // that toggles the dropdown. Hover opens on desktop via CSS; on
-    // touch / keyboard the caret-btn is what actually flips the menu.
-    function initShopDropdown() {
-        var trigger = document.querySelector(".nav-dropdown-trigger");
-        var caretBtn = document.querySelector(".nav-dropdown-caret-btn");
-        var dropdown = trigger && trigger.closest(".nav-dropdown");
-        if (!trigger || !dropdown) { return; }
-
-        // Caret-button toggles the dropdown and prevents the parent
-        // <a> from navigating away.
-        function toggle(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            dropdown.classList.toggle("is-open");
-            var expanded = dropdown.classList.contains("is-open");
-            trigger.setAttribute("aria-expanded", expanded ? "true" : "false");
-        }
-        if (caretBtn) {
-            caretBtn.addEventListener("click", toggle);
-            caretBtn.addEventListener("keydown", function (e) {
-                if (e.key === "Enter" || e.key === " ") { toggle(e); }
-            });
-        }
-
-        // Close on outside click / Escape.
-        document.addEventListener("click", function (e) {
-            if (!dropdown.contains(e.target)) {
-                dropdown.classList.remove("is-open");
-                trigger.setAttribute("aria-expanded", "false");
-            }
-        });
-        document.addEventListener("keydown", function (e) {
-            if (e.key === "Escape") {
-                dropdown.classList.remove("is-open");
-                trigger.setAttribute("aria-expanded", "false");
-            }
-        });
-    }
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initShopDropdown);
-    } else {
-        initShopDropdown();
-    }
-})();
-</script>
