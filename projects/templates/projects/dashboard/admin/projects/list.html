@@ -445,6 +445,24 @@
     z-index: 2;
 }
 
+.project-cover .project-featured-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #D4AF37 0%, #E8C84A 100%);
+    color: #0B172A;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.45);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+}
+
 .project-body {
     padding: 18px 20px;
     flex: 1;
@@ -780,6 +798,11 @@
                         <div class="progress-fill" style="width:{{ project.progress|floatformat:0 }}%;"></div>
                     </div>
                     <span class="project-status-tag status-badge {{ project.status|lower }}">{{ project.get_status_display }}</span>
+                    {% if project.is_featured %}
+                        <span class="project-featured-badge" title="Featured on /projects/">
+                            <i class="fas fa-star"></i>
+                        </span>
+                    {% endif %}
                 </div>
                 <div class="project-body">
                     <h3 class="project-title">{{ project.name }}</h3>

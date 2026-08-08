@@ -1,0 +1,33 @@
+{# Donor confirmation — call request received. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-warning" style="margin-top: 14px;">CALL REQUESTED</span>{% endblock %}
+
+{% block content %}
+  <h1>Got it, <span>{{ name }}</span></h1>
+  <p class="subtitle">We'll be in touch within one business day</p>
+
+  <p>Thanks for reaching out about <strong>{{ topic|lower }}</strong>. A member of our team will contact you during your preferred window to walk through the next steps.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Topic</dt>
+      <dd>{{ topic }}</dd>
+      <dt>Preferred time</dt>
+      <dd><span class="badge badge-gold">{{ preferred_time }}</span></dd>
+    </dl>
+  </div>
+
+  {% if message %}
+  <h2>Your message</h2>
+  <div class="callout callout-info">
+    {{ message }}
+  </div>
+  {% endif %}
+
+  <div class="callout callout-info">
+    If anything is urgent, simply reply to this email or call the office directly — we're happy to accelerate the conversation.
+  </div>
+
+  <p>Talk soon,<br><strong>The Caldan Compassionate Ministry team</strong></p>
+{% endblock %}

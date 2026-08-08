@@ -1,0 +1,386 @@
+{% comment %}
+    Caldan "Featured projects spotlight" — 3-up horizontal flagship row.
+
+    Sits between /projects/ hero and the catalogue grid. Different from
+    the grid below: larger cards, fewer items, full-bleed images, project
+    code badge + service tags + status pill — visual anchor before the
+    visitor scrolls into the full catalogue.
+
+    Guarded by `{% if featured_projects %}` so the section collapses
+    entirely if there are no active/completed projects.
+
+    `featured_projects` is a queryset of 3 projects, ordered by
+    `-created_at` (matches the index page convention).
+{% endcomment %}
+{% load static %}
+
+{% if featured_projects %}
+<section class="projects-spotlight" aria-label="Featured Caldan Construction projects">
+    <div class="container">
+
+        <header class="projects-spotlight__head">
+            <p class="projects-spotlight__eyebrow">
+                <i class="fas fa-star" aria-hidden="true"></i>
+                Featured this quarter
+            </p>
+            <h2 class="projects-spotlight__title">
+                A few of our <span class="projects-spotlight__title-accent">recent builds</span>
+            </h2>
+            <p class="projects-spotlight__subtitle">
+                The freshest work from our crews — picked to show the range
+                of what we do, from industrial floors to residential build-outs.
+            </p>
+        </header>
+
+        <ul class="projects-spotlight__grid" role="list">
+            {% for project in featured_projects %}
+                <li class="spotlight-card">
+                    <article class="spotlight-card__inner">
+
+                        <!-- Image -->
+                        <div class="spotlight-card__image">
+                            {% if project.cover_photo %}
+                                <img src="{{ project.cover_photo.url }}" alt="{{ project.name }}" loading="lazy">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=500&fit=crop&q=80" alt="{{ project.name }}" loading="lazy">
+                            {% endif %}
+
+                            <!-- Project code (top-left) -->
+                            <span class="spotlight-card__code" aria-label="Project code {{ project.project_code }}">
+                                {{ project.project_code }}
+                            </span>
+
+                            <!-- Status (top-right) -->
+                            <span class="spotlight-card__status {% if project.status == 'COMPLETED' %}spotlight-card__status--completed{% elif project.status == 'ACTIVE' %}spotlight-card__status--active{% elif project.status == 'ON_HOLD' %}spotlight-card__status--onhold{% else %}spotlight-card__status--default{% endif %}">
+                                {{ project.get_status_display }}
+                            </span>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="spotlight-card__body">
+                            <h3 class="spotlight-card__name">{{ project.name }}</h3>
+                            <p class="spotlight-card__location">
+                                <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                {{ project.town }}, {{ project.county }}
+                            </p>
+
+                            {% if project.description %}
+                                <p class="spotlight-card__description">
+                                    {{ project.description|truncatewords:20 }}
+                                </p>
+                            {% endif %}
+
+                            {% if project.services.exists %}
+                                <ul class="spotlight-card__tags" role="list">
+                                    {% for service in project.services.all|slice:":3" %}
+                                        <li class="spotlight-card__tag">
+                                            <i class="{{ service.icon|default:'fas fa-tools' }}" aria-hidden="true"></i>
+                                            {{ service.name }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                            <a href="{% url 'website:project_detail' project.id %}" class="spotlight-card__cta">
+                                View project
+                                <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                        </div>
+
+                    </article>
+                </li>
+            {% endfor %}
+        </ul>
+
+    </div>
+</section>
+
+<style>
+    /* ───── Section shell ───── */
+    .projects-spotlight {
+        padding: 0 0 96px;
+        background: var(--bg-primary, #ffffff);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* ───── Header ───── */
+    .projects-spotlight__head {
+        text-align: center;
+        max-width: 680px;
+        margin: 0 auto 48px;
+        position: relative;
+        z-index: 1;
+    }
+    .projects-spotlight__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--accent-secondary, #D4AF37);
+        font-weight: 600;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 2.5px;
+        margin: 0 0 10px;
+    }
+    .projects-spotlight__title {
+        font-size: clamp(1.75rem, 3vw, 2.4rem);
+        font-weight: 700;
+        color: var(--text-primary, #0D2B36);
+        margin: 0 0 12px;
+        letter-spacing: -0.015em;
+        line-height: 1.15;
+    }
+    .projects-spotlight__title-accent {
+        background: linear-gradient(135deg, #D4AF37 0%, #E8C84A 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+    }
+    .projects-spotlight__subtitle {
+        color: var(--text-secondary, #5a6c75);
+        font-size: 1.02rem;
+        margin: 0;
+        max-width: 540px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+    }
+
+    /* ───── Grid ───── */
+    .projects-spotlight__grid {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ───── Card (one project) ───── */
+    .spotlight-card { margin: 0; }
+    .spotlight-card__inner {
+        background: var(--bg-card, #ffffff);
+        border: 1px solid var(--border-primary, rgba(13, 43, 54, 0.08));
+        border-radius: 18px;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        transition:
+            transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+            box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+            border-color 0.4s ease;
+    }
+    .spotlight-card__inner::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, transparent 0%, var(--accent-secondary, #D4AF37) 50%, transparent 100%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: 2;
+    }
+    .spotlight-card:hover .spotlight-card__inner {
+        transform: translateY(-6px);
+        box-shadow:
+            0 18px 48px -16px rgba(13, 43, 54, 0.18),
+            0 4px 12px rgba(13, 43, 54, 0.06);
+        border-color: var(--accent-secondary, #D4AF37);
+    }
+    .spotlight-card:hover .spotlight-card__inner::before { opacity: 1; }
+
+    /* ───── Image ───── */
+    .spotlight-card__image {
+        position: relative;
+        height: 280px;
+        overflow: hidden;
+        background: var(--bg-secondary, #f4f6f8);
+    }
+    .spotlight-card__image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+    .spotlight-card:hover .spotlight-card__image img {
+        transform: scale(1.05);
+    }
+
+    /* ───── Badges on the image ───── */
+    .spotlight-card__code {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        background: rgba(13, 43, 54, 0.85);
+        backdrop-filter: blur(8px);
+        color: #f5f7f8;
+        font-variant-numeric: tabular-nums;
+    }
+    .spotlight-card__status {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        padding: 5px 14px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        backdrop-filter: blur(8px);
+        color: #FFFFFF;
+    }
+    .spotlight-card__status--completed { background: rgba(39, 174, 96, 0.9); }
+    .spotlight-card__status--active    { background: rgba(11, 102, 195, 0.9); }
+    .spotlight-card__status--onhold    { background: rgba(243, 156, 18, 0.9); }
+    .spotlight-card__status--default   { background: rgba(107, 114, 128, 0.9); }
+
+    /* ───── Body ───── */
+    .spotlight-card__body {
+        padding: 24px 24px 26px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+    .spotlight-card__name {
+        font-size: 1.18rem;
+        font-weight: 700;
+        color: var(--text-primary, #0D2B36);
+        margin: 0 0 6px;
+        letter-spacing: -0.01em;
+        line-height: 1.25;
+    }
+    .spotlight-card__location {
+        color: var(--text-secondary, #5a6c75);
+        font-size: 0.85rem;
+        margin: 0 0 14px;
+    }
+    .spotlight-card__location i {
+        color: var(--accent-secondary, #D4AF37);
+        margin-right: 6px;
+        font-size: 0.78rem;
+    }
+    .spotlight-card__description {
+        color: var(--text-secondary, #5a6c75);
+        font-size: 0.92rem;
+        line-height: 1.55;
+        margin: 0 0 16px;
+    }
+
+    /* ───── Service tags ───── */
+    .spotlight-card__tags {
+        list-style: none;
+        margin: 0 0 18px;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .spotlight-card__tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 50px;
+        background: var(--accent-secondary-soft, rgba(212, 175, 55, 0.10));
+        color: var(--text-primary, #0D2B36);
+        font-size: 0.72rem;
+        font-weight: 600;
+        line-height: 1;
+    }
+    .spotlight-card__tag i {
+        color: var(--accent-secondary, #D4AF37);
+        font-size: 0.7rem;
+    }
+
+    /* ───── CTA ───── */
+    .spotlight-card__cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: auto;
+        padding: 10px 18px;
+        align-self: flex-start;
+        background: var(--accent-primary, #0B66C3);
+        color: #FFFFFF;
+        border-radius: 50px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: gap 0.25s ease, background 0.25s ease, transform 0.25s ease;
+    }
+    .spotlight-card__cta:hover {
+        gap: 12px;
+        background: #084d96;
+        transform: translateX(2px);
+    }
+    .spotlight-card__cta i {
+        font-size: 0.75rem;
+        transition: transform 0.25s ease;
+    }
+    .spotlight-card__cta:hover i {
+        transform: translateX(2px);
+    }
+
+    /* ───── Dark theme ───── */
+    [data-theme="dark"] .spotlight-card__inner {
+        background: var(--bg-card, #11242d);
+        border-color: var(--border-primary, rgba(255, 255, 255, 0.06));
+    }
+    [data-theme="dark"] .spotlight-card:hover .spotlight-card__inner {
+        box-shadow:
+            0 18px 48px -16px rgba(0, 0, 0, 0.5),
+            0 4px 12px rgba(212, 175, 55, 0.12);
+    }
+    [data-theme="dark"] .spotlight-card__title,
+    [data-theme="dark"] .spotlight-card__name {
+        color: #f5f7f8;
+    }
+    [data-theme="dark"] .spotlight-card__description,
+    [data-theme="dark"] .spotlight-card__location {
+        color: #9aa7ad;
+    }
+    [data-theme="dark"] .spotlight-card__tag {
+        background: rgba(212, 175, 55, 0.14);
+        color: #e8eef0;
+    }
+
+    /* ───── Responsive ───── */
+    @media (max-width: 992px) {
+        .projects-spotlight__grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .projects-spotlight { padding-bottom: 80px; }
+    }
+    @media (max-width: 576px) {
+        .projects-spotlight__grid {
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+        .projects-spotlight { padding-bottom: 64px; }
+        .spotlight-card__image { height: 220px; }
+        .spotlight-card__body { padding: 20px 20px 22px; }
+        .spotlight-card__name { font-size: 1.08rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .spotlight-card__inner,
+        .spotlight-card__image img,
+        .spotlight-card__cta,
+        .spotlight-card__cta i {
+            transition: none !important;
+        }
+    }
+</style>
+{% endif %}

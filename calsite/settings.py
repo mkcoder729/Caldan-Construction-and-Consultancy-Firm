@@ -129,6 +129,7 @@ LOCAL_APPS = [
     'reports',
     'notifications',
     'blog',
+    'compassion',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -289,6 +290,7 @@ TEMPLATES = [
                 'website.context_processors.cart_count',
                 'website.context_processors.years_experience',
                 'website.context_processors.project_stats',
+                'compassion.context_processors.compassion_stats',
             ],
             'debug': DEBUG,
         },
@@ -442,8 +444,15 @@ PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY', default='')
 PAYSTACK_LIVE = config('PAYSTACK_LIVE', default=False, cast=bool)
 PAYSTACK_CALLBACK_URL = config('PAYSTACK_CALLBACK_URL', default='http://localhost:8000/shop/payment/verify/')
 PAYSTACK_WEBHOOK_URL = config('PAYSTACK_WEBHOOK_URL', default='http://localhost:8000/shop/payment/webhook/')
+CALDAN_COMPASSION_PAYSTACK_CALLBACK_URL = config('CALDAN_COMPASSION_PAYSTACK_CALLBACK_URL', default='http://localhost:8000/compassion/donate/verify/')
+CALDAN_COMPASSION_PAYSTACK_WEBHOOK_URL = config('CALDAN_COMPASSION_PAYSTACK_WEBHOOK_URL', default='http://localhost:8000/compassion/paystack/webhook/')
 
 MPESA_STK_PUSH_ENABLED = config('MPESA_STK_PUSH_ENABLED', default=True, cast=bool)
+
+# =====================================================================
+# COMPASSION STATS CACHE
+# =====================================================================
+CACHE_TTL_COMPASSION_STATS = config('CACHE_TTL_COMPASSION_STATS', default=300, cast=int)
 MPESA_BUSINESS_SHORTCODE = config('MPESA_BUSINESS_SHORTCODE', default='174379')
 MPESA_PASSKEY = config('MPESA_PASSKEY', default='')
 MPESA_CALLBACK_URL = config('MPESA_CALLBACK_URL', default='http://localhost:8000/shop/payment/mpesa-callback/')

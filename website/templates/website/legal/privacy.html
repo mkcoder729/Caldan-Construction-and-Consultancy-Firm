@@ -3,7 +3,9 @@
 
 {% block title %}Privacy Policy — Caldan Construction and Consultancy Firm Kenya{% endblock %}
 
-{% block meta_description %}Caldan Construction and Consultancy Firm's Privacy Policy. Learn how we collect, use, and protect your personal data in compliance with Kenya's Data Protection Act.{% endblock %}
+{% block meta_description %}
+<meta name="description" content="Caldan Construction and Consultancy Firm's Privacy Policy. Learn how we collect, use, and protect your personal data in compliance with Kenya's Data Protection Act.">
+{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -22,7 +24,12 @@
 /* ---------- HERO ---------- */
 .legal-hero {
     position: relative;
-    background: var(--lg-hero-grad);
+    background:
+        linear-gradient(160deg, rgba(11, 23, 42, 0.82) 0%, rgba(11, 66, 99, 0.78) 100%),
+        url('https://images.unsplash.com/photo-1589994965851-a8f479c573a9?w=1600&q=80&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     color: #fff;
     padding: 140px 0 90px;
     overflow: hidden;

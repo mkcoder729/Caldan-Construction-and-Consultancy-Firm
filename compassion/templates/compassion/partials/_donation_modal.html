@@ -1,0 +1,78 @@
+<div class="modal fade compassion-modal" id="donationModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <button type="button" class="compassion-modal__close" data-bs-dismiss="modal" aria-label="Close">
+        <i class="fas fa-xmark"></i>
+      </button>
+
+      <div class="modal-header compassion-modal__header">
+        <div class="compassion-modal__eyebrow"><i class="fas fa-hand-holding-heart"></i> Give Money</div>
+        <h3 class="modal-title">Your gift, in seconds.</h3>
+        <p class="compassion-modal__sub">Card or M-Pesa via Paystack. You choose how often and what for.</p>
+      </div>
+
+      <div class="modal-body compassion-modal__body">
+        <div class="compassion-modal__quick-amounts">
+          <button type="button" class="quick-amount" data-amount="500">KSh 500</button>
+          <button type="button" class="quick-amount" data-amount="1000">KSh 1,000</button>
+          <button type="button" class="quick-amount" data-amount="2500">KSh 2,500</button>
+          <button type="button" class="quick-amount" data-amount="5000">KSh 5,000</button>
+        </div>
+
+        <form id="donationForm" method="post" action="{% url 'compassion:donate_initiate' %}" novalidate>
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="donation-name">Full name</label>
+              <input type="text" id="donation-name" name="name" class="form-control" required maxlength="150" autocomplete="name">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="donation-email">Email</label>
+              <input type="email" id="donation-email" name="email" class="form-control" required autocomplete="email">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="donation-phone">Phone</label>
+              <input type="tel" id="donation-phone" name="phone" class="form-control" required maxlength="15" placeholder="0712 345 678" autocomplete="tel">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="donation-amount">Amount (KSh)</label>
+              <input type="number" id="donation-amount" name="amount" class="form-control" required min="10" step="10" inputmode="decimal">
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="donation-purpose">Designation</label>
+              <select id="donation-purpose" name="purpose" class="form-select">
+                <option value="GENERAL">Where most needed</option>
+                <option value="HOSPITAL">Hospital outreach</option>
+                <option value="PRISON">Prison outreach</option>
+                <option value="NEIGHBOURHOOD">Neighbourhood outreach</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="donation-note">Note <span class="text-muted">(optional)</span></label>
+              <textarea id="donation-note" name="note" class="form-control" rows="3" placeholder="Prayers, dedications, anything you'd like us to know."></textarea>
+            </div>
+            <div class="col-12">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="donation-schedule" name="schedule_call">
+                <label class="form-check-label" for="donation-schedule">
+                  For very large gifts, also <strong>schedule a call</strong> with our team.
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="compassion-modal__submit">
+            <button type="submit" class="btn-gold btn-lg w-100" id="donationSubmitBtn">
+              <i class="fas fa-lock"></i> Continue to Paystack
+            </button>
+            <p class="compassion-modal__small">
+              <i class="fas fa-shield-halved"></i> Secured by Paystack. You'll complete payment on their next page.
+            </p>
+          </div>
+        </form>
+
+        <div class="compassion-modal__feedback" id="donationFeedback" hidden></div>
+      </div>
+    </div>
+  </div>
+</div>

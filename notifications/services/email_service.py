@@ -4,11 +4,22 @@ import os
 import sys
 import base64
 from django.conf import settings
+from django.core.mail import send_mail as django_send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils import timezone
 from notifications.models.email_log import EmailLog
 
 logger = logging.getLogger('caldan.email')
+
+
+def strip_html(html: str) -> str:
+    """Strip HTML tags for plain-text fallback (used in DEV mode)."""
+    import re
+    text = re.sub(r'<style[^>]*>.*?</style>', '', html, flags=re.DOTALL | re.IGNORECASE)
+    text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.DOTALL | re.IGNORECASE)
+    text = re.sub(r'<[^>]+>', ' ', text)
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text[:8000]  # cap so the console/log doesn't blow up
 
 # Initialize Resend.
 try:
@@ -101,11 +112,24 @@ class EmailService:
         # and will raise UnicodeEncodeError on emoji.
         ascii_subject = subject.encode('ascii', 'replace').decode('ascii')
 
-        # DEV mode or missing API key — just log and skip the network call.
+        # DEV mode or missing API key — log + queue via Django's mail backend
+        # so the message is visible (locmem.outbox in tests, console in dev).
         if not send_real or not api_key:
             logger.info(f"[DEV MODE] Email would be sent to {to_email}: {ascii_subject}")
             cls._log_attempt(to_email, subject, 'DEV_MODE', user=user, email_type=email_type)
-            cls._safe_print("[DEBUG] DEV MODE - returning True without sending")
+            try:
+                # Use plain text for the dev console; HTML only when Resend
+                # would have rendered it (avoids mangling on cp1252 stdout).
+                django_send_mail(
+                    subject=subject,
+                    message=strip_html(html_content),
+                    from_email=cls.from_email(),
+                    recipient_list=[to_email],
+                    fail_silently=True,
+                )
+                cls._safe_print(f"[DEBUG] DEV MODE - queued via django mail to {to_email}")
+            except Exception as exc:
+                cls._safe_print(f"[DEBUG] DEV MODE django send failed: {exc}")
             return True
 
         # Defensive: make sure the SDK was initialised.
@@ -753,3 +777,156 @@ class EmailService:
                 failed += 1
 
         return {'sent': sent, 'failed': failed, 'total': len(subscribers)}
+
+    # ───── Caldan Compassionate Ministry emails ─────
+
+    @classmethod
+    def _resolve_compassion_admin(cls):
+        """Resolve the recipient for compassion admin alerts.
+
+        Mirrors the order-alert pattern: settings.ADMIN_EMAIL wins;
+        falls back to the first active superuser / chief admin.
+        """
+        from accounts.models.user import User
+
+        admin_email = getattr(settings, 'ADMIN_EMAIL', '') or ''
+        if admin_email:
+            admin = (
+                User.objects.filter(is_superuser=True, email__iexact=admin_email).first()
+                or User.objects.filter(is_active=True, is_chief=True, email__iexact=admin_email).first()
+            )
+            return admin_email, admin
+        admin = (
+            User.objects.filter(is_active=True, is_superuser=True).first()
+            or User.objects.filter(is_active=True, is_chief=True).first()
+        )
+        return (admin.email if admin else 'info.caldanconstruction@gmail.com'), admin
+
+    @classmethod
+    def send_donation_receipt(cls, donation):
+        """Receipt email to the donor after a successful Paystack charge."""
+        return cls.send_template(
+            to_email=donation.donor_email,
+            subject=f"Thank you for your gift of KES {donation.amount_ksh}",
+            template_name='email/donation_receipt_donor.html',
+            context={
+                'donation': donation,
+                'donor_name': donation.donor_name,
+                'amount': donation.amount_ksh,
+                'purpose': donation.get_purpose_display(),
+                'reference': donation.reference,
+                'paystack_reference': donation.paystack_reference or '',
+                'paid_at': donation.verified_at,
+            },
+            to_name=donation.donor_name,
+            email_type='DONATION_RECEIPT',
+        )
+
+    @classmethod
+    def send_donation_admin_alert(cls, donation):
+        """Notify the admin team of a freshly paid donation."""
+        admin_email, admin = cls._resolve_compassion_admin()
+        return cls.send_template(
+            to_email=admin_email,
+            subject=f"New donation received — KES {donation.amount_ksh}",
+            template_name='email/donation_admin_alert.html',
+            context={
+                'donation': donation,
+                'donor_name': donation.donor_name,
+                'donor_email': donation.donor_email,
+                'donor_phone': donation.donor_phone,
+                'amount': donation.amount_ksh,
+                'purpose': donation.get_purpose_display(),
+                'note': donation.note,
+                'reference': donation.reference,
+                'paystack_reference': donation.paystack_reference or '',
+                'dashboard_url': f"{getattr(settings, 'SITE_URL', 'http://localhost:8000')}/dashboard/compassion/donations/{donation.id}/",
+            },
+            user=admin,
+            email_type='DONATION_ADMIN_ALERT',
+        )
+
+    @classmethod
+    def send_inkind_pledge_donor(cls, pledge):
+        """Confirmation to the donor that we received their in-kind pledge."""
+        return cls.send_template(
+            to_email=pledge.donor_email,
+            subject=f"Thank you — your {pledge.get_item_type_display().lower()} pledge is logged",
+            template_name='email/inkind_pledge_donor.html',
+            context={
+                'pledge': pledge,
+                'donor_name': pledge.donor_name,
+                'item_type': pledge.get_item_type_display(),
+                'item_description': pledge.item_description,
+                'quantity_estimate': pledge.quantity_estimate,
+                'delivery_mode': pledge.get_delivery_mode_display() if pledge.delivery_mode else '',
+            },
+            to_name=pledge.donor_name,
+            email_type='INKIND_PLEDGE_DONOR',
+        )
+
+    @classmethod
+    def send_inkind_pledge_admin(cls, pledge):
+        """Notify the admin team of a new in-kind pledge."""
+        admin_email, admin = cls._resolve_compassion_admin()
+        return cls.send_template(
+            to_email=admin_email,
+            subject=f"New in-kind pledge — {pledge.get_item_type_display()}",
+            template_name='email/inkind_pledge_admin.html',
+            context={
+                'pledge': pledge,
+                'donor_name': pledge.donor_name,
+                'donor_email': pledge.donor_email,
+                'donor_phone': pledge.donor_phone,
+                'item_type': pledge.get_item_type_display(),
+                'item_description': pledge.item_description,
+                'quantity_estimate': pledge.quantity_estimate,
+                'delivery_mode': pledge.get_delivery_mode_display() if pledge.delivery_mode else '',
+                'preferred_date': pledge.preferred_date,
+                'address': pledge.address,
+                'notes': pledge.notes,
+                'dashboard_url': f"{getattr(settings, 'SITE_URL', 'http://localhost:8000')}/dashboard/compassion/inkind/{pledge.id}/",
+            },
+            user=admin,
+            email_type='INKIND_PLEDGE_ADMIN',
+        )
+
+    @classmethod
+    def send_schedule_call_donor(cls, call):
+        """Confirmation to the requester that we got their call request."""
+        return cls.send_template(
+            to_email=call.email,
+            subject="We'll be in touch — your Caldan Compassion call request",
+            template_name='email/schedule_call_donor.html',
+            context={
+                'call': call,
+                'name': call.name,
+                'topic': call.get_topic_display(),
+                'preferred_time': call.preferred_time,
+                'message': call.message,
+            },
+            to_name=call.name,
+            email_type='SCHEDULE_CALL_DONOR',
+        )
+
+    @classmethod
+    def send_schedule_call_admin(cls, call):
+        """Notify the admin team of a new call request."""
+        admin_email, admin = cls._resolve_compassion_admin()
+        return cls.send_template(
+            to_email=admin_email,
+            subject=f"Call requested — {call.get_topic_display()}",
+            template_name='email/schedule_call_admin.html',
+            context={
+                'call': call,
+                'name': call.name,
+                'email': call.email,
+                'phone': call.phone,
+                'topic': call.get_topic_display(),
+                'preferred_time': call.preferred_time,
+                'message': call.message,
+                'dashboard_url': f"{getattr(settings, 'SITE_URL', 'http://localhost:8000')}/dashboard/compassion/calls/{call.id}/",
+            },
+            user=admin,
+            email_type='SCHEDULE_CALL_ADMIN',
+        )

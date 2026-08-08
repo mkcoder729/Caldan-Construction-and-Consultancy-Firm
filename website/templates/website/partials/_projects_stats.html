@@ -1,0 +1,491 @@
+{% comment %}
+    Caldan "Projects at a glance" — 4-card stats strip for the /projects/ page.
+
+    Lightweight counterpart to _stats_bar.html (which is the by-the-numbers
+    block on the home page). This one is scoped to project-specific metrics
+    only and lives between the hero and the spotlight.
+
+    Counts come from the existing context_processors:
+      completed_projects  -> project_stats context processor (cached 5 min)
+      active_projects     -> project_stats context processor (cached 5 min)
+      years_experience    -> years_experience context processor
+
+    Counties is derived from the view's `counties` list (number of distinct
+    counties that have at least one non-archived project). If 0, falls back
+    to "across Kenya" so the caption never reads empty.
+
+    The IntersectionObserver counter JS is reused from _stats_bar.html —
+    that script guards itself with `window.__caldanStatsInited` so two
+    include-on-same-page is safe.
+{% endcomment %}
+{% load static %}
+
+<section class="projects-stats"
+         aria-label="Caldan Construction projects at a glance"
+         data-stats-section>
+
+    <div class="container">
+
+        <header class="projects-stats__head">
+            <p class="projects-stats__eyebrow">
+                <i class="fas fa-chart-bar" aria-hidden="true"></i>
+                Portfolio at a glance
+            </p>
+            <h2 class="projects-stats__title">
+                Real numbers from <span class="projects-stats__title-accent">our work</span>
+            </h2>
+            <p class="projects-stats__subtitle">
+                Every project is signed off, every metric is real.
+                No filler.
+            </p>
+        </header>
+
+        <ul class="projects-stats__grid" role="list">
+
+            <li class="projects-stats__card projects-stats__card--green"
+                data-stats-card
+                style="--projects-stats-stagger: 0;">
+                <div class="projects-stats__icon" aria-hidden="true">
+                    <i class="fas fa-check-double"></i>
+                </div>
+                <div class="projects-stats__value" aria-live="polite">
+                    <span class="projects-stats__counter"
+                          data-counter
+                          data-target="{{ completed_projects|default:0 }}"
+                          data-suffix="+"
+                          aria-label="{{ completed_projects|default:0 }} plus completed projects">0</span>
+                </div>
+                <p class="projects-stats__label">Projects delivered</p>
+                <p class="projects-stats__caption">
+                    {% if counties|length > 0 %}
+                        Across
+                        {% if counties|length == 1 %}{{ counties.0 }}{% else %}{{ counties|join:" & " }}{% endif %}
+                    {% else %}
+                        Across Kenya
+                    {% endif %}
+                </p>
+            </li>
+
+            <li class="projects-stats__card projects-stats__card--blue"
+                data-stats-card
+                style="--projects-stats-stagger: 1;">
+                <div class="projects-stats__icon" aria-hidden="true">
+                    <i class="fas fa-hard-hat"></i>
+                </div>
+                <div class="projects-stats__value" aria-live="polite">
+                    <span class="projects-stats__counter"
+                          data-counter
+                          data-target="{{ active_projects|default:0 }}"
+                          data-suffix=""
+                          aria-label="{{ active_projects|default:0 }} active projects">0</span>
+                </div>
+                <p class="projects-stats__label">On-site right now</p>
+                <p class="projects-stats__caption">Active jobs in progress</p>
+            </li>
+
+            <li class="projects-stats__card projects-stats__card--gold"
+                data-stats-card
+                style="--projects-stats-stagger: 2;">
+                <div class="projects-stats__icon" aria-hidden="true">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <div class="projects-stats__value" aria-live="polite">
+                    <span class="projects-stats__counter"
+                          data-counter
+                          data-target="{{ counties|length|default:0 }}"
+                          data-suffix=""
+                          aria-label="{{ counties|length|default:0 }} counties covered">0</span>
+                </div>
+                <p class="projects-stats__label">Counties covered</p>
+                <p class="projects-stats__caption">Service area to date</p>
+            </li>
+
+            <li class="projects-stats__card projects-stats__card--gold"
+                data-stats-card
+                style="--projects-stats-stagger: 3;">
+                <div class="projects-stats__icon" aria-hidden="true">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="projects-stats__value" aria-live="polite">
+                    <span class="projects-stats__counter"
+                          data-counter
+                          data-target="{{ years_experience|default:0 }}"
+                          data-suffix="+"
+                          aria-label="{{ years_experience|default:0 }} plus years of experience">0</span>
+                </div>
+                <p class="projects-stats__label">Years building</p>
+                <p class="projects-stats__caption">Since 2008</p>
+            </li>
+
+        </ul>
+
+    </div>
+</section>
+
+<style>
+    /* ───── Section shell ───── */
+    .projects-stats {
+        padding: 88px 0 96px;
+        background: var(--bg-primary, #ffffff);
+        position: relative;
+        overflow: hidden;
+    }
+    .projects-stats::before {
+        content: "";
+        position: absolute;
+        top: -120px;
+        right: -120px;
+        width: 360px;
+        height: 360px;
+        background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .projects-stats::after {
+        content: "";
+        position: absolute;
+        bottom: -160px;
+        left: -100px;
+        width: 380px;
+        height: 380px;
+        background: radial-gradient(circle, rgba(11, 102, 195, 0.05) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    /* ───── Header ───── */
+    .projects-stats__head {
+        text-align: center;
+        margin-bottom: 56px;
+        position: relative;
+        z-index: 1;
+    }
+    .projects-stats__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--accent-secondary, #D4AF37);
+        font-weight: 600;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 2.5px;
+        margin: 0 0 10px;
+    }
+    .projects-stats__title {
+        font-size: clamp(1.75rem, 3vw, 2.4rem);
+        font-weight: 700;
+        color: var(--text-primary, #0D2B36);
+        margin: 0 0 12px;
+        letter-spacing: -0.015em;
+        line-height: 1.15;
+    }
+    .projects-stats__title-accent {
+        background: linear-gradient(135deg, #D4AF37 0%, #E8C84A 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+    }
+    .projects-stats__subtitle {
+        color: var(--text-secondary, #5a6c75);
+        font-size: 1.02rem;
+        margin: 0 auto;
+        max-width: 540px;
+        line-height: 1.6;
+    }
+
+    /* ───── Grid ───── */
+    .projects-stats__grid {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 22px;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* ───── Card ───── */
+    .projects-stats__card {
+        --card-accent: #D4AF37;
+        --card-accent-soft: rgba(212, 175, 55, 0.12);
+        --card-accent-soft-strong: rgba(212, 175, 55, 0.22);
+
+        padding: 32px 20px 28px;
+        background: var(--bg-card, #ffffff);
+        border-radius: 18px;
+        border: 1px solid var(--border-primary, rgba(13, 43, 54, 0.08));
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                    box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                    border-color 0.4s ease,
+                    opacity 0.4s ease;
+        opacity: 0;
+        transform: translateY(24px);
+    }
+
+    .projects-stats__card.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+        transition-delay: calc(var(--projects-stats-stagger, 0) * 110ms);
+    }
+
+    .projects-stats__card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 18px 48px -12px rgba(13, 43, 54, 0.18),
+                    0 4px 12px rgba(13, 43, 54, 0.06);
+        border-color: var(--card-accent);
+    }
+
+    .projects-stats__card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, transparent 0%, var(--card-accent) 50%, transparent 100%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    .projects-stats__card:hover::before { opacity: 1; }
+
+    /* ───── Accent modifiers ───── */
+    .projects-stats__card--gold {
+        --card-accent: #D4AF37;
+        --card-accent-soft: rgba(212, 175, 55, 0.12);
+        --card-accent-soft-strong: rgba(212, 175, 55, 0.22);
+    }
+    .projects-stats__card--green {
+        --card-accent: #27AE60;
+        --card-accent-soft: rgba(39, 174, 96, 0.12);
+        --card-accent-soft-strong: rgba(39, 174, 96, 0.22);
+    }
+    .projects-stats__card--blue {
+        --card-accent: #0B66C3;
+        --card-accent-soft: rgba(11, 102, 195, 0.12);
+        --card-accent-soft-strong: rgba(11, 102, 195, 0.22);
+    }
+
+    /* ───── Icon ───── */
+    .projects-stats__icon {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 18px;
+        background: var(--card-accent-soft);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--card-accent);
+        font-size: 1.35rem;
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                    background-color 0.4s ease;
+    }
+    .projects-stats__card:hover .projects-stats__icon {
+        transform: scale(1.08) rotate(-3deg);
+        background: var(--card-accent-soft-strong);
+    }
+
+    /* ───── Value + label + caption ───── */
+    .projects-stats__value {
+        font-size: clamp(2.2rem, 3.4vw, 2.9rem);
+        font-weight: 700;
+        color: var(--card-accent);
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+        margin-bottom: 8px;
+    }
+    .projects-stats__counter {
+        display: inline-block;
+        min-width: 1ch;
+    }
+    .projects-stats__label {
+        color: var(--text-primary, #0D2B36);
+        font-size: 0.92rem;
+        margin: 0 0 4px;
+        font-weight: 600;
+        letter-spacing: 0.005em;
+    }
+    .projects-stats__caption {
+        color: var(--text-secondary, #5a6c75);
+        font-size: 0.78rem;
+        margin: 0;
+        font-weight: 500;
+        opacity: 0.8;
+    }
+
+    /* ───── Dark theme ───── */
+    [data-theme="dark"] .projects-stats__card {
+        background: var(--bg-card, #11242d);
+        border-color: var(--border-primary, rgba(255, 255, 255, 0.06));
+    }
+    [data-theme="dark"] .projects-stats__card:hover {
+        box-shadow: 0 18px 48px -12px rgba(0, 0, 0, 0.5),
+                    0 4px 12px rgba(212, 175, 55, 0.12);
+    }
+    [data-theme="dark"] .projects-stats__title {
+        color: #f5f7f8;
+    }
+    [data-theme="dark"] .projects-stats__label {
+        color: #e8eef0;
+    }
+    [data-theme="dark"] .projects-stats__caption {
+        color: #9aa7ad;
+    }
+
+    /* ───── Responsive ───── */
+    @media (max-width: 900px) {
+        .projects-stats { padding: 72px 0 80px; }
+        .projects-stats__grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    }
+    @media (max-width: 520px) {
+        .projects-stats { padding: 60px 0 64px; }
+        .projects-stats__grid { gap: 12px; }
+        .projects-stats__card { padding: 24px 14px 22px; border-radius: 14px; }
+        .projects-stats__icon { width: 48px; height: 48px; font-size: 1.15rem; margin-bottom: 14px; }
+        .projects-stats__head { margin-bottom: 36px; }
+    }
+
+    /* ───── Reduced motion ───── */
+    @media (prefers-reduced-motion: reduce) {
+        .projects-stats__card,
+        .projects-stats__icon {
+            transition: none !important;
+        }
+        .projects-stats__card {
+            opacity: 1;
+            transform: none;
+        }
+    }
+</style>
+
+<script>
+(function () {
+    "use strict";
+
+    // Match the guard name from _stats_bar.html so the two scripts never
+    // double-init on the same page. If _stats_bar.html already ran,
+    // we exit early — that observer already covers [data-counter] in
+    // any section with [data-stats-section].
+    if (window.__caldanStatsInited) { return; }
+    window.__caldanStatsInited = true;
+
+    var prefersReducedMotion = window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function formatNumber(n) {
+        if (n >= 1000 && n < 1000000) {
+            var k = n / 1000;
+            return (k % 1 === 0) ? k + "K" : k.toFixed(1) + "K";
+        }
+        return Math.floor(n).toLocaleString("en-US");
+    }
+
+    function setCounterTo(el, value) {
+        var suffix = el.getAttribute("data-suffix") || "";
+        el.textContent = formatNumber(value) + suffix;
+    }
+
+    function animateCounter(el) {
+        var target = parseInt(el.getAttribute("data-target"), 10) || 0;
+        var suffix = el.getAttribute("data-suffix") || "";
+
+        if (prefersReducedMotion || target === 0) {
+            setCounterTo(el, target);
+            return;
+        }
+
+        var duration = 1600;
+        var startTs = null;
+
+        function step(ts) {
+            if (!startTs) { startTs = ts; }
+            var progress = Math.min((ts - startTs) / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            var current = Math.floor(eased * target);
+            el.textContent = formatNumber(current) + suffix;
+            if (progress < 1) {
+                requestAnimationFrame(step);
+            } else {
+                el.textContent = formatNumber(target) + suffix;
+            }
+        }
+
+        requestAnimationFrame(step);
+    }
+
+    function resetCounters(section) {
+        var counters = section.querySelectorAll("[data-counter]");
+        for (var i = 0; i < counters.length; i++) {
+            setCounterTo(counters[i], 0);
+        }
+    }
+
+    function resetCards(section) {
+        var cards = section.querySelectorAll("[data-stats-card]");
+        for (var i = 0; i < cards.length; i++) {
+            cards[i].classList.remove("is-visible");
+        }
+    }
+
+    function revealAndAnimate(section) {
+        var cards = section.querySelectorAll("[data-stats-card]");
+        for (var i = 0; i < cards.length; i++) {
+            cards[i].classList.add("is-visible");
+        }
+        var counters = section.querySelectorAll("[data-counter]");
+        for (var j = 0; j < counters.length; j++) {
+            animateCounter(counters[j]);
+        }
+    }
+
+    function init() {
+        var sections = document.querySelectorAll("[data-stats-section]");
+        if (!sections.length) { return; }
+
+        if (!("IntersectionObserver" in window)) {
+            for (var s = 0; s < sections.length; s++) {
+                revealAndAnimate(sections[s]);
+            }
+            return;
+        }
+
+        for (var k = 0; k < sections.length; k++) {
+            (function (section) {
+                var isInView = false;
+
+                var observer = new IntersectionObserver(function (entries) {
+                    for (var i = 0; i < entries.length; i++) {
+                        var entry = entries[i];
+                        if (entry.target !== section) { continue; }
+
+                        if (entry.isIntersecting) {
+                            if (!isInView) {
+                                isInView = true;
+                                revealAndAnimate(section);
+                            }
+                        } else {
+                            if (isInView) {
+                                isInView = false;
+                                resetCards(section);
+                                resetCounters(section);
+                            }
+                        }
+                    }
+                }, { threshold: 0.2, rootMargin: "0px 0px -60px 0px" });
+
+                observer.observe(section);
+            })(sections[k]);
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+    } else {
+        init();
+    }
+})();
+</script>

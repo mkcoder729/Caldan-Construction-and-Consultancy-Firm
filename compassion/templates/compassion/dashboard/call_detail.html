@@ -1,0 +1,35 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Call — {{ call.name }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="compassion-detail">
+    <div class="page-header"><div><h1 class="page-header__title"><span class="icon-bubble"><i class="fas fa-phone"></i></span> Call Request</h1><p class="page-header__sub">{{ call.name }} — {{ call.get_topic_display }}</p></div>
+        <div class="page-header__actions"><a href="{% url 'compassion_dashboard:call_list' %}" class="btn-pill"><i class="fas fa-arrow-left"></i> Back</a>
+            <a href="tel:{{ call.phone }}" class="btn-pill"><i class="fas fa-phone"></i> Call now</a></div></div>
+    <div class="panel">
+        <div class="panel__header"><h3><i class="fas fa-info-circle"></i> Details</h3></div>
+        <div style="padding: 22px;">
+            <dl style="display: grid; grid-template-columns: 200px 1fr; gap: 14px 18px;">
+                <dt><strong>Name</strong></dt><dd>{{ call.name }}</dd>
+                <dt><strong>Email</strong></dt><dd><a href="mailto:{{ call.email }}">{{ call.email }}</a></dd>
+                <dt><strong>Phone</strong></dt><dd><a href="tel:{{ call.phone }}">{{ call.phone }}</a></dd>
+                <dt><strong>Topic</strong></dt><dd>{{ call.get_topic_display }}</dd>
+                <dt><strong>Preferred time</strong></dt><dd>{{ call.preferred_time }}</dd>
+                <dt><strong>Status</strong></dt><dd>{{ call.get_status_display }}</dd>
+                {% if call.message %}<dt><strong>Message</strong></dt><dd>{{ call.message|linebreaksbr }}</dd>{% endif %}
+            </dl>
+        </div>
+    </div>
+    <div class="panel" style="margin-top: 18px;">
+        <div class="panel__header"><h3><i class="fas fa-arrows-up-down"></i> Advance status</h3></div>
+        <form method="post" action="{% url 'compassion_dashboard:call_advance' call.id %}" style="padding: 22px; display: flex; gap: 10px;">
+            {% csrf_token %}
+            <select name="status" class="form-select" style="max-width: 240px;">
+                {% for v,l in call.Status.choices %}<option value="{{ v }}" {% if call.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
+            </select>
+            <button class="btn-apply" type="submit"><i class="fas fa-check"></i> Update</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

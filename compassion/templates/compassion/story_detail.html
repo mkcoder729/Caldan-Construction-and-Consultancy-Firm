@@ -1,0 +1,169 @@
+{% extends "website/base.html" %}
+{% load static %}
+{% load humanize compassion_tags %}
+
+{% block title %}{{ story.title }} — Caldan Compassionate Ministry{% endblock %}
+
+{% block meta_description %}{{ story.summary|truncatewords:30 }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/compassion.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{# Breadcrumb / back nav #}
+<section class="story-breadcrumb">
+    <div class="container">
+        <a href="{% url 'compassion:index' %}#stories" class="story-breadcrumb__back">
+            <i class="fas fa-arrow-left"></i>
+            Back to all stories
+        </a>
+    </div>
+</section>
+
+{# Hero: full-bleed cover image with title + meta overlay #}
+<section class="story-hero">
+    {% if story.has_cover %}
+        <img src="{{ story.cover_image.url }}" alt="{{ story.title }}" class="story-hero__bg">
+    {% else %}
+        <img src="{% static story.placeholder_svg %}" alt="{{ story.title }}" class="story-hero__bg">
+    {% endif %}
+    <div class="story-hero__overlay"></div>
+    <div class="container">
+        <div class="story-hero__content">
+            <span class="story-hero__category">
+                <i class="fas fa-tag"></i>
+                {{ story.get_category_display }}
+            </span>
+            <h1 class="story-hero__title">{{ story.title }}</h1>
+            <div class="story-hero__meta">
+                {% if story.location %}
+                    <span><i class="fas fa-map-marker-alt"></i> {{ story.location }}</span>
+                {% endif %}
+                <span><i class="fas fa-calendar"></i> {{ story.event_date|date:"d M Y" }}</span>
+                {% if story.people_served %}
+                    <span><i class="fas fa-users"></i> <strong>{{ story.people_served|intcomma }}</strong> people served</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+{# Body: summary + full story + sidebar with related #}
+<section class="story-body">
+    <div class="container">
+        <div class="story-body__grid">
+
+            <article class="story-body__article">
+                <p class="story-body__summary">{{ story.summary }}</p>
+
+                {% if story.body %}
+                    <div class="story-body__text">
+                        {% for paragraph in story.body|split_paragraphs %}
+                            <p>{{ paragraph }}</p>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="story-body__placeholder">
+                        <i class="fas fa-pen-fancy"></i>
+                        Full write-up coming soon — check back for the detailed account of this outreach.
+                    </p>
+                {% endif %}
+
+                <div class="story-body__cta">
+                    <a href="{% url 'compassion:index' %}" class="btn-gold">
+                        <i class="fas fa-hand-holding-heart"></i>
+                        Support this work
+                    </a>
+                    <button type="button" class="btn-outline-gold" data-bs-toggle="modal" data-bs-target="#scheduleCallModal">
+                        <i class="fas fa-phone"></i>
+                        Talk to our team
+                    </button>
+                </div>
+            </article>
+
+            <aside class="story-body__sidebar">
+                <div class="story-sidebar__card">
+                    <h3 class="story-sidebar__title">
+                        <i class="fas fa-circle-info"></i>
+                        Quick facts
+                    </h3>
+                    <dl class="story-sidebar__facts">
+                        <dt>Category</dt>
+                        <dd>{{ story.get_category_display }}</dd>
+                        <dt>Date</dt>
+                        <dd>{{ story.event_date|date:"d M Y" }}</dd>
+                        {% if story.location %}
+                            <dt>Location</dt>
+                            <dd>{{ story.location }}</dd>
+                        {% endif %}
+                        {% if story.people_served %}
+                            <dt>People reached</dt>
+                            <dd>{{ story.people_served|intcomma }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+
+                {% if related_stories %}
+                    <div class="story-sidebar__card">
+                        <h3 class="story-sidebar__title">
+                            <i class="fas fa-newspaper"></i>
+                            Related stories
+                        </h3>
+                        <ul class="story-sidebar__related">
+                            {% for r in related_stories %}
+                                <li>
+                                    <a href="{% url 'compassion:story_detail' r.slug %}">
+                                        <span class="story-sidebar__related-thumb">
+                                            {% if r.has_cover %}
+                                                <img src="{{ r.cover_image.url }}" alt="{{ r.title }}">
+                                            {% else %}
+                                                <img src="{% static r.placeholder_svg %}" alt="{{ r.title }}">
+                                            {% endif %}
+                                        </span>
+                                        <span class="story-sidebar__related-text">
+                                            <strong>{{ r.title }}</strong>
+                                            <small><i class="fas fa-map-marker-alt"></i> {{ r.location|default:"Kenya" }}</small>
+                                        </span>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <div class="story-sidebar__card story-sidebar__card--accent">
+                    <h3 class="story-sidebar__title">
+                        <i class="fas fa-hand-holding-heart"></i>
+                        Give today
+                    </h3>
+                    <p>
+                        Your gift — money, items, or your time — lands somewhere it matters.
+                    </p>
+                    <div class="story-sidebar__actions">
+                        <button type="button" class="btn-gold" data-bs-toggle="modal" data-bs-target="#donationModal">
+                            Donate
+                        </button>
+                        <button type="button" class="btn-link" data-bs-toggle="modal" data-bs-target="#inkindModal">
+                            Pledge items
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+</section>
+
+{# Schedule modal included here so the "Talk to our team" CTA works on this page too #}
+{% include "compassion/partials/_schedule_modal.html" %}
+{% include "compassion/partials/_donation_modal.html" %}
+{% include "compassion/partials/_inkind_modal.html" %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/compassion.js' %}"></script>
+{% endblock %}

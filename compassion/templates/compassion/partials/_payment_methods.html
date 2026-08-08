@@ -1,0 +1,37 @@
+{% if payment_methods %}
+<section class="compassion-paymethods">
+  <div class="container">
+    <div class="section-heading">
+      <span class="section-heading__eyebrow"><i class="fas fa-wallet"></i> Other ways to give</span>
+      <h2 class="section-heading__title">Direct transfers &amp; bank details</h2>
+      <p class="section-heading__sub">For bank transfers, mobile money, and direct gifts — use the channel that works best for you.</p>
+    </div>
+
+    <div class="compassion-paymethods__grid">
+      {% for method in payment_methods %}
+      <div class="paymethod-card">
+        <div class="paymethod-card__icon"><i class="{{ method.icon_class }}"></i></div>
+        <div class="paymethod-card__body">
+          <h4>{{ method.label }}</h4>
+          {% if method.account_number %}
+          <p class="paymethod-card__number">
+            <span class="paymethod-card__label">Account / Number</span>
+            <code>{{ method.account_number }}</code>
+          </p>
+          {% endif %}
+          {% if method.account_name %}
+          <p class="paymethod-card__name"><span class="paymethod-card__label">Account name</span> {{ method.account_name }}</p>
+          {% endif %}
+          {% if method.bank_name %}
+          <p class="paymethod-card__bank"><span class="paymethod-card__label">Bank</span> {{ method.bank_name }}</p>
+          {% endif %}
+          {% if method.instructions %}
+          <p class="paymethod-card__instructions">{{ method.instructions|linebreaksbr }}</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}

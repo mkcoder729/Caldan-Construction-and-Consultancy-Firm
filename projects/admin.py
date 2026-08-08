@@ -15,6 +15,7 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = [
         'project_code',
         'name',
+        'is_featured',
         'status',
         'county',
         'budget_display',
@@ -22,6 +23,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'created_at',
     ]
     list_filter = [
+        'is_featured',
         'status',
         'county',
         'is_archived',
@@ -58,6 +60,10 @@ class ProjectAdmin(admin.ModelAdmin):
         }),
         ('Media', {
             'fields': ('cover_photo',)
+        }),
+        ('Display', {
+            'fields': ('is_featured',),
+            'description': 'Toggle on to feature this project in the public /projects/ spotlight section (max 3 recommended).'
         }),
     )
     ordering = ['-created_at']

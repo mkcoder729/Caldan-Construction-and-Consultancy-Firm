@@ -110,10 +110,15 @@ def projects(request: HttpRequest) -> HttpResponse:
     if status_filter and status_filter in ["ACTIVE", "COMPLETED", "PLANNING", "ON_HOLD"]:
         projects_list = projects_list.filter(status=status_filter)
 
-    # Filter by category (Residential, Commercial, Renovation, Hospitality, Industrial)
+    # Filter by category via the M2M to services.Service.category.
+    # Project itself has no `category` field — categories come from the
+    # linked services. Validate against the Service.Category enum so a
+    # bogus query string (e.g. ?category=Residential) is silently ignored
+    # instead of raising FieldError.
     category_filter = request.GET.get("category", "")
-    if category_filter:
-        projects_list = projects_list.filter(category__iexact=category_filter)
+    valid_categories = {key for key, _ in Service.Category.choices}
+    if category_filter and category_filter in valid_categories:
+        projects_list = projects_list.filter(services__category=category_filter).distinct()
 
     # Get unique counties for the filter dropdown
     counties = Project.objects.filter(is_archived=False).values_list("county", flat=True).distinct().order_by("county")
@@ -132,12 +137,26 @@ def projects(request: HttpRequest) -> HttpResponse:
     # Get status counts
     status_counts = Project.objects.filter(is_archived=False).values("status").annotate(count=Count("status"))
 
+    # Featured projects for the spotlight partial.
+    # Now backed by the explicit `is_featured` flag (set from the dashboard
+    # or admin). If no projects are flagged, the partial collapses entirely
+    # via the `{% if featured_projects %}` guard — so we DON'T fall back
+    # to a `created_at` ordering here. Editorial intent wins.
+    featured_projects = Project.objects.filter(
+        is_archived=False,
+        status__in=["ACTIVE", "COMPLETED"],
+        is_featured=True,
+    ).order_by("-created_at")[:3]
+
     context = {
         "projects": projects_page,
         "counties": [c for c in counties if c],
         "current_status": status_filter,
         "current_category": category_filter,
         "status_counts": {item["status"]: item["count"] for item in status_counts},
+        "categories": Service.Category.choices,
+        "featured_projects": featured_projects,
+        "total_projects": projects_list.count(),
     }
 
     return render(request, "website/projects.html", context)

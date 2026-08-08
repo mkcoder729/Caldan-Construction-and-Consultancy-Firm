@@ -1,0 +1,40 @@
+{# Donor receipt — thank-you + confirmation after a successful Paystack charge. #}
+{% extends "email/_base.html" %}
+{% load humanize %}
+
+{% block badge %}<span class="badge badge-gold" style="margin-top: 14px;">GIFT RECEIVED</span>{% endblock %}
+
+{% block content %}
+  <h1>Thank you, <span>{{ donor_name }}</span></h1>
+  <p class="subtitle">Your gift to Caldan Compassionate Ministry</p>
+
+  <p>We received your gift and we're profoundly grateful. Every shilling goes directly toward hospital visits, prison outreach, and neighbourhood support across Kenya.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Amount</dt>
+      <dd><strong>KES {{ amount|intcomma }}</strong></dd>
+      <dt>Designation</dt>
+      <dd>{{ purpose }}</dd>
+      <dt>Reference</dt>
+      <dd><code>{{ reference }}</code></dd>
+      {% if paystack_reference %}
+      <dt>Paystack reference</dt>
+      <dd><code>{{ paystack_reference }}</code></dd>
+      {% endif %}
+      {% if paid_at %}
+      <dt>Received at</dt>
+      <dd>{{ paid_at|date:"M j, Y H:i" }}</dd>
+      {% endif %}
+    </dl>
+  </div>
+
+  <h2>What's next?</h2>
+  <p>You'll see the impact reflected on our <a href="{{ site_url }}/compassion/">Compassion</a> page within minutes. If you'd like to discuss your gift, partnerships, or anything else — simply reply to this email.</p>
+
+  <div class="callout callout-info">
+    "Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver." — 2 Cor 9:7
+  </div>
+
+  <p>With gratitude,<br><strong>The Caldan Compassionate Ministry team</strong></p>
+{% endblock %}

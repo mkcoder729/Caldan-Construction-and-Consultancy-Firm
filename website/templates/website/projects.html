@@ -27,6 +27,24 @@
     </div>
 </section>
 
+{% comment %}
+────────────────────────────────────────────────────────────
+PROJECT STATS — 4 cards with real DB numbers (delivered, on-site,
+counties, years). Reuses the IntersectionObserver counter JS from
+_stats_bar.html via the same `window.__caldanStatsInited` guard.
+────────────────────────────────────────────────────────────
+{% endcomment %}
+{% include "website/partials/_projects_stats.html" %}
+
+{% comment %}
+────────────────────────────────────────────────────────────
+FEATURED PROJECT SPOTLIGHT — top 3 by -created_at, full-bleed
+image + project_code badge + status pill + service tags.
+Guarded: collapses entirely if no featured projects.
+────────────────────────────────────────────────────────────
+{% endcomment %}
+{% include "website/partials/_projects_spotlight.html" %}
+
 <!-- Projects Grid -->
 <section class="projects-grid-section" style="padding: 60px 0; background: var(--bg-primary);">
     <div class="container">
@@ -36,21 +54,11 @@
             <a href="{% url 'website:projects' %}" class="filter-btn {% if not current_category and not current_status %}active{% endif %}" style="padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border-primary); background: {% if not current_category and not current_status %}var(--accent-primary){% else %}var(--bg-card){% endif %}; color: {% if not current_category and not current_status %}#FFFFFF{% else %}var(--text-secondary){% endif %}; text-decoration: none; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 500;">
                 All Projects
             </a>
-            <a href="{% url 'website:projects' %}?category=Residential" class="filter-btn {% if current_category == 'Residential' %}active{% endif %}" style="padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border-primary); background: {% if current_category == 'Residential' %}var(--accent-primary){% else %}var(--bg-card){% endif %}; color: {% if current_category == 'Residential' %}#FFFFFF{% else %}var(--text-secondary){% endif %}; text-decoration: none; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 500;">
-                Residential
+            {% for cat_key, cat_label in categories %}
+            <a href="{% url 'website:projects' %}?category={{ cat_key }}" class="filter-btn {% if current_category == cat_key %}active{% endif %}" style="padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border-primary); background: {% if current_category == cat_key %}var(--accent-primary){% else %}var(--bg-card){% endif %}; color: {% if current_category == cat_key %}#FFFFFF{% else %}var(--text-secondary){% endif %}; text-decoration: none; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 500;">
+                {{ cat_label }}
             </a>
-            <a href="{% url 'website:projects' %}?category=Commercial" class="filter-btn {% if current_category == 'Commercial' %}active{% endif %}" style="padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border-primary); background: {% if current_category == 'Commercial' %}var(--accent-primary){% else %}var(--bg-card){% endif %}; color: {% if current_category == 'Commercial' %}#FFFFFF{% else %}var(--text-secondary){% endif %}; text-decoration: none; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 500;">
-                Commercial
-            </a>
-            <a href="{% url 'website:projects' %}?category=Renovation" class="filter-btn {% if current_category == 'Renovation' %}active{% endif %}" style="padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border-primary); background: {% if current_category == 'Renovation' %}var(--accent-primary){% else %}var(--bg-card){% endif %}; color: {% if current_category == 'Renovation' %}#FFFFFF{% else %}var(--text-secondary){% endif %}; text-decoration: none; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 500;">
-                Renovation
-            </a>
-            <a href="{% url 'website:projects' %}?category=Hospitality" class="filter-btn {% if current_category == 'Hospitality' %}active{% endif %}" style="padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border-primary); background: {% if current_category == 'Hospitality' %}var(--accent-primary){% else %}var(--bg-card){% endif %}; color: {% if current_category == 'Hospitality' %}#FFFFFF{% else %}var(--text-secondary){% endif %}; text-decoration: none; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 500;">
-                Hospitality
-            </a>
-            <a href="{% url 'website:projects' %}?category=Industrial" class="filter-btn {% if current_category == 'Industrial' %}active{% endif %}" style="padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border-primary); background: {% if current_category == 'Industrial' %}var(--accent-primary){% else %}var(--bg-card){% endif %}; color: {% if current_category == 'Industrial' %}#FFFFFF{% else %}var(--text-secondary){% endif %}; text-decoration: none; transition: all 0.3s ease; font-size: 0.9rem; font-weight: 500;">
-                Industrial
-            </a>
+            {% endfor %}
         </div>
 
         <!-- Projects -->

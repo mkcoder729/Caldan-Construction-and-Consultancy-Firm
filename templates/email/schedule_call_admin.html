@@ -1,0 +1,38 @@
+{# Admin alert — new call request. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-warning" style="margin-top: 14px;">CALL REQUESTED</span>{% endblock %}
+
+{% block content %}
+  <h1>Call <span>requested</span></h1>
+  <p class="subtitle">{{ topic }} — {{ name }}</p>
+
+  <p>A visitor requested a call back. Reach out during their preferred window.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Name</dt>
+      <dd>{{ name }}</dd>
+      <dt>Phone</dt>
+      <dd><a href="tel:{{ phone }}">{{ phone }}</a></dd>
+      <dt>Email</dt>
+      <dd><a href="mailto:{{ email }}">{{ email }}</a></dd>
+      <dt>Topic</dt>
+      <dd>{{ topic }}</dd>
+      <dt>Preferred time</dt>
+      <dd><span class="badge badge-gold">{{ preferred_time }}</span></dd>
+    </dl>
+  </div>
+
+  {% if message %}
+  <h2>Message</h2>
+  <div class="callout callout-info">
+    {{ message }}
+  </div>
+  {% endif %}
+
+  <div class="button-row">
+    <a href="{{ dashboard_url }}" class="button">Open in dashboard</a>
+    <a href="tel:{{ phone }}" class="button button-secondary">Call now</a>
+  </div>
+{% endblock %}

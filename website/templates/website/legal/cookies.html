@@ -3,7 +3,9 @@
 
 {% block title %}Cookie Policy — Caldan Construction and Consultancy Firm Kenya{% endblock %}
 
-{% block meta_description %}Caldan Construction and Consultancy Firm's Cookie Policy. Learn about the cookies we use, how we use them, and how you can manage your cookie preferences.{% endblock %}
+{% block meta_description %}
+<meta name="description" content="Caldan Construction and Consultancy Firm's Cookie Policy. Learn about the cookies we use, how we use them, and how you can manage your cookie preferences.">
+{% endblock %}
 
 {% block content %}
 
@@ -430,7 +432,15 @@
         background: linear-gradient(135deg, #0B172A 0%, #0F1F3A 50%, #0B66C3 100%);
         color: #fff;
     }
-    .legal-hero-bg { position: absolute; inset: 0; z-index: -1; }
+    .legal-hero-bg {
+        position: absolute; inset: 0; z-index: -1;
+        background:
+            linear-gradient(160deg, rgba(11, 23, 42, 0.82) 0%, rgba(11, 66, 99, 0.78) 100%),
+            url('https://images.unsplash.com/photo-1589994965851-a8f479c573a9?w=1600&q=80&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
     .legal-hero-grid {
         position: absolute; inset: 0;
         background-image:

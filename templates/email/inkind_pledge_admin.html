@@ -1,0 +1,54 @@
+{# Admin alert — new in-kind pledge. #}
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-info" style="margin-top: 14px;">NEW IN-KIND PLEDGE</span>{% endblock %}
+
+{% block content %}
+  <h1>In-kind <span>pledge</span></h1>
+  <p class="subtitle">{{ item_type }} — {{ donor_name }}</p>
+
+  <p>A donor pledged an in-kind gift. Reach out within one business day to coordinate pickup, drop-off, or arrangement.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Donor</dt>
+      <dd>{{ donor_name }}</dd>
+      <dt>Email</dt>
+      <dd><a href="mailto:{{ donor_email }}">{{ donor_email }}</a></dd>
+      <dt>Phone</dt>
+      <dd><a href="tel:{{ donor_phone }}">{{ donor_phone }}</a></dd>
+      <dt>Item type</dt>
+      <dd>{{ item_type }}</dd>
+      <dt>Description</dt>
+      <dd>{{ item_description }}</dd>
+      {% if quantity_estimate %}
+      <dt>Quantity</dt>
+      <dd>{{ quantity_estimate }}</dd>
+      {% endif %}
+      {% if delivery_mode %}
+      <dt>Delivery</dt>
+      <dd>{{ delivery_mode }}</dd>
+      {% endif %}
+      {% if preferred_date %}
+      <dt>Preferred date</dt>
+      <dd>{{ preferred_date|date:"M j, Y" }}</dd>
+      {% endif %}
+      {% if address %}
+      <dt>Address</dt>
+      <dd>{{ address }}</dd>
+      {% endif %}
+    </dl>
+  </div>
+
+  {% if notes %}
+  <h2>Additional notes</h2>
+  <div class="callout callout-info">
+    {{ notes }}
+  </div>
+  {% endif %}
+
+  <div class="button-row">
+    <a href="{{ dashboard_url }}" class="button">Open in dashboard</a>
+    <a href="mailto:{{ donor_email }}" class="button button-secondary">Reply to donor</a>
+  </div>
+{% endblock %}

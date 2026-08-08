@@ -25,6 +25,7 @@ class ProjectForm(forms.ModelForm):
             'budget',
             'spent',
             'status',
+            'is_featured',
             'cover_photo',
             'latitude',
             'longitude',

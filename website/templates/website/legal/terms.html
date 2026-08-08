@@ -3,7 +3,9 @@
 
 {% block title %}Terms of Service — Caldan Construction and Consultancy Firm Kenya{% endblock %}
 
-{% block meta_description %}Terms of Service for Caldan Construction and Consultancy Firm. Read our terms and conditions for website use, construction services, and client agreements.{% endblock %}
+{% block meta_description %}
+<meta name="description" content="Terms of Service for Caldan Construction and Consultancy Firm. Read our terms and conditions for website use, construction services, and client agreements.">
+{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -13,7 +15,7 @@
     --lg-gold-soft: rgba(212,175,55,0.14);
     --lg-hero-grad: linear-gradient(135deg, #0B172A 0%, #0F1F3A 50%, #0B66C3 100%);
 }
-.legal-hero { position: relative; background: var(--lg-hero-grad); color: #fff; padding: 140px 0 90px; overflow: hidden; }
+.legal-hero { position: relative; background: linear-gradient(160deg, rgba(11, 23, 42, 0.82) 0%, rgba(11, 66, 99, 0.78) 100%), url('https://images.unsplash.com/photo-1589994965851-a8f479c573a9?w=1600&q=80&auto=format&fit=crop'); background-size: cover; background-position: center; background-attachment: fixed; color: #fff; padding: 140px 0 90px; overflow: hidden; }
 .legal-hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(700px 320px at 18% 14%, rgba(212,175,55,0.20), transparent 70%), radial-gradient(800px 360px at 85% 80%, rgba(11,102,195,0.30), transparent 75%); pointer-events: none; animation: heroGlow 10s ease-in-out infinite alternate; }
 @keyframes heroGlow { from { opacity: 0.85; } to { opacity: 1; } }
 .legal-hero::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 36px 36px; pointer-events: none; mask-image: linear-gradient(120deg, black, transparent 75%); }

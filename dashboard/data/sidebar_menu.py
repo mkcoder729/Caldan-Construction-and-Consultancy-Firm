@@ -218,6 +218,24 @@ ADMIN_MENU = {
             ]
         },
         # =====================================================================
+        # COMPASSION SECTION — donations, in-kind pledges, call requests,
+        # outreach stories, payment methods, ministry settings.
+        # Chief admins and superusers always see this section.
+        # =====================================================================
+        {
+            'label': 'Compassion',
+            'icon': 'fa-hand-holding-heart',
+            'items': [
+                {'label': 'Overview',           'icon': 'fa-th-large',          'url': 'compassion_dashboard:overview', 'permission': 'can_manage_compassion'},
+                {'label': 'Donations',          'icon': 'fa-hand-holding-usd',  'url': 'compassion_dashboard:donation_list', 'permission': 'can_manage_compassion'},
+                {'label': 'In-Kind Pledges',    'icon': 'fa-box-open',          'url': 'compassion_dashboard:inkind_list', 'permission': 'can_manage_compassion'},
+                {'label': 'Schedule Calls',     'icon': 'fa-phone',             'url': 'compassion_dashboard:call_list', 'permission': 'can_manage_compassion'},
+                {'label': 'Outreach Stories',   'icon': 'fa-newspaper',         'url': 'compassion_dashboard:story_list', 'permission': 'can_manage_compassion'},
+                {'label': 'Payment Methods',    'icon': 'fa-wallet',            'url': 'compassion_dashboard:payment_method_list', 'permission': 'can_manage_compassion'},
+                {'label': 'Ministry Settings',  'icon': 'fa-sliders',           'url': 'compassion_dashboard:ministry_settings_edit', 'permission': 'can_manage_compassion'},
+            ]
+        },
+        # =====================================================================
         # ADMIN MANAGEMENT SECTION
         # Single entry point for everything admin-related: managing other
         # admins, inviting new ones, and reviewing the audit log. Kept separate

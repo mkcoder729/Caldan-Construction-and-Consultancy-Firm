@@ -1,0 +1,35 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Schedule Calls — Caldan Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="compassion-list">
+    <div class="page-header"><div><h1 class="page-header__title"><span class="icon-bubble"><i class="fas fa-phone"></i></span> Schedule Calls</h1><p class="page-header__sub">Inbound call requests for large gifts and partnerships</p></div></div>
+    <form class="filter-bar" method="get">
+        <div class="field" style="flex: 3;"><label class="field-label">Search</label><input type="search" name="search" value="{{ search }}" placeholder="Name, email, message…"></div>
+        <div class="field"><label class="field-label">Status</label><select name="status"><option value="">All</option>{% for v,l in status_choices %}<option value="{{ v }}" {% if status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+        <div class="field"><label class="field-label">Topic</label><select name="topic"><option value="">All</option>{% for v,l in topic_choices %}<option value="{{ v }}" {% if topic == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+        <div class="actions"><button class="btn-apply" type="submit"><i class="fas fa-filter"></i> Apply</button><a class="btn-reset" href="{% url 'compassion_dashboard:call_list' %}">Clear</a></div>
+    </form>
+    <div class="panel">
+        <div class="panel__header"><h3><i class="fas fa-list"></i> Calls</h3><span class="panel__count">{{ calls.paginator.count }} total</span></div>
+        {% if calls %}
+        <table class="msg-table">
+            <thead><tr><th>Requester</th><th>Topic</th><th>Preferred time</th><th>Status</th><th>Date</th><th></th></tr></thead>
+            <tbody>
+            {% for c in calls %}
+                <tr>
+                    <td><strong>{{ c.name }}</strong><br><small class="text-muted">{{ c.email }} &middot; {{ c.phone }}</small></td>
+                    <td>{{ c.get_topic_display }}</td>
+                    <td>{{ c.preferred_time }}</td>
+                    <td>{{ c.get_status_display }}</td>
+                    <td>{{ c.created_at|date:"M d, Y" }}</td>
+                    <td><a href="{% url 'compassion_dashboard:call_detail' c.id %}" class="btn-icon"><i class="fas fa-eye"></i></a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<div class="empty-state"><i class="fas fa-inbox"></i><h4>No calls match</h4><p>Try clearing your filters.</p></div>{% endif %}
+    </div>
+</div>
+{% endblock %}

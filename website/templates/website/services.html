@@ -4,7 +4,13 @@
 {% block title %}Our Services — Caldan Construction and Consultancy Firm{% endblock %}
 
 {% block meta_description %}
-<meta name="description" content="Caldan Construction and Consultancy Firm offers 9 comprehensive construction services including design, renovations, interior design, welding, concrete products, and more.">
+<meta name="description" content="Caldan Construction and Consultancy Firm offers {{ services|length }} comprehensive construction services across Kenya: design & build, renovations, interior design, welding, concrete products, industrial flooring, waterproofing, roads & stormwater, and construction chemicals.">
+<meta name="keywords" content="construction Kenya, building contractor, renovations Nairobi, interior design Kenya, industrial flooring, concrete products, waterproofing, welding fabrication, roads construction, construction chemicals">
+<link rel="canonical" href="https://caldanconstruction.com/services/">
+<meta property="og:title" content="Our Services — Caldan Construction and Consultancy Firm">
+<meta property="og:description" content="{{ services|length }} service areas. One team. Design, build, renovate, waterproof, supply — across all 47 counties in Kenya.">
+<meta property="og:url" content="https://caldanconstruction.com/services/">
+<meta property="og:type" content="website">
 {% endblock %}
 
 {% block content %}
@@ -27,66 +33,122 @@
     </div>
 </section>
 
-<!-- All Services -->
-<section class="all-services" style="padding: 80px 0; background: var(--bg-primary);">
-    <div class="container">
-        <h2 class="section-title" style="text-align: center; margin-bottom: 8px;">What We Offer</h2>
-        <p class="section-subtitle" style="text-align: center; max-width: 600px; margin: 0 auto 40px; color: var(--text-secondary);">Explore our full range of construction and engineering services.</p>
+{% comment %}
+────────────────────────────────────────────────────────────
+SERVICES BY CATEGORY — replaces the flat 3-column grid.
+9 categories with number badge, 1-line description, and the
+services grouped under each one.
+────────────────────────────────────────────────────────────
+{% endcomment %}
+{% include "website/partials/_services_by_category.html" %}
 
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
-            {% for service in services %}
-            <div class="service-card" style="background: var(--bg-card); border-radius: 12px; padding: 32px 24px; text-align: center; transition: all 0.3s ease; border: 1px solid var(--border-primary); box-shadow: var(--shadow-sm);">
-
-                <div style="width: 72px; height: 72px; margin: 0 auto 16px; background: rgba(11, 102, 195, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--accent-primary); transition: all 0.3s ease;">
-                    <i class="{{ service.icon|default:'fas fa-tools' }}"></i>
-                </div>
-
-                <h3 style="font-size: 1.2rem; margin-bottom: 8px; color: var(--text-primary);">{{ service.name }}</h3>
-                <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 16px;">
-                    {{ service.description }}
-                </p>
-                <a href="{% url 'website:service_detail' service.slug %}" style="display: inline-flex; align-items: center; gap: 6px; color: var(--accent-primary); font-weight: 500; text-decoration: none; transition: all 0.3s ease;">
-                    Learn More <i class="fas fa-arrow-right" style="font-size: 0.8rem; transition: transform 0.3s ease;"></i>
-                </a>
-
-            </div>
-            {% empty %}
-            <p style="color: var(--text-secondary); text-align: center; grid-column: 1 / -1;">Loading services...</p>
-            {% endfor %}
-        </div>
-    </div>
-</section>
+{% comment %}
+────────────────────────────────────────────────────────────
+SERVICES FAQ — answers the top 5–6 questions prospective
+clients ask (timeline, pricing, payment, coverage, warranty).
+Also feeds GSC FAQ-rich-result via the FAQPage schema below.
+────────────────────────────────────────────────────────────
+{% endcomment %}
+{% include "website/partials/_services_faq.html" %}
 
 <!-- CTA -->
 {% include "website/partials/_cta.html" %}
 
-<style>
-    .service-card:hover {
-        transform: translateY(-6px);
-        box-shadow: var(--shadow-lg);
-        border-color: var(--accent-secondary) !important;
-    }
-    .service-card:hover .service-icon {
-        background: var(--accent-secondary) !important;
-        color: #FFFFFF !important;
-        transform: scale(1.05);
-    }
-    .service-card:hover .fa-arrow-right {
-        transform: translateX(4px);
-    }
+{% comment %}
+────────────────────────────────────────────────────────────
+JSON-LD: ItemList of Service items + FAQPage schema.
+Both feed Google Search Console rich results.
+────────────────────────────────────────────────────────────
+{% endcomment %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Caldan Construction Services",
+    "description": "{{ services|length }} construction service areas offered by Caldan Construction and Consultancy Firm in Kenya.",
+    "url": "https://caldanconstruction.com/services/",
+    "numberOfItems": {{ services|length }},
+    "itemListElement": [
+        {% for service in services %}
+        {
+            "@type": "ListItem",
+            "position": {{ forloop.counter }},
+            "item": {
+                "@type": "Service",
+                "name": "{{ service.name|escapejs }}",
+                "description": "{{ service.description|escapejs }}",
+                "url": "https://caldanconstruction.com{% url 'website:service_detail' service.slug %}",
+                "category": "{{ service.get_category_display|escapejs }}",
+                "provider": {
+                    "@type": "LocalBusiness",
+                    "@id": "https://caldanconstruction.com/#organization",
+                    "name": "Caldan Construction and Consultancy Firm",
+                    "url": "https://caldanconstruction.com",
+                    "areaServed": { "@type": "Country", "name": "Kenya" }
+                },
+                "areaServed": { "@type": "Country", "name": "Kenya" }
+            }
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ]
+}
+</script>
 
-    @media (max-width: 992px) {
-        .all-services .grid-3 {
-            grid-template-columns: repeat(2, 1fr) !important;
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "How long does a typical project take from quote to handover?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "It depends on scope. A simple renovation (one room, finishes only) lands in 2–4 weeks. A full residential build runs 4–9 months. Commercial and industrial projects are quoted per scope. We commit to a written timeline in the contract and stick to it — delay penalties are standard on our larger contracts."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Do you give written quotes, and is the estimate binding?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Every project gets a written, itemised quote with a 30-day validity window. The quote is binding for the scope we describe — if you add scope mid-project, we re-quote the delta before any extra work starts. No surprise invoices, ever."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "What's your payment schedule?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Standard residential: 30% mobilisation deposit, 40% mid-project milestone, 25% on practical completion, 5% retention released after the 90-day defects period. Commercial schedules are negotiated per contract. We accept bank transfer, M-Pesa, and cheque. No cash payments on site."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Which parts of Kenya do you cover?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "We work across all 47 counties. Most of our active projects are in Nairobi, Kiambu, Machakos, Kajiado, Nakuru, and Uasin Gishu, but we take on projects country-wide. For sites outside a 2-hour drive of Nairobi, we factor in mobilisation costs and accommodation for the crew in the quote."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Do you provide materials, or can we supply our own?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Both work. We supply on most projects because it lets us enforce material quality and warranty the finished work. If you'd rather supply your own materials, we can mark that as a client-supplied item in the quote — just know that workmanship warranty may be limited on those items."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "What's covered under your warranty?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "All structural work carries a 10-year warranty. Waterproofing is 5 years. Finishes (paint, tiles, cabinetry) follow manufacturer warranty, typically 1–3 years. Every project comes with a defects liability period — we fix any defects that show up in the first 90 days, free of charge."
+            }
         }
-    }
-    @media (max-width: 576px) {
-        .all-services .grid-3 {
-            grid-template-columns: 1fr !important;
-        }
-        .service-card {
-            padding: 24px 16px !important;
-        }
-    }
-</style>
+    ]
+}
+</script>
+
 {% endblock %}

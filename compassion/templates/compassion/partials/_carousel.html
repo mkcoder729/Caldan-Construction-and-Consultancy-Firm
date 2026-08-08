@@ -1,0 +1,53 @@
+{% load static %}
+
+<section class="compassion-carousel">
+  <div class="container">
+    <div class="section-heading">
+      <span class="section-heading__eyebrow"><i class="fas fa-images"></i> Stories from the field</span>
+      <h2 class="section-heading__title">Where the impact has landed</h2>
+    </div>
+
+    {% if stories %}
+    <div class="swiper compassion-carousel__swiper">
+      <div class="swiper-wrapper">
+        {% for story in stories %}
+        <div class="swiper-slide compassion-carousel__slide">
+          <a href="{% url 'compassion:story_detail' story.slug %}" class="compassion-carousel__link" aria-label="Read the {{ story.title }} story">
+          <div class="compassion-carousel__media">
+            {% if story.has_cover %}
+              <img src="{{ story.cover_image.url }}" alt="{{ story.title }}" loading="lazy">
+            {% else %}
+              <img src="{% static story.placeholder_svg %}" alt="{{ story.title }}" loading="lazy">
+            {% endif %}
+            <span class="compassion-carousel__category">{{ story.get_category_display }}</span>
+          </div>
+          <div class="compassion-carousel__body">
+            <h3 class="compassion-carousel__title">{{ story.title }}</h3>
+            {% if story.location %}<p class="compassion-carousel__location"><i class="fas fa-map-marker-alt"></i> {{ story.location }}</p>{% endif %}
+            <p class="compassion-carousel__summary">{{ story.summary }}</p>
+            <div class="compassion-carousel__footer">
+              {% if story.people_served %}
+              <p class="compassion-carousel__people"><i class="fas fa-users"></i> <strong>{{ story.people_served }}</strong> people served</p>
+              {% endif %}
+              <span class="compassion-carousel__readmore">
+                Read more <i class="fas fa-arrow-right"></i>
+              </span>
+            </div>
+          </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="swiper-pagination compassion-carousel__pagination"></div>
+      <div class="swiper-button-prev compassion-carousel__prev"></div>
+      <div class="swiper-button-next compassion-carousel__next"></div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-images"></i>
+      <h4>Stories coming soon</h4>
+      <p>Field updates will appear here as we publish them.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>

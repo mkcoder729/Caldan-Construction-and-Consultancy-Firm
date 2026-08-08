@@ -1,0 +1,24 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}Ministry Settings — Caldan Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="compassion-detail">
+    <div class="page-header"><div><h1 class="page-header__title"><span class="icon-bubble"><i class="fas fa-sliders"></i></span> Ministry Settings</h1><p class="page-header__sub">Public-facing copy for /compassion/</p></div></div>
+    <div class="panel"><div style="padding: 22px;">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-8"><label class="form-label">Hero title</label><input name="hero_title" class="form-control" value="{{ settings.hero_title }}"></div>
+                <div class="col-md-4"><label class="form-label">CTA label</label><input name="hero_cta_label" class="form-control" value="{{ settings.hero_cta_label }}"></div>
+                <div class="col-12"><label class="form-label">Hero subtitle</label><textarea name="hero_subtitle" class="form-control" rows="2">{{ settings.hero_subtitle }}</textarea></div>
+                <div class="col-12"><label class="form-label">Mission statement</label><textarea name="mission_statement" class="form-control" rows="4">{{ settings.mission_statement }}</textarea></div>
+                <div class="col-md-6"><label class="form-label">Contact phone</label><input name="contact_phone" class="form-control" value="{{ settings.contact_phone }}"></div>
+                <div class="col-md-6"><label class="form-label">Contact email</label><input type="email" name="contact_email" class="form-control" value="{{ settings.contact_email }}"></div>
+                <div class="col-md-3"><label class="form-label">Default currency</label><input name="default_currency" class="form-control" value="{{ settings.default_currency }}"></div>
+                <div class="col-12"><button class="btn-apply" type="submit"><i class="fas fa-save"></i> Save</button></div>
+            </div>
+        </form>
+    </div></div>
+</div>
+{% endblock %}

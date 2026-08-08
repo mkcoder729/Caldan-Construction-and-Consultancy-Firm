@@ -1,0 +1,82 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load humanize %}
+
+{% block title %}Compassion — Overview | Caldan Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div class="compassion-overview">
+    <div class="page-header">
+        <div>
+            <h1 class="page-header__title">
+                <span class="icon-bubble"><i class="fas fa-hand-holding-heart"></i></span>
+                Compassion Overview
+            </h1>
+            <p class="page-header__sub">Donations, in-kind pledges, and call requests at a glance</p>
+        </div>
+        <div class="page-header__actions">
+            <a href="{% url 'compassion:index' %}" target="_blank" class="btn-pill">
+                <i class="fas fa-external-link-alt"></i> View public page
+            </a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ counts.donations_success|intcomma }}</div>
+                <div class="stat-label">Successful donations</div>
+                <div class="stat-sub">All time</div>
+            </div>
+        </div>
+        <div class="stat-card gold">
+            <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ counts.donations_pending|intcomma }}</div>
+                <div class="stat-label">Pending donations</div>
+                <div class="stat-sub">Awaiting Paystack</div>
+            </div>
+        </div>
+        <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-box-open"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ counts.inkind_active|intcomma }}</div>
+                <div class="stat-label">In-kind active</div>
+                <div class="stat-sub">In the pipeline</div>
+            </div>
+        </div>
+        <div class="stat-card orange">
+            <div class="stat-icon orange"><i class="fas fa-phone"></i></div>
+            <div class="stat-body">
+                <div class="stat-value">{{ counts.calls_new|intcomma }}</div>
+                <div class="stat-label">New call requests</div>
+                <div class="stat-sub">To be contacted</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel__header">
+            <h3><i class="fas fa-hand-holding-usd"></i> Latest donations</h3>
+            <a href="{% url 'compassion_dashboard:donation_list' %}" class="btn-icon">View all <i class="fas fa-arrow-right"></i></a>
+        </div>
+        {% if latest_donations %}
+        <table class="msg-table">
+            <thead><tr><th>Donor</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+            {% for d in latest_donations %}
+                <tr>
+                    <td><strong>{{ d.donor_name }}</strong><br><small class="text-muted">{{ d.donor_email }}</small></td>
+                    <td>KES {{ d.amount_ksh|intcomma }}</td>
+                    <td>{{ d.get_status_display }}</td>
+                    <td>{{ d.created_at|date:"M d, Y" }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state"><i class="fas fa-inbox"></i><h4>No donations yet</h4><p>Run <code>python manage.py seed_compassion</code> for sample data.</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

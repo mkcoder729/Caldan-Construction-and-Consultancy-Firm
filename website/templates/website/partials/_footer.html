@@ -1,150 +1,429 @@
 {% load static %}
 
-<footer class="site-footer" style="background: #0B172A; color: #D1D5DB; padding: 72px 0 30px; margin-top: auto; transition: background 0.3s ease, color 0.3s ease;">
+<footer class="site-footer">
     <div class="container">
-        <div class="footer-grid" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 44px;">
+        <div class="footer-grid">
 
-            <!-- Column 1: Brand & Newsletter -->
+            <!-- Column 1: Brand -->
             <div class="footer-brand">
-                <div style="margin-bottom: 16px;">
-                    <img src="{% static 'images/logo_light.png' %}" alt="{{ SITE_NAME }}" id="footer-logo" style="height: 56px; width: auto;">
+                <div class="footer-brand__logo">
+                    <img src="{% static 'images/logo_light.png' %}" alt="{{ SITE_NAME }}" id="footer-logo">
                 </div>
-                <p style="color: #9CA3AF; font-size: 0.95rem; line-height: 1.7; margin-bottom: 16px; max-width: 300px;">
-                    {{ SITE_TAGLINE }}
-                </p>
-                <p style="color: #6B7280; font-size: 0.85rem; display: flex; align-items: flex-start; gap: 10px;">
-                    <i class="fas fa-map-marker-alt" style="color: #D4AF37; margin-top: 4px;"></i>
+                <p class="footer-brand__tagline">{{ SITE_TAGLINE }}</p>
+
+                <p class="footer-brand__address">
+                    <i class="fas fa-map-marker-alt"></i>
                     Odera Street, Kaloka Building, Opp. Nildeep, Nakuru
                 </p>
 
                 <!-- Newsletter Signup -->
-                <div style="margin-top: 24px;">
-                    <h4 style="color: #FFFFFF; font-size: 1rem; font-weight: 600; margin-bottom: 6px;">
-                        <i class="fas fa-envelope" style="color: #D4AF37; margin-right: 8px;"></i>
+                <div class="footer-brand__newsletter">
+                    <h4>
+                        <i class="fas fa-envelope"></i>
                         Subscribe
                     </h4>
-                    <p style="color: #9CA3AF; font-size: 0.85rem; margin-bottom: 12px;">Get updates on projects &amp; offers.</p>
-                    <form method="POST" action="{% url 'website:newsletter_subscribe' %}" class="newsletter-form" data-ajax="true" style="display: flex; gap: 8px; max-width: 360px;">
+                    <p>Get updates on projects &amp; offers.</p>
+                    <form method="POST" action="{% url 'website:newsletter_subscribe' %}" class="newsletter-form" data-ajax="true">
                         {% csrf_token %}
-                        <input type="email" name="email" placeholder="Your email address" required style="flex: 1; padding: 11px 14px; border: 1px solid #334155; border-radius: var(--radius-md); background: rgba(255,255,255,0.04); color: #FFFFFF; font-size: 0.9rem; outline: none; transition: border-color 0.3s ease;">
-                        <button type="submit" style="padding: 11px 18px; background: #D4AF37; color: #0B172A; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all 0.3s ease; white-space: nowrap;">
+                        <input type="email" name="email" placeholder="Your email address" required>
+                        <button type="submit" aria-label="Subscribe">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </form>
-                    <p class="newsletter-status" aria-live="polite" style="min-height: 1.2em; margin: 8px 0 0; font-size: 0.85rem;"></p>
+                    <p class="newsletter-status" aria-live="polite"></p>
                 </div>
             </div>
 
-            <!-- Column 2: Quick Links -->
-            <div>
-                <h4 style="color: #FFFFFF; font-size: 1rem; font-weight: 600; margin-bottom: 16px;">Quick Links</h4>
-                <ul style="list-style: none; padding: 0; margin: 0;">
-                    <li style="margin-bottom: 10px;"><a href="{% url 'website:index' %}" style="color: #9CA3AF; text-decoration: none; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-chevron-right" style="font-size: 0.55rem; color: #D4AF37;"></i> Home</a></li>
-                    <li style="margin-bottom: 10px;"><a href="{% url 'website:about' %}" style="color: #9CA3AF; text-decoration: none; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-chevron-right" style="font-size: 0.55rem; color: #D4AF37;"></i> About</a></li>
-                    <li style="margin-bottom: 10px;"><a href="{% url 'website:services' %}" style="color: #9CA3AF; text-decoration: none; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-chevron-right" style="font-size: 0.55rem; color: #D4AF37;"></i> Services</a></li>
-                    <li style="margin-bottom: 10px;"><a href="{% url 'website:projects' %}" style="color: #9CA3AF; text-decoration: none; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-chevron-right" style="font-size: 0.55rem; color: #D4AF37;"></i> Projects</a></li>
-                    <li style="margin-bottom: 10px;"><a href="{% url 'website:contact' %}" style="color: #9CA3AF; text-decoration: none; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-chevron-right" style="font-size: 0.55rem; color: #D4AF37;"></i> Contact</a></li>
-                    <li style="margin-bottom: 10px;"><a href="{% url 'shop:index' %}" style="color: #9CA3AF; text-decoration: none; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 6px;"><i class="fas fa-chevron-right" style="font-size: 0.55rem; color: #D4AF37;"></i> Shop</a></li>
+            <!-- Column 2: Compassion callout (promoted to its own column for prominence) -->
+            <div class="footer-compassion">
+                <h4>
+                    <i class="fas fa-hand-holding-heart"></i>
+                    Caldan Compassion
+                </h4>
+                <p>
+                    Beyond building — we give. Our Compassionate Ministry reaches
+                    hospital bedsides, prison visits, and neighbours in need
+                    across Kenya.
+                </p>
+
+                <div class="footer-compassion__ctas">
+                    <a href="{% url 'compassion:index' %}" class="footer-compassion__btn footer-compassion__btn--primary">
+                        <i class="fas fa-hand-holding-heart"></i>
+                        Give Money
+                    </a>
+                    <a href="{% url 'compassion:index' %}#stories" class="footer-compassion__btn footer-compassion__btn--ghost">
+                        <i class="fas fa-newspaper"></i>
+                        Field Stories
+                    </a>
+                </div>
+
+                {% if ADMIN_PHONE %}
+                <p class="footer-compassion__contact">
+                    <i class="fas fa-phone"></i>
+                    <span>{{ ADMIN_PHONE }}</span>
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- Column 3: Quick Links -->
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="{% url 'website:index' %}"><i class="fas fa-chevron-right"></i> Home</a></li>
+                    <li><a href="{% url 'website:about' %}"><i class="fas fa-chevron-right"></i> About</a></li>
+                    <li><a href="{% url 'website:services' %}"><i class="fas fa-chevron-right"></i> Services</a></li>
+                    <li><a href="{% url 'website:projects' %}"><i class="fas fa-chevron-right"></i> Projects</a></li>
+                    <li><a href="{% url 'website:contact' %}"><i class="fas fa-chevron-right"></i> Contact</a></li>
+                    <li><a href="{% url 'shop:index' %}"><i class="fas fa-chevron-right"></i> Shop</a></li>
+                    <li><a href="{% url 'compassion:index' %}" class="footer-links__compassion"><i class="fas fa-hand-holding-heart"></i> Compassion</a></li>
                 </ul>
             </div>
 
-            <!-- Column 3: Our Services (FIXED ICONS) -->
-            <div>
-                <h4 style="color: #FFFFFF; font-size: 1rem; font-weight: 600; margin-bottom: 16px;">
-                    <i class="fas fa-tools" style="color: #D4AF37; margin-right: 8px;"></i>
+            <!-- Column 4: Our Services -->
+            <div class="footer-services">
+                <h4>
+                    <i class="fas fa-tools"></i>
                     Our Services
                 </h4>
-                <ul style="list-style: none; padding: 0; margin: 0;">
+                <ul>
                     {% if services_preview %}
                         {% for service in services_preview|slice:":6" %}
-                        <li style="margin-bottom: 10px;">
-                            <a href="{% url 'website:service_detail' service.slug %}" style="color: #9CA3AF; text-decoration: none; transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem;">
-                                <i class="{{ service.icon|default:'fas fa-tools' }}" style="font-size: 0.7rem; color: #D4AF37; width: 16px; text-align: center;"></i>
+                        <li>
+                            <a href="{% url 'website:service_detail' service.slug %}">
+                                <i class="{{ service.icon|default:'fas fa-tools' }}"></i>
                                 {{ service.name }}
                             </a>
                         </li>
                         {% endfor %}
                     {% else %}
-                        <li style="color: #6B7280; font-size: 0.9rem;">
-                            <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Loading services...
+                        <li class="footer-services__loading">
+                            <i class="fas fa-spinner fa-spin"></i> Loading services...
                         </li>
                     {% endif %}
                 </ul>
             </div>
 
-            <!-- Column 4: Contact Info -->
-            <div>
-                <h4 style="color: #FFFFFF; font-size: 1rem; font-weight: 600; margin-bottom: 16px;">
-                    <i class="fas fa-address-card" style="color: #D4AF37; margin-right: 8px;"></i>
+            <!-- Column 5: Get in Touch -->
+            <div class="footer-contact">
+                <h4>
+                    <i class="fas fa-address-card"></i>
                     Get in Touch
                 </h4>
-                <ul style="list-style: none; padding: 0; margin: 0;">
-                    <li style="margin-bottom: 14px; display: flex; align-items: flex-start; gap: 12px;">
-                        <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(212, 175, 55, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            <i class="fas fa-phone" style="color: #D4AF37; font-size: 0.8rem;"></i>
-                        </div>
-                        <span style="color: #9CA3AF; font-size: 0.9rem;">{{ ADMIN_PHONE|default:"+254 703 653 010" }}</span>
+                <ul>
+                    <li>
+                        <span class="footer-contact__icon"><i class="fas fa-phone"></i></span>
+                        <span>{{ ADMIN_PHONE|default:"+254 703 653 010" }}</span>
                     </li>
-                    <li style="margin-bottom: 14px; display: flex; align-items: flex-start; gap: 12px;">
-                        <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(212, 175, 55, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            <i class="fas fa-envelope" style="color: #D4AF37; font-size: 0.8rem;"></i>
-                        </div>
-                        <span style="color: #9CA3AF; font-size: 0.9rem;">{{ ADMIN_EMAIL|default:"ogwokadaniel@gmail.com" }}</span>
+                    <li>
+                        <span class="footer-contact__icon"><i class="fas fa-envelope"></i></span>
+                        <span>{{ ADMIN_EMAIL|default:"ogwokadaniel@gmail.com" }}</span>
                     </li>
-                    <li style="margin-bottom: 14px; display: flex; align-items: flex-start; gap: 12px;">
-                        <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(212, 175, 55, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            <i class="fas fa-map-marker-alt" style="color: #D4AF37; font-size: 0.8rem;"></i>
-                        </div>
-                        <span style="color: #9CA3AF; font-size: 0.9rem;">P.O. Box 4512-20100, Nakuru</span>
+                    <li>
+                        <span class="footer-contact__icon"><i class="fas fa-map-marker-alt"></i></span>
+                        <span>P.O. Box 4512-20100, Nakuru</span>
                     </li>
                 </ul>
 
                 <!-- Social Icons - MODERN HOVER EFFECTS -->
-                <div style="margin-top: 20px; display: flex; gap: 10px;">
-                    <a href="#" aria-label="Facebook" class="social-icon" data-color="#1877F2" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255,255,255,0.05); border-radius: 50%; color: #9CA3AF; text-decoration: none; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); border: 1px solid rgba(255,255,255,0.05);">
-                        <i class="fab fa-facebook-f" style="font-size: 0.85rem;"></i>
+                <div class="footer-contact__social">
+                    <a href="#" aria-label="Facebook" class="social-icon" data-color="#1877F2">
+                        <i class="fab fa-facebook-f"></i>
                     </a>
-                    <a href="#" aria-label="Twitter" class="social-icon" data-color="#1DA1F2" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255,255,255,0.05); border-radius: 50%; color: #9CA3AF; text-decoration: none; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); border: 1px solid rgba(255,255,255,0.05);">
-                        <i class="fab fa-twitter" style="font-size: 0.85rem;"></i>
+                    <a href="#" aria-label="Twitter" class="social-icon" data-color="#1DA1F2">
+                        <i class="fab fa-twitter"></i>
                     </a>
-                    <a href="#" aria-label="LinkedIn" class="social-icon" data-color="#0A66C2" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255,255,255,0.05); border-radius: 50%; color: #9CA3AF; text-decoration: none; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); border: 1px solid rgba(255,255,255,0.05);">
-                        <i class="fab fa-linkedin-in" style="font-size: 0.85rem;"></i>
+                    <a href="#" aria-label="LinkedIn" class="social-icon" data-color="#0A66C2">
+                        <i class="fab fa-linkedin-in"></i>
                     </a>
-                    <a href="#" aria-label="YouTube" class="social-icon" data-color="#FF0000" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(255,255,255,0.05); border-radius: 50%; color: #9CA3AF; text-decoration: none; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); border: 1px solid rgba(255,255,255,0.05);">
-                        <i class="fab fa-youtube" style="font-size: 0.85rem;"></i>
+                    <a href="#" aria-label="YouTube" class="social-icon" data-color="#FF0000">
+                        <i class="fab fa-youtube"></i>
                     </a>
-                    <a href="#" aria-label="WhatsApp" class="social-icon" data-color="#25D366" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: rgba(37, 211, 102, 0.12); border-radius: 50%; color: #25D366; text-decoration: none; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); border: 1px solid rgba(37, 211, 102, 0.1);">
-                        <i class="fab fa-whatsapp" style="font-size: 0.85rem;"></i>
+                    <a href="#" aria-label="WhatsApp" class="social-icon" data-color="#25D366">
+                        <i class="fab fa-whatsapp"></i>
                     </a>
                 </div>
             </div>
+
         </div>
 
         <!-- Bottom Bar -->
-        <div style="border-top: 1px solid #1A2A35; padding-top: 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 0.8rem; color: #6B7280;">
-            <p style="margin: 0;">&copy; {% now "Y" %} {{ SITE_NAME }}. All rights reserved.</p>
-            <div style="display: flex; gap: 18px; flex-wrap: wrap;">
-                <a href="{% url 'website:legal_privacy' %}" style="color: #6B7280; text-decoration: none; transition: color 0.3s ease;">Privacy</a>
-                <a href="{% url 'website:legal_terms' %}" style="color: #6B7280; text-decoration: none; transition: color 0.3s ease;">Terms</a>
-                <a href="{% url 'website:legal_refunds' %}" style="color: #6B7280; text-decoration: none; transition: color 0.3s ease;">Refunds</a>
-                <a href="{% url 'website:legal_cookies' %}" style="color: #6B7280; text-decoration: none; transition: color 0.3s ease;">Cookies</a>
+        <div class="footer-bottom">
+            <p>&copy; {% now "Y" %} {{ SITE_NAME }}. All rights reserved.</p>
+            <div class="footer-legal">
+                <a href="{% url 'website:legal_privacy' %}">Privacy</a>
+                <a href="{% url 'website:legal_terms' %}">Terms</a>
+                <a href="{% url 'website:legal_refunds' %}">Refunds</a>
+                <a href="{% url 'website:legal_cookies' %}">Cookies</a>
             </div>
         </div>
     </div>
 </footer>
 
 <style>
-    .footer-links a:hover,
-    .footer-services a:hover,
-    .footer-legal a:hover {
-        color: #D4AF37 !important;
+    /* ================================================================
+       SITE FOOTER — five-column responsive grid.
+       Brand-locked to the navy palette (does not invert with theme
+       toggle — footer always reads as the site signature anchor).
+       ================================================================ */
+
+    .site-footer {
+        background: #0B172A;
+        color: #D1D5DB;
+        padding: 72px 0 30px;
+        margin-top: auto;
+        transition: background 0.3s ease, color 0.3s ease;
+        border-top: 1px solid rgba(212, 175, 55, 0.12);
     }
 
-    /* MODERN SOCIAL ICON HOVER EFFECTS */
+    .footer-grid {
+        display: grid;
+        grid-template-columns: 1.8fr 1.1fr 1fr 1fr 1.2fr;
+        gap: 40px;
+        margin-bottom: 44px;
+    }
+
+    .site-footer h4 {
+        color: #FFFFFF;
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .site-footer h4 i { color: #D4AF37; font-size: 0.95rem; }
+
+    .site-footer ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .site-footer ul li { margin-bottom: 10px; }
+
+    .site-footer a {
+        color: #9CA3AF;
+        text-decoration: none;
+        transition: color 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+    }
+    .site-footer a:hover { color: #D4AF37; }
+
+    /* ───── Brand column ───── */
+
+    .footer-brand__logo { margin-bottom: 16px; }
+    .footer-brand__logo img { height: 56px; width: auto; }
+    .footer-brand__tagline {
+        color: #9CA3AF;
+        font-size: 0.95rem;
+        line-height: 1.7;
+        margin: 0 0 16px;
+        max-width: 300px;
+    }
+    .footer-brand__address {
+        color: #6B7280;
+        font-size: 0.85rem;
+        margin: 0 0 22px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        line-height: 1.5;
+    }
+    .footer-brand__address i {
+        color: #D4AF37;
+        margin-top: 4px;
+        flex-shrink: 0;
+    }
+    .footer-brand__newsletter h4 { margin-bottom: 6px; }
+    .footer-brand__newsletter > p {
+        color: #9CA3AF;
+        font-size: 0.85rem;
+        margin: 0 0 12px;
+    }
+
+    .newsletter-form {
+        display: flex;
+        gap: 8px;
+        max-width: 360px;
+    }
+    .newsletter-form input {
+        flex: 1;
+        padding: 11px 14px;
+        border: 1px solid #334155;
+        border-radius: var(--radius-md);
+        background: rgba(255,255,255,0.04);
+        color: #FFFFFF;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.3s ease;
+    }
+    .newsletter-form input::placeholder { color: #6B7280; }
+    .newsletter-form input:focus { border-color: #D4AF37; }
+    .newsletter-form button {
+        padding: 11px 18px;
+        background: #D4AF37;
+        color: #0B172A;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+    .newsletter-form button:hover {
+        background: #E8C84A;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(212, 175, 55, 0.25);
+    }
+    .newsletter-status {
+        min-height: 1.2em;
+        margin: 8px 0 0;
+        font-size: 0.85rem;
+    }
+
+    /* ───── Compassion column (promoted) ───── */
+
+    .footer-compassion {
+        background: rgba(212, 175, 55, 0.06);
+        border: 1px solid rgba(212, 175, 55, 0.18);
+        border-radius: 14px;
+        padding: 22px 20px;
+    }
+    .footer-compassion > p {
+        color: #9CA3AF;
+        font-size: 0.88rem;
+        line-height: 1.65;
+        margin: 0 0 16px;
+    }
+    .footer-compassion__ctas {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+    .footer-compassion__btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 9px 14px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.25s ease;
+    }
+    .footer-compassion__btn--primary {
+        background: linear-gradient(135deg, #D4AF37 0%, #E8C84A 100%);
+        color: #0B172A;
+        box-shadow: 0 3px 10px rgba(212, 175, 55, 0.22);
+    }
+    .footer-compassion__btn--primary:hover {
+        color: #0B172A;
+        transform: translateY(-1px);
+        box-shadow: 0 5px 16px rgba(212, 175, 55, 0.35);
+    }
+    .footer-compassion__btn--ghost {
+        background: transparent;
+        border: 1px solid rgba(212, 175, 55, 0.36);
+        color: #D4AF37;
+    }
+    .footer-compassion__btn--ghost:hover {
+        background: rgba(212, 175, 55, 0.12);
+        color: #D4AF37;
+        transform: translateY(-1px);
+    }
+    .footer-compassion__contact {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #9CA3AF;
+        font-size: 0.85rem;
+        margin: 0;
+    }
+    .footer-compassion__contact i { color: #D4AF37; }
+
+    /* ───── Quick Links ───── */
+
+    .footer-links a i {
+        font-size: 0.55rem;
+        color: #D4AF37;
+        width: 14px;
+        text-align: center;
+    }
+    .footer-links__compassion {
+        color: #D4AF37 !important;
+        font-weight: 600;
+    }
+    .footer-links__compassion i {
+        font-size: 0.7rem !important;
+        width: 16px !important;
+    }
+
+    /* ───── Services ───── */
+
+    .footer-services a i {
+        font-size: 0.7rem;
+        color: #D4AF37;
+        width: 16px;
+        text-align: center;
+    }
+    .footer-services__loading {
+        color: #6B7280;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* ───── Contact ───── */
+
+    .footer-contact ul li {
+        margin-bottom: 14px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+    .footer-contact__icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(212, 175, 55, 0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .footer-contact__icon i { color: #D4AF37; font-size: 0.8rem; }
+
+    .footer-contact__social {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+
+    /* ───── Social icons ───── */
+
     .social-icon {
         position: relative;
         overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+        color: #9CA3AF;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        border: 1px solid rgba(255,255,255,0.05);
     }
+    .social-icon i { font-size: 0.85rem; }
 
     .social-icon::before {
         content: '';
@@ -156,48 +435,61 @@
         transform: scale(0);
         transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-
     .social-icon:hover {
         color: #FFFFFF !important;
         transform: translateY(-4px) scale(1.05);
         border-color: var(--social-color, #D4AF37) !important;
         box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     }
+    .social-icon:hover::before { opacity: 1; transform: scale(1); }
+    .social-icon:hover i { position: relative; z-index: 1; }
 
-    .social-icon:hover::before {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    .social-icon:hover i {
-        position: relative;
-        z-index: 1;
-    }
-
-    /* Individual social colors on hover */
     .social-icon[data-color="#1877F2"]:hover { --social-color: #1877F2; }
     .social-icon[data-color="#1DA1F2"]:hover { --social-color: #1DA1F2; }
     .social-icon[data-color="#0A66C2"]:hover { --social-color: #0A66C2; }
     .social-icon[data-color="#FF0000"]:hover { --social-color: #FF0000; }
     .social-icon[data-color="#25D366"]:hover { --social-color: #25D366; }
 
-    .newsletter-form input:focus {
-        border-color: #D4AF37 !important;
-    }
-    .newsletter-form button:hover {
-        background: #E8C84A !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 16px rgba(212, 175, 55, 0.25);
-    }
+    /* ───── Bottom bar ───── */
 
+    .footer-bottom {
+        border-top: 1px solid #1A2A35;
+        padding-top: 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        font-size: 0.8rem;
+        color: #6B7280;
+    }
+    .footer-bottom p { margin: 0; }
+    .footer-legal {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+    .footer-legal a {
+        color: #6B7280;
+        font-size: 0.8rem;
+    }
+    .footer-legal a:hover { color: #D4AF37; }
+
+    /* ───── Responsive ───── */
+
+    @media (max-width: 1200px) {
+        .footer-grid { grid-template-columns: 1.5fr 1.1fr 1fr 1fr 1.1fr; gap: 28px; }
+    }
     @media (max-width: 992px) {
-        .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 32px !important; }
+        .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+        .footer-brand { grid-column: span 2; }
     }
-
     @media (max-width: 576px) {
-        .footer-grid { grid-template-columns: 1fr !important; gap: 28px !important; }
-        .footer-bottom { flex-direction: column !important; text-align: center; }
+        .site-footer { padding: 56px 0 24px; }
+        .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+        .footer-brand { grid-column: span 1; }
+        .footer-bottom { flex-direction: column; text-align: center; }
         .footer-legal { justify-content: center; }
-        .newsletter-form { max-width: 100% !important; }
+        .newsletter-form { max-width: 100%; }
     }
 </style>

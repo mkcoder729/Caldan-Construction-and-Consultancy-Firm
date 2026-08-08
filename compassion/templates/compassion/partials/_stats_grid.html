@@ -1,0 +1,49 @@
+{% load humanize compassion_tags %}
+
+<section class="compassion-stats">
+  <div class="container">
+    <div class="section-heading">
+      <span class="section-heading__eyebrow"><i class="fas fa-chart-line"></i> Trust container</span>
+      <h2 class="section-heading__title">Every counter, live from our work</h2>
+      <p class="section-heading__sub">These numbers update automatically from our records — no hardcoded anything.</p>
+    </div>
+
+    <div class="compassion-stats__grid">
+      <div class="stat-tile stat-tile--green">
+        <div class="stat-tile__icon"><i class="fas fa-users"></i></div>
+        <div class="stat-tile__value" data-counter="{{ compassion_people_served|default:0 }}">{{ compassion_people_served|default:0|intcomma }}</div>
+        <div class="stat-tile__label">People served (12 months)</div>
+      </div>
+
+      <div class="stat-tile stat-tile--gold">
+        <div class="stat-tile__icon"><i class="fas fa-utensils"></i></div>
+        <div class="stat-tile__value" data-counter="{{ compassion_meals_distributed|default:0 }}">{{ compassion_meals_distributed|default:0|intcomma }}</div>
+        <div class="stat-tile__label">Meals distributed</div>
+      </div>
+
+      <div class="stat-tile stat-tile--blue">
+        <div class="stat-tile__icon"><i class="fas fa-hospital"></i></div>
+        <div class="stat-tile__value" data-counter="{{ compassion_hospitals_visited|default:0 }}">{{ compassion_hospitals_visited|default:0|intcomma }}</div>
+        <div class="stat-tile__label">Hospitals visited</div>
+      </div>
+
+      <div class="stat-tile stat-tile--orange">
+        <div class="stat-tile__icon"><i class="fas fa-dungeon"></i></div>
+        <div class="stat-tile__value" data-counter="{{ compassion_prison_visits|default:0 }}">{{ compassion_prison_visits|default:0|intcomma }}</div>
+        <div class="stat-tile__label">Prison visits</div>
+      </div>
+
+      <div class="stat-tile stat-tile--green stat-tile--wide">
+        <div class="stat-tile__icon"><i class="fas fa-hand-holding-usd"></i></div>
+        <div class="stat-tile__value" data-counter="{{ compassion_donations_total_ksh|default:0 }}" data-currency>{{ compassion_donations_total_ksh|default:0|kes }}</div>
+        <div class="stat-tile__label">Total raised for compassion</div>
+      </div>
+
+      <div class="stat-tile stat-tile--gold">
+        <div class="stat-tile__icon"><i class="fas fa-receipt"></i></div>
+        <div class="stat-tile__value" data-counter="{{ compassion_donations_count|default:0 }}">{{ compassion_donations_count|default:0|intcomma }}</div>
+        <div class="stat-tile__label">Donations received</div>
+      </div>
+    </div>
+  </div>
+</section>

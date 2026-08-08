@@ -1,0 +1,21 @@
+<section class="compassion-hero" style="background: linear-gradient(160deg, rgba(11, 20, 32, 0.82) 0%, rgba(212, 175, 55, 0.18) 100%), url('https://images.unsplash.com/photo-1593113598332-cd288d649433?w=1600&q=85&auto=format&fit=crop'); background-size: cover; background-position: center; padding: 110px 0 90px;">
+  <div class="container">
+    <div class="compassion-hero__content">
+      <span class="compassion-hero__eyebrow"><i class="fas fa-hand-holding-heart"></i> Caldan Compassionate Ministry</span>
+      <h1 class="compassion-hero__title">{{ ministry.hero_title|default:"Every gift lands somewhere it matters." }}</h1>
+      <p class="compassion-hero__subtitle">{{ ministry.hero_subtitle|default:"Hospital bedsides. Prison visits. Neighbours in need. Choose how you'd like to give." }}</p>
+      <div class="compassion-hero__cta">
+        <button type="button" class="btn-gold btn-lg" data-bs-toggle="modal" data-bs-target="#donationModal">
+          <i class="fas fa-hand-holding-heart"></i> {{ ministry.hero_cta_label|default:"Donate Now" }}
+        </button>
+        <button type="button" class="btn-outline-gold btn-lg" data-bs-toggle="modal" data-bs-target="#scheduleCallModal">
+          <i class="fas fa-phone"></i> Schedule a Call
+        </button>
+      </div>
+      <div class="compassion-hero__contact">
+        {% if ministry.contact_phone %}<span><i class="fas fa-phone"></i> {{ ministry.contact_phone }}</span>{% endif %}
+        {% if ministry.contact_email %}<span><i class="fas fa-envelope"></i> {{ ministry.contact_email }}</span>{% endif %}
+      </div>
+    </div>
+  </div>
+</section>

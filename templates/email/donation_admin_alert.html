@@ -1,0 +1,45 @@
+{# Admin alert — a new donation just landed. #}
+{% extends "email/_base.html" %}
+{% load humanize %}
+
+{% block badge %}<span class="badge badge-gold" style="margin-top: 14px;">NEW DONATION</span>{% endblock %}
+
+{% block content %}
+  <h1>Donation <span>received</span></h1>
+  <p class="subtitle">KES {{ amount|intcomma }} — {{ purpose }}</p>
+
+  <p>A donor just completed a successful Paystack charge. Mark fulfilment started and follow up with a personal note within 24 hours.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Donor</dt>
+      <dd>{{ donor_name }}</dd>
+      <dt>Email</dt>
+      <dd><a href="mailto:{{ donor_email }}">{{ donor_email }}</a></dd>
+      <dt>Phone</dt>
+      <dd><a href="tel:{{ donor_phone }}">{{ donor_phone }}</a></dd>
+      <dt>Amount</dt>
+      <dd><strong>KES {{ amount|intcomma }}</strong></dd>
+      <dt>Designation</dt>
+      <dd>{{ purpose }}</dd>
+      <dt>Reference</dt>
+      <dd><code>{{ reference }}</code></dd>
+      {% if paystack_reference %}
+      <dt>Paystack reference</dt>
+      <dd><code>{{ paystack_reference }}</code></dd>
+      {% endif %}
+    </dl>
+  </div>
+
+  {% if note %}
+  <h2>Donor note</h2>
+  <div class="callout callout-info">
+    {{ note }}
+  </div>
+  {% endif %}
+
+  <div class="button-row">
+    <a href="{{ dashboard_url }}" class="button">Open in dashboard</a>
+    <a href="mailto:{{ donor_email }}" class="button button-secondary">Reply to donor</a>
+  </div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}{{ ministry.hero_title|default:"Compassionate Ministry" }} — Caldan{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="Give money, items, or schedule a call. Every gift reaches a hospital bedside, a prison visit, or a neighbour in need.">
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<link rel="stylesheet" href="{% static 'css/compassion.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include "compassion/partials/_hero.html" %}
+{% include "compassion/partials/_carousel.html" %}
+{% include "compassion/partials/_giving_cards.html" %}
+{% include "compassion/partials/_stats_grid.html" %}
+{% include "compassion/partials/_payment_methods.html" %}
+{% include "compassion/partials/_mission_cta.html" %}
+
+{% include "compassion/partials/_donation_modal.html" %}
+{% include "compassion/partials/_inkind_modal.html" %}
+{% include "compassion/partials/_schedule_modal.html" %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="{% static 'js/compassion.js' %}"></script>
+{% endblock %}

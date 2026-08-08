@@ -1,0 +1,60 @@
+<div class="modal fade compassion-modal" id="scheduleCallModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <button type="button" class="compassion-modal__close" data-bs-dismiss="modal" aria-label="Close">
+        <i class="fas fa-xmark"></i>
+      </button>
+
+      <div class="modal-header compassion-modal__header">
+        <div class="compassion-modal__eyebrow"><i class="fas fa-phone"></i> Schedule a Call</div>
+        <h3 class="modal-title">Let's talk — when works for you?</h3>
+        <p class="compassion-modal__sub">We'll confirm a slot by email within one business day.</p>
+      </div>
+
+      <div class="modal-body compassion-modal__body">
+        <form id="callForm" method="post" action="{% url 'compassion:schedule_call_submit' %}" novalidate>
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="call-name">Full name</label>
+              <input type="text" id="call-name" name="name" class="form-control" required maxlength="150" autocomplete="name">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="call-email">Email</label>
+              <input type="email" id="call-email" name="email" class="form-control" required autocomplete="email">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="call-phone">Phone</label>
+              <input type="tel" id="call-phone" name="phone" class="form-control" required maxlength="15" placeholder="0712 345 678" autocomplete="tel">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="call-topic">Topic</label>
+              <select id="call-topic" name="topic" class="form-select">
+                <option value="LARGE_DONATION">Large financial gift</option>
+                <option value="PARTNERSHIP">Partnership / corporate giving</option>
+                <option value="INKIND_LOGISTICS">Coordinating an in-kind gift</option>
+                <option value="GENERAL">General conversation</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="call-time">Preferred time</label>
+              <input type="text" id="call-time" name="preferred_time" class="form-control" required maxlength="120" placeholder="e.g., weekday mornings, Saturday afternoon">
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="call-message">Message <span class="text-muted">(optional)</span></label>
+              <textarea id="call-message" name="message" class="form-control" rows="4"></textarea>
+            </div>
+          </div>
+
+          <div class="compassion-modal__submit">
+            <button type="submit" class="btn-gold btn-lg w-100">
+              <i class="fas fa-phone"></i> Request call
+            </button>
+          </div>
+        </form>
+
+        <div class="compassion-modal__feedback" id="callFeedback" hidden></div>
+      </div>
+    </div>
+  </div>
+</div>

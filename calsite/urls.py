@@ -91,6 +91,12 @@ urlpatterns = [
     path('blog/', include('blog.urls')),
 
     # =================================================================
+    # COMPASSIONATE MINISTRY (public + dashboard)
+    # =================================================================
+    path('compassion/', include(('compassion.urls_public', 'compassion'), namespace='compassion')),
+    path('dashboard/compassion/', include(('compassion.urls_dashboard', 'compassion_dashboard'), namespace='compassion_dashboard')),
+
+    # =================================================================
     # PUBLIC WEBSITE — mounted at root
     # =================================================================
     path('', include('website.urls')),

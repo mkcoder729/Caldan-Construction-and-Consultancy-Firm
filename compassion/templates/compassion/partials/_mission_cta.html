@@ -1,0 +1,18 @@
+{% if ministry.mission_statement %}
+<section class="compassion-mission">
+  <div class="container">
+    <div class="compassion-mission__card">
+      <div class="compassion-mission__icon"><i class="fas fa-quote-left"></i></div>
+      <blockquote class="compassion-mission__text">{{ ministry.mission_statement }}</blockquote>
+      <div class="compassion-mission__actions">
+        <button type="button" class="btn-gold btn-lg" data-bs-toggle="modal" data-bs-target="#donationModal">
+          <i class="fas fa-hand-holding-heart"></i> Give now
+        </button>
+        <a href="{% url 'compassion:donate' %}" class="btn-outline-gold btn-lg">
+          <i class="fas fa-external-link-alt"></i> Full donate page
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}

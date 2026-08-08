@@ -1,0 +1,36 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block title %}In-Kind Pledge #{{ pledge.id }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="compassion-detail">
+    <div class="page-header"><div><h1 class="page-header__title"><span class="icon-bubble"><i class="fas fa-box-open"></i></span> In-Kind Pledge</h1><p class="page-header__sub">#{{ pledge.id }} — {{ pledge.donor_name }}</p></div>
+        <div class="page-header__actions"><a href="{% url 'compassion_dashboard:inkind_list' %}" class="btn-pill"><i class="fas fa-arrow-left"></i> Back</a></div></div>
+    <div class="panel">
+        <div class="panel__header"><h3><i class="fas fa-info-circle"></i> Details</h3></div>
+        <div style="padding: 22px;">
+            <dl style="display: grid; grid-template-columns: 200px 1fr; gap: 14px 18px;">
+                <dt><strong>Donor</strong></dt><dd>{{ pledge.donor_name }} &middot; <a href="mailto:{{ pledge.donor_email }}">{{ pledge.donor_email }}</a> &middot; <a href="tel:{{ pledge.donor_phone }}">{{ pledge.donor_phone }}</a></dd>
+                <dt><strong>Item type</strong></dt><dd>{{ pledge.get_item_type_display }}</dd>
+                <dt><strong>Description</strong></dt><dd>{{ pledge.item_description }}</dd>
+                <dt><strong>Quantity</strong></dt><dd>{{ pledge.quantity_estimate|default:"—" }}</dd>
+                <dt><strong>Delivery</strong></dt><dd>{{ pledge.get_delivery_mode_display|default:"—" }}</dd>
+                {% if pledge.preferred_date %}<dt><strong>Preferred date</strong></dt><dd>{{ pledge.preferred_date|date:"M j, Y" }}</dd>{% endif %}
+                {% if pledge.address %}<dt><strong>Address</strong></dt><dd>{{ pledge.address|linebreaksbr }}</dd>{% endif %}
+                {% if pledge.notes %}<dt><strong>Notes</strong></dt><dd>{{ pledge.notes|linebreaksbr }}</dd>{% endif %}
+                <dt><strong>Status</strong></dt><dd>{{ pledge.get_status_display }}</dd>
+            </dl>
+        </div>
+    </div>
+    <div class="panel" style="margin-top: 18px;">
+        <div class="panel__header"><h3><i class="fas fa-arrows-up-down"></i> Advance status</h3></div>
+        <form method="post" action="{% url 'compassion_dashboard:inkind_advance' pledge.id %}" style="padding: 22px; display: flex; gap: 10px; flex-wrap: wrap;">
+            {% csrf_token %}
+            <select name="status" class="form-select" style="max-width: 240px;">
+                {% for v,l in pledge.Status.choices %}<option value="{{ v }}" {% if pledge.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
+            </select>
+            <button class="btn-apply" type="submit"><i class="fas fa-check"></i> Update</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -153,6 +153,15 @@ class Project(models.Model):
     )
 
     # =====================================================================
+    # DISPLAY FIELDS
+    # =====================================================================
+    is_featured = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text="Show this project in the /projects/ spotlight section (max 3 recommended)"
+    )
+
+    # =====================================================================
     # RELATIONSHIPS
     # =====================================================================
     services = models.ManyToManyField(
