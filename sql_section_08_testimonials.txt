@@ -1,0 +1,88 @@
+-- ============================================================
+-- CALDAN CONSTRUCTION — Manual SQL seed (MySQL on Railway)
+-- Safe to re-run; each block is idempotent.
+--
+-- Column lists mirror `DESCRIBE <table>` on the live DB, NOT the
+-- Python attribute names on the Django models. Every section is
+-- fully self-contained and can be pasted in independently.
+-- ============================================================
+
+
+-- ============================================================
+
+-- SECTION 8: TESTIMONIALS
+-- Table: testimonials
+-- Live columns:
+--   id, author_name, author_title, content, rating, author_photo,
+--   display_order, is_active, created_at, updated_at
+-- No unique constraint on `author_name`, so UPDATE + INSERT IGNORE.
+-- `author_photo` is skipped — it needs Django/Media upload.
+-- ============================================================
+
+UPDATE testimonials SET
+  author_title  = 'Developer, Kennedy Apartments',
+  content       = 'Caldan Construction delivered our 25-unit apartment project on time and within budget. Their professionalism, attention to detail, and clear communication throughout made the entire process smooth and stress-free.',
+  rating        = 5,
+  display_order = 1,
+  is_active     = 1,
+  updated_at    = NOW()
+WHERE author_name = 'Kennedy Onyancha';
+
+UPDATE testimonials SET
+  author_title  = 'Property Developer',
+  content       = 'The team at Caldan built my 18-unit apartment to a standard I didn''t think was possible in this market. The finishes, the structural work, and the follow-up after handover were all exceptional.',
+  rating        = 5,
+  display_order = 2,
+  is_active     = 1,
+  updated_at    = NOW()
+WHERE author_name = 'Dr. Nyangara Naphtali';
+
+UPDATE testimonials SET
+  author_title  = 'Homeowner',
+  content       = 'My massonnaitte came out beautifully. Lawrence and the team kept me updated every week, the site was always tidy, and they finished ahead of schedule. I''ve already recommended them to friends.',
+  rating        = 5,
+  display_order = 3,
+  is_active     = 1,
+  updated_at    = NOW()
+WHERE author_name = 'James Mwangi';
+
+UPDATE testimonials SET
+  author_title  = 'Principal, Munanda Secondary School',
+  content       = 'The new school block has transformed our learning environment. Caldan''s team worked closely with the school board, met every milestone, and delivered a facility our students and teachers are proud of.',
+  rating        = 5,
+  display_order = 4,
+  is_active     = 1,
+  updated_at    = NOW()
+WHERE author_name = 'Sarah Wairimu';
+
+UPDATE testimonials SET
+  author_title  = 'Facilities Manager, Riverside Logistics',
+  content       = 'Caldan resurfaced our warehouse floor and waterproofed the roof in a tight two-week window with no disruption to our operations. The finish has held up brilliantly under heavy forklift traffic.',
+  rating        = 5,
+  display_order = 5,
+  is_active     = 1,
+  updated_at    = NOW()
+WHERE author_name = 'Daniel Kiprop';
+
+INSERT IGNORE INTO testimonials
+  (author_name, author_title, content, rating, author_photo,
+   display_order, is_active, created_at, updated_at)
+VALUES
+  ('Kennedy Onyancha', 'Developer, Kennedy Apartments',
+   'Caldan Construction delivered our 25-unit apartment project on time and within budget. Their professionalism, attention to detail, and clear communication throughout made the entire process smooth and stress-free.',
+   5, NULL, 1, 1, NOW(), NOW()),
+  ('Dr. Nyangara Naphtali', 'Property Developer',
+   'The team at Caldan built my 18-unit apartment to a standard I didn''t think was possible in this market. The finishes, the structural work, and the follow-up after handover were all exceptional.',
+   5, NULL, 2, 1, NOW(), NOW()),
+  ('James Mwangi', 'Homeowner',
+   'My massonnaitte came out beautifully. Lawrence and the team kept me updated every week, the site was always tidy, and they finished ahead of schedule. I''ve already recommended them to friends.',
+   5, NULL, 3, 1, NOW(), NOW()),
+  ('Sarah Wairimu', 'Principal, Munanda Secondary School',
+   'The new school block has transformed our learning environment. Caldan''s team worked closely with the school board, met every milestone, and delivered a facility our students and teachers are proud of.',
+   5, NULL, 4, 1, NOW(), NOW()),
+  ('Daniel Kiprop', 'Facilities Manager, Riverside Logistics',
+   'Caldan resurfaced our warehouse floor and waterproofed the roof in a tight two-week window with no disruption to our operations. The finish has held up brilliantly under heavy forklift traffic.',
+   5, NULL, 5, 1, NOW(), NOW());
+
+
+-- ============================================================

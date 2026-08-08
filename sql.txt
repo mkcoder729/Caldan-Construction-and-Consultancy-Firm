@@ -89,17 +89,17 @@ VALUES
  NULL,
  '',
  JSON_ARRAY(),
- 1, 9, NOW(), NOW()) AS new
+ 1, 9, NOW(), NOW())
 
 ON DUPLICATE KEY UPDATE
-  name             = new.name,
-  category         = new.category,
-  description      = new.description,
-  icon             = new.icon,
-  long_description = new.long_description,
-  features         = new.features,
-  is_active        = new.is_active,
-  display_order    = new.display_order,
+  name             = VALUES(name),
+  category         = VALUES(category),
+  description      = VALUES(description),
+  icon             = VALUES(icon),
+  long_description = VALUES(long_description),
+  features         = VALUES(features),
+  is_active        = VALUES(is_active),
+  display_order    = VALUES(display_order),
   updated_at       = NOW();
 
 
@@ -290,23 +290,23 @@ VALUES
    NULL, NULL,
    '2025-03-01', '2025-04-30', '2026-10-31', NULL,
    1200000.00, 0.00, 0.00, 'PLANNING', 0, NULL,
-   NULL, NOW(), NOW(), NULL) AS new
+   NULL, NOW(), NOW(), NULL)
 
 ON DUPLICATE KEY UPDATE
-  name                = new.name,
-  description         = new.description,
-  location            = new.location,
-  county              = new.county,
-  town                = new.town,
-  start_date          = new.start_date,
-  end_date            = new.end_date,
-  estimated_completion= new.estimated_completion,
-  actual_completion   = new.actual_completion,
-  budget              = new.budget,
-  spent               = new.spent,
-  progress            = new.progress,
-  status              = new.status,
-  is_archived         = new.is_archived,
+  name                = VALUES(name),
+  description         = VALUES(description),
+  location            = VALUES(location),
+  county              = VALUES(county),
+  town                = VALUES(town),
+  start_date          = VALUES(start_date),
+  end_date            = VALUES(end_date),
+  estimated_completion= VALUES(estimated_completion),
+  actual_completion   = VALUES(actual_completion),
+  budget              = VALUES(budget),
+  spent               = VALUES(spent),
+  progress            = VALUES(progress),
+  status              = VALUES(status),
+  is_archived         = VALUES(is_archived),
   updated_at          = NOW();
 
 
@@ -1057,15 +1057,15 @@ VALUES
    'Discover the latest interior design trends that are shaping Kenya''s homes and offices.',
    'Interior design trends evolve constantly, but the best designs are those that combine style with functionality. Here are the top trends shaping Kenya''s interior spaces in 2024.\n\n## 1. Natural Materials\nWood, stone, and natural fibers continue to dominate, bringing warmth and texture to modern interiors.\n\n## 2. Earth Tones\nNeutral palettes — warm beiges, soft greens, and terracottas — are replacing stark whites and grays.\n\n## 3. Multi-Functional Spaces\nWith more people working from home, spaces that serve multiple purposes are in high demand.\n\n## 4. Statement Lighting\nUnique light fixtures are becoming a focal point in many designs.\n\n## 5. Indoor Plants\nBiophilic design continues to be popular, with indoor plants bringing nature into living and working spaces.\n\n## 6. Sustainable Design\nEco-friendly materials and furniture are no longer niche — they''re becoming the standard.\n\n## Caldan''s Design Services\n\nAt Caldan Construction, we offer comprehensive interior design services. Our team works closely with you to create spaces that reflect your style and meet your needs.',
    NULL, 1, DATE_SUB(NOW(), INTERVAL 8 DAY),
-   DATE_SUB(NOW(), INTERVAL 8 DAY), NOW(), 'construction') AS new
+   DATE_SUB(NOW(), INTERVAL 8 DAY), NOW(), 'construction')
 
 ON DUPLICATE KEY UPDATE
-  title        = new.title,
-  excerpt      = new.excerpt,
-  content      = new.content,
-  is_published = new.is_published,
-  published_at = new.published_at,
-  category     = new.category,
+  title        = VALUES(title),
+  excerpt      = VALUES(excerpt),
+  content      = VALUES(content),
+  is_published = VALUES(is_published),
+  published_at = VALUES(published_at),
+  category     = VALUES(category),
   updated_at   = NOW();
 
 
@@ -1330,20 +1330,20 @@ VALUES
    'Waterproofing membrane, 10m roll',
    5500.00, NULL, 20, NULL, JSON_ARRAY(),
    1, 0, 1, '', '',
-   NOW(), NOW(), NULL, 'CONSTRUCTION') AS new
+   NOW(), NOW(), NULL, 'CONSTRUCTION')
 
 ON DUPLICATE KEY UPDATE
-  name              = new.name,
-  category          = new.category,
-  unit              = new.unit,
-  description       = new.description,
-  short_description = new.short_description,
-  price             = new.price,
-  stock_quantity    = new.stock_quantity,
-  is_active         = new.is_active,
-  is_featured       = new.is_featured,
-  in_stock          = new.in_stock,
-  shop_section      = new.shop_section,
+  name              = VALUES(name),
+  category          = VALUES(category),
+  unit              = VALUES(unit),
+  description       = VALUES(description),
+  short_description = VALUES(short_description),
+  price             = VALUES(price),
+  stock_quantity    = VALUES(stock_quantity),
+  is_active         = VALUES(is_active),
+  is_featured       = VALUES(is_featured),
+  in_stock          = VALUES(in_stock),
+  shop_section      = VALUES(shop_section),
   updated_at        = NOW();
 
 
@@ -1519,20 +1519,20 @@ VALUES
    'Wooden blocks, 50 pieces',
    1450.00, NULL, 20, NULL, JSON_ARRAY(),
    1, 1, 1, '', '',
-   NOW(), NOW(), NULL, 'GENERAL_STORE') AS new
+   NOW(), NOW(), NULL, 'GENERAL_STORE')
 
 ON DUPLICATE KEY UPDATE
-  name              = new.name,
-  category          = new.category,
-  unit              = new.unit,
-  description       = new.description,
-  short_description = new.short_description,
-  price             = new.price,
-  stock_quantity    = new.stock_quantity,
-  is_active         = new.is_active,
-  is_featured       = new.is_featured,
-  in_stock          = new.in_stock,
-  shop_section      = new.shop_section,
+  name              = VALUES(name),
+  category          = VALUES(category),
+  unit              = VALUES(unit),
+  description       = VALUES(description),
+  short_description = VALUES(short_description),
+  price             = VALUES(price),
+  stock_quantity    = VALUES(stock_quantity),
+  is_active         = VALUES(is_active),
+  is_featured       = VALUES(is_featured),
+  in_stock          = VALUES(in_stock),
+  shop_section      = VALUES(shop_section),
   updated_at        = NOW();
 
 

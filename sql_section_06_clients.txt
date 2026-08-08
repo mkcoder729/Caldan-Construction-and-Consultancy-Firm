@@ -1,0 +1,263 @@
+-- ============================================================
+-- CALDAN CONSTRUCTION — Manual SQL seed (MySQL on Railway)
+-- Safe to re-run; each block is idempotent.
+--
+-- Column lists mirror `DESCRIBE <table>` on the live DB, NOT the
+-- Python attribute names on the Django models. Every section is
+-- fully self-contained and can be pasted in independently.
+-- ============================================================
+
+
+-- ============================================================
+
+-- SECTION 6: CLIENTS
+-- Table: clients
+-- Live columns:
+--   id, name, type, company_name, email, phone, alternative_phone,
+--   address, county, town, status, source, notes, created_at,
+--   updated_at, last_contact
+-- No unique constraint on `email` at the DB level, so we use the
+-- UPDATE+INSERT IGNORE pattern, keyed by `email`.
+-- ============================================================
+
+UPDATE clients SET
+  type         = 'INDIVIDUAL',
+  company_name = '',
+  phone        = '0712345678',
+  alternative_phone = '',
+  address      = '',
+  county       = 'Nakuru',
+  town         = 'Nakuru',
+  status       = 'ACTIVE',
+  source       = 'Referral',
+  notes        = 'Completed 25-unit apartment project.',
+  updated_at   = NOW()
+WHERE email = 'kennedy.onyancha@example.com';
+
+UPDATE clients SET
+  type         = 'INDIVIDUAL',
+  company_name = '',
+  phone        = '0723456789',
+  alternative_phone = '',
+  address      = '',
+  county       = 'Nakuru',
+  town         = 'Nakuru',
+  status       = 'ACTIVE',
+  source       = 'Referral',
+  notes        = 'Completed 18-unit apartment project.',
+  updated_at   = NOW()
+WHERE email = 'nyangara.naphtali@example.com';
+
+UPDATE clients SET
+  type         = 'INDIVIDUAL',
+  company_name = '',
+  phone        = '0734567890',
+  alternative_phone = '',
+  address      = '',
+  county       = 'Nakuru',
+  town         = 'Nakuru',
+  status       = 'ACTIVE',
+  source       = 'Website',
+  notes        = 'Completed massonnaitte project.',
+  updated_at   = NOW()
+WHERE email = 'james.mwangi@example.com';
+
+UPDATE clients SET
+  type         = 'INSTITUTION',
+  company_name = 'Munanda Secondary School',
+  phone        = '0745678901',
+  alternative_phone = '',
+  address      = '',
+  county       = 'Nakuru',
+  town         = 'Gilgil',
+  status       = 'ACTIVE',
+  source       = 'Direct',
+  notes        = 'Completed secondary school construction.',
+  updated_at   = NOW()
+WHERE email = 'info@munanda.sc.ke';
+
+UPDATE clients SET
+  type         = 'INSTITUTION',
+  company_name = 'Oyarai Primary School',
+  phone        = '0756789012',
+  alternative_phone = '',
+  address      = '',
+  county       = 'Nakuru',
+  town         = 'Nakuru',
+  status       = 'ACTIVE',
+  source       = 'Direct',
+  notes        = 'Completed classroom construction.',
+  updated_at   = NOW()
+WHERE email = 'info@oyaraiprimary.sc.ke';
+
+UPDATE clients SET
+  type         = 'COMPANY',
+  company_name = 'Koto Housing',
+  phone        = '0767890123',
+  alternative_phone = '',
+  address      = '',
+  county       = 'Nakuru',
+  town         = 'Gilgil',
+  status       = 'ACTIVE',
+  source       = 'Direct',
+  notes        = 'Gilgil Secondary School project.',
+  updated_at   = NOW()
+WHERE email = 'info@kotohousing.co.ke';
+
+UPDATE clients SET
+  type         = 'INSTITUTION',
+  company_name = 'Ministry of Education',
+  phone        = '0778901234',
+  alternative_phone = '',
+  address      = '',
+  county       = 'Nairobi',
+  town         = 'Nairobi',
+  status       = 'ACTIVE',
+  source       = 'Tender',
+  notes        = 'Oljorai Secondary School project.',
+  updated_at   = NOW()
+WHERE email = 'info@education.go.ke';
+
+UPDATE clients SET
+  type         = 'INSTITUTION',
+  company_name = 'Gilgil Secondary School',
+  phone        = '0789012345',
+  alternative_phone = '',
+  address      = '',
+  county       = 'Nakuru',
+  town         = 'Gilgil',
+  status       = 'ACTIVE',
+  source       = 'Referral',
+  notes        = 'Koto Housing project.',
+  updated_at   = NOW()
+WHERE email = 'info@gilgilsecondary.sc.ke';
+
+UPDATE clients SET
+  type         = 'COMPANY',
+  company_name = 'Lakeside Heights Developers Ltd',
+  phone        = '0790123456',
+  alternative_phone = '',
+  address      = '',
+  county       = 'Nakuru',
+  town         = 'Naivasha',
+  status       = 'ACTIVE',
+  source       = 'Website',
+  notes        = 'Residential development partner — 4 active sites.',
+  updated_at   = NOW()
+WHERE email = 'projects@lakesideheights.co.ke';
+
+UPDATE clients SET
+  type         = 'INSTITUTION',
+  company_name = 'St. Mary''s Academy',
+  phone        = '0701234567',
+  alternative_phone = '',
+  address      = '',
+  county       = 'Nairobi',
+  town         = 'Westlands',
+  status       = 'ACTIVE',
+  source       = 'Referral',
+  notes        = 'Perimeter wall and classroom block extension.',
+  updated_at   = NOW()
+WHERE email = 'admin@stmarysacademy.sc.ke';
+
+UPDATE clients SET
+  type         = 'INDIVIDUAL',
+  company_name = '',
+  phone        = '0711223344',
+  alternative_phone = '',
+  address      = '',
+  county       = 'Kiambu',
+  town         = 'Thika',
+  status       = 'LEAD',
+  source       = 'Referral',
+  notes        = 'Lead — interested in residential interior fit-out.',
+  updated_at   = NOW()
+WHERE email = 'ann.wambui@example.com';
+
+UPDATE clients SET
+  type         = 'COMPANY',
+  company_name = 'Riverside Logistics Ltd',
+  phone        = '0733445566',
+  alternative_phone = '',
+  address      = '',
+  county       = 'Nakuru',
+  town         = 'Nakuru',
+  status       = 'ACTIVE',
+  source       = 'Direct',
+  notes        = 'Warehouse floor resurfacing and roof waterproofing.',
+  updated_at   = NOW()
+WHERE email = 'facilities@riversidelogistics.co.ke';
+
+UPDATE clients SET
+  type         = 'INDIVIDUAL',
+  company_name = '',
+  phone        = '0788990011',
+  alternative_phone = '',
+  address      = '',
+  county       = 'Nakuru',
+  town         = 'Nakuru',
+  status       = 'CONVERTED',
+  source       = 'Website',
+  notes        = 'Converted lead — completed kitchen renovation.',
+  updated_at   = NOW()
+WHERE email = 'peter.kamau@example.com';
+
+INSERT IGNORE INTO clients
+  (name, type, company_name, email, phone, alternative_phone, address,
+   county, town, status, source, notes, created_at, updated_at)
+VALUES
+  ('Kennedy Onyancha', 'INDIVIDUAL', '',
+   'kennedy.onyancha@example.com', '0712345678', '', '',
+   'Nakuru', 'Nakuru', 'ACTIVE', 'Referral',
+   'Completed 25-unit apartment project.', NOW(), NOW()),
+  ('Dr. Nyangara Naphtali', 'INDIVIDUAL', '',
+   'nyangara.naphtali@example.com', '0723456789', '', '',
+   'Nakuru', 'Nakuru', 'ACTIVE', 'Referral',
+   'Completed 18-unit apartment project.', NOW(), NOW()),
+  ('James Mwangi', 'INDIVIDUAL', '',
+   'james.mwangi@example.com', '0734567890', '', '',
+   'Nakuru', 'Nakuru', 'ACTIVE', 'Website',
+   'Completed massonnaitte project.', NOW(), NOW()),
+  ('Munanda Secondary School', 'INSTITUTION', 'Munanda Secondary School',
+   'info@munanda.sc.ke', '0745678901', '', '',
+   'Nakuru', 'Gilgil', 'ACTIVE', 'Direct',
+   'Completed secondary school construction.', NOW(), NOW()),
+  ('Oyarai Primary School', 'INSTITUTION', 'Oyarai Primary School',
+   'info@oyaraiprimary.sc.ke', '0756789012', '', '',
+   'Nakuru', 'Nakuru', 'ACTIVE', 'Direct',
+   'Completed classroom construction.', NOW(), NOW()),
+  ('Koto Housing', 'COMPANY', 'Koto Housing',
+   'info@kotohousing.co.ke', '0767890123', '', '',
+   'Nakuru', 'Gilgil', 'ACTIVE', 'Direct',
+   'Gilgil Secondary School project.', NOW(), NOW()),
+  ('Ministry of Education', 'INSTITUTION', 'Ministry of Education',
+   'info@education.go.ke', '0778901234', '', '',
+   'Nairobi', 'Nairobi', 'ACTIVE', 'Tender',
+   'Oljorai Secondary School project.', NOW(), NOW()),
+  ('Gilgil Secondary School', 'INSTITUTION', 'Gilgil Secondary School',
+   'info@gilgilsecondary.sc.ke', '0789012345', '', '',
+   'Nakuru', 'Gilgil', 'ACTIVE', 'Referral',
+   'Koto Housing project.', NOW(), NOW()),
+  ('Lakeside Heights Developers', 'COMPANY', 'Lakeside Heights Developers Ltd',
+   'projects@lakesideheights.co.ke', '0790123456', '', '',
+   'Nakuru', 'Naivasha', 'ACTIVE', 'Website',
+   'Residential development partner — 4 active sites.', NOW(), NOW()),
+  ('St. Mary''s Academy', 'INSTITUTION', 'St. Mary''s Academy',
+   'admin@stmarysacademy.sc.ke', '0701234567', '', '',
+   'Nairobi', 'Westlands', 'ACTIVE', 'Referral',
+   'Perimeter wall and classroom block extension.', NOW(), NOW()),
+  ('Ann Wambui', 'INDIVIDUAL', '',
+   'ann.wambui@example.com', '0711223344', '', '',
+   'Kiambu', 'Thika', 'LEAD', 'Referral',
+   'Lead — interested in residential interior fit-out.', NOW(), NOW()),
+  ('Riverside Logistics', 'COMPANY', 'Riverside Logistics Ltd',
+   'facilities@riversidelogistics.co.ke', '0733445566', '', '',
+   'Nakuru', 'Nakuru', 'ACTIVE', 'Direct',
+   'Warehouse floor resurfacing and roof waterproofing.', NOW(), NOW()),
+  ('Peter Kamau', 'INDIVIDUAL', '',
+   'peter.kamau@example.com', '0788990011', '', '',
+   'Nakuru', 'Nakuru', 'CONVERTED', 'Website',
+   'Converted lead — completed kitchen renovation.', NOW(), NOW());
+
+
+-- ============================================================

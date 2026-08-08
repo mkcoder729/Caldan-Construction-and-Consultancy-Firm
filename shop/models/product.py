@@ -132,7 +132,12 @@ class Product(models.Model):
     )
 
     # Images
-    image = models.ImageField(upload_to='shop/products/', help_text='Main product image')
+    image = models.ImageField(
+        upload_to='shop/products/',
+        null=True,
+        blank=True,
+        help_text='Main product image (optional — leave blank to use placeholder)',
+    )
     additional_images = models.JSONField(
         default=list,
         blank=True,
