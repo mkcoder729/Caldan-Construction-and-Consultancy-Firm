@@ -1,11 +1,12 @@
 {% comment %}
 Schedule a Call modal — green-accent variant of the unified premium system.
-Uses the shared .compassion-modal class plus .compassion-modal--call modifier
-so the chrome, badge, header wash, form controls, and submit button inherit
-the green accent from one token set.
+3-step wizard:
+  1. Topic (chips)
+  2. Contact (name, email, phone)
+  3. Schedule + message → submit
 {% endcomment %}
 <div class="modal fade compassion-modal compassion-modal--call" id="scheduleCallModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
 
       <button type="button" class="compassion-modal__close" data-bs-dismiss="modal" aria-label="Close">
@@ -24,125 +25,127 @@ the green accent from one token set.
             <h3 class="modal-title">Let's talk — when works for you?</h3>
           </div>
         </div>
-        <p class="compassion-modal__sub">
-          We'll confirm a slot by email within one business day.
-        </p>
-
-        {% comment %}Micro-points: a tiny reassurance strip that answers "what is this?" without text-wall.{% endcomment %}
-        <ul class="compassion-modal__expect" aria-label="What to expect">
-          <li>
-            <span class="compassion-modal__expect-icon"><i class="fas fa-user-tie"></i></span>
-            <div>
-              <strong>A real person</strong>
-              <span>not a bot — usually within 24h</span>
-            </div>
-          </li>
-          <li>
-            <span class="compassion-modal__expect-icon"><i class="fas fa-clock"></i></span>
-            <div>
-              <strong>10–15 minutes</strong>
-              <span>you pick the window, we keep it brief</span>
-            </div>
-          </li>
-          <li>
-            <span class="compassion-modal__expect-icon"><i class="fas fa-shield-halved"></i></span>
-            <div>
-              <strong>Private</strong>
-              <span>what you share stays with the team</span>
-            </div>
-          </li>
-        </ul>
+        <p class="compassion-modal__sub">We'll confirm a slot by email within one business day.</p>
       </div>
 
       <div class="modal-body compassion-modal__body">
+        <div class="compassion-modal__progress" aria-label="Wizard progress">
+          <ol class="compassion-modal__progress-list">
+            <li class="compassion-modal__progress-item is-active" data-step-dot="1">
+              <span class="compassion-modal__dot"><span class="compassion-modal__dot-number">1</span><i class="fas fa-check"></i></span>
+              <span class="compassion-modal__connector"></span>
+            </li>
+            <li class="compassion-modal__progress-item" data-step-dot="2">
+              <span class="compassion-modal__dot"><span class="compassion-modal__dot-number">2</span><i class="fas fa-check"></i></span>
+              <span class="compassion-modal__connector"></span>
+            </li>
+            <li class="compassion-modal__progress-item" data-step-dot="3">
+              <span class="compassion-modal__dot"><span class="compassion-modal__dot-number">3</span><i class="fas fa-check"></i></span>
+            </li>
+          </ol>
+        </div>
+
         <form id="callForm" method="post" action="{% url 'compassion:schedule_call_submit' %}" novalidate>
           {% csrf_token %}
 
-          {% comment %}Section 1 — Who you are{% endcomment %}
-          <div class="compassion-modal__section">
-            <div class="compassion-modal__section-label">
-              <span class="compassion-modal__section-num">1</span>
-              <span>Who you are</span>
-            </div>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label" for="call-name">Full name</label>
-                <input type="text" id="call-name" name="name" class="form-control" required maxlength="150" autocomplete="name" placeholder="e.g., Akinyi Otieno">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" for="call-email">Email</label>
-                <input type="email" id="call-email" name="email" class="form-control" required autocomplete="email" placeholder="you@example.com">
-              </div>
-              <div class="col-12">
-                <label class="form-label" for="call-phone">Phone</label>
-                <input type="tel" id="call-phone" name="phone" required placeholder="712 345 678" autocomplete="tel-national">
-              </div>
+          <div class="compassion-modal__steps" data-wizard="call">
+            <div class="compassion-modal__steps-track">
+
+              {% comment %}STEP 1 — Topic{% endcomment %}
+              <section class="compassion-modal__step" data-step="1">
+                <div class="compassion-modal__step-head">
+                  <span class="compassion-modal__step-pill"><i class="fas fa-comments"></i> Step 1 of 3</span>
+                  <h4 class="compassion-modal__step-title">What would you like to talk about?</h4>
+                  <p class="compassion-modal__step-sub">Pick the option that fits best.</p>
+                </div>
+                <div class="form-grid">
+                  <div class="compassion-modal__chips" role="radiogroup" aria-label="Topic">
+                    <input type="radio" class="btn-check" name="topic_radio" id="topic-large" value="LARGE_DONATION" autocomplete="off">
+                    <label class="compassion-call-card__chip" for="topic-large">
+                      <i class="fas fa-hand-holding-heart"></i>
+                      <span>Large financial gift</span>
+                    </label>
+
+                    <input type="radio" class="btn-check" name="topic_radio" id="topic-partner" value="PARTNERSHIP" autocomplete="off">
+                    <label class="compassion-call-card__chip" for="topic-partner">
+                      <i class="fas fa-handshake"></i>
+                      <span>Partnership / corporate giving</span>
+                    </label>
+
+                    <input type="radio" class="btn-check" name="topic_radio" id="topic-inkind" value="INKIND_LOGISTICS" autocomplete="off">
+                    <label class="compassion-call-card__chip" for="topic-inkind">
+                      <i class="fas fa-truck"></i>
+                      <span>Coordinating an in-kind gift</span>
+                    </label>
+
+                    <input type="radio" class="btn-check" name="topic_radio" id="topic-general" value="GENERAL" autocomplete="off" checked>
+                    <label class="compassion-call-card__chip" for="topic-general">
+                      <i class="fas fa-comments"></i>
+                      <span>General conversation</span>
+                    </label>
+                  </div>
+                  <input type="hidden" name="topic" id="call-topic" value="GENERAL">
+                </div>
+              </section>
+
+              {% comment %}STEP 2 — Contact{% endcomment %}
+              <section class="compassion-modal__step" data-step="2" hidden>
+                <div class="compassion-modal__step-head">
+                  <span class="compassion-modal__step-pill"><i class="fas fa-user"></i> Step 2 of 3</span>
+                  <h4 class="compassion-modal__step-title">How do we reach you?</h4>
+                  <p class="compassion-modal__step-sub">We'll only use this to confirm the call.</p>
+                </div>
+                <div class="form-grid form-grid--2">
+                  <div>
+                    <label class="form-label" for="call-name">Full name</label>
+                    <input type="text" id="call-name" name="name" class="form-control" required maxlength="150" autocomplete="name" placeholder="e.g. Akinyi Otieno">
+                  </div>
+                  <div>
+                    <label class="form-label" for="call-email">Email</label>
+                    <input type="email" id="call-email" name="email" class="form-control" required autocomplete="email" placeholder="you@example.com">
+                  </div>
+                  <div style="grid-column: 1 / -1;">
+                    <label class="form-label" for="call-phone">Phone</label>
+                    <input type="tel" id="call-phone" name="phone" required placeholder="712 345 678" autocomplete="tel-national">
+                  </div>
+                </div>
+              </section>
+
+              {% comment %}STEP 3 — Schedule + message{% endcomment %}
+              <section class="compassion-modal__step" data-step="3" hidden>
+                <div class="compassion-modal__step-head">
+                  <span class="compassion-modal__step-pill"><i class="fas fa-clock"></i> Step 3 of 3</span>
+                  <h4 class="compassion-modal__step-title">When and what should we cover?</h4>
+                  <p class="compassion-modal__step-sub">A window that works + any final context.</p>
+                </div>
+                <div class="form-grid">
+                  <div>
+                    <label class="form-label" for="call-time">Preferred time</label>
+                    <input type="text" id="call-time" name="preferred_time" class="form-control" required maxlength="120" placeholder="e.g. weekday mornings, Saturday afternoon">
+                  </div>
+                  <div>
+                    <label class="form-label" for="call-message">Anything you'd like us to know <span class="text-muted">(optional)</span></label>
+                    <textarea id="call-message" name="message" class="form-control" rows="3" placeholder="A note on what you'd like to cover, or anything that'll help us prepare."></textarea>
+                  </div>
+                </div>
+                <input type="hidden" name="wizard" value="1">
+              </section>
+
             </div>
           </div>
 
-          {% comment %}Section 2 — What you'd like to talk about (pill-style topic chips){% endcomment %}
-          <div class="compassion-modal__section">
-            <div class="compassion-modal__section-label">
-              <span class="compassion-modal__section-num">2</span>
-              <span>What you'd like to talk about</span>
-            </div>
-
-            <div class="compassion-modal__chips" role="radiogroup" aria-label="Topic">
-              <input type="radio" class="btn-check" name="topic_radio" id="topic-large" value="LARGE_DONATION" autocomplete="off">
-              <label class="compassion-call-card__chip" for="topic-large">
-                <i class="fas fa-hand-holding-heart"></i>
-                <span>Large financial gift</span>
-              </label>
-
-              <input type="radio" class="btn-check" name="topic_radio" id="topic-partner" value="PARTNERSHIP" autocomplete="off">
-              <label class="compassion-call-card__chip" for="topic-partner">
-                <i class="fas fa-handshake"></i>
-                <span>Partnership / corporate giving</span>
-              </label>
-
-              <input type="radio" class="btn-check" name="topic_radio" id="topic-inkind" value="INKIND_LOGISTICS" autocomplete="off">
-              <label class="compassion-call-card__chip" for="topic-inkind">
-                <i class="fas fa-truck"></i>
-                <span>Coordinating an in-kind gift</span>
-              </label>
-
-              <input type="radio" class="btn-check" name="topic_radio" id="topic-general" value="GENERAL" autocomplete="off" checked>
-              <label class="compassion-call-card__chip" for="topic-general">
-                <i class="fas fa-comments"></i>
-                <span>General conversation</span>
-              </label>
-            </div>
-
-            {% comment %}Hidden field that the actual form submit reads; the chips above update it via JS.{% endcomment %}
-            <input type="hidden" name="topic" id="call-topic" value="GENERAL">
-          </div>
-
-          {% comment %}Section 3 — When + extra context{% endcomment %}
-          <div class="compassion-modal__section">
-            <div class="compassion-modal__section-label">
-              <span class="compassion-modal__section-num">3</span>
-              <span>When + any extra context</span>
-            </div>
-            <div class="row g-3">
-              <div class="col-12">
-                <label class="form-label" for="call-time">Preferred time</label>
-                <input type="text" id="call-time" name="preferred_time" class="form-control" required maxlength="120" placeholder="e.g., weekday mornings, Saturday afternoon">
-              </div>
-              <div class="col-12">
-                <label class="form-label" for="call-message">Anything you'd like us to know <span class="text-muted">(optional)</span></label>
-                <textarea id="call-message" name="message" class="form-control" rows="3" placeholder="A note on what you'd like to cover, or anything that'll help us prepare."></textarea>
-              </div>
-            </div>
-          </div>
-
-          <div class="compassion-modal__submit">
-            <button type="submit" class="compassion-modal__cta btn-lg">
+          <div class="compassion-modal__wizard-foot">
+            <button type="button" class="compassion-modal__back" data-wizard-back disabled>
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button type="button" class="compassion-modal__next" data-wizard-next>
+              Next <i class="fas fa-arrow-right"></i>
+            </button>
+            <button type="submit" class="compassion-modal__next" id="callSubmitBtn" data-wizard-submit hidden>
               <i class="fas fa-phone"></i> Request call back
             </button>
-            <p class="compassion-modal__small">
-              <i class="fas fa-shield-halved"></i> We never share your details. Reply "stop" any time.
-            </p>
           </div>
+
         </form>
 
         <div class="compassion-modal__feedback" id="callFeedback" hidden></div>

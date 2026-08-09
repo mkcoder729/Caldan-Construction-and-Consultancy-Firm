@@ -1,11 +1,13 @@
 {% comment %}
 Donate modal — gold-accent variant of the unified premium system.
-Uses .compassion-modal--money so chrome, badge, header wash, form controls,
-quick-amount pills, and submit button all inherit the gold accent from
-the shared --accent token set.
+3-step wizard:
+  1. Amount (quick-pills + custom)
+  2. Contact (name, email, phone)
+  3. Purpose + note → submit
+JS lives in static/js/compassion.js (initWizard).
 {% endcomment %}
 <div class="modal fade compassion-modal compassion-modal--money" id="donationModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <button type="button" class="compassion-modal__close" data-bs-dismiss="modal" aria-label="Close">
         <i class="fas fa-xmark"></i>
@@ -24,82 +26,115 @@ the shared --accent token set.
           </div>
         </div>
         <p class="compassion-modal__sub">Card or M-Pesa via Paystack. You choose how often and what for.</p>
-
-        <ul class="compassion-modal__expect" aria-label="What to expect">
-          <li>
-            <span class="compassion-modal__expect-icon"><i class="fas fa-lock"></i></span>
-            <div>
-              <strong>Secured by Paystack</strong>
-              <span>we never see your card details</span>
-            </div>
-          </li>
-          <li>
-            <span class="compassion-modal__expect-icon"><i class="fas fa-envelope-open-text"></i></span>
-            <div>
-              <strong>Instant receipt</strong>
-              <span>lands in your inbox the moment it clears</span>
-            </div>
-          </li>
-          <li>
-            <span class="compassion-modal__expect-icon"><i class="fas fa-tag"></i></span>
-            <div>
-              <strong>You pick the focus</strong>
-              <span>hospital, prison, neighbourhood — or just where it's needed most</span>
-            </div>
-          </li>
-        </ul>
       </div>
 
       <div class="modal-body compassion-modal__body">
-        <div class="compassion-modal__quick-amounts">
-          <button type="button" class="quick-amount" data-amount="500">KSh 500</button>
-          <button type="button" class="quick-amount" data-amount="1000">KSh 1,000</button>
-          <button type="button" class="quick-amount" data-amount="2500">KSh 2,500</button>
-          <button type="button" class="quick-amount" data-amount="5000">KSh 5,000</button>
+        <div class="compassion-modal__progress" aria-label="Wizard progress">
+          <ol class="compassion-modal__progress-list">
+            <li class="compassion-modal__progress-item is-active" data-step-dot="1">
+              <span class="compassion-modal__dot"><span class="compassion-modal__dot-number">1</span><i class="fas fa-check"></i></span>
+              <span class="compassion-modal__connector"></span>
+            </li>
+            <li class="compassion-modal__progress-item" data-step-dot="2">
+              <span class="compassion-modal__dot"><span class="compassion-modal__dot-number">2</span><i class="fas fa-check"></i></span>
+              <span class="compassion-modal__connector"></span>
+            </li>
+            <li class="compassion-modal__progress-item" data-step-dot="3">
+              <span class="compassion-modal__dot"><span class="compassion-modal__dot-number">3</span><i class="fas fa-check"></i></span>
+            </li>
+          </ol>
         </div>
 
         <form id="donationForm" method="post" action="{% url 'compassion:donate_initiate' %}" novalidate>
           {% csrf_token %}
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label" for="donation-name">Full name</label>
-              <input type="text" id="donation-name" name="name" class="form-control" required maxlength="150" autocomplete="name">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="donation-email">Email</label>
-              <input type="email" id="donation-email" name="email" class="form-control" required autocomplete="email">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="donation-phone">Phone</label>
-              <input type="tel" id="donation-phone" name="phone" class="form-control" required maxlength="15" placeholder="0712 345 678" autocomplete="tel">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="donation-amount">Amount (KSh)</label>
-              <input type="number" id="donation-amount" name="amount" class="form-control" required min="10" step="10" inputmode="decimal">
-            </div>
-            <div class="col-12">
-              <label class="form-label" for="donation-purpose">Designation</label>
-              <select id="donation-purpose" name="purpose" class="form-select">
-                <option value="GENERAL">Where most needed</option>
-                <option value="HOSPITAL">Hospital outreach</option>
-                <option value="PRISON">Prison outreach</option>
-                <option value="NEIGHBOURHOOD">Neighbourhood outreach</option>
-              </select>
-            </div>
-            <div class="col-12">
-              <label class="form-label" for="donation-note">Note <span class="text-muted">(optional)</span></label>
-              <textarea id="donation-note" name="note" class="form-control" rows="3" placeholder="Prayers, dedications, anything you'd like us to know."></textarea>
+
+          <div class="compassion-modal__steps" data-wizard="donation">
+            <div class="compassion-modal__steps-track">
+
+              {% comment %}STEP 1 — Amount{% endcomment %}
+              <section class="compassion-modal__step" data-step="1">
+                <div class="compassion-modal__step-head">
+                  <span class="compassion-modal__step-pill"><i class="fas fa-coins"></i> Step 1 of 3</span>
+                  <h4 class="compassion-modal__step-title">How much would you like to give?</h4>
+                  <p class="compassion-modal__step-sub">Pick a quick amount or type your own.</p>
+                </div>
+                <div class="form-grid">
+                  <div class="compassion-modal__quick-amounts" role="group" aria-label="Quick amounts">
+                    <button type="button" class="quick-amount" data-amount="500">KSh 500</button>
+                    <button type="button" class="quick-amount" data-amount="1000">KSh 1,000</button>
+                    <button type="button" class="quick-amount" data-amount="2500">KSh 2,500</button>
+                    <button type="button" class="quick-amount" data-amount="5000">KSh 5,000</button>
+                  </div>
+                  <div>
+                    <label class="form-label" for="donation-amount">Custom amount (KSh)</label>
+                    <input type="number" id="donation-amount" name="amount" class="form-control" required min="10" step="10" inputmode="decimal" placeholder="e.g. 1500">
+                  </div>
+                </div>
+              </section>
+
+              {% comment %}STEP 2 — Contact{% endcomment %}
+              <section class="compassion-modal__step" data-step="2" hidden>
+                <div class="compassion-modal__step-head">
+                  <span class="compassion-modal__step-pill"><i class="fas fa-user"></i> Step 2 of 3</span>
+                  <h4 class="compassion-modal__step-title">Where should we send the receipt?</h4>
+                  <p class="compassion-modal__step-sub">We'll only use this to confirm your gift.</p>
+                </div>
+                <div class="form-grid form-grid--2">
+                  <div>
+                    <label class="form-label" for="donation-name">Full name</label>
+                    <input type="text" id="donation-name" name="name" class="form-control" required maxlength="150" autocomplete="name" placeholder="e.g. Akinyi Otieno">
+                  </div>
+                  <div>
+                    <label class="form-label" for="donation-email">Email</label>
+                    <input type="email" id="donation-email" name="email" class="form-control" required autocomplete="email" placeholder="you@example.com">
+                  </div>
+                  <div style="grid-column: 1 / -1;">
+                    <label class="form-label" for="donation-phone">Phone</label>
+                    <input type="tel" id="donation-phone" name="phone" class="form-control" required maxlength="15" placeholder="0712 345 678" autocomplete="tel">
+                  </div>
+                </div>
+              </section>
+
+              {% comment %}STEP 3 — Purpose + note, submit{% endcomment %}
+              <section class="compassion-modal__step" data-step="3" hidden>
+                <div class="compassion-modal__step-head">
+                  <span class="compassion-modal__step-pill"><i class="fas fa-tag"></i> Step 3 of 3</span>
+                  <h4 class="compassion-modal__step-title">Where should this go?</h4>
+                  <p class="compassion-modal__step-sub">Pick a designation and leave an optional note.</p>
+                </div>
+                <div class="form-grid">
+                  <div>
+                    <label class="form-label" for="donation-purpose">Designation</label>
+                    <select id="donation-purpose" name="purpose" class="form-select">
+                      <option value="GENERAL">Where most needed</option>
+                      <option value="HOSPITAL">Hospital outreach</option>
+                      <option value="PRISON">Prison outreach</option>
+                      <option value="NEIGHBOURHOOD">Neighbourhood outreach</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="form-label" for="donation-note">Note <span class="text-muted">(optional)</span></label>
+                    <textarea id="donation-note" name="note" class="form-control" rows="3" placeholder="Prayers, dedications, anything you'd like us to know."></textarea>
+                  </div>
+                </div>
+                <input type="hidden" name="wizard" value="1">
+              </section>
+
             </div>
           </div>
 
-          <div class="compassion-modal__submit">
-            <button type="submit" class="compassion-modal__cta btn-lg" id="donationSubmitBtn">
+          <div class="compassion-modal__wizard-foot">
+            <button type="button" class="compassion-modal__back" data-wizard-back disabled>
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button type="button" class="compassion-modal__next" data-wizard-next>
+              Next <i class="fas fa-arrow-right"></i>
+            </button>
+            <button type="submit" class="compassion-modal__next" id="donationSubmitBtn" data-wizard-submit hidden>
               <i class="fas fa-lock"></i> Continue to Paystack
             </button>
-            <p class="compassion-modal__small">
-              <i class="fas fa-shield-halved"></i> Secured by Paystack. You'll complete payment on their next page.
-            </p>
           </div>
+
         </form>
 
         <div class="compassion-modal__feedback" id="donationFeedback" hidden></div>

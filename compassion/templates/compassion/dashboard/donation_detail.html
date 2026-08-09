@@ -1,44 +1,65 @@
 {% extends "dashboard/base_dashboard.html" %}
 {% load humanize %}
+{% load static %}
 
 {% block title %}Donation {{ donation.reference }}{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/compassion_dashboard.css' %}">
+{% endblock %}
+
 {% block dashboard_content %}
-<div class="compassion-detail">
+<div class="compassion-dashboard">
+
     <div class="page-header">
-        <div>
-            <h1 class="page-header__title"><span class="icon-bubble"><i class="fas fa-hand-holding-usd"></i></span> Donation</h1>
-            <p class="page-header__sub"><code>{{ donation.reference }}</code></p>
+        <div class="page-header__main">
+            <div class="page-header__icon"><i class="fas fa-hand-holding-usd"></i></div>
+            <div>
+                <h1 class="page-header__title">Donation</h1>
+                <p class="page-header__sub"><code>{{ donation.reference }}</code></p>
+            </div>
         </div>
         <div class="page-header__actions">
-            <a href="{% url 'compassion_dashboard:donation_list' %}" class="btn-pill"><i class="fas fa-arrow-left"></i> Back</a>
+            <a href="{% url 'compassion_dashboard:donation_list' %}" class="pill">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
         </div>
     </div>
 
     <div class="panel">
-        <div class="panel__header"><h3><i class="fas fa-info-circle"></i> Details</h3></div>
-        <div style="padding: 22px;">
-            <dl class="meta-card" style="display: grid; grid-template-columns: 200px 1fr; gap: 14px 18px;">
-                <dt><strong>Donor</strong></dt><dd>{{ donation.donor_name }}</dd>
-                <dt><strong>Email</strong></dt><dd><a href="mailto:{{ donation.donor_email }}">{{ donation.donor_email }}</a></dd>
-                <dt><strong>Phone</strong></dt><dd><a href="tel:{{ donation.donor_phone }}">{{ donation.donor_phone }}</a></dd>
-                <dt><strong>Amount</strong></dt><dd><strong>KES {{ donation.amount_ksh|intcomma }}</strong></dd>
-                <dt><strong>Purpose</strong></dt><dd>{{ donation.get_purpose_display }}</dd>
-                <dt><strong>Status</strong></dt><dd>{{ donation.get_status_display }}</dd>
-                <dt><strong>Paystack ref</strong></dt><dd><code>{{ donation.paystack_reference|default:"—" }}</code></dd>
-                <dt><strong>Created</strong></dt><dd>{{ donation.created_at|date:"M j, Y H:i" }}</dd>
-                {% if donation.verified_at %}<dt><strong>Verified</strong></dt><dd>{{ donation.verified_at|date:"M j, Y H:i" }}</dd>{% endif %}
-                {% if donation.note %}<dt><strong>Note</strong></dt><dd>{{ donation.note }}</dd>{% endif %}
-            </dl>
+        <div class="panel__header">
+            <h3><i class="fas fa-info-circle"></i> Details</h3>
+            <span class="status-badge {% if donation.status == 'SUCCESS' %}success{% elif donation.status == 'PENDING' %}pending{% elif donation.status == 'FAILED' %}failed{% elif donation.status == 'ABANDONED' %}abandoned{% else %}info{% endif %}">
+                {{ donation.get_status_display }}
+            </span>
         </div>
+        <dl class="detail-grid">
+            <dt>Donor</dt><dd>{{ donation.donor_name }}</dd>
+            <dt>Email</dt><dd><a href="mailto:{{ donation.donor_email }}">{{ donation.donor_email }}</a></dd>
+            <dt>Phone</dt><dd><a href="tel:{{ donation.donor_phone }}">{{ donation.donor_phone }}</a></dd>
+            <dt>Amount</dt><dd><strong class="text-success">KES {{ donation.amount_ksh|intcomma }}</strong></dd>
+            <dt>Purpose</dt><dd>{{ donation.get_purpose_display }}</dd>
+            <dt>Paystack ref</dt><dd><code>{{ donation.paystack_reference|default:"—" }}</code></dd>
+            <dt>Created</dt><dd>{{ donation.created_at|date:"M j, Y H:i" }}</dd>
+            {% if donation.verified_at %}
+                <dt>Verified</dt><dd>{{ donation.verified_at|date:"M j, Y H:i" }}</dd>
+            {% endif %}
+            {% if donation.note %}
+                <dt>Note</dt><dd>{{ donation.note|linebreaksbr }}</dd>
+            {% endif %}
+        </dl>
     </div>
 
-    <div class="panel" style="margin-top: 18px;">
-        <div class="panel__header"><h3><i class="fas fa-arrows-up-down"></i> Advance status</h3></div>
-        <form method="post" action="{% url 'compassion_dashboard:donation_advance' donation.id %}" style="padding: 22px; display: flex; gap: 10px; flex-wrap: wrap;">
+    <div class="panel">
+        <div class="panel__header">
+            <h3><i class="fas fa-arrows-up-down"></i> Advance status</h3>
+        </div>
+        <form method="post" action="{% url 'compassion_dashboard:donation_advance' donation.id %}" class="advance-form">
             {% csrf_token %}
-            <select name="status" class="form-select" style="max-width: 220px;">
-                {% for v,l in donation.Status.choices %}<option value="{{ v }}" {% if donation.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
+            <select name="status" class="form-select">
+                {% for v,l in donation.Status.choices %}
+                    <option value="{{ v }}" {% if donation.status == v %}selected{% endif %}>{{ l }}</option>
+                {% endfor %}
             </select>
             <button class="btn-apply" type="submit"><i class="fas fa-check"></i> Update</button>
         </form>

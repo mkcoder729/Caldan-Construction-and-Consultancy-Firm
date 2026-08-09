@@ -1,39 +1,106 @@
 {% extends "dashboard/base_dashboard.html" %}
+{% load static %}
 
 {% block title %}In-Kind Pledges — Caldan Dashboard{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/compassion_dashboard.css' %}">
+{% endblock %}
+
 {% block dashboard_content %}
-<div class="compassion-list">
+<div class="compassion-dashboard">
+
     <div class="page-header">
-        <div><h1 class="page-header__title"><span class="icon-bubble"><i class="fas fa-box-open"></i></span> In-Kind Pledges</h1>
-            <p class="page-header__sub">Food, clothing, medical, and other item gifts</p></div>
+        <div class="page-header__main">
+            <div class="page-header__icon"><i class="fas fa-box-open"></i></div>
+            <div>
+                <h1 class="page-header__title">In-Kind Pledges</h1>
+                <p class="page-header__sub">Food, clothing, medical, and other item gifts</p>
+            </div>
+        </div>
     </div>
+
     <form class="filter-bar" method="get">
-        <div class="field" style="flex: 3;"><label class="field-label">Search</label><input type="search" name="search" value="{{ search }}" placeholder="Donor, email, description…"></div>
-        <div class="field"><label class="field-label">Status</label><select name="status"><option value="">All</option>{% for v,l in status_choices %}<option value="{{ v }}" {% if status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
-        <div class="field"><label class="field-label">Type</label><select name="item_type"><option value="">All</option>{% for v,l in item_type_choices %}<option value="{{ v }}" {% if item_type == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
-        <div class="actions"><button class="btn-apply" type="submit"><i class="fas fa-filter"></i> Apply</button><a class="btn-reset" href="{% url 'compassion_dashboard:inkind_list' %}">Clear</a></div>
+        <div class="field" style="flex: 3;">
+            <label class="field-label">Search</label>
+            <input type="search" name="search" value="{{ search }}" placeholder="Donor, email, description…">
+        </div>
+        <div class="field">
+            <label class="field-label">Status</label>
+            <select name="status">
+                <option value="">All</option>
+                {% for v,l in status_choices %}
+                    <option value="{{ v }}" {% if status == v %}selected{% endif %}>{{ l }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label class="field-label">Type</label>
+            <select name="item_type">
+                <option value="">All</option>
+                {% for v,l in item_type_choices %}
+                    <option value="{{ v }}" {% if item_type == v %}selected{% endif %}>{{ l }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="actions">
+            <button class="btn-apply" type="submit"><i class="fas fa-filter"></i> Apply</button>
+            <a class="btn-reset" href="{% url 'compassion_dashboard:inkind_list' %}">Clear</a>
+        </div>
     </form>
+
     <div class="panel">
-        <div class="panel__header"><h3><i class="fas fa-list"></i> Pledges</h3><span class="panel__count">{{ pledges.paginator.count }} total</span></div>
-        {% if pledges %}
-        <table class="msg-table">
-            <thead><tr><th>Donor</th><th>Type</th><th>Description</th><th>Quantity</th><th>Status</th><th>Date</th><th></th></tr></thead>
-            <tbody>
-            {% for p in pledges %}
-                <tr>
-                    <td><strong>{{ p.donor_name }}</strong><br><small class="text-muted">{{ p.donor_email }}</small></td>
-                    <td>{{ p.get_item_type_display }}</td>
-                    <td>{{ p.item_description }}</td>
-                    <td>{{ p.quantity_estimate|default:"—" }}</td>
-                    <td>{{ p.get_status_display }}</td>
-                    <td>{{ p.created_at|date:"M d, Y" }}</td>
-                    <td><a href="{% url 'compassion_dashboard:inkind_detail' p.id %}" class="btn-icon"><i class="fas fa-eye"></i></a></td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        {% else %}<div class="empty-state"><i class="fas fa-inbox"></i><h4>No pledges match</h4><p>Try clearing your filters.</p></div>{% endif %}
+        <div class="panel__header">
+            <h3><i class="fas fa-list"></i> Pledges</h3>
+            <span class="panel__count">{{ pledges.paginator.count }} total</span>
+        </div>
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Donor</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for p in pledges %}
+                    <tr>
+                        <td>
+                            <strong>{{ p.donor_name }}</strong><br>
+                            <span class="text-muted-inline">{{ p.donor_email }}</span>
+                        </td>
+                        <td>{{ p.get_item_type_display }}</td>
+                        <td>{{ p.item_description|truncatechars:40 }}</td>
+                        <td>{{ p.quantity_estimate|default:"—" }}</td>
+                        <td>
+                            <span class="status-badge {% if p.status == 'DELIVERED' %}delivered{% elif p.status == 'CANCELLED' %}cancelled{% else %}pending{% endif %}">
+                                {{ p.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ p.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="{% url 'compassion_dashboard:inkind_detail' p.id %}" class="list-action list-action--gold" title="Open">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h4>No pledges match</h4>
+                            <p>Try clearing your filters.</p>
+                        </div>
+                    </td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -2,14 +2,16 @@
    COMPASSION PAGE — JS
    - Swiper carousel init
    - Quick amount picker
-   - AJAX form submit for the 3 modals + standalone donate page
-   - Modal close: reset form + clear feedback
+   - Multi-step wizard controller for the 3 modals
+   - AJAX form submit + Paystack popup
    - intl-tel-input for the Schedule a Call modal (lazy-loaded)
    - Thank-you page: receipt actions + polling verifying card
    ================================================================ */
 
 (function () {
     'use strict';
+
+    // ───── Helpers ─────
 
     function csrf() {
         const m = document.querySelector('input[name=csrfmiddlewaretoken]');
@@ -24,7 +26,6 @@
             '<i class="fas fa-' + (type === 'success' ? 'circle-check' : 'triangle-exclamation') + '"></i>' +
             '<span>' + message + '</span>';
         target.hidden = false;
-        // Scroll AFTER unhiding so the browser scrolls to the now-visible element.
         target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
@@ -35,15 +36,8 @@
         target.innerHTML = '';
     }
 
-    // ───── Redirect overlay (used while handing off to Paystack) ─────
-    //
-    // The form's `success` path shows a redirecting overlay INSIDE the
-    // modal (centered, blurred) instead of a feedback banner at the
-    // bottom. This avoids the "thing at the bottom of the modal" that
-    // read as a layout bug.
-    //
-    // We append the overlay to the modal-content element so it covers
-    // the entire card (header + body) and doesn't push content.
+    // ───── Paystack redirect overlay (in-modal) ─────
+
     function showRedirectOverlay(modalEl, message) {
         if (!modalEl) return;
         const overlay = document.createElement('div');
@@ -60,34 +54,28 @@
             '</div>';
         const target = modalEl.querySelector('.modal-content') || modalEl;
         target.appendChild(overlay);
-        // Force reflow then add the visible class so the fade-in
-        // transition runs from a clean state.
         overlay.offsetHeight;
         overlay.classList.add('is-visible');
     }
 
+    function stripOverlay(modalEl) {
+        if (!modalEl) return;
+        const overlay = modalEl.querySelector('.compassion-redirect-overlay');
+        if (overlay) overlay.remove();
+    }
+
     // ───── Paystack Inline popup ─────
-    //
-    // Opens Paystack's payment iframe over our site so the user never
-    // sees Paystack's white hosted page. On success we navigate directly
-    // to the thank-you page. On cancel we restore the donate form so the
-    // user can retry without losing what they typed.
+
     function openPaystackPopup(respData) {
         const accessCode = respData.access_code;
         const reference = respData.reference;
         const publicKey = window.CALDAN_PAYSTACK_PUBLIC_KEY;
         const thankYouUrl = '/compassion/donate/thank-you/?ref=' + encodeURIComponent(reference);
 
-        // Strip the redirect overlay we drew in the modal — the popup
-        // overlay Paystack renders is the real one now.
         const donateModal = document.getElementById('donationModal');
-        if (donateModal) {
-            const overlay = donateModal.querySelector('.compassion-redirect-overlay');
-            if (overlay) overlay.remove();
-        }
+        if (donateModal) stripOverlay(donateModal);
 
         if (!publicKey) {
-            // Misconfigured — fall back to redirect.
             if (respData.authorization_url) {
                 window.location.href = respData.authorization_url;
             }
@@ -97,21 +85,16 @@
         try {
             const popup = new window.PaystackPop();
             popup.resumeTransaction(accessCode, {
-                onSuccess: function (transaction) {
-                    // Paystack returns the reference on the transaction
-                    // object. We use our own reference from the server
-                    // so the thank-you page's poll finds the Donation row.
+                onSuccess: function () {
                     window.location.href = thankYouUrl;
                 },
                 onCancel: function () {
-                    // Restore the donate form so the donor can retry.
                     if (donateModal && window.bootstrap) {
                         const m = window.bootstrap.Modal.getInstance(donateModal);
                         if (m) m.show();
                     }
                 },
                 onError: function (err) {
-                    // Reopen the donate modal so the donor isn't stuck.
                     if (donateModal && window.bootstrap) {
                         const m = window.bootstrap.Modal.getInstance(donateModal);
                         if (m) m.show();
@@ -125,7 +108,6 @@
                 },
             });
         } catch (exc) {
-            // Paystack popup failed to initialise — fall back to redirect.
             if (respData.authorization_url) {
                 window.location.href = respData.authorization_url;
             }
@@ -133,9 +115,6 @@
     }
 
     function ajaxPost(url, form) {
-        // FormData submits as multipart/form-data with the right boundary,
-        // and Django reads both fields and files from request.POST / request.FILES.
-        // No Content-Type override — let the browser set it.
         return fetch(url, {
             method: 'POST',
             credentials: 'same-origin',
@@ -191,45 +170,260 @@
                 b.classList.add('active');
                 amountInput.value = b.getAttribute('data-amount');
                 amountInput.focus();
+                // Re-validate the current step so the Next button enables.
+                const form = amountInput.closest('form');
+                if (form) refreshWizardNextState(form);
             });
         });
     }
 
-    // ───── Generic AJAX form ─────
+    // ───── WIZARD CONTROLLER ─────
+    //
+    // One wizard per form. Each wizard has 2..N steps, an indexed track
+    // (slides horizontally), a progress dot list, and a footer with
+    // Back / Next / Submit. The Next button is gated on per-step
+    // validation; Submit replaces Next on the last step.
+    //
+    // The form's <form> is the unit of state — its fields persist
+    // across step changes because we never unmount them, we just hide
+    // step containers with [hidden] + transform the track.
 
-    function validateAmount(form) {
-        // Only the donation forms have an amount input — guard it server-side too,
-        // but bail client-side to save a round-trip.
-        const amountInput = form.querySelector('input[name="amount"]');
-        if (!amountInput) return true;
-        const v = parseFloat(amountInput.value);
-        if (!amountInput.value || isNaN(v) || v < 10) {
-            amountInput.focus();
-            return false;
+    function initWizard(form) {
+        if (!form) return;
+        const stepsRoot = form.querySelector('.compassion-modal__steps');
+        const track = form.querySelector('.compassion-modal__steps-track');
+        const stepEls = form.querySelectorAll('.compassion-modal__step');
+        const dots = form.closest('.modal').querySelectorAll('.compassion-modal__progress-item');
+        const backBtn = form.querySelector('[data-wizard-back]');
+        const nextBtn = form.querySelector('[data-wizard-next]');
+        const submitBtn = form.querySelector('[data-wizard-submit]');
+        if (!stepsRoot || !track || !stepEls.length) return;
+
+        let currentStep = 1;
+        const totalSteps = stepEls.length;
+
+        function showStep(n, direction) {
+            // Bound
+            n = Math.max(1, Math.min(totalSteps, n));
+            if (n === currentStep) return;
+
+            // Slide animation
+            track.classList.remove('is-sliding-next', 'is-sliding-prev');
+            track.offsetHeight; // reflow
+            track.classList.add(direction === 'prev' ? 'is-sliding-prev' : 'is-sliding-next');
+
+            // Hide all, show target
+            stepEls.forEach(function (s) {
+                if (parseInt(s.getAttribute('data-step'), 10) === n) {
+                    s.hidden = false;
+                } else {
+                    s.hidden = true;
+                }
+            });
+
+            // Update dots
+            dots.forEach(function (d) {
+                const dn = parseInt(d.getAttribute('data-step-dot'), 10);
+                d.classList.remove('is-active', 'is-complete');
+                if (dn < n) d.classList.add('is-complete');
+                else if (dn === n) d.classList.add('is-active');
+            });
+
+            currentStep = n;
+            updateFooter();
+            refreshWizardNextState(form);
+
+            // Focus first input on the new step (for keyboard flow)
+            const firstField = stepEls[n - 1].querySelector('input, select, textarea');
+            if (firstField) {
+                setTimeout(function () { firstField.focus({ preventScroll: true }); }, 50);
+            }
         }
-        return true;
+
+        function updateFooter() {
+            if (backBtn) backBtn.disabled = (currentStep === 1);
+            if (nextBtn) nextBtn.hidden = (currentStep === totalSteps);
+            if (submitBtn) submitBtn.hidden = (currentStep !== totalSteps);
+        }
+
+        if (backBtn) {
+            backBtn.addEventListener('click', function () {
+                showStep(currentStep - 1, 'prev');
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function () {
+                if (!validateStep(form, currentStep)) return;
+                showStep(currentStep + 1, 'next');
+            });
+        }
+
+        // Reset to step 1 on modal close (so reopening starts fresh).
+        const modalEl = form.closest('.modal');
+        if (modalEl) {
+            modalEl.addEventListener('hidden.bs.modal', function () {
+                // Re-show step 1, hide the rest. Use rAF so the animation
+                // class doesn't flash on reopening.
+                requestAnimationFrame(function () {
+                    track.classList.remove('is-sliding-next', 'is-sliding-prev');
+                    stepEls.forEach(function (s) {
+                        s.hidden = (parseInt(s.getAttribute('data-step'), 10) !== 1);
+                    });
+                    dots.forEach(function (d) {
+                        const dn = parseInt(d.getAttribute('data-step-dot'), 10);
+                        d.classList.remove('is-active', 'is-complete');
+                        if (dn === 1) d.classList.add('is-active');
+                    });
+                    currentStep = 1;
+                    updateFooter();
+                    clearFieldErrors(form);
+                });
+            });
+        }
+
+        // Initial state
+        updateFooter();
+        refreshWizardNextState(form);
     }
+
+    /**
+     * Validate every required field on the current step. Returns true
+     * if the Next button should be enabled. This is used both to gate
+     * the Next button (live) and to block progression when clicked.
+     */
+    function validateStep(form, step) {
+        const stepEl = form.querySelector('.compassion-modal__step[data-step="' + step + '"]');
+        if (!stepEl) return true;
+
+        const fields = stepEl.querySelectorAll('input, select, textarea');
+        let ok = true;
+        let firstInvalid = null;
+
+        fields.forEach(function (f) {
+            // Skip optional/disabled. required is the gate.
+            if (f.disabled) return;
+            const isRequired = f.hasAttribute('required');
+            const value = (f.value || '').trim();
+
+            if (isRequired && !value) {
+                flagField(f, 'This field is required.');
+                if (!firstInvalid) firstInvalid = f;
+                ok = false;
+            } else if (f.type === 'email' && value && !isValidEmail(value)) {
+                flagField(f, 'Please enter a valid email.');
+                if (!firstInvalid) firstInvalid = f;
+                ok = false;
+            } else if (f.type === 'number' && value && parseFloat(value) < 10) {
+                flagField(f, 'Minimum amount is KSh 10.');
+                if (!firstInvalid) firstInvalid = f;
+                ok = false;
+            } else {
+                clearFieldError(f);
+            }
+        });
+
+        if (!ok && firstInvalid) firstInvalid.focus();
+        return ok;
+    }
+
+    function isValidEmail(v) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    }
+
+    function flagField(field, message) {
+        field.classList.add('is-invalid');
+        let err = field.parentElement.querySelector('.field-error');
+        if (!err) {
+            err = document.createElement('span');
+            err.className = 'field-error';
+            field.parentElement.appendChild(err);
+        }
+        err.textContent = message;
+    }
+
+    function clearFieldError(field) {
+        field.classList.remove('is-invalid');
+        const err = field.parentElement.querySelector('.field-error');
+        if (err) err.remove();
+    }
+
+    function clearFieldErrors(form) {
+        form.querySelectorAll('.is-invalid').forEach(function (el) {
+            clearFieldError(el);
+        });
+        form.querySelectorAll('.field-error').forEach(function (el) {
+            el.remove();
+        });
+    }
+
+    /**
+     * Live re-validation: turn the Next button on/off as the user
+     * fills the current step. Cheap — only runs on the visible step.
+     */
+    function refreshWizardNextState(form) {
+        const stepEl = form.querySelector('.compassion-modal__step:not([hidden])');
+        if (!stepEl) return;
+        const stepNum = parseInt(stepEl.getAttribute('data-step'), 10);
+        const nextBtn = form.querySelector('[data-wizard-next]');
+        if (!nextBtn) return;
+        const totalSteps = form.querySelectorAll('.compassion-modal__step').length;
+        if (stepNum === totalSteps) return; // submit, not next
+
+        const fields = stepEl.querySelectorAll('input, select, textarea');
+        let ready = true;
+        fields.forEach(function (f) {
+            if (f.disabled) return;
+            const isRequired = f.hasAttribute('required');
+            const value = (f.value || '').trim();
+            if (isRequired && !value) ready = false;
+            else if (f.type === 'email' && value && !isValidEmail(value)) ready = false;
+            else if (f.type === 'number' && value && parseFloat(value) < 10) ready = false;
+        });
+        nextBtn.disabled = !ready;
+    }
+
+    /**
+     * Bind live `input` + `change` listeners on every wizard field so
+     * the Next button reacts as the user types. Clears any field-level
+     * error once the field becomes valid.
+     */
+    function bindWizardLiveValidation(form) {
+        if (!form) return;
+        form.addEventListener('input', function (e) {
+            if (e.target.matches('input, select, textarea')) {
+                if (e.target.classList.contains('is-invalid')) {
+                    // Clear error as soon as the field has any value.
+                    const v = (e.target.value || '').trim();
+                    if (v && (e.target.type !== 'email' || isValidEmail(v))) {
+                        clearFieldError(e.target);
+                    }
+                }
+                refreshWizardNextState(form);
+            }
+        });
+        form.addEventListener('change', function (e) {
+            if (e.target.matches('input, select, textarea')) {
+                refreshWizardNextState(form);
+            }
+        });
+    }
+
+    // ───── Form submission (uses the wizard's final submit button) ─────
 
     function bindForm(form, feedbackEl, successMessage) {
         if (!form) return;
 
-        // On modal close: reset form + hide feedback so reopening starts clean.
         const modalEl = form.closest('.modal');
         if (modalEl) {
             modalEl.addEventListener('hidden.bs.modal', function () {
                 form.reset();
                 hideFeedback(feedbackEl);
-                // Strip any redirect overlay left behind (defensive — the
-                // overlay should already be navigating away, but if the
-                // user closes mid-flight we don't want it stuck).
-                const overlay = modalEl.querySelector('.compassion-redirect-overlay');
-                if (overlay) overlay.remove();
+                stripOverlay(modalEl);
             });
         }
 
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-            if (!validateAmount(form)) return;
 
             // If this is the schedule-call form, swap the displayed
             // national phone number for full E.164 before POSTing.
@@ -237,9 +431,12 @@
                 syncSchedulePhoneOnSubmit(form);
             }
 
+            // Server-side safety net: validate the LAST step fields too
+            // (the live validator only gates the Next button).
+            const lastStep = form.querySelectorAll('.compassion-modal__step').length;
+            if (lastStep && !validateStep(form, lastStep)) return;
+
             const submitBtn = form.querySelector('button[type="submit"]');
-            // Capture the label as text only (strip icon spans if any) so the
-            // spinner swap-in/swap-out is clean.
             const originalLabel = submitBtn ? submitBtn.innerHTML : '';
 
             if (submitBtn) {
@@ -247,18 +444,10 @@
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
             }
 
-            // Flag so the .finally() below knows not to restore the button
-            // when we're handing off to Paystack (the page is about to navigate).
-            var redirecting = false;
+            let redirecting = false;
 
             ajaxPost(form.action, new FormData(form)).then(function (resp) {
                 if (resp.data && resp.data.success) {
-                    // Three paths:
-                    //   1. Donation with access_code + PaystackPop loaded →
-                    //      open the inline popup over our site. No white page.
-                    //   2. Donation with authorization_url but no popup →
-                    //      fall back to redirect (older browsers / blocked CDN).
-                    //   3. Non-donation (in-kind / call) → show success banner.
                     if (resp.data.access_code && typeof window.PaystackPop !== 'undefined') {
                         redirecting = true;
                         showRedirectOverlay(modalEl, 'Opening secure payment');
@@ -268,8 +457,6 @@
                     if (resp.data.authorization_url) {
                         redirecting = true;
                         showRedirectOverlay(modalEl, 'Redirecting to secure payment');
-                        // Brief delay so the overlay fade-in lands before
-                        // the browser starts navigating.
                         setTimeout(function () {
                             window.location.href = resp.data.authorization_url;
                         }, 350);
@@ -286,6 +473,26 @@
                 } else if (resp.data && resp.data.errors) {
                     const firstError = Object.values(resp.data.errors).flat()[0] || 'Please correct the highlighted fields.';
                     showFeedback(feedbackEl, 'error', firstError);
+                    // Roll back to step 1 so the user can correct from the top.
+                    const track = form.querySelector('.compassion-modal__steps-track');
+                    if (track) {
+                        const stepEls = form.querySelectorAll('.compassion-modal__step');
+                        const dots = form.closest('.modal').querySelectorAll('.compassion-modal__progress-item');
+                        stepEls.forEach(function (s) {
+                            s.hidden = (parseInt(s.getAttribute('data-step'), 10) !== 1);
+                        });
+                        dots.forEach(function (d) {
+                            const dn = parseInt(d.getAttribute('data-step-dot'), 10);
+                            d.classList.remove('is-active', 'is-complete');
+                            if (dn === 1) d.classList.add('is-active');
+                        });
+                        const nextBtn = form.querySelector('[data-wizard-next]');
+                        const submitBtn = form.querySelector('[data-wizard-submit]');
+                        const backBtn = form.querySelector('[data-wizard-back]');
+                        if (nextBtn) nextBtn.hidden = false;
+                        if (submitBtn) submitBtn.hidden = true;
+                        if (backBtn) backBtn.disabled = true;
+                    }
                 } else {
                     showFeedback(feedbackEl, 'error', (resp.data && resp.data.error) || 'Something went wrong. Please try again.');
                 }
@@ -300,7 +507,7 @@
         });
     }
 
-    // ───── Modal open helpers (purpose prefill) ─────
+    // ───── Modal open helpers ─────
 
     function initPurposeTriggers() {
         const triggers = document.querySelectorAll('[data-bs-set-purpose]');
@@ -313,52 +520,34 @@
         });
     }
 
-    // ───── Schedule a Call: topic chips + intl-tel-input ─────
+    // ───── Schedule topic chips + intl-tel-input ─────
 
-    /**
-     * Wire the radio-button "chips" to the hidden #call-topic field so
-     * the form actually submits a single `topic` value (the chips use
-     * `name="topic_radio"` to avoid colliding with the hidden input).
-     */
     function initTopicChips() {
         const form = document.getElementById('callForm');
         const hiddenTopic = document.getElementById('call-topic');
         if (!form || !hiddenTopic) return;
 
-        // Push any preselected radio onto the hidden field on load.
         const checked = form.querySelector('input[name="topic_radio"]:checked');
         if (checked) hiddenTopic.value = checked.value;
 
-        // Update on change.
         form.addEventListener('change', function (e) {
             if (e.target && e.target.name === 'topic_radio' && e.target.checked) {
                 hiddenTopic.value = e.target.value;
             }
         });
 
-        // Keep them in sync if `data-bs-set-purpose` is used from another
-        // trigger (e.g., "For large gifts, schedule a call →" button).
         const setFromValue = function (value) {
             const radio = form.querySelector('input[name="topic_radio"][value="' + value + '"]');
             if (radio) radio.checked = true;
             hiddenTopic.value = value;
         };
 
-        // Mutation observer picks up programmatic updates to #call-topic.
         const observer = new MutationObserver(function () {
             setFromValue(hiddenTopic.value);
         });
         observer.observe(hiddenTopic, { attributes: true, attributeFilter: ['value'] });
     }
 
-    /**
-     * intl-tel-input is loaded lazily — only on first modal open — so
-     * pages without the schedule modal don't pay for it.
-     *
-     * We mount it on #call-phone, and on submit copy the full E.164
-     * number (e.g., +254712345678) into the same input's `value` so
-     * the form's POSTed `phone` field is international format.
-     */
     let itiInstance = null;
     let itiLoading = false;
 
@@ -369,8 +558,6 @@
                 return;
             }
             if (itiLoading) {
-                // Another caller already kicked off the load — wait on a
-                // small polling loop. (Scripts are tiny so this resolves fast.)
                 const start = Date.now();
                 (function poll() {
                     if (typeof window.intlTelInput !== 'undefined') resolve(window.intlTelInput);
@@ -381,9 +568,6 @@
             }
             itiLoading = true;
 
-            // CSS first — intl-tel-input ships its own stylesheet. We
-            // scope our overrides to .compassion-modal--call so the
-            // generic flags/typography don't leak.
             const css = document.createElement('link');
             css.rel = 'stylesheet';
             css.href = 'https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.1/build/css/intlTelInput.css';
@@ -419,8 +603,6 @@
                 utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.1/build/js/utils.js',
             });
         }).catch(function (err) {
-            // Soft-fail: leave the bare tel input working. The backend
-            // already accepts a plain national number.
             console.warn('intl-tel-input unavailable, using native tel input:', err);
         });
     }
@@ -429,8 +611,6 @@
         if (!itiInstance || !form) return;
         const phoneInput = form.querySelector('#call-phone');
         if (!phoneInput) return;
-        // Replace the displayed national number with full E.164 so the
-        // backend stores a globally-dialable value.
         const full = itiInstance.getNumber();
         if (full) phoneInput.value = full;
     }
@@ -446,34 +626,24 @@
         initThanksActions();
         initThanksPolling();
 
-        bindForm(
-            document.getElementById('donationForm'),
-            document.getElementById('donationFeedback'),
-            'Opening Paystack…'
-        );
-        bindForm(
-            document.getElementById('inkindForm'),
-            document.getElementById('inkindFeedback'),
-            'Pledge received. We\'ll be in touch.'
-        );
-        bindForm(
-            document.getElementById('callForm'),
-            document.getElementById('callFeedback'),
-            'Request received. We\'ll be in touch within one business day.'
-        );
-        bindForm(
-            document.getElementById('donationPageForm'),
-            document.getElementById('donationPageFeedback'),
-            'Opening Paystack…'
-        );
+        // Wire each form: wizard controller + live validation + AJAX submit.
+        const forms = [
+            { form: document.getElementById('donationForm'), feedback: document.getElementById('donationFeedback'), success: 'Opening Paystack…' },
+            { form: document.getElementById('inkindForm'), feedback: document.getElementById('inkindFeedback'), success: 'Pledge received. We\'ll be in touch.' },
+            { form: document.getElementById('callForm'), feedback: document.getElementById('callFeedback'), success: 'Request received. We\'ll be in touch within one business day.' },
+            { form: document.getElementById('donationPageForm'), feedback: document.getElementById('donationPageFeedback'), success: 'Opening Paystack…' },
+        ];
+
+        forms.forEach(function (entry) {
+            if (!entry.form) return;
+            initWizard(entry.form);
+            bindWizardLiveValidation(entry.form);
+            bindForm(entry.form, entry.feedback, entry.success);
+        });
     });
 
     // ───── Thank-you page ─────
 
-    /**
-     * Wire receipt action buttons: Copy reference + Print.
-     * Download PDF is a plain <a download> — no JS needed there.
-     */
     function initThanksActions() {
         const toolbar = document.querySelector('.thanks-receipt__toolbar');
         if (!toolbar) return;
@@ -532,24 +702,8 @@
         }, 1500);
     }
 
-    /**
-     * While the donation row doesn't exist yet (just bounced back from
-     * Paystack, webhook hasn't fired), poll /compassion/donate/status/
-     * every 4 seconds. The moment status === 'SUCCESS', reload the page
-     * so the full receipt card renders with all data, then the toolbar
-     * becomes available.
-     *
-     * Stops after 60s (15 attempts × 4s) and surfaces a manual "Refresh"
-     * link so the donor isn't stuck looking at a spinner forever if the
-     * webhook is genuinely stuck.
-     */
     function initThanksPolling() {
         const card = document.getElementById('thanksVerifying');
-        // The receipt element id may be either thanksReceipt (current
-        // template) or thanksReceiptGrid (older revisions). Either way
-        // we don't need to touch it — polling resolves with a reload —
-        // but we capture the ref so any future flow that wants to mutate
-        // it instead of reloading has the handle.
         const receipt = document.getElementById('thanksReceipt') ||
                         document.getElementById('thanksReceiptGrid');
         if (!card) return;
@@ -570,8 +724,6 @@
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
                     if (data && data.resolved && data.status === 'SUCCESS') {
-                        // Soft fade-out, then full reload so the SSR path
-                        // renders the receipt card + toolbar with real data.
                         card.classList.add('is-resolving');
                         setTimeout(function () { window.location.reload(); }, 380);
                         return;
@@ -601,8 +753,6 @@
                 });
         }
 
-        // First attempt after a short delay — gives the webhook a chance
-        // to land if it's already in flight.
         setTimeout(poll, 1500);
     }
 

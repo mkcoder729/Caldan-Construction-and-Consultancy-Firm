@@ -2486,3 +2486,407 @@
     .thanks-verifying { padding: 36px 22px; }
     .thanks-verifying__title { font-size: 1.25rem; }
 }
+
+/* ================================================================
+   MULTI-STEP WIZARD MODALS
+   Three small slides per modal. Per-step validation gates the Next
+   button. Slide transitions use translateX — no flicker, no layout
+   shift. All scoped under .compassion-modal so the gold/blue/green
+   accent is inherited automatically.
+   ================================================================ */
+
+.compassion-modal .modal-dialog {
+    max-width: 460px;
+}
+
+.compassion-modal .modal-content {
+    overflow: hidden;
+}
+
+/* ───── Progress dots ───── */
+
+.compassion-modal__progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 14px 22px 4px;
+    margin: 0 auto;
+    max-width: 360px;
+}
+
+.compassion-modal__progress-list {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.compassion-modal__progress-item {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+}
+
+.compassion-modal__progress-item:last-child {
+    flex: 0 0 auto;
+}
+
+.compassion-modal__dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    background: var(--bg-canvas);
+    border: 1.5px solid var(--border-subtle);
+    transition: all var(--t-base, 220ms) var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+    flex: 0 0 auto;
+}
+
+.compassion-modal__dot i {
+    font-size: 0.7rem;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: all var(--t-base, 220ms) var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.compassion-modal__progress-item.is-active .compassion-modal__dot {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 0 4px var(--accent-glow);
+    transform: scale(1.08);
+}
+
+.compassion-modal__progress-item.is-complete .compassion-modal__dot {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.compassion-modal__progress-item.is-complete .compassion-modal__dot i {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.compassion-modal__progress-item.is-complete .compassion-modal__dot-number {
+    display: none;
+}
+
+.compassion-modal__connector {
+    flex: 1;
+    height: 2px;
+    background: var(--border-subtle);
+    margin: 0 6px;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+    min-width: 18px;
+}
+
+.compassion-modal__connector::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--t-base, 220ms) var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.compassion-modal__progress-item.is-complete + .compassion-modal__progress-item .compassion-modal__connector::after,
+.compassion-modal__progress-item.is-complete .compassion-modal__connector::after {
+    transform: scaleX(1);
+}
+
+/* ───── Step container — horizontal slide ───── */
+
+.compassion-modal__steps {
+    position: relative;
+    overflow: hidden;
+    min-height: 260px;
+}
+
+.compassion-modal__steps-track {
+    display: flex;
+    width: 100%;
+    transition: transform 0.42s var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+    will-change: transform;
+}
+
+.compassion-modal__step {
+    flex: 0 0 100%;
+    min-width: 0;
+    padding: 0 4px;
+}
+
+.compassion-modal__step-head {
+    margin-bottom: 14px;
+}
+
+.compassion-modal__step-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--r-pill, 9999px);
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border: 1px solid var(--accent-line);
+}
+
+.compassion-modal__step-pill i {
+    font-size: 0.65rem;
+}
+
+.compassion-modal__step-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 8px 0 4px;
+    letter-spacing: -0.2px;
+    line-height: 1.25;
+}
+
+.compassion-modal__step-sub {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Wizard footer — Back / Next */
+
+.compassion-modal__wizard-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 8px;
+    margin-top: 14px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.compassion-modal__back {
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    padding: 10px 16px;
+    border-radius: var(--r-md, 10px);
+    font-size: 0.88rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all var(--t-fast, 140ms) var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+    font-family: inherit;
+}
+
+.compassion-modal__back:hover:not(:disabled) {
+    background: var(--bg-card-hover);
+    border-color: var(--border-default);
+    color: var(--text-primary);
+}
+
+.compassion-modal__back:disabled {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.compassion-modal__next {
+    background: var(--accent);
+    color: #fff;
+    border: 1px solid var(--accent);
+    padding: 11px 22px;
+    border-radius: var(--r-md, 10px);
+    font-size: 0.92rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all var(--t-base, 220ms) var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+    font-family: inherit;
+    box-shadow: var(--accent-shadow);
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
+}
+
+.compassion-modal__next:hover:not(:disabled) {
+    background: var(--accent-deep);
+    border-color: var(--accent-deep);
+    box-shadow: var(--accent-shadow-hover);
+    transform: translateY(-1px);
+}
+
+.compassion-modal__next:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.compassion-modal__next:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.compassion-modal__next i {
+    font-size: 0.82rem;
+    transition: transform var(--t-fast, 140ms) var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.compassion-modal__next:hover:not(:disabled) i {
+    transform: translateX(2px);
+}
+
+/* ───── Field error on wizard step ───── */
+
+.compassion-modal__step .field-error {
+    display: block;
+    margin-top: 4px;
+    color: #C0392B;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.compassion-modal__step .form-control.is-invalid,
+.compassion-modal__step .form-select.is-invalid {
+    border-color: #C0392B;
+    box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.12);
+}
+
+/* ───── Step-scoped layouts — keep each slide small ───── */
+
+.compassion-modal__step .form-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.compassion-modal__step .form-grid--2 {
+    grid-template-columns: 1fr 1fr;
+}
+
+/* ───── Slide transition (forward + back) ───── */
+
+.compassion-modal__steps-track.is-sliding-next {
+    animation: slideNext 0.4s var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.compassion-modal__steps-track.is-sliding-prev {
+    animation: slidePrev 0.4s var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+@keyframes slideNext {
+    0% { transform: translateX(-30px); opacity: 0.3; }
+    100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slidePrev {
+    0% { transform: translateX(30px); opacity: 0.3; }
+    100% { transform: translateX(0); opacity: 1; }
+}
+
+/* ───── Submit success state inside wizard ───── */
+
+.compassion-modal__success {
+    text-align: center;
+    padding: 12px 4px 4px;
+    animation: successIn 0.5s var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.compassion-modal__success-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.7rem;
+    margin-bottom: 14px;
+    border: 2px solid var(--accent-line);
+}
+
+.compassion-modal__success-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 6px;
+}
+
+.compassion-modal__success-sub {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0 0 18px;
+    line-height: 1.5;
+}
+
+.compassion-modal__success-done {
+    background: var(--accent);
+    color: #fff;
+    border: 1px solid var(--accent);
+    padding: 10px 22px;
+    border-radius: var(--r-md, 10px);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: var(--accent-shadow);
+    transition: all var(--t-base, 220ms) var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.compassion-modal__success-done:hover {
+    background: var(--accent-deep);
+    transform: translateY(-1px);
+}
+
+@keyframes successIn {
+    0% { transform: scale(0.94); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ───── Mobile ───── */
+
+@media (max-width: 540px) {
+    .compassion-modal .modal-dialog {
+        max-width: 100%;
+        margin: 0 8px;
+    }
+    .compassion-modal__progress {
+        padding: 12px 16px 4px;
+    }
+    .compassion-modal__step-title {
+        font-size: 1.1rem;
+    }
+    .compassion-modal__step .form-grid--2 {
+        grid-template-columns: 1fr;
+    }
+    .compassion-modal__wizard-foot {
+        flex-direction: row;
+        gap: 10px;
+    }
+    .compassion-modal__next {
+        padding: 10px 16px;
+        font-size: 0.88rem;
+    }
+    .compassion-modal__back {
+        padding: 10px 12px;
+    }
+}

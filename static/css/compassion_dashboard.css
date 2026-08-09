@@ -1,0 +1,978 @@
+/* ================================================================
+   COMPASSION DASHBOARD — PREMIUM ADMIN AESTHETIC
+   Matches the rest of the dashboard (welcome-banner, stat-card,
+   chart-card, panel, table, status-badge, etc.) so the admin
+   experience is uniform across projects, finances, and compassion.
+   Pulls ALL tokens from the global admin CSS so theme + responsive
+   behaviour are inherited.
+   ================================================================ */
+
+/* ───── Layout ───── */
+
+.compassion-dashboard {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-bottom: 40px;
+}
+
+/* ───── Page header — gradient banner ───── */
+
+.compassion-dashboard .page-header {
+    background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-blue-deep) 100%);
+    border-radius: var(--r-xl);
+    padding: 26px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    border: 1px solid var(--border-sidebar);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.compassion-dashboard .page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.compassion-dashboard .page-header__main {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+    z-index: 1;
+}
+
+.compassion-dashboard .page-header__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.compassion-dashboard .page-header__title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 6px;
+    letter-spacing: -0.3px;
+}
+
+.compassion-dashboard .page-header__sub {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+.compassion-dashboard .page-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+/* ───── Pills (CTAs) ───── */
+
+.compassion-dashboard .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #fff;
+    padding: 9px 16px;
+    border-radius: var(--r-pill);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--t-fast) var(--ease-standard);
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.compassion-dashboard .pill:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.compassion-dashboard .pill--gold {
+    background: rgba(212, 175, 55, 0.18);
+    border-color: rgba(212, 175, 55, 0.45);
+    color: #fff;
+}
+
+.compassion-dashboard .pill--gold:hover {
+    background: rgba(212, 175, 55, 0.28);
+}
+
+/* ───── Stat cards row (4-up) ───── */
+
+.compassion-dashboard .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.compassion-dashboard .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: all var(--t-base) var(--ease-spring);
+    border-top: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.compassion-dashboard .stat-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 50%, var(--stat-accent, transparent) 130%);
+    opacity: 0;
+    transition: opacity var(--t-base) var(--ease-standard);
+    pointer-events: none;
+}
+
+.compassion-dashboard .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--stat-accent, var(--border-subtle));
+}
+
+.compassion-dashboard .stat-card:hover::after { opacity: 0.06; }
+
+.compassion-dashboard .stat-card.green  { --stat-accent: var(--sem-success); border-top-color: var(--sem-success); }
+.compassion-dashboard .stat-card.gold   { --stat-accent: var(--brand-gold); border-top-color: var(--brand-gold); }
+.compassion-dashboard .stat-card.blue   { --stat-accent: var(--brand-blue); border-top-color: var(--brand-blue); }
+.compassion-dashboard .stat-card.orange { --stat-accent: var(--sem-warning); border-top-color: var(--sem-warning); }
+.compassion-dashboard .stat-card.red    { --stat-accent: var(--sem-danger); border-top-color: var(--sem-danger); }
+.compassion-dashboard .stat-card.purple { --stat-accent: #7C3AED; border-top-color: #7C3AED; }
+.compassion-dashboard .stat-card.teal   { --stat-accent: #0891B2; border-top-color: #0891B2; }
+
+.compassion-dashboard .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--r-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: transform var(--t-base) var(--ease-spring);
+}
+
+.compassion-dashboard .stat-card:hover .stat-icon {
+    transform: scale(1.08) rotate(-4deg);
+}
+
+.compassion-dashboard .stat-icon.green  { background: rgba(39, 174, 96, 0.12); color: var(--sem-success); }
+.compassion-dashboard .stat-icon.gold   { background: rgba(212, 175, 55, 0.14); color: var(--brand-gold-deep); }
+.compassion-dashboard .stat-icon.blue   { background: rgba(11, 102, 195, 0.12); color: var(--brand-blue); }
+.compassion-dashboard .stat-icon.orange { background: rgba(243, 156, 18, 0.12); color: var(--sem-warning); }
+.compassion-dashboard .stat-icon.red    { background: rgba(185, 52, 43, 0.12); color: var(--sem-danger); }
+.compassion-dashboard .stat-icon.purple { background: rgba(124, 58, 237, 0.12); color: #7C3AED; }
+.compassion-dashboard .stat-icon.teal   { background: rgba(8, 145, 178, 0.12); color: #0891B2; }
+
+.compassion-dashboard .stat-body { flex: 1; min-width: 0; }
+
+.compassion-dashboard .stat-value {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+}
+
+.compassion-dashboard .stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+.compassion-dashboard .stat-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+}
+
+.compassion-dashboard .stat-trend {
+    font-size: 10px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 4px;
+}
+
+.compassion-dashboard .stat-trend.up   { color: var(--sem-success); }
+.compassion-dashboard .stat-trend.down { color: var(--sem-danger); }
+.compassion-dashboard .stat-trend.warn { color: var(--sem-warning); }
+
+/* ───── Panel (card container) ───── */
+
+.compassion-dashboard .panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+}
+
+.compassion-dashboard .panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.compassion-dashboard .panel__header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    text-transform: none;
+}
+
+.compassion-dashboard .panel__header h3 i {
+    color: var(--brand-gold);
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: var(--r-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.compassion-dashboard .panel__count {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--brand-gold-deep);
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+}
+
+/* ───── Detail meta card (donation/inkind/call detail pages) ───── */
+
+.compassion-dashboard .detail-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 14px 22px;
+    padding: 22px;
+    margin: 0;
+}
+
+.compassion-dashboard .detail-grid dt {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.compassion-dashboard .detail-grid dd {
+    font-size: 14px;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.compassion-dashboard .detail-grid dd a {
+    color: var(--brand-blue);
+    text-decoration: none;
+}
+
+.compassion-dashboard .detail-grid dd a:hover {
+    text-decoration: underline;
+}
+
+.compassion-dashboard .detail-grid dd code {
+    background: var(--bg-canvas);
+    padding: 2px 8px;
+    border-radius: var(--r-xs);
+    font-size: 12px;
+    border: 1px solid var(--border-subtle);
+}
+
+/* ───── Status badges (replace `status-pill`) ───── */
+
+.compassion-dashboard .status-badge {
+    display: inline-flex;
+    padding: 3px 10px;
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.compassion-dashboard .status-badge.success,
+.compassion-dashboard .status-badge.approved,
+.compassion-dashboard .status-badge.completed,
+.compassion-dashboard .status-badge.delivered {
+    background: rgba(39, 174, 96, 0.15);
+    color: var(--sem-success);
+}
+
+.compassion-dashboard .status-badge.pending,
+.compassion-dashboard .status-badge.processing,
+.compassion-dashboard .status-badge.contacted {
+    background: rgba(243, 156, 18, 0.15);
+    color: var(--sem-warning);
+}
+
+.compassion-dashboard .status-badge.failed,
+.compassion-dashboard .status-badge.cancelled,
+.compassion-dashboard .status-badge.inactive,
+.compassion-dashboard .status-badge.abandoned {
+    background: rgba(185, 52, 43, 0.15);
+    color: var(--sem-danger);
+}
+
+.compassion-dashboard .status-badge.info,
+.compassion-dashboard .status-badge.draft {
+    background: rgba(41, 128, 185, 0.15);
+    color: var(--sem-info);
+}
+
+.compassion-dashboard .status-badge.published {
+    background: rgba(39, 174, 96, 0.15);
+    color: var(--sem-success);
+}
+
+/* ───── Tables ───── */
+
+.compassion-dashboard .table-wrap {
+    overflow-x: auto;
+}
+
+.compassion-dashboard .table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.compassion-dashboard .table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-tertiary);
+    background: var(--bg-canvas);
+    border-bottom: 1.5px solid var(--border-subtle);
+    white-space: nowrap;
+}
+
+.compassion-dashboard .table td {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+}
+
+.compassion-dashboard .table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.compassion-dashboard .table tbody tr {
+    transition: background var(--t-fast) var(--ease-standard);
+}
+
+.compassion-dashboard .table tbody tr:hover td {
+    background: var(--bg-card-hover);
+}
+
+.compassion-dashboard .table code {
+    background: var(--bg-canvas);
+    padding: 2px 7px;
+    border-radius: var(--r-xs);
+    font-size: 11px;
+    border: 1px solid var(--border-subtle);
+}
+
+.compassion-dashboard .table .text-success {
+    color: var(--sem-success);
+    font-weight: 700;
+}
+
+.compassion-dashboard .table .text-danger {
+    color: var(--sem-danger);
+    font-weight: 700;
+}
+
+.compassion-dashboard .table .text-muted-inline {
+    color: var(--text-tertiary);
+    font-size: 11px;
+}
+
+.compassion-dashboard .table a {
+    color: var(--brand-blue);
+    text-decoration: none;
+}
+
+.compassion-dashboard .table a:hover {
+    text-decoration: underline;
+}
+
+/* ───── List-action icons (view / edit) ───── */
+
+.compassion-dashboard .list-action {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 12px;
+    flex-shrink: 0;
+    transition: all var(--t-fast) var(--ease-standard);
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.compassion-dashboard .list-action:hover {
+    background: rgba(11, 102, 195, 0.08);
+    border-color: var(--brand-blue);
+    color: var(--brand-blue);
+    transform: translateY(-1px);
+}
+
+.compassion-dashboard .list-action--gold {
+    color: var(--brand-gold-deep);
+    border-color: rgba(212, 175, 55, 0.25);
+    background: rgba(212, 175, 55, 0.06);
+}
+
+.compassion-dashboard .list-action--gold:hover {
+    background: rgba(212, 175, 55, 0.16);
+    border-color: var(--brand-gold);
+}
+
+.compassion-dashboard .list-action-row {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.compassion-dashboard .table .list-action-row form {
+    display: inline-block;
+    margin: 0;
+}
+
+/* ───── Filter bar (search + selects) ───── */
+
+.compassion-dashboard .filter-bar {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-xs);
+}
+
+.compassion-dashboard .filter-bar .field {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 160px;
+    gap: 4px;
+}
+
+.compassion-dashboard .filter-bar .field-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.compassion-dashboard .filter-bar input,
+.compassion-dashboard .filter-bar select {
+    padding: 10px 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 13px;
+    transition: all var(--t-fast) var(--ease-standard);
+    font-family: inherit;
+}
+
+.compassion-dashboard .filter-bar input:focus,
+.compassion-dashboard .filter-bar select:focus {
+    outline: none;
+    border-color: var(--brand-blue);
+    box-shadow: 0 0 0 3px rgba(11, 102, 195, 0.12);
+}
+
+.compassion-dashboard .filter-bar .actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.compassion-dashboard .btn-apply {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: var(--brand-blue);
+    color: #fff;
+    border: 1px solid var(--brand-blue);
+    border-radius: var(--r-sm);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t-fast) var(--ease-standard);
+    font-family: inherit;
+}
+
+.compassion-dashboard .btn-apply:hover {
+    background: var(--brand-blue-hover);
+    border-color: var(--brand-blue-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-blue);
+}
+
+.compassion-dashboard .btn-reset {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.compassion-dashboard .btn-reset:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+    border-color: var(--border-default);
+}
+
+/* ───── Pagination ───── */
+
+.compassion-dashboard .pagination-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-canvas);
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.compassion-dashboard .pagination {
+    display: flex;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.compassion-dashboard .pagination li a,
+.compassion-dashboard .pagination li span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 10px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.compassion-dashboard .pagination li a:hover {
+    background: rgba(11, 102, 195, 0.08);
+    border-color: var(--brand-blue);
+    color: var(--brand-blue);
+}
+
+.compassion-dashboard .pagination li span.current {
+    background: var(--brand-blue);
+    border-color: var(--brand-blue);
+    color: #fff;
+}
+
+.compassion-dashboard .pagination li span.disabled {
+    color: var(--text-tertiary);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* ───── Empty state ───── */
+
+.compassion-dashboard .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-tertiary);
+}
+
+.compassion-dashboard .empty-state i {
+    font-size: 36px;
+    display: block;
+    margin-bottom: 12px;
+    opacity: 0.35;
+    color: var(--text-tertiary);
+}
+
+.compassion-dashboard .empty-state h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 6px;
+}
+
+.compassion-dashboard .empty-state p {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin: 0;
+}
+
+/* ───── Form (for story / payment / settings) ───── */
+
+.compassion-dashboard .form-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-xs);
+}
+
+.compassion-dashboard .form-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 16px;
+}
+
+.compassion-dashboard .form-grid .col-span-12 { grid-column: span 12; }
+.compassion-dashboard .form-grid .col-span-8  { grid-column: span 8; }
+.compassion-dashboard .form-grid .col-span-6  { grid-column: span 6; }
+.compassion-dashboard .form-grid .col-span-4  { grid-column: span 4; }
+.compassion-dashboard .form-grid .col-span-3  { grid-column: span 3; }
+
+.compassion-dashboard .form-panel .form-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.compassion-dashboard .form-panel .form-control,
+.compassion-dashboard .form-panel .form-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 13px;
+    transition: all var(--t-fast) var(--ease-standard);
+    font-family: inherit;
+}
+
+.compassion-dashboard .form-panel .form-control:focus,
+.compassion-dashboard .form-panel .form-select:focus {
+    outline: none;
+    border-color: var(--brand-blue);
+    box-shadow: 0 0 0 3px rgba(11, 102, 195, 0.12);
+}
+
+.compassion-dashboard .form-panel textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.compassion-dashboard .form-panel .form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 30px;
+    padding: 10px 12px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+}
+
+.compassion-dashboard .form-panel .form-check-input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--brand-blue);
+    cursor: pointer;
+}
+
+.compassion-dashboard .form-panel .form-check-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.compassion-dashboard .form-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.compassion-dashboard .btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    background: var(--brand-blue);
+    color: #fff;
+    border: 1px solid var(--brand-blue);
+    border-radius: var(--r-md);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--t-base) var(--ease-standard);
+    font-family: inherit;
+    box-shadow: var(--shadow-blue);
+}
+
+.compassion-dashboard .btn-save:hover {
+    background: var(--brand-blue-hover);
+    border-color: var(--brand-blue-hover);
+    transform: translateY(-1px);
+}
+
+.compassion-dashboard .btn-save--gold {
+    background: var(--brand-gold);
+    border-color: var(--brand-gold);
+    color: var(--brand-blue-deep);
+    box-shadow: var(--shadow-gold);
+}
+
+.compassion-dashboard .btn-save--gold:hover {
+    background: var(--brand-gold-hover);
+    border-color: var(--brand-gold-hover);
+}
+
+/* ───── Advance status form (compact) ───── */
+
+.compassion-dashboard .advance-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 18px 22px;
+}
+
+.compassion-dashboard .advance-form .form-select {
+    max-width: 240px;
+    padding: 9px 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-sm);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.compassion-dashboard .advance-form .form-select:focus {
+    outline: none;
+    border-color: var(--brand-blue);
+    box-shadow: 0 0 0 3px rgba(11, 102, 195, 0.12);
+}
+
+/* ───── Two-up column layout ───── */
+
+.compassion-dashboard .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.compassion-dashboard .lists-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+/* ───── Activity list (used on overview) ───── */
+
+.compassion-dashboard .activity-list {
+    padding: 4px 0;
+}
+
+.compassion-dashboard .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: all var(--t-fast) var(--ease-standard);
+}
+
+.compassion-dashboard .activity-item:last-child {
+    border-bottom: none;
+}
+
+.compassion-dashboard .activity-item:hover {
+    background: var(--bg-card-hover);
+}
+
+.compassion-dashboard .activity-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--r-md);
+    background: linear-gradient(135deg, var(--brand-gold), var(--brand-gold-hover));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--brand-blue-deep);
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(212, 175, 55, 0.25);
+}
+
+.compassion-dashboard .activity-avatar.blue {
+    background: linear-gradient(135deg, var(--brand-blue), var(--brand-blue-deep));
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(11, 102, 195, 0.25);
+}
+
+.compassion-dashboard .activity-avatar.green {
+    background: linear-gradient(135deg, var(--sem-success), #2ECC71);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(39, 174, 96, 0.25);
+}
+
+.compassion-dashboard .activity-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.compassion-dashboard .activity-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.compassion-dashboard .activity-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+}
+
+.compassion-dashboard .activity-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+}
+
+/* ───── ID / hash chip in lists ───── */
+
+.compassion-dashboard .hash-chip {
+    background: var(--bg-canvas);
+    color: var(--text-tertiary);
+    padding: 2px 8px;
+    border-radius: var(--r-xs);
+    font-size: 11px;
+    border: 1px solid var(--border-subtle);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ───── Responsive ───── */
+
+@media (max-width: 1200px) {
+    .compassion-dashboard .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .compassion-dashboard .two-col { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .compassion-dashboard .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 22px;
+    }
+    .compassion-dashboard .page-header__title { font-size: 18px; }
+    .compassion-dashboard .page-header__icon { width: 44px; height: 44px; font-size: 18px; }
+    .compassion-dashboard .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .compassion-dashboard .stat-card { padding: 16px; }
+    .compassion-dashboard .stat-value { font-size: 20px; }
+    .compassion-dashboard .filter-bar { flex-direction: column; align-items: stretch; }
+    .compassion-dashboard .detail-grid { grid-template-columns: 1fr; gap: 8px 0; }
+    .compassion-dashboard .detail-grid dt { margin-top: 8px; }
+    .compassion-dashboard .form-grid .col-span-8,
+    .compassion-dashboard .form-grid .col-span-6,
+    .compassion-dashboard .form-grid .col-span-4,
+    .compassion-dashboard .form-grid .col-span-3 { grid-column: span 12; }
+}
+
+@media (max-width: 480px) {
+    .compassion-dashboard .stats-grid { grid-template-columns: 1fr; }
+}

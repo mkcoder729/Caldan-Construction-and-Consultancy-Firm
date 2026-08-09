@@ -1,10 +1,12 @@
 {% comment %}
 In-kind pledge modal — blue-accent variant of the unified premium system.
-Uses .compassion-modal--items so chrome, badge, header wash, form controls,
-and submit button inherit the blue accent from the shared --accent token set.
+3-step wizard:
+  1. Item details (type, description, quantity)
+  2. Logistics (delivery, date, address)
+  3. Contact + notes → submit
 {% endcomment %}
 <div class="modal fade compassion-modal compassion-modal--items" id="inkindModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <button type="button" class="compassion-modal__close" data-bs-dismiss="modal" aria-label="Close">
         <i class="fas fa-xmark"></i>
@@ -22,96 +24,130 @@ and submit button inherit the blue accent from the shared --accent token set.
             <h3 class="modal-title">Tell us what you have.</h3>
           </div>
         </div>
-        <p class="compassion-modal__sub">We'll reply within one business day to arrange pickup, drop-off, or a logistics call.</p>
-
-        <ul class="compassion-modal__expect" aria-label="What to expect">
-          <li>
-            <span class="compassion-modal__expect-icon"><i class="fas fa-truck"></i></span>
-            <div>
-              <strong>Pickup or drop-off</strong>
-              <span>whichever works for you — we adapt</span>
-            </div>
-          </li>
-          <li>
-            <span class="compassion-modal__expect-icon"><i class="fas fa-reply"></i></span>
-            <div>
-              <strong>Reply within 24h</strong>
-              <span>so the goods don't sit around waiting</span>
-            </div>
-          </li>
-          <li>
-            <span class="compassion-modal__expect-icon"><i class="fas fa-handshake"></i></span>
-            <div>
-              <strong>Routed to the right place</strong>
-              <span>food to pantries, books to prison libraries, etc.</span>
-            </div>
-          </li>
-        </ul>
+        <p class="compassion-modal__sub">We'll reply within one business day to arrange pickup or drop-off.</p>
       </div>
 
       <div class="modal-body compassion-modal__body">
+        <div class="compassion-modal__progress" aria-label="Wizard progress">
+          <ol class="compassion-modal__progress-list">
+            <li class="compassion-modal__progress-item is-active" data-step-dot="1">
+              <span class="compassion-modal__dot"><span class="compassion-modal__dot-number">1</span><i class="fas fa-check"></i></span>
+              <span class="compassion-modal__connector"></span>
+            </li>
+            <li class="compassion-modal__progress-item" data-step-dot="2">
+              <span class="compassion-modal__dot"><span class="compassion-modal__dot-number">2</span><i class="fas fa-check"></i></span>
+              <span class="compassion-modal__connector"></span>
+            </li>
+            <li class="compassion-modal__progress-item" data-step-dot="3">
+              <span class="compassion-modal__dot"><span class="compassion-modal__dot-number">3</span><i class="fas fa-check"></i></span>
+            </li>
+          </ol>
+        </div>
+
         <form id="inkindForm" method="post" action="{% url 'compassion:inkind_submit' %}" novalidate>
           {% csrf_token %}
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label" for="inkind-name">Full name</label>
-              <input type="text" id="inkind-name" name="name" class="form-control" required maxlength="150" autocomplete="name">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="inkind-email">Email</label>
-              <input type="email" id="inkind-email" name="email" class="form-control" required autocomplete="email">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="inkind-phone">Phone</label>
-              <input type="tel" id="inkind-phone" name="phone" class="form-control" required maxlength="15" placeholder="0712 345 678" autocomplete="tel">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="inkind-type">Type of item</label>
-              <select id="inkind-type" name="item_type" class="form-select" required>
-                <option value="FOOD">Food</option>
-                <option value="CLOTHING">Clothing</option>
-                <option value="MEDICAL">Medical supplies</option>
-                <option value="OTHER">Other (describe below)</option>
-              </select>
-            </div>
-            <div class="col-12">
-              <label class="form-label" for="inkind-description">Description</label>
-              <input type="text" id="inkind-description" name="item_description" class="form-control" required placeholder="e.g., maize flour, baby clothes, bandages">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="inkind-quantity">Quantity <span class="text-muted">(approximate)</span></label>
-              <input type="text" id="inkind-quantity" name="quantity_estimate" class="form-control" placeholder="e.g., 20kg, 50 items, 2 bags">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="inkind-delivery">Delivery / pickup</label>
-              <select id="inkind-delivery" name="delivery_mode" class="form-select">
-                <option value="PICKUP">You'll pick it up</option>
-                <option value="DROPOFF">We'll drop it off</option>
-                <option value="ARRANGE" selected>Let's arrange together</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="inkind-date">Preferred date <span class="text-muted">(optional)</span></label>
-              <input type="date" id="inkind-date" name="preferred_date" class="form-control">
-            </div>
-            <div class="col-12">
-              <label class="form-label" for="inkind-address">Address <span class="text-muted">(if applicable)</span></label>
-              <textarea id="inkind-address" name="address" class="form-control" rows="2"></textarea>
-            </div>
-            <div class="col-12">
-              <label class="form-label" for="inkind-notes">Notes <span class="text-muted">(optional)</span></label>
-              <textarea id="inkind-notes" name="notes" class="form-control" rows="3"></textarea>
+
+          <div class="compassion-modal__steps" data-wizard="inkind">
+            <div class="compassion-modal__steps-track">
+
+              {% comment %}STEP 1 — Item details{% endcomment %}
+              <section class="compassion-modal__step" data-step="1">
+                <div class="compassion-modal__step-head">
+                  <span class="compassion-modal__step-pill"><i class="fas fa-box-open"></i> Step 1 of 3</span>
+                  <h4 class="compassion-modal__step-title">What are you giving?</h4>
+                  <p class="compassion-modal__step-sub">Type, brief description, and rough quantity.</p>
+                </div>
+                <div class="form-grid">
+                  <div>
+                    <label class="form-label" for="inkind-type">Type of item</label>
+                    <select id="inkind-type" name="item_type" class="form-select" required>
+                      <option value="FOOD">Food</option>
+                      <option value="CLOTHING">Clothing</option>
+                      <option value="MEDICAL">Medical supplies</option>
+                      <option value="OTHER">Other (describe below)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="form-label" for="inkind-description">Description</label>
+                    <input type="text" id="inkind-description" name="item_description" class="form-control" required placeholder="e.g. maize flour, baby clothes, bandages">
+                  </div>
+                  <div>
+                    <label class="form-label" for="inkind-quantity">Quantity <span class="text-muted">(approximate)</span></label>
+                    <input type="text" id="inkind-quantity" name="quantity_estimate" class="form-control" placeholder="e.g. 20kg, 50 items, 2 bags">
+                  </div>
+                </div>
+              </section>
+
+              {% comment %}STEP 2 — Logistics{% endcomment %}
+              <section class="compassion-modal__step" data-step="2" hidden>
+                <div class="compassion-modal__step-head">
+                  <span class="compassion-modal__step-pill"><i class="fas fa-truck"></i> Step 2 of 3</span>
+                  <h4 class="compassion-modal__step-title">How should we get it?</h4>
+                  <p class="compassion-modal__step-sub">Pickup, drop-off, or arrange together.</p>
+                </div>
+                <div class="form-grid">
+                  <div>
+                    <label class="form-label" for="inkind-delivery">Delivery / pickup</label>
+                    <select id="inkind-delivery" name="delivery_mode" class="form-select">
+                      <option value="PICKUP">You'll pick it up</option>
+                      <option value="DROPOFF">We'll drop it off</option>
+                      <option value="ARRANGE" selected>Let's arrange together</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="form-label" for="inkind-date">Preferred date <span class="text-muted">(optional)</span></label>
+                    <input type="date" id="inkind-date" name="preferred_date" class="form-control">
+                  </div>
+                  <div>
+                    <label class="form-label" for="inkind-address">Address <span class="text-muted">(if applicable)</span></label>
+                    <textarea id="inkind-address" name="address" class="form-control" rows="2"></textarea>
+                  </div>
+                </div>
+              </section>
+
+              {% comment %}STEP 3 — Contact + notes{% endcomment %}
+              <section class="compassion-modal__step" data-step="3" hidden>
+                <div class="compassion-modal__step-head">
+                  <span class="compassion-modal__step-pill"><i class="fas fa-user"></i> Step 3 of 3</span>
+                  <h4 class="compassion-modal__step-title">How do we reach you?</h4>
+                  <p class="compassion-modal__step-sub">Add any final notes before sending.</p>
+                </div>
+                <div class="form-grid form-grid--2">
+                  <div>
+                    <label class="form-label" for="inkind-name">Full name</label>
+                    <input type="text" id="inkind-name" name="name" class="form-control" required maxlength="150" autocomplete="name">
+                  </div>
+                  <div>
+                    <label class="form-label" for="inkind-email">Email</label>
+                    <input type="email" id="inkind-email" name="email" class="form-control" required autocomplete="email">
+                  </div>
+                  <div style="grid-column: 1 / -1;">
+                    <label class="form-label" for="inkind-phone">Phone</label>
+                    <input type="tel" id="inkind-phone" name="phone" class="form-control" required maxlength="15" placeholder="0712 345 678" autocomplete="tel">
+                  </div>
+                  <div style="grid-column: 1 / -1;">
+                    <label class="form-label" for="inkind-notes">Notes <span class="text-muted">(optional)</span></label>
+                    <textarea id="inkind-notes" name="notes" class="form-control" rows="3"></textarea>
+                  </div>
+                </div>
+                <input type="hidden" name="wizard" value="1">
+              </section>
+
             </div>
           </div>
 
-          <div class="compassion-modal__submit">
-            <button type="submit" class="compassion-modal__cta btn-lg">
+          <div class="compassion-modal__wizard-foot">
+            <button type="button" class="compassion-modal__back" data-wizard-back disabled>
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button type="button" class="compassion-modal__next" data-wizard-next>
+              Next <i class="fas fa-arrow-right"></i>
+            </button>
+            <button type="submit" class="compassion-modal__next" id="inkindSubmitBtn" data-wizard-submit hidden>
               <i class="fas fa-paper-plane"></i> Send pledge
             </button>
-            <p class="compassion-modal__small">
-              <i class="fas fa-shield-halved"></i> We'll only use your contact details to coordinate this pledge.
-            </p>
           </div>
+
         </form>
 
         <div class="compassion-modal__feedback" id="inkindFeedback" hidden></div>

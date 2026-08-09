@@ -1,34 +1,45 @@
 {% extends "dashboard/base_dashboard.html" %}
 {% load humanize %}
+{% load static %}
 
 {% block title %}Compassion — Overview | Caldan Dashboard{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/compassion_dashboard.css' %}">
+{% endblock %}
+
 {% block dashboard_content %}
-<div class="compassion-overview">
+<div class="compassion-dashboard">
+
+    {# ───── Page Header ───── #}
     <div class="page-header">
-        <div>
-            <h1 class="page-header__title">
-                <span class="icon-bubble"><i class="fas fa-hand-holding-heart"></i></span>
-                Compassion Overview
-            </h1>
-            <p class="page-header__sub">Donations, in-kind pledges, and call requests at a glance</p>
+        <div class="page-header__main">
+            <div class="page-header__icon">
+                <i class="fas fa-hand-holding-heart"></i>
+            </div>
+            <div>
+                <h1 class="page-header__title">Compassion Overview</h1>
+                <p class="page-header__sub">Donations, in-kind pledges, and call requests at a glance</p>
+            </div>
         </div>
         <div class="page-header__actions">
-            <a href="{% url 'compassion:index' %}" target="_blank" class="btn-pill">
+            <a href="{% url 'compassion:index' %}" target="_blank" class="pill pill--gold">
                 <i class="fas fa-external-link-alt"></i> View public page
             </a>
         </div>
     </div>
 
+    {# ───── Stats Grid — 4-up ───── #}
     <div class="stats-grid">
         <div class="stat-card green">
             <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
             <div class="stat-body">
                 <div class="stat-value">{{ counts.donations_success|intcomma }}</div>
                 <div class="stat-label">Successful donations</div>
-                <div class="stat-sub">All time</div>
+                <div class="stat-sub">All-time confirmed</div>
             </div>
         </div>
+
         <div class="stat-card gold">
             <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
             <div class="stat-body">
@@ -37,6 +48,7 @@
                 <div class="stat-sub">Awaiting Paystack</div>
             </div>
         </div>
+
         <div class="stat-card blue">
             <div class="stat-icon blue"><i class="fas fa-box-open"></i></div>
             <div class="stat-body">
@@ -45,6 +57,7 @@
                 <div class="stat-sub">In the pipeline</div>
             </div>
         </div>
+
         <div class="stat-card orange">
             <div class="stat-icon orange"><i class="fas fa-phone"></i></div>
             <div class="stat-body">
@@ -55,28 +68,156 @@
         </div>
     </div>
 
-    <div class="panel">
-        <div class="panel__header">
-            <h3><i class="fas fa-hand-holding-usd"></i> Latest donations</h3>
-            <a href="{% url 'compassion_dashboard:donation_list' %}" class="btn-icon">View all <i class="fas fa-arrow-right"></i></a>
+    {# ───── Two-column: Latest donations + Stats breakdown ───── #}
+    <div class="two-col">
+        <div class="panel">
+            <div class="panel__header">
+                <h3><i class="fas fa-hand-holding-usd"></i> Latest donations</h3>
+                <a href="{% url 'compassion_dashboard:donation_list' %}" class="list-action" style="width:auto;padding:5px 14px;font-size:11px;text-decoration:none;">
+                    View all <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Donor</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for d in latest_donations %}
+                        <tr>
+                            <td>
+                                <strong>{{ d.donor_name }}</strong><br>
+                                <span class="text-muted-inline">{{ d.donor_email }}</span>
+                            </td>
+                            <td class="text-success">KES {{ d.amount_ksh|intcomma }}</td>
+                            <td>
+                                <span class="status-badge {% if d.status == 'SUCCESS' %}success{% elif d.status == 'PENDING' %}pending{% elif d.status == 'FAILED' %}failed{% else %}info{% endif %}">
+                                    {{ d.get_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ d.created_at|date:"M d, Y" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="4">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h4>No donations yet</h4>
+                                <p>Run <code>python manage.py seed_compassion</code> for sample data.</p>
+                            </div>
+                        </td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-        {% if latest_donations %}
-        <table class="msg-table">
-            <thead><tr><th>Donor</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
-            <tbody>
-            {% for d in latest_donations %}
-                <tr>
-                    <td><strong>{{ d.donor_name }}</strong><br><small class="text-muted">{{ d.donor_email }}</small></td>
-                    <td>KES {{ d.amount_ksh|intcomma }}</td>
-                    <td>{{ d.get_status_display }}</td>
-                    <td>{{ d.created_at|date:"M d, Y" }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div class="empty-state"><i class="fas fa-inbox"></i><h4>No donations yet</h4><p>Run <code>python manage.py seed_compassion</code> for sample data.</p></div>
-        {% endif %}
+
+        <div class="panel">
+            <div class="panel__header">
+                <h3><i class="fas fa-chart-simple"></i> At-a-glance</h3>
+                <span class="panel__count">Live</span>
+            </div>
+            <div style="padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="stat-card gold" style="padding:14px;border-radius:var(--r-md);border-top-width:3px;">
+                    <div class="stat-icon gold" style="width:36px;height:36px;font-size:14px;"><i class="fas fa-newspaper"></i></div>
+                    <div class="stat-body">
+                        <div class="stat-value" style="font-size:18px;">{{ counts.stories_published|intcomma }}</div>
+                        <div class="stat-label" style="font-size:10px;text-transform:uppercase;letter-spacing:0.4px;">Stories published</div>
+                    </div>
+                </div>
+                <div class="stat-card blue" style="padding:14px;border-radius:var(--r-md);border-top-width:3px;">
+                    <div class="stat-icon blue" style="width:36px;height:36px;font-size:14px;"><i class="fas fa-hand-holding-heart"></i></div>
+                    <div class="stat-body">
+                        <div class="stat-value" style="font-size:18px;">{{ counts.donations_success|intcomma }}</div>
+                        <div class="stat-label" style="font-size:10px;text-transform:uppercase;letter-spacing:0.4px;">Total confirmed</div>
+                    </div>
+                </div>
+                <div class="stat-card green" style="padding:14px;border-radius:var(--r-md);border-top-width:3px;">
+                    <div class="stat-icon green" style="width:36px;height:36px;font-size:14px;"><i class="fas fa-box-open"></i></div>
+                    <div class="stat-body">
+                        <div class="stat-value" style="font-size:18px;">{{ counts.inkind_active|intcomma }}</div>
+                        <div class="stat-label" style="font-size:10px;text-transform:uppercase;letter-spacing:0.4px;">Pledges active</div>
+                    </div>
+                </div>
+                <div class="stat-card orange" style="padding:14px;border-radius:var(--r-md);border-top-width:3px;">
+                    <div class="stat-icon orange" style="width:36px;height:36px;font-size:14px;"><i class="fas fa-phone"></i></div>
+                    <div class="stat-body">
+                        <div class="stat-value" style="font-size:18px;">{{ counts.calls_new|intcomma }}</div>
+                        <div class="stat-label" style="font-size:10px;text-transform:uppercase;letter-spacing:0.4px;">Calls waiting</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    {# ───── Two-column: Latest in-kind + Latest calls ───── #}
+    <div class="two-col">
+        <div class="panel">
+            <div class="panel__header">
+                <h3><i class="fas fa-box-open"></i> Latest in-kind pledges</h3>
+                <a href="{% url 'compassion_dashboard:inkind_list' %}" class="list-action" style="width:auto;padding:5px 14px;font-size:11px;text-decoration:none;">
+                    View all <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Donor</th>
+                            <th>Item</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for p in latest_inkind %}
+                        <tr>
+                            <td><strong>{{ p.donor_name }}</strong></td>
+                            <td>{{ p.get_item_type_display }} · <span class="text-muted-inline">{{ p.item_description|truncatechars:30 }}</span></td>
+                            <td><span class="status-badge {% if p.status == 'DELIVERED' %}delivered{% elif p.status == 'CANCELLED' %}cancelled{% else %}pending{% endif %}">{{ p.get_status_display }}</span></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="3"><div class="empty-state"><i class="fas fa-inbox"></i><h4>No pledges yet</h4></div></td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel__header">
+                <h3><i class="fas fa-phone"></i> Latest call requests</h3>
+                <a href="{% url 'compassion_dashboard:call_list' %}" class="list-action" style="width:auto;padding:5px 14px;font-size:11px;text-decoration:none;">
+                    View all <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Requester</th>
+                            <th>Topic</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for c in latest_calls %}
+                        <tr>
+                            <td><strong>{{ c.name }}</strong><br><span class="text-muted-inline">{{ c.email }}</span></td>
+                            <td>{{ c.get_topic_display }}</td>
+                            <td><span class="status-badge {% if c.status == 'COMPLETED' %}completed{% elif c.status == 'CONTACTED' %}contacted{% else %}pending{% endif %}">{{ c.get_status_display }}</span></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="3"><div class="empty-state"><i class="fas fa-inbox"></i><h4>No calls yet</h4></div></td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
