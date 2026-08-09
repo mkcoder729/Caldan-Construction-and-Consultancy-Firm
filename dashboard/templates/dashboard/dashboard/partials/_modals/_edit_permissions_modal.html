@@ -12,7 +12,7 @@
             <input type="hidden" name="admin_id" id="editPermsAdminId">
 
             <div id="editPermsFields">
-                {# Render all 14 permission flags grouped by domain. #}
+                {% comment %}Render all 14 permission flags grouped by domain.{% endcomment %}
                 <div class="permission-group">
                     <div class="group-title">Core Modules</div>
                     {% include "dashboard/dashboard/partials/_modals/_permission_row.html" with key="can_manage_projects" label="Manage Projects" desc="Create, edit, and delete projects" %}

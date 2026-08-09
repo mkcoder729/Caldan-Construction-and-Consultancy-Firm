@@ -29,5 +29,10 @@
 {% block extra_js %}
 <script src="https://unpkg.com/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+{# Paystack Popup V2 — opens payment inline over our site, no white redirect. #}
+<script src="https://js.paystack.co/v2/inline.js"></script>
+<script>
+  window.CALDAN_PAYSTACK_PUBLIC_KEY = "{{ paystack_public_key|escapejs }}";
+</script>
 <script src="{% static 'js/compassion.js' %}"></script>
 {% endblock %}

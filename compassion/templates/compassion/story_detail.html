@@ -12,7 +12,7 @@
 
 {% block content %}
 
-{# Breadcrumb / back nav #}
+{% comment %}Breadcrumb / back nav{% endcomment %}
 <section class="story-breadcrumb">
     <div class="container">
         <a href="{% url 'compassion:index' %}#stories" class="story-breadcrumb__back">
@@ -22,7 +22,7 @@
     </div>
 </section>
 
-{# Hero: full-bleed cover image with title + meta overlay #}
+{% comment %}Hero: full-bleed cover image with title + meta overlay{% endcomment %}
 <section class="story-hero">
     {% if story.has_cover %}
         <img src="{{ story.cover_image.url }}" alt="{{ story.title }}" class="story-hero__bg">
@@ -50,7 +50,7 @@
     </div>
 </section>
 
-{# Body: summary + full story + sidebar with related #}
+{% comment %}Body: summary + full story + sidebar with related{% endcomment %}
 <section class="story-body">
     <div class="container">
         <div class="story-body__grid">
@@ -156,7 +156,7 @@
     </div>
 </section>
 
-{# Schedule modal included here so the "Talk to our team" CTA works on this page too #}
+{% comment %}Schedule modal included here so the "Talk to our team" CTA works on this page too{% endcomment %}
 {% include "compassion/partials/_schedule_modal.html" %}
 {% include "compassion/partials/_donation_modal.html" %}
 {% include "compassion/partials/_inkind_modal.html" %}

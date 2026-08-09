@@ -19,7 +19,9 @@ class WebsiteSitemap(Sitemap):
 
     def items(self):
         """Return all URL items for the sitemap."""
-        # Static pages — high-priority marketing + legal pages.
+        # Static pages — ordered to match the public nav top-to-bottom so
+        # Google ranks them in the same sequence visitors see them. Legal
+        # pages are intentionally excluded (footer-only, not for ranking).
         static_pages = [
             # Homepage — top priority.
             ("website:index", "daily", 1.0),
@@ -27,15 +29,11 @@ class WebsiteSitemap(Sitemap):
             ("website:about", "monthly", 0.9),
             ("website:services", "weekly", 0.9),
             ("website:projects", "weekly", 0.9),
-            ("website:contact", "monthly", 0.7),
+            # Compassionate Ministry — discoverable from the nav after Projects.
             ("compassion:index", "weekly", 0.8),
+            # Blog and contact sit at the bottom of the nav.
             ("website:blog", "daily", 0.8),
-            # Legal — referenced in the footer; low priority but should be
-            # crawled occasionally so the meta_description stays accurate.
-            ("website:legal_privacy", "yearly", 0.3),
-            ("website:legal_terms", "yearly", 0.3),
-            ("website:legal_refunds", "yearly", 0.3),
-            ("website:legal_cookies", "yearly", 0.3),
+            ("website:contact", "monthly", 0.7),
         ]
 
         return static_pages

@@ -1,0 +1,27 @@
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-info" style="margin-top: 14px;">CALL REQUEST UPDATE</span>{% endblock %}
+
+{% block content %}
+  <h1>Your call request — status update</h1>
+  <p class="subtitle">Status update from Caldan Compassionate Ministry</p>
+
+  <p>Hi {{ name }},</p>
+
+  <p>Quick update on your recent call request. The team has moved it to the next step:</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Topic</dt>
+      <dd><strong>{{ topic }}</strong></dd>
+      <dt>Current status</dt>
+      <dd><strong>{{ status_display }}</strong></dd>
+    </dl>
+  </div>
+
+  <div class="callout callout-info">
+    <strong>What this means:</strong> {% if new_status == 'CONTACTED' %}our team has reached out to you at the time you specified.{% elif new_status == 'COMPLETED' %}this conversation has been wrapped up. Thank you.{% elif new_status == 'CANCELLED' %}the request has been cancelled — let us know if we can re-open it.{% else %}the team is now working on your request.{% endif %}
+  </div>
+
+  <p>Need to add something? Just reply to this email.</p>
+{% endblock %}

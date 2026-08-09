@@ -4,6 +4,8 @@
    - Quick amount picker
    - AJAX form submit for the 3 modals + standalone donate page
    - Modal close: reset form + clear feedback
+   - intl-tel-input for the Schedule a Call modal (lazy-loaded)
+   - Thank-you page: receipt actions + polling verifying card
    ================================================================ */
 
 (function () {
@@ -62,6 +64,72 @@
         // transition runs from a clean state.
         overlay.offsetHeight;
         overlay.classList.add('is-visible');
+    }
+
+    // ───── Paystack Inline popup ─────
+    //
+    // Opens Paystack's payment iframe over our site so the user never
+    // sees Paystack's white hosted page. On success we navigate directly
+    // to the thank-you page. On cancel we restore the donate form so the
+    // user can retry without losing what they typed.
+    function openPaystackPopup(respData) {
+        const accessCode = respData.access_code;
+        const reference = respData.reference;
+        const publicKey = window.CALDAN_PAYSTACK_PUBLIC_KEY;
+        const thankYouUrl = '/compassion/donate/thank-you/?ref=' + encodeURIComponent(reference);
+
+        // Strip the redirect overlay we drew in the modal — the popup
+        // overlay Paystack renders is the real one now.
+        const donateModal = document.getElementById('donationModal');
+        if (donateModal) {
+            const overlay = donateModal.querySelector('.compassion-redirect-overlay');
+            if (overlay) overlay.remove();
+        }
+
+        if (!publicKey) {
+            // Misconfigured — fall back to redirect.
+            if (respData.authorization_url) {
+                window.location.href = respData.authorization_url;
+            }
+            return;
+        }
+
+        try {
+            const popup = new window.PaystackPop();
+            popup.resumeTransaction(accessCode, {
+                onSuccess: function (transaction) {
+                    // Paystack returns the reference on the transaction
+                    // object. We use our own reference from the server
+                    // so the thank-you page's poll finds the Donation row.
+                    window.location.href = thankYouUrl;
+                },
+                onCancel: function () {
+                    // Restore the donate form so the donor can retry.
+                    if (donateModal && window.bootstrap) {
+                        const m = window.bootstrap.Modal.getInstance(donateModal);
+                        if (m) m.show();
+                    }
+                },
+                onError: function (err) {
+                    // Reopen the donate modal so the donor isn't stuck.
+                    if (donateModal && window.bootstrap) {
+                        const m = window.bootstrap.Modal.getInstance(donateModal);
+                        if (m) m.show();
+                    }
+                    const feedbackEl = document.getElementById('donationFeedback');
+                    showFeedback(
+                        feedbackEl,
+                        'error',
+                        (err && err.message) || 'Payment could not be opened. Please try again.'
+                    );
+                },
+            });
+        } catch (exc) {
+            // Paystack popup failed to initialise — fall back to redirect.
+            if (respData.authorization_url) {
+                window.location.href = respData.authorization_url;
+            }
+        }
     }
 
     function ajaxPost(url, form) {
@@ -163,6 +231,12 @@
             e.preventDefault();
             if (!validateAmount(form)) return;
 
+            // If this is the schedule-call form, swap the displayed
+            // national phone number for full E.164 before POSTing.
+            if (form.id === 'callForm') {
+                syncSchedulePhoneOnSubmit(form);
+            }
+
             const submitBtn = form.querySelector('button[type="submit"]');
             // Capture the label as text only (strip icon spans if any) so the
             // spinner swap-in/swap-out is clean.
@@ -179,12 +253,18 @@
 
             ajaxPost(form.action, new FormData(form)).then(function (resp) {
                 if (resp.data && resp.data.success) {
-                    // Two paths:
-                    //   1. We have an authorization_url → hand off to Paystack.
-                    //      Show a centered overlay INSIDE the modal so the user
-                    //      sees something intentional, not "thing at the bottom".
-                    //   2. No redirect (in-kind / call / partnership request):
-                    //      Show a friendly success banner that auto-closes.
+                    // Three paths:
+                    //   1. Donation with access_code + PaystackPop loaded →
+                    //      open the inline popup over our site. No white page.
+                    //   2. Donation with authorization_url but no popup →
+                    //      fall back to redirect (older browsers / blocked CDN).
+                    //   3. Non-donation (in-kind / call) → show success banner.
+                    if (resp.data.access_code && typeof window.PaystackPop !== 'undefined') {
+                        redirecting = true;
+                        showRedirectOverlay(modalEl, 'Opening secure payment');
+                        openPaystackPopup(resp.data);
+                        return;
+                    }
                     if (resp.data.authorization_url) {
                         redirecting = true;
                         showRedirectOverlay(modalEl, 'Redirecting to secure payment');
@@ -233,12 +313,138 @@
         });
     }
 
+    // ───── Schedule a Call: topic chips + intl-tel-input ─────
+
+    /**
+     * Wire the radio-button "chips" to the hidden #call-topic field so
+     * the form actually submits a single `topic` value (the chips use
+     * `name="topic_radio"` to avoid colliding with the hidden input).
+     */
+    function initTopicChips() {
+        const form = document.getElementById('callForm');
+        const hiddenTopic = document.getElementById('call-topic');
+        if (!form || !hiddenTopic) return;
+
+        // Push any preselected radio onto the hidden field on load.
+        const checked = form.querySelector('input[name="topic_radio"]:checked');
+        if (checked) hiddenTopic.value = checked.value;
+
+        // Update on change.
+        form.addEventListener('change', function (e) {
+            if (e.target && e.target.name === 'topic_radio' && e.target.checked) {
+                hiddenTopic.value = e.target.value;
+            }
+        });
+
+        // Keep them in sync if `data-bs-set-purpose` is used from another
+        // trigger (e.g., "For large gifts, schedule a call →" button).
+        const setFromValue = function (value) {
+            const radio = form.querySelector('input[name="topic_radio"][value="' + value + '"]');
+            if (radio) radio.checked = true;
+            hiddenTopic.value = value;
+        };
+
+        // Mutation observer picks up programmatic updates to #call-topic.
+        const observer = new MutationObserver(function () {
+            setFromValue(hiddenTopic.value);
+        });
+        observer.observe(hiddenTopic, { attributes: true, attributeFilter: ['value'] });
+    }
+
+    /**
+     * intl-tel-input is loaded lazily — only on first modal open — so
+     * pages without the schedule modal don't pay for it.
+     *
+     * We mount it on #call-phone, and on submit copy the full E.164
+     * number (e.g., +254712345678) into the same input's `value` so
+     * the form's POSTed `phone` field is international format.
+     */
+    let itiInstance = null;
+    let itiLoading = false;
+
+    function loadIntlTelInput() {
+        return new Promise(function (resolve, reject) {
+            if (typeof window.intlTelInput !== 'undefined') {
+                resolve(window.intlTelInput);
+                return;
+            }
+            if (itiLoading) {
+                // Another caller already kicked off the load — wait on a
+                // small polling loop. (Scripts are tiny so this resolves fast.)
+                const start = Date.now();
+                (function poll() {
+                    if (typeof window.intlTelInput !== 'undefined') resolve(window.intlTelInput);
+                    else if (Date.now() - start > 5000) reject(new Error('intl-tel-input load timeout'));
+                    else setTimeout(poll, 50);
+                })();
+                return;
+            }
+            itiLoading = true;
+
+            // CSS first — intl-tel-input ships its own stylesheet. We
+            // scope our overrides to .compassion-modal--call so the
+            // generic flags/typography don't leak.
+            const css = document.createElement('link');
+            css.rel = 'stylesheet';
+            css.href = 'https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.1/build/css/intlTelInput.css';
+            document.head.appendChild(css);
+
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.1/build/js/intlTelInput.min.js';
+            script.async = true;
+            script.onload = function () {
+                itiLoading = false;
+                resolve(window.intlTelInput);
+            };
+            script.onerror = function () {
+                itiLoading = false;
+                reject(new Error('intl-tel-input script failed to load'));
+            };
+            document.head.appendChild(script);
+        });
+    }
+
+    function initSchedulePhone() {
+        const input = document.getElementById('call-phone');
+        if (!input) return;
+
+        loadIntlTelInput().then(function (iti) {
+            itiInstance = iti(input, {
+                initialCountry: 'ke',
+                preferredCountries: ['ke', 'ug', 'tz', 'rw', 'us', 'gb'],
+                separateDialCode: true,
+                nationalMode: true,
+                autoPlaceholder: 'aggressive',
+                formatOnDisplay: true,
+                utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.1/build/js/utils.js',
+            });
+        }).catch(function (err) {
+            // Soft-fail: leave the bare tel input working. The backend
+            // already accepts a plain national number.
+            console.warn('intl-tel-input unavailable, using native tel input:', err);
+        });
+    }
+
+    function syncSchedulePhoneOnSubmit(form) {
+        if (!itiInstance || !form) return;
+        const phoneInput = form.querySelector('#call-phone');
+        if (!phoneInput) return;
+        // Replace the displayed national number with full E.164 so the
+        // backend stores a globally-dialable value.
+        const full = itiInstance.getNumber();
+        if (full) phoneInput.value = full;
+    }
+
     // ───── Init ─────
 
     document.addEventListener('DOMContentLoaded', function () {
         initSwiper();
         initQuickAmounts();
         initPurposeTriggers();
+        initTopicChips();
+        initSchedulePhone();
+        initThanksActions();
+        initThanksPolling();
 
         bindForm(
             document.getElementById('donationForm'),
@@ -261,4 +467,153 @@
             'Opening Paystack…'
         );
     });
+
+    // ───── Thank-you page ─────
+
+    /**
+     * Wire receipt action buttons: Copy reference + Print.
+     * Download PDF is a plain <a download> — no JS needed there.
+     */
+    function initThanksActions() {
+        const toolbar = document.querySelector('.thanks-receipt__toolbar');
+        if (!toolbar) return;
+
+        toolbar.addEventListener('click', function (e) {
+            const btn = e.target.closest('[data-thanks-action]');
+            if (!btn) return;
+
+            const action = btn.getAttribute('data-thanks-action');
+            if (action === 'copy') {
+                const value = btn.getAttribute('data-copy-value') || '';
+                copyToClipboard(value).then(function (ok) {
+                    if (ok) flashCopied(btn);
+                });
+            } else if (action === 'print') {
+                window.print();
+            }
+        });
+    }
+
+    function copyToClipboard(text) {
+        if (!text) return Promise.resolve(false);
+        if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(text).then(
+                function () { return true; },
+                function () { return fallbackCopy(text); }
+            );
+        }
+        return Promise.resolve(fallbackCopy(text));
+    }
+
+    function fallbackCopy(text) {
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.setAttribute('readonly', '');
+            ta.style.position = 'absolute';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            const ok = document.execCommand('copy');
+            document.body.removeChild(ta);
+            return ok;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function flashCopied(btn) {
+        const originalHtml = btn.innerHTML;
+        btn.classList.add('thanks-receipt__action--copied');
+        btn.innerHTML = '<i class="fas fa-circle-check"></i><span>Copied</span>';
+        setTimeout(function () {
+            btn.classList.remove('thanks-receipt__action--copied');
+            btn.innerHTML = originalHtml;
+        }, 1500);
+    }
+
+    /**
+     * While the donation row doesn't exist yet (just bounced back from
+     * Paystack, webhook hasn't fired), poll /compassion/donate/status/
+     * every 4 seconds. The moment status === 'SUCCESS', reload the page
+     * so the full receipt card renders with all data, then the toolbar
+     * becomes available.
+     *
+     * Stops after 60s (15 attempts × 4s) and surfaces a manual "Refresh"
+     * link so the donor isn't stuck looking at a spinner forever if the
+     * webhook is genuinely stuck.
+     */
+    function initThanksPolling() {
+        const card = document.getElementById('thanksVerifying');
+        // The receipt element id may be either thanksReceipt (current
+        // template) or thanksReceiptGrid (older revisions). Either way
+        // we don't need to touch it — polling resolves with a reload —
+        // but we capture the ref so any future flow that wants to mutate
+        // it instead of reloading has the handle.
+        const receipt = document.getElementById('thanksReceipt') ||
+                        document.getElementById('thanksReceiptGrid');
+        if (!card) return;
+
+        const ref = card.getAttribute('data-ref');
+        if (!ref) return;
+
+        const POLL_INTERVAL_MS = 4000;
+        const MAX_ATTEMPTS = 15;
+        let attempts = 0;
+
+        const url = '/compassion/donate/status/?ref=' + encodeURIComponent(ref);
+
+        function poll() {
+            attempts += 1;
+
+            fetch(url, { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data && data.resolved && data.status === 'SUCCESS') {
+                        // Soft fade-out, then full reload so the SSR path
+                        // renders the receipt card + toolbar with real data.
+                        card.classList.add('is-resolving');
+                        setTimeout(function () { window.location.reload(); }, 380);
+                        return;
+                    }
+                    if (data && data.resolved && data.status === 'FAILED') {
+                        showPollingError(card,
+                            'The payment didn\'t complete.',
+                            'No money was taken. You can try again from the donate page.');
+                        return;
+                    }
+                    if (attempts >= MAX_ATTEMPTS) {
+                        showPollingError(card,
+                            'Still waiting for Paystack.',
+                            'This is taking longer than usual. Tap refresh — your receipt will be ready.');
+                        return;
+                    }
+                    setTimeout(poll, POLL_INTERVAL_MS);
+                })
+                .catch(function () {
+                    if (attempts >= MAX_ATTEMPTS) {
+                        showPollingError(card,
+                            'We\'re having trouble reaching Paystack.',
+                            'Check your connection or tap refresh.');
+                        return;
+                    }
+                    setTimeout(poll, POLL_INTERVAL_MS);
+                });
+        }
+
+        // First attempt after a short delay — gives the webhook a chance
+        // to land if it's already in flight.
+        setTimeout(poll, 1500);
+    }
+
+    function showPollingError(card, title, sub) {
+        const titleEl = card.querySelector('.thanks-verifying__title');
+        const subEl = card.querySelector('.thanks-verifying__sub');
+        if (titleEl) titleEl.textContent = title;
+        if (subEl) {
+            subEl.innerHTML =
+                sub +
+                ' <a href="" class="thanks-verifying__refresh" onclick="event.preventDefault(); window.location.reload();">Refresh</a>';
+        }
+    }
 })();

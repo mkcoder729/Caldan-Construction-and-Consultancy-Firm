@@ -930,3 +930,209 @@ class EmailService:
             user=admin,
             email_type='SCHEDULE_CALL_ADMIN',
         )
+
+    # ───── Missing triggers: initiated, failed, status-change ─────
+
+    @classmethod
+    def send_donation_initiated_admin(cls, donation):
+        """Heads-up to the admin team the moment a donor starts the flow.
+
+        Lets the team follow up if Paystack doesn't confirm or fails to
+        redirect back — most abandoned checkouts are caught here.
+        """
+        admin_email, admin = cls._resolve_compassion_admin()
+        return cls.send_template(
+            to_email=admin_email,
+            subject=f"Donation started — KES {donation.amount_ksh} ({donation.get_purpose_display()})",
+            template_name='email/donation_initiated_admin.html',
+            context={
+                'donation': donation,
+                'donor_name': donation.donor_name,
+                'donor_email': donation.donor_email,
+                'donor_phone': donation.donor_phone,
+                'amount': donation.amount_ksh,
+                'purpose': donation.get_purpose_display(),
+                'note': donation.note,
+                'reference': donation.reference,
+                'dashboard_url': f"{getattr(settings, 'SITE_URL', 'http://localhost:8000')}/dashboard/compassion/donations/{donation.id}/",
+            },
+            user=admin,
+            email_type='DONATION_INITIATED_ADMIN',
+        )
+
+    @classmethod
+    def send_donation_failed_admin(cls, donation, reason: str = ''):
+        """Alert admin when a donation fails (Paystack charge.failed or
+        webhook signature mismatch).
+        """
+        admin_email, admin = cls._resolve_compassion_admin()
+        return cls.send_template(
+            to_email=admin_email,
+            subject=f"Donation FAILED — KES {donation.amount_ksh} ({donation.reference})",
+            template_name='email/donation_failed_admin.html',
+            context={
+                'donation': donation,
+                'donor_name': donation.donor_name,
+                'donor_email': donation.donor_email,
+                'amount': donation.amount_ksh,
+                'purpose': donation.get_purpose_display(),
+                'reference': donation.reference,
+                'reason': reason or 'Unknown — see logs',
+                'dashboard_url': f"{getattr(settings, 'SITE_URL', 'http://localhost:8000')}/dashboard/compassion/donations/{donation.id}/",
+            },
+            user=admin,
+            email_type='DONATION_FAILED_ADMIN',
+        )
+
+    @classmethod
+    def send_inkind_status_change_donor(cls, pledge, old_status: str, new_status: str):
+        """Notify the donor when their in-kind pledge moves forward."""
+        return cls.send_template(
+            to_email=pledge.donor_email,
+            subject=f"Your in-kind pledge — now {pledge.get_status_display()}",
+            template_name='email/inkind_status_change_donor.html',
+            context={
+                'pledge': pledge,
+                'donor_name': pledge.donor_name,
+                'item_type': pledge.get_item_type_display(),
+                'item_description': pledge.item_description,
+                'old_status': old_status,
+                'new_status': new_status,
+                'status_display': pledge.get_status_display(),
+            },
+            to_name=pledge.donor_name,
+            email_type='INKIND_STATUS_CHANGE_DONOR',
+        )
+
+    @classmethod
+    def send_schedule_call_status_change_donor(cls, call, old_status: str, new_status: str):
+        """Notify the requester when their call request moves forward."""
+        return cls.send_template(
+            to_email=call.email,
+            subject=f"Your call request — {call.get_status_display()}",
+            template_name='email/schedule_call_status_change_donor.html',
+            context={
+                'call': call,
+                'name': call.name,
+                'topic': call.get_topic_display(),
+                'old_status': old_status,
+                'new_status': new_status,
+                'status_display': call.get_status_display(),
+            },
+            to_name=call.name,
+            email_type='SCHEDULE_CALL_STATUS_CHANGE_DONOR',
+        )
+
+    # ───── PDF attachment variants for donor-facing emails ─────
+
+    @staticmethod
+    def _read_pdf_bytes(pdf_path: str) -> bytes:
+        """Read a PDF file from disk and return its raw bytes."""
+        with open(pdf_path, 'rb') as fh:
+            return fh.read()
+
+    @classmethod
+    def send_donation_receipt_with_pdf(cls, donation):
+        """Send the donor's HTML receipt email PLUS a branded PDF attachment.
+
+        Same subject/sender/email_type as send_donation_receipt, but with
+        the receipt rendered to a PDF first and attached.
+        """
+        try:
+            from reports.services.pdf_service import PDFService
+            pdf_path = PDFService.generate_compassion_donation_receipt(donation)
+        except Exception as exc:
+            logger.exception("Could not generate PDF for donation %s: %s", donation.reference, exc)
+            return cls.send_donation_receipt(donation)
+
+        try:
+            pdf_bytes = cls._read_pdf_bytes(pdf_path)
+        except Exception as exc:
+            logger.exception("Could not read PDF %s: %s", pdf_path, exc)
+            return cls.send_donation_receipt(donation)
+
+        return cls.send_with_pdf_attachment(
+            to_email=donation.donor_email,
+            subject=f"Thank you for your gift of KES {donation.amount_ksh}",
+            template_name='email/donation_receipt_donor.html',
+            context={
+                'donation': donation,
+                'donor_name': donation.donor_name,
+                'amount': donation.amount_ksh,
+                'purpose': donation.get_purpose_display(),
+                'reference': donation.reference,
+                'paystack_reference': donation.paystack_reference or '',
+                'paid_at': donation.verified_at,
+            },
+            pdf_bytes=pdf_bytes,
+            pdf_filename=f"Caldan-Receipt-{donation.reference}.pdf",
+            to_name=donation.donor_name,
+            email_type='DONATION_RECEIPT',
+        )
+
+    @classmethod
+    def send_inkind_pledge_donor_with_pdf(cls, pledge):
+        """Send in-kind pledge confirmation + attached PDF receipt."""
+        try:
+            from reports.services.pdf_service import PDFService
+            pdf_path = PDFService.generate_compassion_inkind_receipt(pledge)
+        except Exception as exc:
+            logger.exception("Could not generate in-kind PDF for %s: %s", pledge.id, exc)
+            return cls.send_inkind_pledge_donor(pledge)
+
+        try:
+            pdf_bytes = cls._read_pdf_bytes(pdf_path)
+        except Exception as exc:
+            logger.exception("Could not read in-kind PDF %s: %s", pdf_path, exc)
+            return cls.send_inkind_pledge_donor(pledge)
+
+        return cls.send_with_pdf_attachment(
+            to_email=pledge.donor_email,
+            subject=f"Thank you — your {pledge.get_item_type_display().lower()} pledge is logged",
+            template_name='email/inkind_pledge_donor.html',
+            context={
+                'pledge': pledge,
+                'donor_name': pledge.donor_name,
+                'item_type': pledge.get_item_type_display(),
+                'item_description': pledge.item_description,
+                'quantity_estimate': pledge.quantity_estimate,
+                'delivery_mode': pledge.get_delivery_mode_display() if pledge.delivery_mode else '',
+            },
+            pdf_bytes=pdf_bytes,
+            pdf_filename=f"Caldan-InKind-Pledge-{pledge.id}.pdf",
+            to_name=pledge.donor_name,
+            email_type='INKIND_PLEDGE_DONOR',
+        )
+
+    @classmethod
+    def send_schedule_call_donor_with_pdf(cls, call):
+        """Send call-request confirmation + attached PDF receipt."""
+        try:
+            from reports.services.pdf_service import PDFService
+            pdf_path = PDFService.generate_compassion_call_receipt(call)
+        except Exception as exc:
+            logger.exception("Could not generate call PDF for %s: %s", call.id, exc)
+            return cls.send_schedule_call_donor(call)
+
+        try:
+            pdf_bytes = cls._read_pdf_bytes(pdf_path)
+        except Exception as exc:
+            logger.exception("Could not read call PDF %s: %s", pdf_path, exc)
+            return cls.send_schedule_call_donor(call)
+
+        return cls.send_with_pdf_attachment(
+            to_email=call.email,
+            subject="We'll be in touch — your Caldan Compassion call request",
+            template_name='email/schedule_call_donor.html',
+            context={
+                'call': call,
+                'name': call.name,
+                'topic': call.get_topic_display(),
+                'preferred_time': call.preferred_time,
+                'message': call.message,
+            },
+            pdf_bytes=pdf_bytes,
+            pdf_filename=f"Caldan-Call-Request-{call.id}.pdf",
+            to_name=call.name,
+            email_type='SCHEDULE_CALL_DONOR',
+        )

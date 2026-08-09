@@ -73,6 +73,7 @@ class DonationService:
             },
             request=request,
         )
+        cls._send_admin_initiated_alert(donation)
         logger.info("Donation %s created (pending).", donation.reference)
         return donation
 
@@ -114,7 +115,7 @@ class DonationService:
     def _send_donor_receipt(cls, donation) -> None:
         try:
             from notifications.services.email_service import EmailService
-            EmailService.send_donation_receipt(donation)
+            EmailService.send_donation_receipt_with_pdf(donation)
         except Exception as exc:
             logger.exception("Donation donor receipt failed for %s: %s", donation.id, exc)
 
@@ -125,6 +126,14 @@ class DonationService:
             EmailService.send_donation_admin_alert(donation)
         except Exception as exc:
             logger.exception("Donation admin alert failed for %s: %s", donation.id, exc)
+
+    @classmethod
+    def _send_admin_initiated_alert(cls, donation) -> None:
+        try:
+            from notifications.services.email_service import EmailService
+            EmailService.send_donation_initiated_admin(donation)
+        except Exception as exc:
+            logger.exception("Donation initiated-admin alert failed for %s: %s", donation.id, exc)
 
     @classmethod
     def _notify_admins(cls, donation) -> None:
@@ -223,7 +232,7 @@ class DonationService:
             return None
 
     @classmethod
-    def mark_failed(cls, donation, request=None) -> None:
+    def mark_failed(cls, donation, request=None, reason: str = "") -> None:
         if donation.status == donation.Status.FAILED:
             return
         donation.mark_failed()
@@ -232,9 +241,18 @@ class DonationService:
             action="DONATION_FAILED",
             entity_type="Donation",
             entity_id=donation.id,
-            details={"reference": donation.reference},
+            details={"reference": donation.reference, "reason": reason or ""},
             request=request,
         )
+        cls._send_admin_failed_alert(donation, reason)
+
+    @classmethod
+    def _send_admin_failed_alert(cls, donation, reason: str = "") -> None:
+        try:
+            from notifications.services.email_service import EmailService
+            EmailService.send_donation_failed_admin(donation, reason=reason or "")
+        except Exception as exc:
+            logger.exception("Donation failed-admin alert failed for %s: %s", donation.id, exc)
 
     @classmethod
     def mark_abandoned(cls, donation, request=None) -> None:

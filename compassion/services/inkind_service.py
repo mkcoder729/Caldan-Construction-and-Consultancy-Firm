@@ -82,6 +82,7 @@ class InKindService:
             details={"old": old_status, "new": new_status},
             request=request,
         )
+        cls._send_donor_status_update(pledge, old_status, new_status)
         logger.info("InKind pledge %s: %s → %s", pledge.id, old_status, new_status)
 
     # ───── Side effects ─────
@@ -90,7 +91,7 @@ class InKindService:
     def _send_donor_confirmation(cls, pledge) -> None:
         try:
             from notifications.services.email_service import EmailService
-            EmailService.send_inkind_pledge_donor(pledge)
+            EmailService.send_inkind_pledge_donor_with_pdf(pledge)
         except Exception as exc:
             logger.exception("InKind donor confirmation failed for %s: %s", pledge.id, exc)
 
@@ -101,6 +102,18 @@ class InKindService:
             EmailService.send_inkind_pledge_admin(pledge)
         except Exception as exc:
             logger.exception("InKind admin alert failed for %s: %s", pledge.id, exc)
+
+    @classmethod
+    def _send_donor_status_update(cls, pledge, old_status: str, new_status: str) -> None:
+        try:
+            from notifications.services.email_service import EmailService
+            EmailService.send_inkind_status_change_donor(
+                pledge, old_status=old_status, new_status=new_status
+            )
+        except Exception as exc:
+            logger.exception(
+                "InKind donor status update failed for %s: %s", pledge.id, exc
+            )
 
     @classmethod
     def _notify_admins(cls, pledge) -> None:

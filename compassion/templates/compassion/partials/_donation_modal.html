@@ -1,4 +1,10 @@
-<div class="modal fade compassion-modal" id="donationModal" tabindex="-1" aria-hidden="true">
+{% comment %}
+Donate modal — gold-accent variant of the unified premium system.
+Uses .compassion-modal--money so chrome, badge, header wash, form controls,
+quick-amount pills, and submit button all inherit the gold accent from
+the shared --accent token set.
+{% endcomment %}
+<div class="modal fade compassion-modal compassion-modal--money" id="donationModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <button type="button" class="compassion-modal__close" data-bs-dismiss="modal" aria-label="Close">
@@ -6,9 +12,42 @@
       </button>
 
       <div class="modal-header compassion-modal__header">
-        <div class="compassion-modal__eyebrow"><i class="fas fa-hand-holding-heart"></i> Give Money</div>
-        <h3 class="modal-title">Your gift, in seconds.</h3>
+        <div class="compassion-modal__head-row">
+          <span class="compassion-modal__badge" aria-hidden="true">
+            <i class="fas fa-hand-holding-heart"></i>
+          </span>
+          <div class="compassion-modal__head-text">
+            <span class="compassion-modal__eyebrow">
+              <i class="fas fa-hand-holding-heart"></i> Give Money
+            </span>
+            <h3 class="modal-title">Your gift, in seconds.</h3>
+          </div>
+        </div>
         <p class="compassion-modal__sub">Card or M-Pesa via Paystack. You choose how often and what for.</p>
+
+        <ul class="compassion-modal__expect" aria-label="What to expect">
+          <li>
+            <span class="compassion-modal__expect-icon"><i class="fas fa-lock"></i></span>
+            <div>
+              <strong>Secured by Paystack</strong>
+              <span>we never see your card details</span>
+            </div>
+          </li>
+          <li>
+            <span class="compassion-modal__expect-icon"><i class="fas fa-envelope-open-text"></i></span>
+            <div>
+              <strong>Instant receipt</strong>
+              <span>lands in your inbox the moment it clears</span>
+            </div>
+          </li>
+          <li>
+            <span class="compassion-modal__expect-icon"><i class="fas fa-tag"></i></span>
+            <div>
+              <strong>You pick the focus</strong>
+              <span>hospital, prison, neighbourhood — or just where it's needed most</span>
+            </div>
+          </li>
+        </ul>
       </div>
 
       <div class="modal-body compassion-modal__body">
@@ -51,18 +90,10 @@
               <label class="form-label" for="donation-note">Note <span class="text-muted">(optional)</span></label>
               <textarea id="donation-note" name="note" class="form-control" rows="3" placeholder="Prayers, dedications, anything you'd like us to know."></textarea>
             </div>
-            <div class="col-12">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="donation-schedule" name="schedule_call">
-                <label class="form-check-label" for="donation-schedule">
-                  For very large gifts, also <strong>schedule a call</strong> with our team.
-                </label>
-              </div>
-            </div>
           </div>
 
           <div class="compassion-modal__submit">
-            <button type="submit" class="btn-gold btn-lg w-100" id="donationSubmitBtn">
+            <button type="submit" class="compassion-modal__cta btn-lg" id="donationSubmitBtn">
               <i class="fas fa-lock"></i> Continue to Paystack
             </button>
             <p class="compassion-modal__small">

@@ -604,7 +604,7 @@ textarea.form-control {
 
             <div class="form-group">
                 <label class="checkbox-label">
-                    {# Hidden input first so unchecked checkboxes still POST false. #}
+                    {% comment %}Hidden input first so unchecked checkboxes still POST false.{% endcomment %}
                     <input type="hidden" name="is_featured" value="false">
                     <input type="checkbox" name="is_featured" value="true"
                            {% if project.is_featured %}checked{% endif %}>

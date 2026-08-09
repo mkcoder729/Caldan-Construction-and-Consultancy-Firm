@@ -1,4 +1,9 @@
-<div class="modal fade compassion-modal" id="inkindModal" tabindex="-1" aria-hidden="true">
+{% comment %}
+In-kind pledge modal — blue-accent variant of the unified premium system.
+Uses .compassion-modal--items so chrome, badge, header wash, form controls,
+and submit button inherit the blue accent from the shared --accent token set.
+{% endcomment %}
+<div class="modal fade compassion-modal compassion-modal--items" id="inkindModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <button type="button" class="compassion-modal__close" data-bs-dismiss="modal" aria-label="Close">
@@ -6,9 +11,42 @@
       </button>
 
       <div class="modal-header compassion-modal__header">
-        <div class="compassion-modal__eyebrow"><i class="fas fa-box-open"></i> Give Items</div>
-        <h3 class="modal-title">Tell us what you have.</h3>
+        <div class="compassion-modal__head-row">
+          <span class="compassion-modal__badge" aria-hidden="true">
+            <i class="fas fa-box-open"></i>
+          </span>
+          <div class="compassion-modal__head-text">
+            <span class="compassion-modal__eyebrow">
+              <i class="fas fa-box-open"></i> Give Items
+            </span>
+            <h3 class="modal-title">Tell us what you have.</h3>
+          </div>
+        </div>
         <p class="compassion-modal__sub">We'll reply within one business day to arrange pickup, drop-off, or a logistics call.</p>
+
+        <ul class="compassion-modal__expect" aria-label="What to expect">
+          <li>
+            <span class="compassion-modal__expect-icon"><i class="fas fa-truck"></i></span>
+            <div>
+              <strong>Pickup or drop-off</strong>
+              <span>whichever works for you — we adapt</span>
+            </div>
+          </li>
+          <li>
+            <span class="compassion-modal__expect-icon"><i class="fas fa-reply"></i></span>
+            <div>
+              <strong>Reply within 24h</strong>
+              <span>so the goods don't sit around waiting</span>
+            </div>
+          </li>
+          <li>
+            <span class="compassion-modal__expect-icon"><i class="fas fa-handshake"></i></span>
+            <div>
+              <strong>Routed to the right place</strong>
+              <span>food to pantries, books to prison libraries, etc.</span>
+            </div>
+          </li>
+        </ul>
       </div>
 
       <div class="modal-body compassion-modal__body">
@@ -67,9 +105,12 @@
           </div>
 
           <div class="compassion-modal__submit">
-            <button type="submit" class="btn-gold btn-lg w-100">
+            <button type="submit" class="compassion-modal__cta btn-lg">
               <i class="fas fa-paper-plane"></i> Send pledge
             </button>
+            <p class="compassion-modal__small">
+              <i class="fas fa-shield-halved"></i> We'll only use your contact details to coordinate this pledge.
+            </p>
           </div>
         </form>
 

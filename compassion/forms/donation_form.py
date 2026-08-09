@@ -78,13 +78,6 @@ class DonationForm(forms.Form):
         label="Note (optional)",
     )
 
-    schedule_call = forms.BooleanField(
-        required=False,
-        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
-        label="Also schedule a call for large gifts or partnerships",
-        help_text="We'll arrange a conversation before processing any gift over KSh 100,000.",
-    )
-
     phone = make_phone_field()
 
     def clean_amount(self):

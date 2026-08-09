@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Caldan Compassion — Donation Receipt {{ donation.reference }}</title>
+    {% load humanize %}
+    <style>
+        @page {
+            size: A5;
+            margin: 1.5cm 1.5cm 1.5cm 1.5cm;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', 'Helvetica Neue', Arial, serif;
+            color: #0D2B36;
+            font-size: 10pt;
+            line-height: 1.6;
+            background: #FFFFFF;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .document {
+            max-width: 100%;
+            background: #FDFBF8;
+        }
+
+        /* ===== HEADER ===== */
+        .receipt-header {
+            background: linear-gradient(135deg, #0D2B36 0%, #14333F 100%);
+            color: #F6F1E8;
+            padding: 18px 16px 14px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .receipt-header .logo {
+            width: 80px;
+            height: auto;
+            display: block;
+            margin: 0 auto 8px;
+            background: #FDFBF8;
+            padding: 6px;
+            border-radius: 4px;
+        }
+        .receipt-header .eyebrow {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 7pt;
+            letter-spacing: 2.5px;
+            color: #D4AF37;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .receipt-header .brand {
+            font-family: 'Georgia', serif;
+            font-size: 13pt;
+            font-weight: 700;
+            color: #FFFFFF;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+        .receipt-header .tagline {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 7pt;
+            font-weight: 500;
+            color: #D4AF37;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* ===== REFERENCE STRIP ===== */
+        .ref-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: #FDF6E3;
+            border: 1px solid #D4AF37;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+        .ref-strip .label {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 7.5pt;
+            color: #9C7A1F;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+        .ref-strip .value {
+            font-family: 'Georgia', serif;
+            font-size: 11pt;
+            font-weight: 700;
+            color: #0D2B36;
+        }
+
+        /* ===== DETAIL ROWS ===== */
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #E8E0D4;
+            font-size: 9.5pt;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        .detail-row .label { color: #475569; }
+        .detail-row .value { font-weight: 600; color: #0D2B36; }
+
+        /* ===== AMOUNT BOX ===== */
+        .amount-box {
+            margin-top: 12px;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, #0D2B36 0%, #14333F 100%);
+            color: #F6F1E8;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Georgia', serif;
+            border: 1px solid #1A4050;
+        }
+        .amount-box .label-side .label-eyebrow {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 7pt;
+            color: #D4AF37;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .amount-box .label-side .purpose {
+            font-size: 10pt;
+            color: #F6F1E8;
+            font-weight: 600;
+        }
+        .amount-box .amount {
+            font-size: 16pt;
+            font-weight: 700;
+            color: #D4AF37;
+            font-family: 'Georgia', serif;
+        }
+
+        /* ===== NOTE ===== */
+        .note-box {
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: #FFFFFF;
+            border-left: 3px solid #D4AF37;
+            border-radius: 0 4px 4px 0;
+            font-size: 9pt;
+            color: #475569;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        .note-box .label {
+            font-size: 7.5pt;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9C7A1F;
+            margin-bottom: 4px;
+        }
+        .note-box blockquote {
+            font-style: italic;
+            color: #0D2B36;
+            line-height: 1.5;
+        }
+
+        /* ===== STATUS ===== */
+        .status-box {
+            margin-top: 12px;
+            padding: 8px 12px;
+            text-align: center;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 8.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            border: 1px solid transparent;
+        }
+        .status-box.confirmed { background: #DCFCE7; color: #14532D; border-color: #86EFAC; }
+        .status-box.pending { background: #FEF3C7; color: #92400E; border-color: #F5D99E; }
+
+        /* ===== FOOTER ===== */
+        .receipt-footer {
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 2px solid #D4AF37;
+            text-align: center;
+            font-family: 'Georgia', serif;
+            color: #0D2B36;
+        }
+        .receipt-footer .verse {
+            font-size: 9pt;
+            font-style: italic;
+            color: #475569;
+            line-height: 1.5;
+            margin-bottom: 6px;
+        }
+        .receipt-footer .verse .ref {
+            font-size: 7.5pt;
+            color: #9C7A1F;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .receipt-footer .thanks {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 8pt;
+            color: #475569;
+            margin-top: 6px;
+        }
+
+        .page-footer {
+            margin-top: 16px;
+            padding-top: 8px;
+            border-top: 1px solid #E8E0D4;
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 7pt;
+            color: #94A3B8;
+        }
+        .page-footer .footer-brand {
+            color: #0D2B36;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="document">
+
+        <!-- HEADER -->
+        <div class="receipt-header">
+            <img class="logo" src="https://res.cloudinary.com/nifbnyz2/image/upload/v1786023292/caldan/caldan/logo_dark.png" alt="Caldan Construction">
+            <div class="eyebrow">Caldan Compassionate Ministry</div>
+            <div class="brand">Gift Receipt</div>
+            <div class="tagline">Loving our neighbours. Every step of the way.</div>
+        </div>
+
+        <!-- REFERENCE -->
+        <div class="ref-strip">
+            <div>
+                <div class="label">Reference</div>
+                <div class="value">{{ donation.reference }}</div>
+            </div>
+            <div style="text-align: right;">
+                <div class="label">Date</div>
+                <div class="value">{{ donation.verified_at|date:"F j, Y"|default:donation.created_at|date:"F j, Y" }}</div>
+            </div>
+        </div>
+
+        <!-- DONOR -->
+        <div class="detail-row">
+            <span class="label">Donor</span>
+            <span class="value">{{ donation.donor_name }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="label">Email</span>
+            <span class="value">{{ donation.donor_email }}</span>
+        </div>
+        {% if donation.donor_phone %}
+        <div class="detail-row">
+            <span class="label">Phone</span>
+            <span class="value">{{ donation.donor_phone }}</span>
+        </div>
+        {% endif %}
+
+        <!-- AMOUNT -->
+        <div class="amount-box">
+            <div class="label-side">
+                <div class="label-eyebrow">Designation</div>
+                <div class="purpose">{{ donation.get_purpose_display }}</div>
+            </div>
+            <div class="amount">KES {{ donation.amount_ksh|intcomma }}</div>
+        </div>
+
+        {% if donation.note %}
+        <!-- NOTE -->
+        <div class="note-box">
+            <div class="label">Your note</div>
+            <blockquote>{{ donation.note }}</blockquote>
+        </div>
+        {% endif %}
+
+        <!-- STATUS -->
+        <div class="status-box {% if donation.status == 'SUCCESS' %}confirmed{% else %}pending{% endif %}">
+            {% if donation.status == 'SUCCESS' %}
+                Payment confirmed &middot; {{ donation.verified_at|date:"F j, Y, P" }}
+            {% else %}
+                Awaiting payment confirmation
+            {% endif %}
+        </div>
+
+        {% if donation.paystack_reference %}
+        <div class="detail-row" style="margin-top: 12px;">
+            <span class="label">Paystack ref</span>
+            <span class="value" style="font-family: monospace; font-size: 8.5pt;">{{ donation.paystack_reference }}</span>
+        </div>
+        {% endif %}
+
+        <!-- FOOTER -->
+        <div class="receipt-footer">
+            <div class="verse">
+                Each of you should give what you have decided in your heart to give
+                — not reluctantly or under compulsion, for God loves a cheerful giver.
+                <div class="ref">— 2 Corinthians 9:7</div>
+            </div>
+            <div class="thanks">
+                Your gift is being routed to {{ donation.get_purpose_display|lower }}.<br>
+                Thank you for partnering with us.
+            </div>
+        </div>
+
+        <div class="page-footer">
+            <span class="footer-brand">Caldan Compassionate Ministry</span>
+            <span>Donation Receipt</span>
+            <span>{{ donation.reference }}</span>
+        </div>
+
+    </div>
+</body>
+</html>

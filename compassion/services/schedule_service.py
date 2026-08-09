@@ -69,6 +69,7 @@ class ScheduleService:
             details={"old": old_status, "new": new_status},
             request=request,
         )
+        cls._send_donor_status_update(call, old_status, new_status)
 
     # ───── Side effects ─────
 
@@ -76,7 +77,7 @@ class ScheduleService:
     def _send_donor_confirmation(cls, call) -> None:
         try:
             from notifications.services.email_service import EmailService
-            EmailService.send_schedule_call_donor(call)
+            EmailService.send_schedule_call_donor_with_pdf(call)
         except Exception as exc:
             logger.exception("Schedule donor confirmation failed for %s: %s", call.id, exc)
 
@@ -87,6 +88,18 @@ class ScheduleService:
             EmailService.send_schedule_call_admin(call)
         except Exception as exc:
             logger.exception("Schedule admin alert failed for %s: %s", call.id, exc)
+
+    @classmethod
+    def _send_donor_status_update(cls, call, old_status: str, new_status: str) -> None:
+        try:
+            from notifications.services.email_service import EmailService
+            EmailService.send_schedule_call_status_change_donor(
+                call, old_status=old_status, new_status=new_status
+            )
+        except Exception as exc:
+            logger.exception(
+                "Schedule donor status update failed for %s: %s", call.id, exc
+            )
 
     @classmethod
     def _notify_admins(cls, call) -> None:

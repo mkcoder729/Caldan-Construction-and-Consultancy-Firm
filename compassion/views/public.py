@@ -9,7 +9,7 @@ redirected back to the index with a Django message.
 import logging
 
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_http_methods
 
@@ -18,7 +18,6 @@ from compassion.forms import (
     InKindDonationForm,
     ScheduleCallForm,
 )
-from compassion.models import ScheduleCall
 from compassion.services.donation_service import DonationService
 from compassion.services.inkind_service import InKindService
 from compassion.services.schedule_service import ScheduleService
@@ -53,6 +52,12 @@ def compassion_index(request):
     inkind_form = InKindDonationForm()
     call_form = ScheduleCallForm()
 
+    # Paystack public key is needed by the inline JS to open the popup
+    # over our site. Empty string when not configured — the JS guard
+    # falls back to the redirect flow.
+    from django.conf import settings as dj_settings
+    paystack_public_key = getattr(dj_settings, "PAYSTACK_PUBLIC_KEY", "") or ""
+
     context = {
         "ministry": settings,
         "stories": stories,
@@ -60,6 +65,7 @@ def compassion_index(request):
         "donation_form": donation_form,
         "inkind_form": inkind_form,
         "call_form": call_form,
+        "paystack_public_key": paystack_public_key,
         "page_title": "Compassionate Ministry",
         "meta_description": (
             "Give money, items, or schedule a call. Every gift reaches a "
@@ -84,7 +90,7 @@ def donate_page(request):
 @require_http_methods(["POST"])
 def donate_initiate(request):
     """AJAX endpoint: validate form → create PENDING Donation →
-    call Paystack → return authorization_url JSON.
+    call Paystack → return authorization_url + access_code JSON.
     """
     form = DonationForm(request.POST)
     if not form.is_valid():
@@ -95,37 +101,6 @@ def donate_initiate(request):
 
     cleaned = form.cleaned_data
 
-    # If "schedule a call" is ticked, we treat this as a partnership
-    # request — create a ScheduleCall row and don't initiate a charge.
-    if cleaned.get("schedule_call"):
-        try:
-            call = ScheduleService.create_call_request(
-                name=cleaned["name"],
-                email=cleaned["email"],
-                phone=cleaned["phone"],
-                topic=ScheduleCall.Topic.LARGE_DONATION,
-                preferred_time="To be arranged",
-                message=(
-                    f"Large donation inquiry of KES {cleaned['amount']} "
-                    f"for {cleaned['purpose']}. {cleaned.get('note', '')}".strip()
-                ),
-                request=request,
-            )
-            return JsonResponse(
-                {
-                    "success": True,
-                    "schedule_call_id": call.id,
-                    "message": "Thanks — we'll be in touch to arrange your call.",
-                }
-            )
-        except Exception as exc:
-            logger.exception("schedule_call from donate_initiate failed: %s", exc)
-            return JsonResponse(
-                {"success": False, "error": "We could not save your call request. Please try again."},
-                status=500,
-            )
-
-    # Otherwise, normal Paystack-initiated donation flow.
     try:
         donation = DonationService.create_pending_donation(
             name=cleaned["name"],
@@ -156,6 +131,7 @@ def donate_initiate(request):
         {
             "success": True,
             "authorization_url": paystack.get("authorization_url"),
+            "access_code": paystack.get("access_code"),
             "reference": paystack.get("reference"),
             "donation_id": donation.id,
         }
@@ -270,6 +246,103 @@ def donation_thank_you(request):
             "meta_description": "Thank you for supporting Caldan Compassionate Ministry.",
         },
     )
+
+
+@require_http_methods(["GET"])
+def donation_status_json(request):
+    """JSON status endpoint used by the thank-you page's verifying card.
+
+    Returns minimal fields so the donor sees the receipt "land" without a
+    full page reload while Paystack's webhook is still settling.
+
+    Response shape:
+        {"status": "PENDING|SUCCESS|FAILED|ABANDONED",
+         "donor_name": str,
+         "amount_ksh": str,
+         "purpose": str,
+         "purpose_display": str,
+         "reference": str,
+         "paystack_reference": str | null,
+         "verified_at": iso8601 | null,
+         "resolved": bool}
+    """
+    from compassion.models import Donation  # local import: avoid circular
+
+    ref = request.GET.get("ref", "").strip()
+    if not ref:
+        return JsonResponse({"success": False, "error": "missing ref"}, status=400)
+
+    donation = Donation.objects.filter(reference=ref).first()
+    if donation is None:
+        # The Paystack webhook hasn't created/updated the row yet — tell
+        # the client to keep polling.
+        return JsonResponse(
+            {
+                "success": True,
+                "resolved": False,
+                "status": "PENDING",
+                "reference": ref,
+            }
+        )
+
+    return JsonResponse(
+        {
+            "success": True,
+            "resolved": True,
+            "status": donation.status,
+            "donor_name": donation.donor_name,
+            "amount_ksh": str(donation.amount_ksh),
+            "purpose": donation.purpose,
+            "purpose_display": donation.get_purpose_display(),
+            "reference": donation.reference,
+            "paystack_reference": donation.paystack_reference or "",
+            "verified_at": donation.verified_at.isoformat() if donation.verified_at else "",
+        }
+    )
+
+
+@require_http_methods(["GET"])
+def donation_receipt_pdf(request):
+    """Stream the donor-facing PDF receipt.
+
+    Generates (or fetches from cache) the branded A5 PDF. Only succeeds
+    when the donation is SUCCESS — a pending donation doesn't have a
+    receipt to issue.
+    """
+    from compassion.models import Donation  # local import: avoid circular
+    from reports.services.pdf_service import PDFService
+
+    ref = request.GET.get("ref", "").strip()
+    if not ref:
+        return JsonResponse({"success": False, "error": "missing ref"}, status=400)
+
+    donation = Donation.objects.filter(reference=ref).first()
+    if donation is None:
+        return JsonResponse({"success": False, "error": "donation not found"}, status=404)
+    if donation.status != Donation.Status.SUCCESS:
+        return JsonResponse(
+            {"success": False, "error": "receipt is only available after Paystack confirms"},
+            status=409,
+        )
+
+    try:
+        pdf_path = PDFService.generate_compassion_donation_receipt(donation)
+    except Exception as exc:
+        logger.exception("Receipt PDF generation failed for %s: %s", donation.reference, exc)
+        return JsonResponse(
+            {"success": False, "error": "we could not generate your receipt right now"},
+            status=500,
+        )
+
+    with open(pdf_path, "rb") as fh:
+        pdf_bytes = fh.read()
+
+    response = HttpResponse(pdf_bytes, content_type="application/pdf")
+    response["Content-Disposition"] = (
+        f'attachment; filename="Caldan-Receipt-{donation.reference}.pdf"'
+    )
+    response["Content-Length"] = str(len(pdf_bytes))
+    return response
 
 
 def story_detail(request, slug):

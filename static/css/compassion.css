@@ -538,10 +538,24 @@
     display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
 }
 
-/* ───── Modals ───── */
+/* ================================================================
+   COMPASSION MODALS — premium unified design system
+   Three modals share the same visual language:
+     - blurred dark backdrop
+     - accent stripe across the card crown
+     - iconographic badge in the header (a tinted circle with the action icon)
+     - soft header wash tinted with the accent
+     - "what to expect" reassurance strip
+     - premium form controls (focusable, accessible, generous padding)
+     - per-accent submit button with gradient + lift + colored shadow
+   Each modal differs only in its accent color + icon + copy:
+     - .compassion-modal--money  → gold   (#D4AF37)
+     - .compassion-modal--items  → blue   (#0B66C3)
+     - .compassion-modal--call   → green  (#27AE60)
+   ================================================================ */
 
-/* Blurred dark backdrop — replaces Bootstrap's solid black scrim.
-   backdrop-filter needs the -webkit prefix for Safari. */
+/* ───── Backdrop ───── */
+
 .modal-backdrop.show {
     opacity: 1;
     background: rgba(11, 20, 32, 0.55);
@@ -552,14 +566,50 @@
     opacity: 0.85;
 }
 
+/* ───── Per-modal accent tokens ───── */
+
 .compassion-modal {
     --modal-card-radius: 18px;
+    /* Defaults — overridden by the variant below. */
+    --accent: var(--compassion-gold);
+    --accent-deep: var(--compassion-gold-deep);
+    --accent-soft: rgba(212, 175, 55, 0.14);
+    --accent-line: rgba(212, 175, 55, 0.28);
+    --accent-glow: rgba(212, 175, 55, 0.12);
+    --accent-shadow: 0 6px 18px rgba(212, 175, 55, 0.28);
+    --accent-shadow-hover: 0 10px 26px rgba(212, 175, 55, 0.38);
 }
+.compassion-modal--money {
+    --accent: var(--compassion-gold);
+    --accent-deep: var(--compassion-gold-deep);
+    --accent-soft: rgba(212, 175, 55, 0.14);
+    --accent-line: rgba(212, 175, 55, 0.28);
+    --accent-glow: rgba(212, 175, 55, 0.12);
+    --accent-shadow: 0 6px 18px rgba(212, 175, 55, 0.28);
+    --accent-shadow-hover: 0 10px 26px rgba(212, 175, 55, 0.38);
+}
+.compassion-modal--items {
+    --accent: var(--compassion-blue);
+    --accent-deep: #084F94;
+    --accent-soft: rgba(11, 102, 195, 0.14);
+    --accent-line: rgba(11, 102, 195, 0.28);
+    --accent-glow: rgba(11, 102, 195, 0.12);
+    --accent-shadow: 0 6px 18px rgba(11, 102, 195, 0.28);
+    --accent-shadow-hover: 0 10px 26px rgba(11, 102, 195, 0.38);
+}
+.compassion-modal--call {
+    --accent: var(--compassion-green);
+    --accent-deep: #1F8B4E;
+    --accent-soft: rgba(39, 174, 96, 0.14);
+    --accent-line: rgba(39, 174, 96, 0.28);
+    --accent-glow: rgba(39, 174, 96, 0.12);
+    --accent-shadow: 0 6px 18px rgba(39, 174, 96, 0.28);
+    --accent-shadow-hover: 0 10px 26px rgba(39, 174, 96, 0.38);
+}
+
+/* ───── Card chrome ───── */
+
 .compassion-modal .modal-dialog {
-    /* Preserve Bootstrap's auto horizontal centering.
-       Vertical centering is provided by .modal-dialog-centered on the
-       element itself and the min-height ensures the full height is
-       available even when the modal is taller than the viewport. */
     margin-left: auto;
     margin-right: auto;
     max-width: 640px;
@@ -586,7 +636,429 @@
     opacity: 1;
 }
 
-/* ───── Redirect overlay (shown while handing off to Paystack) ───── */
+/* Top stripe — the 4px accent line that runs across the card crown. */
+.compassion-modal .modal-content::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-deep) 50%, var(--accent) 100%);
+    z-index: 2;
+}
+
+/* ───── Header ───── */
+
+.compassion-modal__header {
+    padding: 36px 36px 0;
+    border-bottom: none;
+    position: relative;
+    background:
+        radial-gradient(560px 220px at 88% 0%, var(--accent-glow), transparent 65%),
+        radial-gradient(420px 200px at 4% 100%, var(--accent-glow), transparent 65%),
+        var(--bg-card);
+}
+.compassion-modal__close {
+    position: absolute; top: 18px; right: 18px;
+    width: 36px; height: 36px;
+    background: rgba(13,43,54,0.06);
+    border: none; border-radius: 50%;
+    color: var(--text-primary);
+    cursor: pointer;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+.compassion-modal__close:hover {
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    transform: rotate(90deg);
+}
+.compassion-modal__close:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Iconographic badge — sits in the header left of the title block. */
+.compassion-modal__badge {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+    border: 1px solid var(--accent-line);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.compassion-modal__head-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+}
+.compassion-modal__head-row .compassion-modal__badge {
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+.compassion-modal__head-row .compassion-modal__head-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.compassion-modal__eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--accent-deep);
+    font-size: 0.74rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 4px;
+}
+.compassion-modal__eyebrow i {
+    font-size: 0.78rem;
+}
+
+.compassion-modal .modal-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.55rem;
+    color: var(--text-primary);
+    font-weight: 800;
+    margin: 0;
+    padding-right: 40px;  /* leave room for close button */
+    line-height: 1.22;
+    letter-spacing: -0.01em;
+}
+.compassion-modal__sub {
+    color: var(--text-secondary);
+    margin: 6px 0 0;
+    font-size: 0.94rem;
+    line-height: 1.5;
+}
+
+/* "What to expect" reassurance strip — three short bullets. */
+.compassion-modal__expect {
+    list-style: none;
+    margin: 22px 0 0;
+    padding: 18px 0 0;
+    border-top: 1px dashed var(--border-primary);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+.compassion-modal__expect li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: var(--text-secondary);
+}
+.compassion-modal__expect li > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.compassion-modal__expect li strong {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 0.86rem;
+}
+.compassion-modal__expect-icon {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+}
+
+/* ───── Body ───── */
+
+.compassion-modal__body {
+    padding: 26px 36px 32px;
+}
+
+/* ───── Form controls ───── */
+
+.compassion-modal .form-label {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.01em;
+}
+.compassion-modal .form-label .text-muted {
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    margin-left: 2px;
+}
+.compassion-modal .form-control,
+.compassion-modal .form-select {
+    padding: 11px 14px;
+    border: 1px solid var(--border-primary);
+    border-radius: 10px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.93rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.compassion-modal .form-control::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+.compassion-modal .form-control:hover,
+.compassion-modal .form-select:hover {
+    border-color: var(--accent-line);
+}
+.compassion-modal .form-control:focus,
+.compassion-modal .form-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+    outline: none;
+}
+.compassion-modal .form-check-input {
+    width: 18px;
+    height: 18px;
+    margin-top: 0.15em;
+    border-color: var(--border-primary);
+    cursor: pointer;
+}
+.compassion-modal .form-check-input:checked {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+.compassion-modal .form-check-input:focus {
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.compassion-modal .form-check-label {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    padding-left: 4px;
+    cursor: pointer;
+}
+.compassion-modal textarea.form-control {
+    resize: vertical;
+    min-height: 88px;
+}
+
+/* ───── Quick-amount pills (donation modal) ─────
+   Inherits the active accent — looks correct for any modal variant. */
+
+.compassion-modal__quick-amounts {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 20px;
+}
+.quick-amount {
+    padding: 10px 16px;
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    border: 1px solid var(--accent-line);
+    border-radius: 999px;
+    font-weight: 700; font-size: 0.84rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+.quick-amount:hover {
+    background: var(--accent);
+    color: var(--compassion-navy);
+    transform: translateY(-1px);
+    box-shadow: var(--accent-shadow);
+}
+.quick-amount.active {
+    background: var(--accent);
+    color: var(--compassion-navy);
+    border-color: var(--accent);
+    box-shadow: var(--accent-shadow);
+}
+
+/* ───── Topic chips (schedule-call modal) ───── */
+
+.compassion-modal__chips {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+.compassion-call-card__chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border-primary);
+    border-radius: 10px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+    margin: 0;
+}
+.compassion-call-card__chip i {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    transition: color 0.18s ease;
+}
+.compassion-call-card__chip span {
+    line-height: 1.3;
+}
+.compassion-call-card__chip:hover {
+    border-color: var(--accent-line);
+    background: var(--accent-soft);
+}
+.btn-check:checked + .compassion-call-card__chip {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.btn-check:checked + .compassion-call-card__chip i {
+    color: var(--accent-deep);
+}
+.btn-check:focus-visible + .compassion-call-card__chip {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* ───── Numbered sections (schedule-call modal) ───── */
+
+.compassion-modal__section {
+    margin-bottom: 22px;
+}
+.compassion-modal__section:last-of-type {
+    margin-bottom: 8px;
+}
+.compassion-modal__section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent-deep);
+    margin: 0 0 12px;
+}
+.compassion-modal__section-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+/* ───── Submit button — per-accent gradient with lift + colored shadow ───── */
+
+.compassion-modal__submit {
+    margin-top: 26px;
+}
+.compassion-modal__cta {
+    width: 100%;
+    padding: 14px 22px;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.98rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: var(--accent-shadow);
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.18s ease,
+        filter 0.18s ease;
+}
+.compassion-modal__cta i {
+    color: #fff;
+    font-size: 0.92rem;
+}
+.compassion-modal__cta:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--accent-shadow-hover);
+    color: #fff;
+    filter: brightness(1.05);
+}
+.compassion-modal__cta:active:not(:disabled) {
+    transform: translateY(0);
+}
+.compassion-modal__cta:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+.compassion-modal__cta:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+.compassion-modal__cta.btn-lg {
+    padding: 16px 26px;
+    font-size: 1.02rem;
+}
+
+.compassion-modal__small {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin: 12px 0 0;
+    line-height: 1.5;
+}
+.compassion-modal__small i {
+    color: var(--accent);
+    margin-right: 4px;
+}
+
+/* ───── Feedback banner ───── */
+
+.compassion-modal__feedback {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+}
+.compassion-modal__feedback.success {
+    background: rgba(39,174,96,0.10);
+    color: var(--compassion-green);
+    border: 1px solid rgba(39,174,96,0.28);
+}
+.compassion-modal__feedback.error {
+    background: rgba(192, 57, 43, 0.10);
+    color: #C0392B;
+    border: 1px solid rgba(192, 57, 43, 0.28);
+}
+
+/* ───── Redirect overlay (Paystack hand-off) ───── */
 
 .compassion-redirect-overlay {
     position: absolute;
@@ -615,9 +1087,9 @@
     height: 56px;
     margin: 0 auto 18px;
     border-radius: 50%;
-    border: 4px solid rgba(212, 175, 55, 0.18);
-    border-top-color: var(--compassion-gold);
-    border-right-color: var(--compassion-gold);
+    border: 4px solid var(--accent-glow);
+    border-top-color: var(--accent);
+    border-right-color: var(--accent);
     animation: compassionRedirectSpin 0.9s linear infinite;
 }
 @keyframes compassionRedirectSpin {
@@ -634,7 +1106,7 @@
     gap: 10px;
 }
 .compassion-redirect-overlay__title i {
-    color: var(--compassion-gold);
+    color: var(--accent);
     font-size: 1rem;
 }
 .compassion-redirect-overlay__sub {
@@ -643,84 +1115,105 @@
     margin: 0;
     line-height: 1.5;
 }
-
-/* Dark mode: lighter overlay so it stays legible */
 [data-theme="dark"] .compassion-redirect-overlay {
     background: rgba(13, 31, 42, 0.82);
 }
-[data-theme="dark"] .compassion-redirect-overlay__spinner {
-    border-color: rgba(212, 175, 55, 0.24);
+
+/* ───── intl-tel-input overrides (schedule-call modal only) ───── */
+
+.compassion-modal--call .iti {
+    width: 100%;
 }
-.compassion-modal__header {
-    padding: 32px 36px 0;
-    border-bottom: none;
-    position: relative;
-    background:
-        radial-gradient(500px 200px at 80% 0%, rgba(212,175,55,0.12), transparent 65%),
-        var(--bg-card);
+.compassion-modal--call .iti__flag-container {
+    padding: 0;
 }
-.compassion-modal__close {
-    position: absolute; top: 18px; right: 18px;
-    width: 36px; height: 36px;
-    background: rgba(13,43,54,0.06);
-    border: none; border-radius: 50%;
-    color: var(--text-primary);
-    cursor: pointer;
-    z-index: 2;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s ease, transform 0.2s ease;
+.compassion-modal--call .iti__selected-flag {
+    height: 44px;
+    padding: 0 12px;
+    border-radius: 8px 0 0 8px;
+    background: var(--bg-primary);
+    border-right: 1px solid var(--border-primary);
+    transition: background 0.18s ease;
 }
-.compassion-modal__close:hover {
-    background: rgba(13,43,54,0.12);
-    transform: rotate(90deg);
+.compassion-modal--call .iti__selected-flag:hover {
+    background: var(--accent-soft);
 }
-.compassion-modal__eyebrow {
-    display: inline-flex; align-items: center; gap: 8px;
-    color: var(--compassion-gold-deep);
-    font-size: 0.78rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.8px;
-    margin-bottom: 8px;
-}
-.modal-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.55rem;
-    color: var(--text-primary);
-    font-weight: 800;
-    margin: 0 0 6px;
-    padding-right: 40px;  /* leave room for close button */
-    line-height: 1.25;
-}
-.compassion-modal__sub {
-    color: var(--text-secondary);
-    margin: 0;
+.compassion-modal--call .iti__country-list {
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(13, 43, 54, 0.18);
     font-size: 0.9rem;
-    line-height: 1.5;
 }
-.compassion-modal__body {
-    padding: 24px 36px 32px;
+.compassion-modal--call .iti--allow-dropdown input,
+.compassion-modal--call .iti--separate-dial-code input {
+    height: 44px;
+    padding-left: 60px !important;
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.93rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.compassion-modal--call .iti--allow-dropdown input:hover,
+.compassion-modal--call .iti--separate-dial-code input:hover {
+    border-color: var(--accent-line);
+}
+.compassion-modal--call .iti--allow-dropdown input:focus,
+.compassion-modal--call .iti--separate-dial-code input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+    outline: none;
 }
 
-/* Form controls inside modals — Bootstrap defaults are fine but we want
-   tighter spacing + clear error states. */
-.compassion-modal .form-label {
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--text-primary);
-    margin-bottom: 6px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+/* ───── Responsive ───── */
+
+@media (max-width: 576px) {
+    .compassion-modal .modal-dialog { margin-left: 0.75rem; margin-right: 0.75rem; }
+    .compassion-modal__header { padding: 28px 22px 0; }
+    .compassion-modal__body { padding: 22px 22px 26px; }
+    .compassion-modal .modal-title { font-size: 1.32rem; }
+    .compassion-modal__expect { grid-template-columns: 1fr; gap: 12px; }
+    .compassion-modal__chips { grid-template-columns: 1fr; }
+    .compassion-modal__badge { width: 48px; height: 48px; font-size: 1.2rem; }
+    .compassion-modal__head-row { gap: 12px; }
 }
-.compassion-modal .form-label .text-muted {
-    font-weight: 400;
-    color: var(--text-secondary);
-    font-size: 0.8rem;
+@media (max-width: 380px) {
+    .compassion-modal__cta.btn-lg { padding: 14px 18px; font-size: 0.96rem; }
 }
-.compassion-modal .form-control,
-.compassion-modal .form-select {
-    padding: 10px 14px;
+
+/* ──────────────────────────────────────────────────────────────────
+   intl-tel-input overrides — scoped to schedule-call only.
+   The library injects its own DOM around the phone input; these rules
+   keep the field consistent with the rest of the modal form controls
+   and apply the green focus state.
+   ────────────────────────────────────────────────────────────────── */
+
+.compassion-modal--call .iti {
+    width: 100%;
+}
+.compassion-modal--call .iti__flag-container {
+    padding: 0;
+}
+.compassion-modal--call .iti__selected-flag {
+    height: 44px;
+    padding: 0 12px;
+    border-radius: 8px 0 0 8px;
+    background: var(--bg-primary);
+    border-right: 1px solid var(--border-primary);
+    transition: background 0.18s ease;
+}
+.compassion-modal--call .iti__selected-flag:hover {
+    background: rgba(13,43,54,0.04);
+}
+.compassion-modal--call .iti__country-list {
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(13,43,54,0.18);
+    font-size: 0.9rem;
+}
+.compassion-modal--call .iti--allow-dropdown input,
+.compassion-modal--call .iti--separate-dial-code input {
+    height: 44px;
+    padding-left: 60px !important;
     border: 1px solid var(--border-primary);
     border-radius: 8px;
     background: var(--bg-primary);
@@ -728,86 +1221,11 @@
     font-size: 0.92rem;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.compassion-modal .form-control:focus,
-.compassion-modal .form-select:focus {
-    border-color: var(--compassion-gold);
-    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+.compassion-modal--call .iti--allow-dropdown input:focus,
+.compassion-modal--call .iti--separate-dial-code input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
     outline: none;
-}
-.compassion-modal .form-check-input {
-    width: 18px;
-    height: 18px;
-    margin-top: 0.15em;
-    border-color: var(--border-primary);
-    cursor: pointer;
-}
-.compassion-modal .form-check-input:checked {
-    background-color: var(--compassion-gold);
-    border-color: var(--compassion-gold);
-}
-.compassion-modal .form-check-label {
-    font-size: 0.88rem;
-    color: var(--text-secondary);
-    line-height: 1.4;
-    padding-left: 4px;
-    cursor: pointer;
-}
-
-.compassion-modal__quick-amounts {
-    display: flex; flex-wrap: wrap; gap: 8px;
-    margin-bottom: 18px;
-}
-.quick-amount {
-    padding: 9px 16px;
-    background: rgba(212,175,55,0.10);
-    color: var(--compassion-gold-deep);
-    border: 1px solid rgba(212,175,55,0.28);
-    border-radius: 999px;
-    font-weight: 700; font-size: 0.84rem;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.2s ease;
-}
-.quick-amount:hover {
-    background: var(--compassion-gold);
-    color: var(--compassion-navy);
-    transform: translateY(-1px);
-}
-.quick-amount.active {
-    background: var(--compassion-gold);
-    color: var(--compassion-navy);
-    border-color: var(--compassion-gold);
-}
-.compassion-modal__submit {
-    margin-top: 22px;
-}
-.compassion-modal__small {
-    text-align: center;
-    color: var(--text-secondary);
-    font-size: 0.8rem;
-    margin: 12px 0 0;
-    line-height: 1.5;
-}
-.compassion-modal__small i { color: var(--compassion-green); margin-right: 4px; }
-.compassion-modal__feedback {
-    margin-top: 16px;
-    padding: 14px 16px;
-    border-radius: 10px;
-    font-size: 0.92rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    line-height: 1.5;
-}
-.compassion-modal__feedback.success {
-    background: rgba(39,174,96,0.10);
-    color: var(--compassion-green);
-    border: 1px solid rgba(39,174,96,0.28);
-}
-.compassion-modal__feedback.error {
-    background: rgba(192, 57, 43, 0.10);
-    color: #C0392B;
-    border: 1px solid rgba(192, 57, 43, 0.28);
 }
 
 @media (max-width: 576px) {
@@ -1281,9 +1699,9 @@
 
 /* ================================================================
    THANK YOU PAGE
-   Three-act confirmation: hero banner → receipt card → continue CTA.
-   Theme-aware — uses the same tokens as the rest of the compassion
-   site so light/dark mode flows uniformly.
+   Single-column funnel: hero celebration → receipt card → next
+   steps row → continue grid. No sidebar, no dead space, no
+   sticky alignment that's wasted on shorter pages.
    ================================================================ */
 
 /* ───── Hero banner with animated checkmark ───── */
@@ -1291,7 +1709,7 @@
 .thanks-hero {
     position: relative;
     overflow: hidden;
-    padding: 96px 0 80px;
+    padding: 80px 0 64px;
     background:
         radial-gradient(900px 360px at 12% 18%, rgba(39, 174, 96, 0.18), transparent 60%),
         radial-gradient(700px 320px at 88% 80%, rgba(212, 175, 55, 0.18), transparent 65%),
@@ -1337,9 +1755,9 @@
     margin: 0 auto;
 }
 .thanks-hero__check {
-    width: 96px;
-    height: 96px;
-    margin: 0 auto 24px;
+    width: 84px;
+    height: 84px;
+    margin: 0 auto 20px;
     border-radius: 50%;
     background:
         radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 65%),
@@ -1353,8 +1771,8 @@
     position: relative;
 }
 .thanks-hero__check-svg {
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
 }
 .thanks-hero__check-circle {
     stroke: rgba(255, 255, 255, 0.95);
@@ -1380,7 +1798,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin: 0 0 16px;
+    margin: 0 0 14px;
     padding: 6px 16px;
     background: rgba(39, 174, 96, 0.14);
     border: 1px solid rgba(39, 174, 96, 0.32);
@@ -1393,11 +1811,11 @@
 }
 .thanks-hero__title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(2rem, 4vw, 3rem);
+    font-size: clamp(1.9rem, 3.6vw, 2.7rem);
     line-height: 1.15;
     font-weight: 800;
     color: var(--text-primary);
-    margin: 0 0 18px;
+    margin: 0 0 14px;
     letter-spacing: -0.5px;
 }
 .thanks-hero__name {
@@ -1409,21 +1827,22 @@
 }
 .thanks-hero__subtitle {
     color: var(--text-secondary);
-    font-size: 1.08rem;
-    line-height: 1.65;
+    font-size: 1.04rem;
+    line-height: 1.6;
     max-width: 580px;
     margin: 0 auto;
 }
 .thanks-hero__subtitle strong { color: var(--text-primary); font-weight: 700; }
 
-/* ───── Summary grid: receipt + next-steps ───── */
+/* ───── Receipt section — single column, max 720px ───── */
 
-.thanks-summary { padding: 0 0 72px; background: var(--bg-secondary); }
-.thanks-summary__grid {
-    display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: 32px;
-    align-items: start;
+.thanks-receipt-section {
+    padding: 0 0 56px;
+    background: var(--bg-secondary);
+}
+.thanks-receipt-section__inner {
+    max-width: 720px;
+    margin: 0 auto;
 }
 
 /* Receipt card */
@@ -1431,7 +1850,7 @@
     background: var(--bg-card);
     border: 1px solid var(--border-primary);
     border-radius: 18px;
-    padding: 36px 36px;
+    padding: 32px 32px;
     box-shadow: 0 6px 24px rgba(13, 43, 54, 0.06);
     position: relative;
     overflow: hidden;
@@ -1443,114 +1862,129 @@
     height: 4px;
     background: linear-gradient(90deg, var(--compassion-green) 0%, var(--compassion-gold) 100%);
 }
-.thanks-receipt__head {
+
+/* Top row: brand + status pill */
+.thanks-receipt__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.thanks-receipt__brand {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding-bottom: 22px;
-    margin-bottom: 24px;
-    border-bottom: 1px dashed var(--border-primary);
+    gap: 14px;
 }
-.thanks-receipt__head-icon {
-    width: 48px;
-    height: 48px;
+.thanks-receipt__brand-icon {
+    width: 44px;
+    height: 44px;
     border-radius: 12px;
     background: rgba(212, 175, 55, 0.14);
     color: var(--compassion-gold-deep);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     flex-shrink: 0;
 }
-.thanks-receipt__head-title {
+.thanks-receipt__brand-title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     color: var(--text-primary);
-    margin: 0 0 4px;
+    margin: 0 0 2px;
     font-weight: 800;
+    line-height: 1.2;
 }
-.thanks-receipt__head-sub {
+.thanks-receipt__brand-sub {
     color: var(--text-secondary);
-    font-size: 0.88rem;
+    font-size: 0.84rem;
     margin: 0;
 }
 
-.thanks-receipt__list {
-    margin: 0;
+/* Action toolbar — Download PDF · Copy · Print */
+.thanks-receipt__toolbar {
     display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-.thanks-receipt__row {
-    display: grid;
-    grid-template-columns: 130px 1fr;
-    align-items: center;
-    gap: 16px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-primary);
-}
-.thanks-receipt__row:last-child { border-bottom: none; }
-.thanks-receipt__row dt {
-    color: var(--text-secondary);
-    font-size: 0.78rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 0;
-}
-.thanks-receipt__row dd {
-    color: var(--text-primary);
-    font-size: 0.96rem;
-    margin: 0;
-    word-break: break-word;
-}
-.thanks-receipt__row code {
-    background: var(--compassion-navy);
-    color: var(--compassion-gold);
-    padding: 5px 10px;
-    border-radius: 6px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.86rem;
-    letter-spacing: 0.4px;
-}
-.thanks-receipt__amount {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 1.7rem;
-    font-weight: 800;
-    color: var(--compassion-green);
-    line-height: 1;
-    display: inline-flex;
-    align-items: baseline;
+    flex-wrap: wrap;
     gap: 8px;
+    padding-bottom: 22px;
+    margin-bottom: 22px;
+    border-bottom: 1px dashed var(--border-primary);
 }
-.thanks-receipt__currency {
-    font-size: 0.78rem;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
-    color: var(--text-secondary);
-    letter-spacing: 0.4px;
-}
-.thanks-receipt__pill {
+
+.thanks-receipt__action {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 5px 12px;
-    background: rgba(212, 175, 55, 0.12);
-    color: var(--compassion-gold-deep);
-    border-radius: 999px;
-    font-size: 0.82rem;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-primary);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.85rem;
     font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        border-color 0.18s ease,
+        background 0.18s ease,
+        color 0.18s ease,
+        transform 0.12s ease;
 }
-.thanks-receipt__pill i { font-size: 0.7rem; }
+.thanks-receipt__action i {
+    color: var(--text-secondary);
+    transition: color 0.18s ease;
+    font-size: 0.85rem;
+}
+.thanks-receipt__action:hover {
+    border-color: var(--compassion-green);
+    color: var(--compassion-green);
+    background: rgba(39, 174, 96, 0.06);
+}
+.thanks-receipt__action:hover i {
+    color: var(--compassion-green);
+}
+.thanks-receipt__action:active {
+    transform: translateY(1px);
+}
+.thanks-receipt__action:focus-visible {
+    outline: 2px solid var(--compassion-green);
+    outline-offset: 2px;
+}
+.thanks-receipt__action--primary {
+    background: linear-gradient(135deg, var(--compassion-green) 0%, #2ECC71 100%);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.22);
+}
+.thanks-receipt__action--primary i { color: #fff; }
+.thanks-receipt__action--primary:hover {
+    color: #fff;
+    background: linear-gradient(135deg, #2ECC71 0%, var(--compassion-green) 100%);
+    box-shadow: 0 6px 16px rgba(39, 174, 96, 0.30);
+}
+.thanks-receipt__action--primary:hover i { color: #fff; }
+
+/* Transient success state on the copy button — lasts 1.5s after a
+   successful copy so the donor sees feedback. */
+.thanks-receipt__action--copied {
+    border-color: var(--compassion-green);
+    color: var(--compassion-green);
+    background: rgba(39, 174, 96, 0.10);
+}
+.thanks-receipt__action--copied i { color: var(--compassion-green); }
+
+/* Status pill (top-right of receipt card) */
 .thanks-receipt__status {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
+    gap: 6px;
     padding: 5px 12px;
     border-radius: 999px;
-    font-size: 0.84rem;
+    font-size: 0.78rem;
     font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 .thanks-receipt__status--ok {
     background: rgba(39, 174, 96, 0.12);
@@ -1565,6 +1999,104 @@
     color: var(--text-secondary);
 }
 
+/* Hero amount block — the visual centerpiece */
+.thanks-receipt__amount-block {
+    background:
+        linear-gradient(135deg, rgba(39, 174, 96, 0.06) 0%, rgba(212, 175, 55, 0.06) 100%);
+    border: 1px solid var(--border-primary);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 22px;
+    text-align: center;
+}
+.thanks-receipt__amount-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+}
+.thanks-receipt__amount {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2rem, 4vw, 2.6rem);
+    font-weight: 800;
+    line-height: 1;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--compassion-green) 0%, #1F8B4E 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+.thanks-receipt__currency {
+    font-size: 0.78rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 0.4px;
+    -webkit-text-fill-color: var(--text-secondary);
+}
+
+/* Metadata grid — 2 columns on desktop, 1 on mobile */
+.thanks-receipt__grid {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 28px;
+}
+.thanks-receipt__cell {
+    margin: 0;
+    padding: 0;
+}
+.thanks-receipt__cell--wide {
+    grid-column: 1 / -1;
+}
+.thanks-receipt__cell dt {
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin: 0 0 4px;
+}
+.thanks-receipt__cell dd {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    margin: 0;
+    word-break: break-word;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.thanks-receipt__cell code {
+    background: var(--compassion-navy);
+    color: var(--compassion-gold);
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.84rem;
+    letter-spacing: 0.4px;
+    display: inline-block;
+    word-break: break-all;
+}
+.thanks-receipt__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    background: rgba(212, 175, 55, 0.12);
+    color: var(--compassion-gold-deep);
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+.thanks-receipt__pill i { font-size: 0.7rem; }
+
+/* Donor note */
 .thanks-receipt__note {
     margin-top: 22px;
     padding: 18px 20px;
@@ -1590,15 +2122,20 @@
     font-style: italic;
 }
 
-/* Next steps card */
+/* ───── Next steps section — single horizontal strip ───── */
+
+.thanks-next-section {
+    padding: 0 0 56px;
+    background: var(--bg-secondary);
+}
 .thanks-next {
+    max-width: 880px;
+    margin: 0 auto;
     background: var(--bg-card);
     border: 1px solid var(--border-primary);
     border-radius: 18px;
-    padding: 32px 30px;
+    padding: 32px 32px;
     box-shadow: 0 6px 24px rgba(13, 43, 54, 0.06);
-    position: sticky;
-    top: 92px;
 }
 .thanks-next__title {
     font-family: 'Playfair Display', Georgia, serif;
@@ -1614,16 +2151,18 @@
 .thanks-next__steps {
     list-style: none;
     padding: 0;
-    margin: 0 0 26px;
-    counter-reset: step;
+    margin: 0 0 24px;
+    display: flex;
+    align-items: stretch;
+    gap: 14px;
 }
 .thanks-next__step {
     display: flex;
     gap: 14px;
-    padding: 14px 0;
-    border-bottom: 1px dashed var(--border-primary);
+    padding: 8px 4px;
+    flex: 1;
+    min-width: 0;
 }
-.thanks-next__step:last-child { border-bottom: none; }
 .thanks-next__step-num {
     flex-shrink: 0;
     width: 32px;
@@ -1638,91 +2177,103 @@
     font-size: 0.92rem;
     box-shadow: 0 4px 10px rgba(212, 175, 55, 0.28);
 }
-.thanks-next__step strong {
+.thanks-next__step-text {
+    min-width: 0;
+}
+.thanks-next__step-text strong {
     display: block;
     color: var(--text-primary);
-    font-size: 0.95rem;
+    font-size: 0.94rem;
     margin-bottom: 3px;
+    font-weight: 700;
 }
-.thanks-next__step p {
+.thanks-next__step-text p {
     color: var(--text-secondary);
-    font-size: 0.86rem;
+    font-size: 0.84rem;
     line-height: 1.5;
     margin: 0;
 }
+.thanks-next__chevron {
+    display: flex;
+    align-items: center;
+    color: var(--text-secondary);
+    opacity: 0.4;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+}
+.thanks-next__chevron i { font-size: 0.8rem; }
 
 .thanks-next__quote {
-    margin-top: 24px;
-    padding: 20px 22px;
+    padding: 18px 22px;
     background: var(--bg-secondary);
     border-radius: 12px;
     position: relative;
 }
 .thanks-next__quote > i {
     color: var(--compassion-gold);
-    font-size: 1rem;
+    font-size: 0.95rem;
     opacity: 0.6;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     display: block;
 }
 .thanks-next__quote p {
     font-family: 'Playfair Display', Georgia, serif;
     color: var(--text-primary);
-    font-size: 0.95rem;
-    line-height: 1.6;
+    font-size: 0.92rem;
+    line-height: 1.55;
     font-style: italic;
-    margin: 0 0 8px;
+    margin: 0 0 6px;
 }
 .thanks-next__quote small {
     color: var(--text-secondary);
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
 }
 
 /* ───── Continue your impact ───── */
 
 .thanks-continue {
-    padding: 80px 0;
+    padding: 56px 0 64px;
     background: var(--bg-primary);
     text-align: center;
 }
 .thanks-continue__head {
     max-width: 620px;
-    margin: 0 auto 48px;
+    margin: 0 auto 36px;
 }
 .thanks-continue__head h2 {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-size: clamp(1.5rem, 2.8vw, 2rem);
     color: var(--text-primary);
-    margin: 0 0 10px;
+    margin: 0 0 8px;
     font-weight: 800;
     letter-spacing: -0.4px;
 }
 .thanks-continue__head p {
     color: var(--text-secondary);
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin: 0;
-    line-height: 1.6;
+    line-height: 1.55;
 }
 
 .thanks-continue__grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 22px;
-    margin-bottom: 36px;
+    gap: 18px;
+    margin-bottom: 28px;
 }
 .thanks-continue__card {
     background: var(--bg-card);
     border: 1px solid var(--border-primary);
     border-radius: 16px;
-    padding: 28px 24px;
+    padding: 24px 22px;
     text-align: left;
     text-decoration: none;
     color: var(--text-primary);
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     cursor: pointer;
     font-family: inherit;
 }
@@ -1733,13 +2284,13 @@
     box-shadow: 0 12px 28px rgba(13, 43, 54, 0.10);
 }
 .thanks-continue__card-icon {
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
     border-radius: 14px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
 }
 .thanks-continue__card-icon--gold {
     background: rgba(212, 175, 55, 0.14);
@@ -1755,15 +2306,15 @@
 }
 .thanks-continue__card h3 {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 1.2rem;
+    font-size: 1.12rem;
     color: var(--text-primary);
     margin: 0;
     font-weight: 700;
 }
 .thanks-continue__card p {
     color: var(--text-secondary);
-    font-size: 0.9rem;
-    line-height: 1.55;
+    font-size: 0.88rem;
+    line-height: 1.5;
     margin: 0;
     flex: 1;
 }
@@ -1773,14 +2324,14 @@
     gap: 8px;
     color: var(--compassion-gold-deep);
     font-weight: 700;
-    font-size: 0.86rem;
+    font-size: 0.82rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     transition: gap 0.25s ease;
 }
 .thanks-continue__card:hover .thanks-continue__card-cta { gap: 12px; }
 
-.thanks-continue__back { margin-top: 16px; }
+.thanks-continue__back { margin-top: 12px; }
 .btn-ghost-back {
     display: inline-flex;
     align-items: center;
@@ -1798,20 +2349,140 @@
     background: var(--bg-secondary);
 }
 
-/* Responsive */
-@media (max-width: 992px) {
-    .thanks-summary__grid { grid-template-columns: 1fr; }
-    .thanks-next { position: static; }
-    .thanks-continue__grid { grid-template-columns: 1fr; max-width: 480px; margin-left: auto; margin-right: auto; }
-    .thanks-receipt { padding: 30px 26px; }
+/* ───── Verifying card (PENDING state) ─────
+   Shown while the donation row hasn't been confirmed yet. Replaced
+   by the full receipt card once Paystack's webhook fires. */
+
+.thanks-verifying {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 48px 32px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: 18px;
+    box-shadow: 0 6px 24px rgba(13, 43, 54, 0.06);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: opacity 0.35s ease, transform 0.35s ease;
 }
-@media (max-width: 640px) {
-    .thanks-hero { padding: 72px 0 60px; }
-    .thanks-hero__check { width: 80px; height: 80px; }
-    .thanks-hero__check-svg { width: 44px; height: 44px; }
-    .thanks-summary { padding: 0 0 48px; }
-    .thanks-continue { padding: 56px 0; }
-    .thanks-receipt__row { grid-template-columns: 1fr; gap: 4px; }
-    .thanks-receipt__row dt { font-size: 0.7rem; }
-    .thanks-receipt__amount { font-size: 1.4rem; }
+.thanks-verifying::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--compassion-gold) 0%, var(--compassion-green) 100%);
+}
+.thanks-verifying__pulse {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6), transparent 65%),
+        linear-gradient(135deg, var(--compassion-gold) 0%, var(--compassion-gold-deep) 100%);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    box-shadow: 0 12px 32px rgba(212, 175, 55, 0.32);
+    animation: thanksVerifyingPulse 1.6s ease-in-out infinite;
+}
+@keyframes thanksVerifyingPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 12px 32px rgba(212, 175, 55, 0.32); }
+    50% { transform: scale(1.05); box-shadow: 0 14px 36px rgba(212, 175, 55, 0.40); }
+}
+.thanks-verifying__title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 8px;
+}
+.thanks-verifying__sub {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    margin: 0 0 22px;
+}
+.thanks-verifying__meta {
+    display: inline-flex;
+    margin: 0 auto;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+}
+.thanks-verifying__meta div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+.thanks-verifying__meta dt {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin: 0;
+}
+.thanks-verifying__meta dd { margin: 0; }
+.thanks-verifying__meta code {
+    background: var(--compassion-navy);
+    color: var(--compassion-gold);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.82rem;
+    letter-spacing: 0.4px;
+}
+
+/* When polling resolves, JS toggles .is-resolving on .thanks-verifying
+   to fade it out, then unhides #thanksReceipt. */
+.thanks-verifying.is-resolving {
+    opacity: 0;
+    transform: translateY(-12px);
+    pointer-events: none;
+}
+
+.thanks-verifying__refresh {
+    color: var(--compassion-green);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    margin-left: 6px;
+}
+.thanks-verifying__refresh:hover { color: #1F8B4E; }
+
+/* ───── Responsive ───── */
+
+@media (max-width: 768px) {
+    .thanks-hero { padding: 64px 0 48px; }
+    .thanks-hero__check { width: 72px; height: 72px; }
+    .thanks-hero__check-svg { width: 40px; height: 40px; }
+    .thanks-receipt-section { padding: 0 0 40px; }
+    .thanks-receipt { padding: 26px 22px; }
+    .thanks-receipt__top { flex-direction: column; align-items: flex-start; }
+    .thanks-receipt__grid { grid-template-columns: 1fr; gap: 16px; }
+    .thanks-receipt__amount-block { padding: 18px 18px; }
+    .thanks-next-section { padding: 0 0 40px; }
+    .thanks-next { padding: 26px 22px; }
+    .thanks-next__steps { flex-direction: column; gap: 8px; }
+    .thanks-next__chevron { transform: rotate(90deg); }
+    .thanks-next__step { padding: 12px 0; border-bottom: 1px dashed var(--border-primary); }
+    .thanks-next__step:last-child { border-bottom: none; }
+    .thanks-continue { padding: 44px 0 48px; }
+    .thanks-continue__grid { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
+}
+@media (max-width: 480px) {
+    .thanks-hero { padding: 56px 0 40px; }
+    .thanks-receipt__toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .thanks-receipt__action { justify-content: center; }
+    .thanks-verifying { padding: 36px 22px; }
+    .thanks-verifying__title { font-size: 1.25rem; }
 }

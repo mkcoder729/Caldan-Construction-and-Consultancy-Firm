@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Caldan Compassion — In-Kind Pledge #{{ pledge.id }}</title>
+    <style>
+        @page {
+            size: A5;
+            margin: 1.5cm 1.5cm 1.5cm 1.5cm;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', 'Helvetica Neue', Arial, serif;
+            color: #0D2B36;
+            font-size: 10pt;
+            line-height: 1.6;
+            background: #FFFFFF;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .document {
+            max-width: 100%;
+            background: #FDFBF8;
+        }
+
+        .receipt-header {
+            background: linear-gradient(135deg, #0D2B36 0%, #14333F 100%);
+            color: #F6F1E8;
+            padding: 18px 16px 14px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .receipt-header .logo {
+            width: 80px;
+            height: auto;
+            display: block;
+            margin: 0 auto 8px;
+            background: #FDFBF8;
+            padding: 6px;
+            border-radius: 4px;
+        }
+        .receipt-header .eyebrow {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 7pt;
+            letter-spacing: 2.5px;
+            color: #D4AF37;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .receipt-header .brand {
+            font-family: 'Georgia', serif;
+            font-size: 13pt;
+            font-weight: 700;
+            color: #FFFFFF;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+        .receipt-header .tagline {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 7pt;
+            font-weight: 500;
+            color: #D4AF37;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .ref-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: #FDF6E3;
+            border: 1px solid #D4AF37;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+        .ref-strip .label {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 7.5pt;
+            color: #9C7A1F;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+        .ref-strip .value {
+            font-family: 'Georgia', serif;
+            font-size: 11pt;
+            font-weight: 700;
+            color: #0D2B36;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #E8E0D4;
+            font-size: 9.5pt;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        .detail-row .label { color: #475569; }
+        .detail-row .value { font-weight: 600; color: #0D2B36; }
+
+        .items-box {
+            margin-top: 12px;
+            padding: 12px 14px;
+            background: #FFFFFF;
+            border-radius: 4px;
+            border: 1px solid #E8E0D4;
+        }
+        .items-box .item-title {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 7.5pt;
+            color: #9C7A1F;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 4px;
+        }
+        .items-box .item-name {
+            font-size: 11pt;
+            font-weight: 700;
+            color: #0D2B36;
+            font-family: 'Georgia', serif;
+        }
+        .items-box .item-meta {
+            margin-top: 6px;
+            font-size: 9pt;
+            color: #475569;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        .items-box .item-meta strong {
+            color: #0D2B36;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .info-grid .card {
+            padding: 10px 12px;
+            background: #FFFFFF;
+            border-radius: 4px;
+            border: 1px solid #E8E0D4;
+        }
+        .info-grid .card .label {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 7.5pt;
+            color: #9C7A1F;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 4px;
+        }
+        .info-grid .card .value {
+            font-size: 9.5pt;
+            color: #0D2B36;
+            font-weight: 600;
+        }
+
+        .note-box {
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: #FFFFFF;
+            border-left: 3px solid #D4AF37;
+            border-radius: 0 4px 4px 0;
+            font-size: 9pt;
+            color: #475569;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        .note-box .label {
+            font-size: 7.5pt;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9C7A1F;
+            margin-bottom: 4px;
+        }
+        .note-box blockquote {
+            font-style: italic;
+            color: #0D2B36;
+            line-height: 1.5;
+        }
+
+        .receipt-footer {
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 2px solid #D4AF37;
+            text-align: center;
+            font-family: 'Georgia', serif;
+            color: #0D2B36;
+        }
+        .receipt-footer .thanks {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 8pt;
+            color: #475569;
+            margin-top: 6px;
+        }
+
+        .page-footer {
+            margin-top: 16px;
+            padding-top: 8px;
+            border-top: 1px solid #E8E0D4;
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 7pt;
+            color: #94A3B8;
+        }
+        .page-footer .footer-brand {
+            color: #0D2B36;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="document">
+
+        <!-- HEADER -->
+        <div class="receipt-header">
+            <img class="logo" src="https://res.cloudinary.com/nifbnyz2/image/upload/v1786023292/caldan/caldan/logo_dark.png" alt="Caldan Construction">
+            <div class="eyebrow">Caldan Compassionate Ministry</div>
+            <div class="brand">In-Kind Pledge</div>
+            <div class="tagline">Pledged &middot; Pickup / Drop-off arranged</div>
+        </div>
+
+        <!-- REFERENCE -->
+        <div class="ref-strip">
+            <div>
+                <div class="label">Pledge</div>
+                <div class="value">#{{ pledge.id }}</div>
+            </div>
+            <div style="text-align: right;">
+                <div class="label">Received</div>
+                <div class="value">{{ pledge.created_at|date:"F j, Y" }}</div>
+            </div>
+        </div>
+
+        <!-- DONOR -->
+        <div class="detail-row">
+            <span class="label">Donor</span>
+            <span class="value">{{ pledge.donor_name }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="label">Email</span>
+            <span class="value">{{ pledge.donor_email }}</span>
+        </div>
+        {% if pledge.donor_phone %}
+        <div class="detail-row">
+            <span class="label">Phone</span>
+            <span class="value">{{ pledge.donor_phone }}</span>
+        </div>
+        {% endif %}
+
+        <!-- ITEMS -->
+        <div class="items-box">
+            <div class="item-title">Pledged item</div>
+            <div class="item-name">{{ pledge.get_item_type_display }}</div>
+            <div class="item-meta">
+                <strong>{{ pledge.item_description }}</strong>
+                {% if pledge.quantity_estimate %}
+                    <br>Quantity: {{ pledge.quantity_estimate }}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- DELIVERY DETAILS -->
+        <div class="info-grid">
+            <div class="card">
+                <div class="label">Delivery mode</div>
+                <div class="value">{{ pledge.get_delivery_mode_display|default:"We'll arrange" }}</div>
+            </div>
+            {% if pledge.preferred_date %}
+            <div class="card">
+                <div class="label">Preferred date</div>
+                <div class="value">{{ pledge.preferred_date|date:"F j, Y" }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if pledge.address %}
+        <div class="detail-row" style="margin-top: 12px;">
+            <span class="label">Pickup / Drop-off</span>
+            <span class="value" style="max-width: 60%; text-align: right;">{{ pledge.address }}</span>
+        </div>
+        {% endif %}
+
+        {% if pledge.notes %}
+        <div class="note-box">
+            <div class="label">Notes</div>
+            <blockquote>{{ pledge.notes }}</blockquote>
+        </div>
+        {% endif %}
+
+        <!-- FOOTER -->
+        <div class="receipt-footer">
+            <div class="thanks">
+                Our team will be in touch to coordinate pickup or drop-off.<br>
+                Thank you for giving so generously.
+            </div>
+        </div>
+
+        <div class="page-footer">
+            <span class="footer-brand">Caldan Compassionate Ministry</span>
+            <span>In-Kind Pledge</span>
+            <span>#{{ pledge.id }}</span>
+        </div>
+
+    </div>
+</body>
+</html>

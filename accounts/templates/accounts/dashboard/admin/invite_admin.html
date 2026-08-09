@@ -1413,9 +1413,9 @@
 {% block dashboard_content %}
 <div class="inv-page" data-no-scroll-memory>
 
-    {# ================================================================= #}
-    {# HERO                                                              #}
-    {# ================================================================= #}
+    {% comment %}================================================================={% endcomment %}
+    {% comment %}HERO{% endcomment %}
+    {% comment %}================================================================={% endcomment %}
     <div class="inv-hero">
         <div class="inv-hero-row">
             <div class="inv-hero-icon" aria-hidden="true">
@@ -1442,11 +1442,11 @@
         </div>
     </div>
 
-    {# ================================================================= #}
-    {# WIZARD — rail + content                                          #}
-    {# ================================================================= #}
+    {% comment %}================================================================={% endcomment %}
+    {% comment %}WIZARD — rail + content{% endcomment %}
+    {% comment %}================================================================={% endcomment %}
     <div class="inv-wizard">
-        {# ----- Step rail (left) ----- #}
+        {% comment %}----- Step rail (left) -----{% endcomment %}
         <aside class="inv-rail" aria-label="Invitation steps">
             <p class="inv-rail-eyebrow">Invitation flow</p>
             <ol class="inv-rail-list">
@@ -1484,7 +1484,7 @@
                 </div>
             {% endif %}
 
-            {# ----- Pro-tips card (fills empty space under rail) ----- #}
+            {% comment %}----- Pro-tips card (fills empty space under rail) -----{% endcomment %}
             <div class="inv-rail-tips" aria-label="Tips">
                 <div class="inv-rail-tips-head">
                     <i class="fas fa-lightbulb"></i>
@@ -1515,7 +1515,7 @@
                 </ul>
             </div>
 
-            {# ----- Pending count card ----- #}
+            {% comment %}----- Pending count card -----{% endcomment %}
             {% if pending_invitations %}
             <div class="inv-rail-pending">
                 <div class="inv-rail-pending-head">
@@ -1543,12 +1543,12 @@
             {% endif %}
         </aside>
 
-        {# ----- Content (right) ----- #}
+        {% comment %}----- Content (right) -----{% endcomment %}
         <div class="inv-content">
 
-            {# ============================================================ #}
-            {# STEP 1 — EMAIL  (separate <form>, no shared state)        #}
-            {# ============================================================ #}
+            {% comment %}============================================================{% endcomment %}
+            {% comment %}STEP 1 — EMAIL  (separate <form>, no shared state){% endcomment %}
+            {% comment %}============================================================{% endcomment %}
             {% if invite_step == '1' %}
                 <form method="post" action="{% url 'accounts:admin_invite' %}" class="inv-card" data-step="1" novalidate>
                     {% csrf_token %}
@@ -1622,9 +1622,9 @@
                     </div>
                 </form>
 
-            {# ============================================================ #}
-            {# STEP 2 — DETAILS  (its own <form>)                          #}
-            {# ============================================================ #}
+            {% comment %}============================================================{% endcomment %}
+            {% comment %}STEP 2 — DETAILS  (its own <form>){% endcomment %}
+            {% comment %}============================================================{% endcomment %}
             {% elif invite_step == '2' %}
                 <form method="post" action="{% url 'accounts:admin_invite' %}" class="inv-card" data-step="2" novalidate>
                     {% csrf_token %}
@@ -1663,7 +1663,7 @@
                         </div>
 
                         <div class="inv-grid">
-                            {# LEFT COLUMN #}
+                            {% comment %}LEFT COLUMN{% endcomment %}
                             <div class="inv-col">
                                 <div class="inv-field">
                                     <label class="inv-field-label" for="id_full_name">
@@ -1719,7 +1719,7 @@
                                 </div>
                             </div>
 
-                            {# RIGHT COLUMN #}
+                            {% comment %}RIGHT COLUMN{% endcomment %}
                             <div class="inv-col">
                                 <div class="inv-field">
                                     <label class="inv-field-label" for="id_channels">
@@ -1789,9 +1789,9 @@
                 </form>
             {% endif %}
 
-            {# ================================================================= #}
-            {# RECENT PENDING INVITATIONS                                        #}
-            {# ================================================================= #}
+            {% comment %}================================================================={% endcomment %}
+            {% comment %}RECENT PENDING INVITATIONS{% endcomment %}
+            {% comment %}================================================================={% endcomment %}
             <div class="inv-recent">
                 <div class="inv-recent-head">
                     <div class="inv-recent-head-left">
@@ -1845,9 +1845,9 @@
         </div>
     </div>
 
-    {# ================================================================= #}
-    {# SUCCESS MODAL                                                      #}
-    {# ================================================================= #}
+    {% comment %}================================================================={% endcomment %}
+    {% comment %}SUCCESS MODAL{% endcomment %}
+    {% comment %}================================================================={% endcomment %}
     {% if invite_success %}
     <div class="inv-modal-backdrop" id="invSuccessModal" role="dialog" aria-modal="true" aria-labelledby="invSuccessTitle">
         <div class="inv-modal inv-modal-success">

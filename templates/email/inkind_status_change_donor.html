@@ -1,0 +1,29 @@
+{% extends "email/_base.html" %}
+
+{% block badge %}<span class="badge badge-info" style="margin-top: 14px;">PLEDGE UPDATE</span>{% endblock %}
+
+{% block content %}
+  <h1>Your pledge has moved forward</h1>
+  <p class="subtitle">Status update from Caldan Compassionate Ministry</p>
+
+  <p>Hi {{ donor_name }},</p>
+
+  <p>Quick update on your in-kind pledge — our team has moved it to the next step. Here's the current status:</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Item pledged</dt>
+      <dd><strong>{{ item_type }}</strong></dd>
+      <dt>Description</dt>
+      <dd>{{ item_description }}</dd>
+      <dt>Current status</dt>
+      <dd><strong>{{ status_display }}</strong></dd>
+    </dl>
+  </div>
+
+  <div class="callout callout-info">
+    <strong>What this means:</strong> {% if new_status == 'SCHEDULED' %}we've scheduled pickup or drop-off with you.{% elif new_status == 'RECEIVED' %}your items have been received and logged.{% elif new_status == 'DELIVERED' %}your items have been delivered to the intended recipients.{% elif new_status == 'CANCELLED' %}the pledge has been cancelled. Reach out if this was a mistake.{% else %}the team is now working on this pledge.{% endif %}
+  </div>
+
+  <p>Questions? Just reply to this email — the team will get back to you within a day.</p>
+{% endblock %}

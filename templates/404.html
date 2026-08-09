@@ -1,0 +1,29 @@
+{% extends "website/base.html" %}
+{% load static %}
+
+{% block title %}Page not found — Caldan Construction{% endblock %}
+
+{% block meta_description %}
+<meta name="description" content="The page you're looking for doesn't exist or has moved. Return to our homepage or browse our services.">
+<meta name="robots" content="noindex">
+{% endblock %}
+
+{% block content %}
+<section style="min-height: 60vh; display: flex; align-items: center; background: var(--bg-primary);">
+    <div class="container" style="text-align: center; padding: 80px 20px;">
+        <p style="font-size: 5rem; font-weight: 800; color: #D4AF37; margin: 0; line-height: 1;">404</p>
+        <h1 style="font-size: 2rem; margin: 16px 0 12px; color: var(--text-primary);">Page not found</h1>
+        <p style="color: var(--text-secondary); max-width: 480px; margin: 0 auto 32px; line-height: 1.6;">
+            The page you're looking for doesn't exist or has moved. Let's get you back on track.
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'website:index' %}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; background: #D4AF37; color: #0D2B36; border-radius: 8px; text-decoration: none; font-weight: 700;">
+                <i class="fas fa-home"></i> Back to home
+            </a>
+            <a href="{% url 'website:contact' %}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border: 1.5px solid var(--border-primary); color: var(--text-primary); border-radius: 8px; text-decoration: none; font-weight: 600;">
+                <i class="fas fa-envelope"></i> Contact us
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

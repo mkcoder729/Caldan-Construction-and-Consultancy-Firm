@@ -6,22 +6,25 @@
 
 {% block meta_description %}Thank you for supporting Caldan Compassionate Ministry. Your gift lands somewhere it matters.{% endblock %}
 
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/compassion.css' %}">
 {% endblock %}
 
 {% block content %}
 
-{# ─────────────────────────────────────────────────────────────
-   HERO — confirmation banner.
-   Shows donor name + amount when we have a real Donation record,
-   otherwise a graceful "thank you" without promising specifics.
-   ───────────────────────────────────────────────────────────── #}
+{% comment %}
+────────────────────────────────────────────────────────────
+HERO — celebration moment. Single column, centered.
+────────────────────────────────────────────────────────────
+{% endcomment %}
 <section class="thanks-hero">
     <div class="thanks-hero__bg" aria-hidden="true">
         <div class="thanks-hero__pulse thanks-hero__pulse--1"></div>
         <div class="thanks-hero__pulse thanks-hero__pulse--2"></div>
     </div>
+
     <div class="container">
         <div class="thanks-hero__inner">
             <div class="thanks-hero__check" aria-hidden="true">
@@ -45,15 +48,13 @@
                     {% if donation.purpose != 'GENERAL' %}
                         toward <strong>{{ donation.get_purpose_display }}</strong>
                     {% else %}
-                        to Caldan Compassionate Ministry
+                        is on its way to someone who needs it.
                     {% endif %}
-                    is on its way to someone who needs it.
                 </p>
             {% else %}
                 <h1 class="thanks-hero__title">Thank you.</h1>
                 <p class="thanks-hero__subtitle">
-                    Your gift is being confirmed by Paystack. We'll send a receipt
-                    to your email as soon as it clears.
+                    We're confirming your payment with Paystack. The receipt will land here in a moment.
                 </p>
             {% endif %}
         </div>
@@ -61,150 +62,209 @@
 </section>
 
 
-{# ─────────────────────────────────────────────────────────────
-   GIFT SUMMARY — receipt-style card the donor can screenshot.
-   ───────────────────────────────────────────────────────────── #}
-<section class="thanks-summary">
+{% comment %}
+────────────────────────────────────────────────────────────
+RECEIPT — single column, no sidebar. The receipt card sits
+centered below the hero. Verifying state shows a centered
+spinner card until Paystack's webhook fires.
+────────────────────────────────────────────────────────────
+{% endcomment %}
+<section class="thanks-receipt-section">
     <div class="container">
-        <div class="thanks-summary__grid">
+        <div class="thanks-receipt-section__inner">
 
-            {# Main receipt card #}
-            <div class="thanks-receipt">
-                <div class="thanks-receipt__head">
-                    <span class="thanks-receipt__head-icon"><i class="fas fa-receipt"></i></span>
+            {% comment %}Verifying card — shown only while donation is still PENDING.
+                The JS polls /compassion/donate/status/ and replaces this with
+                the full receipt card the moment Paystack confirms.{% endcomment %}
+            {% if not donation and reference %}
+            <div class="thanks-verifying" id="thanksVerifying" data-ref="{{ reference }}">
+                <div class="thanks-verifying__pulse" aria-hidden="true">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                </div>
+                <h2 class="thanks-verifying__title">Verifying your gift…</h2>
+                <p class="thanks-verifying__sub">
+                    We're confirming the payment with Paystack. This usually takes
+                    a few seconds. The receipt will appear here automatically.
+                </p>
+                <dl class="thanks-verifying__meta">
                     <div>
-                        <h2 class="thanks-receipt__head-title">Gift summary</h2>
-                        <p class="thanks-receipt__head-sub">A copy of this page has been sent to your email.</p>
+                        <dt>Reference</dt>
+                        <dd><code>{{ reference }}</code></dd>
+                    </div>
+                </dl>
+            </div>
+            {% endif %}
+
+            <div class="thanks-receipt"{% if not donation and reference %} hidden id="thanksReceipt"{% endif %}>
+
+                <div class="thanks-receipt__top">
+                    <div class="thanks-receipt__brand">
+                        <span class="thanks-receipt__brand-icon"><i class="fas fa-receipt"></i></span>
+                        <div>
+                            <h2 class="thanks-receipt__brand-title">Gift summary</h2>
+                            <p class="thanks-receipt__brand-sub">A copy has been emailed to you.</p>
+                        </div>
+                    </div>
+
+                    {% if donation %}
+                        <span class="thanks-receipt__status
+                            {% if donation.status == 'SUCCESS' %}thanks-receipt__status--ok
+                            {% elif donation.status == 'PENDING' %}thanks-receipt__status--pending
+                            {% else %}thanks-receipt__status--neutral{% endif %}">
+                            {% if donation.status == 'SUCCESS' %}
+                                <i class="fas fa-circle-check"></i> Confirmed
+                            {% elif donation.status == 'PENDING' %}
+                                <i class="fas fa-circle-dot fa-spin"></i> Verifying
+                            {% else %}
+                                {{ donation.get_status_display }}
+                            {% endif %}
+                        </span>
+                    {% endif %}
+                </div>
+
+                {% comment %}Action toolbar — Download PDF · Copy reference · Print.{% endcomment %}
+                {% if donation and donation.status == 'SUCCESS' %}
+                <div class="thanks-receipt__toolbar" role="toolbar" aria-label="Receipt actions">
+                    <a href="{% url 'compassion:donation_receipt_pdf' %}?ref={{ donation.reference }}"
+                       class="thanks-receipt__action thanks-receipt__action--primary"
+                       download>
+                        <i class="fas fa-file-arrow-down"></i>
+                        <span>Download PDF</span>
+                    </a>
+                    <button type="button"
+                            class="thanks-receipt__action"
+                            data-thanks-action="copy"
+                            data-copy-value="{{ donation.reference }}">
+                        <i class="fas fa-copy"></i>
+                        <span>Copy reference</span>
+                    </button>
+                    <button type="button"
+                            class="thanks-receipt__action"
+                            data-thanks-action="print">
+                        <i class="fas fa-print"></i>
+                        <span>Print</span>
+                    </button>
+                </div>
+                {% endif %}
+
+                {% if donation %}
+                <div class="thanks-receipt__amount-block">
+                    <span class="thanks-receipt__amount-label">Amount</span>
+                    <div class="thanks-receipt__amount">
+                        <span class="thanks-receipt__currency">KES</span>
+                        {{ donation.amount_ksh|intcomma }}
                     </div>
                 </div>
 
-                <dl class="thanks-receipt__list">
-                    {% if donation %}
-                        <div class="thanks-receipt__row">
-                            <dt>Amount</dt>
-                            <dd class="thanks-receipt__amount">
-                                <span class="thanks-receipt__currency">KES</span>
-                                {{ donation.amount_ksh|intcomma }}
-                            </dd>
-                        </div>
-                        <div class="thanks-receipt__row">
-                            <dt>Designation</dt>
-                            <dd>
-                                <span class="thanks-receipt__pill">
-                                    <i class="fas fa-tag"></i>
-                                    {{ donation.get_purpose_display }}
-                                </span>
-                            </dd>
-                        </div>
-                        <div class="thanks-receipt__row">
-                            <dt>Donor</dt>
-                            <dd>{{ donation.donor_name }}</dd>
-                        </div>
-                        <div class="thanks-receipt__row">
-                            <dt>Receipt to</dt>
-                            <dd>{{ donation.donor_email }}</dd>
-                        </div>
-                        <div class="thanks-receipt__row">
-                            <dt>Our reference</dt>
-                            <dd><code>{{ donation.reference }}</code></dd>
-                        </div>
-                        {% if donation.paystack_reference %}
-                            <div class="thanks-receipt__row">
-                                <dt>Paystack ref</dt>
-                                <dd><code>{{ donation.paystack_reference }}</code></dd>
-                            </div>
-                        {% endif %}
-                        <div class="thanks-receipt__row">
-                            <dt>Status</dt>
-                            <dd>
-                                {% if donation.status == 'SUCCESS' %}
-                                    <span class="thanks-receipt__status thanks-receipt__status--ok">
-                                        <i class="fas fa-circle-check"></i> Confirmed
-                                    </span>
-                                {% elif donation.status == 'PENDING' %}
-                                    <span class="thanks-receipt__status thanks-receipt__status--pending">
-                                        <i class="fas fa-circle-dot fa-spin"></i> Verifying with Paystack
-                                    </span>
-                                {% else %}
-                                    <span class="thanks-receipt__status thanks-receipt__status--neutral">
-                                        {{ donation.get_status_display }}
-                                    </span>
-                                {% endif %}
-                            </dd>
-                        </div>
-                    {% else %}
-                        <div class="thanks-receipt__row">
-                            <dt>Reference</dt>
-                            <dd><code>{{ reference|default:"—" }}</code></dd>
-                        </div>
-                        <div class="thanks-receipt__row">
-                            <dt>Status</dt>
-                            <dd>
-                                <span class="thanks-receipt__status thanks-receipt__status--pending">
-                                    <i class="fas fa-circle-dot fa-spin"></i> Verifying with Paystack
-                                </span>
-                            </dd>
-                        </div>
+                <dl class="thanks-receipt__grid">
+                    <div class="thanks-receipt__cell">
+                        <dt>Designation</dt>
+                        <dd>
+                            <span class="thanks-receipt__pill">
+                                <i class="fas fa-tag"></i>
+                                {{ donation.get_purpose_display }}
+                            </span>
+                        </dd>
+                    </div>
+                    <div class="thanks-receipt__cell">
+                        <dt>Donor</dt>
+                        <dd>{{ donation.donor_name }}</dd>
+                    </div>
+                    <div class="thanks-receipt__cell">
+                        <dt>Receipt to</dt>
+                        <dd>{{ donation.donor_email }}</dd>
+                    </div>
+                    <div class="thanks-receipt__cell">
+                        <dt>Our reference</dt>
+                        <dd><code>{{ donation.reference }}</code></dd>
+                    </div>
+                    {% if donation.paystack_reference %}
+                    <div class="thanks-receipt__cell thanks-receipt__cell--wide">
+                        <dt>Paystack reference</dt>
+                        <dd><code>{{ donation.paystack_reference }}</code></dd>
+                    </div>
                     {% endif %}
                 </dl>
 
                 {% if donation.note %}
-                    <div class="thanks-receipt__note">
-                        <span class="thanks-receipt__note-label">Your note</span>
-                        <blockquote>{{ donation.note }}</blockquote>
+                <div class="thanks-receipt__note">
+                    <span class="thanks-receipt__note-label">Your note</span>
+                    <blockquote>{{ donation.note }}</blockquote>
+                </div>
+                {% endif %}
+                {% else %}
+                <dl class="thanks-receipt__grid">
+                    <div class="thanks-receipt__cell thanks-receipt__cell--wide">
+                        <dt>Reference</dt>
+                        <dd><code>{{ reference|default:"—" }}</code></dd>
                     </div>
+                </dl>
                 {% endif %}
             </div>
-
-            {# Side: what happens next #}
-            <aside class="thanks-next">
-                <h3 class="thanks-next__title">
-                    <i class="fas fa-circle-info"></i>
-                    What happens next
-                </h3>
-                <ol class="thanks-next__steps">
-                    <li class="thanks-next__step">
-                        <span class="thanks-next__step-num">1</span>
-                        <div>
-                            <strong>You'll get a receipt</strong>
-                            <p>We've emailed a confirmation with the same details you see here. Check your inbox (or spam, just in case).</p>
-                        </div>
-                    </li>
-                    <li class="thanks-next__step">
-                        <span class="thanks-next__step-num">2</span>
-                        <div>
-                            <strong>We route the funds</strong>
-                            <p>Our team reviews your designation and queues it for the next hospital visit, prison outreach, or neighbour-care drive.</p>
-                        </div>
-                    </li>
-                    <li class="thanks-next__step">
-                        <span class="thanks-next__step-num">3</span>
-                        <div>
-                            <strong>You'll see the impact</strong>
-                            <p>Field updates land in the stories carousel below — your gift, named in the work it made possible.</p>
-                        </div>
-                    </li>
-                </ol>
-
-                <div class="thanks-next__quote">
-                    <i class="fas fa-quote-left"></i>
-                    <p>
-                        Each of you should give what you have decided in your heart
-                        to give — not reluctantly or under compulsion, for God loves
-                        a cheerful giver.
-                    </p>
-                    <small>— 2 Corinthians 9:7</small>
-                </div>
-            </aside>
 
         </div>
     </div>
 </section>
 
 
-{# ─────────────────────────────────────────────────────────────
-   CONTINUE YOUR IMPACT — soft secondary CTAs.
-   ───────────────────────────────────────────────────────────── #}
+{% comment %}
+────────────────────────────────────────────────────────────
+NEXT STEPS — single horizontal strip with chevrons between
+steps, not a stacked sidebar.
+────────────────────────────────────────────────────────────
+{% endcomment %}
+<section class="thanks-next-section">
+    <div class="container">
+        <div class="thanks-next">
+            <h3 class="thanks-next__title">
+                <i class="fas fa-circle-info"></i>
+                What happens next
+            </h3>
+
+            <ol class="thanks-next__steps">
+                <li class="thanks-next__step">
+                    <span class="thanks-next__step-num">1</span>
+                    <div class="thanks-next__step-text">
+                        <strong>You'll get a receipt</strong>
+                        <p>We've emailed a confirmation with these same details.</p>
+                    </div>
+                </li>
+                <li class="thanks-next__chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></li>
+                <li class="thanks-next__step">
+                    <span class="thanks-next__step-num">2</span>
+                    <div class="thanks-next__step-text">
+                        <strong>We route the funds</strong>
+                        <p>Your designation queues it for the next hospital visit, prison outreach, or neighbour-care drive.</p>
+                    </div>
+                </li>
+                <li class="thanks-next__chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></li>
+                <li class="thanks-next__step">
+                    <span class="thanks-next__step-num">3</span>
+                    <div class="thanks-next__step-text">
+                        <strong>You'll see the impact</strong>
+                        <p>Field updates land in the stories carousel below — your gift, named in the work it made possible.</p>
+                    </div>
+                </li>
+            </ol>
+
+            <div class="thanks-next__quote">
+                <i class="fas fa-quote-left"></i>
+                <p>
+                    Each of you should give what you have decided in your heart to give —
+                    not reluctantly or under compulsion, for God loves a cheerful giver.
+                </p>
+                <small>— 2 Corinthians 9:7</small>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{% comment %}
+────────────────────────────────────────────────────────────
+CONTINUE YOUR IMPACT — three compact cards.
+────────────────────────────────────────────────────────────
+{% endcomment %}
 <section class="thanks-continue">
     <div class="container">
         <div class="thanks-continue__head">
@@ -218,7 +278,7 @@
                     <i class="fas fa-newspaper"></i>
                 </span>
                 <h3>Read field stories</h3>
-                <p>See exactly where recent gifts like yours have landed — hospital visits, prison libraries, neighbourhood pantries.</p>
+                <p>See exactly where recent gifts like yours have landed.</p>
                 <span class="thanks-continue__card-cta">
                     Browse stories <i class="fas fa-arrow-right"></i>
                 </span>
@@ -230,7 +290,7 @@
                     <i class="fas fa-box-open"></i>
                 </span>
                 <h3>Pledge an item</h3>
-                <p>Have food, clothing, or medical supplies? Pledge them and we'll coordinate pickup or drop-off with you.</p>
+                <p>Have food, clothing, or medical supplies to give?</p>
                 <span class="thanks-continue__card-cta">
                     Pledge items <i class="fas fa-arrow-right"></i>
                 </span>
@@ -242,7 +302,7 @@
                     <i class="fas fa-phone"></i>
                 </span>
                 <h3>Talk to our team</h3>
-                <p>Considering a partnership, recurring gift, or a major donation? We'd love to walk through it with you.</p>
+                <p>Considering a partnership, recurring gift, or major donation?</p>
                 <span class="thanks-continue__card-cta">
                     Schedule a call <i class="fas fa-arrow-right"></i>
                 </span>
@@ -257,7 +317,7 @@
     </div>
 </section>
 
-{# Include modals so the secondary CTAs work on this page #}
+{% comment %}Include modals so the secondary CTAs work on this page{% endcomment %}
 {% include "compassion/partials/_inkind_modal.html" %}
 {% include "compassion/partials/_schedule_modal.html" %}
 

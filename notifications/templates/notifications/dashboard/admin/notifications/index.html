@@ -534,7 +534,7 @@
 {% block dashboard_content %}
 <div class="dashboard-page notifications-page">
 
-    {# Render an invisible form so Django's CSRF middleware sets the csrftoken cookie. Without this, AJAX mark-as-read / mark-all / delete calls fail with HTTP 403 because no CSRF token is available. The form has no submit button so it never posts. #}
+    {% comment %}Render an invisible form so Django's CSRF middleware sets the csrftoken cookie. Without this, AJAX mark-as-read / mark-all / delete calls fail with HTTP 403 because no CSRF token is available. The form has no submit button so it never posts.{% endcomment %}
     <form style="display:none;" aria-hidden="true">{% csrf_token %}</form>
 
     <!-- Hero header -->

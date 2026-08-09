@@ -812,7 +812,7 @@
 {% block dashboard_content %}
 <div class="admin-page" data-no-scroll-memory>
 
-    {# ========================== HERO ========================== #}
+    {% comment %}========================== HERO =========================={% endcomment %}
     <div class="ad-hero">
         <div class="ad-hero-row">
             <div class="ad-hero-icon" aria-hidden="true">
@@ -845,7 +845,7 @@
         </div>
     </div>
 
-    {# ========================== COMMAND BAR ========================== #}
+    {% comment %}========================== COMMAND BAR =========================={% endcomment %}
     <div class="ad-command">
         <div class="ad-search">
             <i class="fas fa-magnifying-glass lead"></i>
@@ -871,7 +871,7 @@
         </a>
     </div>
 
-    {# ========================== KPI STRIP ========================== #}
+    {% comment %}========================== KPI STRIP =========================={% endcomment %}
     <div class="ad-kpis">
         <div class="ad-kpi blue">
             <div class="ad-kpi-row">
@@ -911,7 +911,7 @@
         </div>
     </div>
 
-    {# ========================== OUTBOX ========================== #}
+    {% comment %}========================== OUTBOX =========================={% endcomment %}
     {% if pending_invitations %}
         <div class="ad-card">
             <div class="ad-card-head">
@@ -977,7 +977,7 @@
         </div>
     {% endif %}
 
-    {# ========================== DIRECTORY ========================== #}
+    {% comment %}========================== DIRECTORY =========================={% endcomment %}
     <div class="ad-card">
         <div class="ad-card-head">
             <div class="ad-card-head-left">
@@ -1093,7 +1093,7 @@
                 No admins match your search or filter.
             </div>
 
-            {# Pagination #}
+            {% comment %}Pagination{% endcomment %}
             {% if admins.has_other_pages %}
                 <div class="ad-pagination">
                     <div class="ad-pagination-info">

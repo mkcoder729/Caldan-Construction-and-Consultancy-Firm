@@ -231,3 +231,74 @@ class PDFService:
         except Exception as e:
             logger.error(f"Order invoice generation failed for {order.order_number}: {str(e)}")
             raise
+
+    # ============================================================
+    # Caldan Compassionate Ministry PDFs
+    # ============================================================
+
+    @classmethod
+    def generate_compassion_donation_receipt(cls, donation):
+        """Generate the donor-facing PDF receipt for a paid donation.
+
+        Returns:
+            str: absolute path to the rendered PDF under MEDIA_ROOT/reports/.
+        """
+        filename = f"Caldan_Compassion_Receipt_{donation.reference}"
+        context = {
+            'donation': donation,
+            'brand_name': 'Caldan Compassionate Ministry',
+            'tagline': 'Loving our neighbours. Every step of the way.',
+            'generated_at': timezone.now(),
+        }
+        try:
+            return cls.generate_pdf_to_file(
+                'pdf/compassion_donation_receipt.html',
+                context,
+                filename,
+                format='A5',
+            )
+        except Exception as e:
+            logger.exception("Compassion donation receipt PDF failed for %s: %s", donation.reference, e)
+            raise
+
+    @classmethod
+    def generate_compassion_inkind_receipt(cls, pledge):
+        """Generate the donor-facing PDF receipt for an in-kind pledge."""
+        filename = f"Caldan_Compassion_InKind_{pledge.id}"
+        context = {
+            'pledge': pledge,
+            'brand_name': 'Caldan Compassionate Ministry',
+            'tagline': 'Loving our neighbours. Every step of the way.',
+            'generated_at': timezone.now(),
+        }
+        try:
+            return cls.generate_pdf_to_file(
+                'pdf/compassion_inkind_receipt.html',
+                context,
+                filename,
+                format='A5',
+            )
+        except Exception as e:
+            logger.exception("Compassion in-kind receipt PDF failed for %s: %s", pledge.id, e)
+            raise
+
+    @classmethod
+    def generate_compassion_call_receipt(cls, call):
+        """Generate the requester-facing PDF receipt for a schedule-call request."""
+        filename = f"Caldan_Compassion_Call_{call.id}"
+        context = {
+            'call': call,
+            'brand_name': 'Caldan Compassionate Ministry',
+            'tagline': 'Loving our neighbours. Every step of the way.',
+            'generated_at': timezone.now(),
+        }
+        try:
+            return cls.generate_pdf_to_file(
+                'pdf/compassion_call_receipt.html',
+                context,
+                filename,
+                format='A5',
+            )
+        except Exception as e:
+            logger.exception("Compassion call receipt PDF failed for %s: %s", call.id, e)
+            raise

@@ -1,0 +1,34 @@
+{% extends "email/_base.html" %}
+{% load humanize %}
+
+{% block badge %}<span class="badge badge-error" style="margin-top: 14px;">DONATION FAILED</span>{% endblock %}
+
+{% block content %}
+  <h1>A donation failed</h1>
+  <p class="subtitle">Paystack could not complete this charge</p>
+
+  <p>A donor attempted a gift but the payment did not go through. Review the reason below and follow up if the issue looks fixable.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Donor</dt>
+      <dd><strong>{{ donor_name }}</strong> ({{ donor_email }})</dd>
+      <dt>Amount</dt>
+      <dd><strong>KES {{ amount|intcomma }}</strong></dd>
+      <dt>Designation</dt>
+      <dd>{{ purpose }}</dd>
+      <dt>Reference</dt>
+      <dd><code>{{ reference }}</code></dd>
+      <dt>Reason</dt>
+      <dd>{{ reason }}</dd>
+    </dl>
+  </div>
+
+  <div class="callout callout-warning">
+    <strong>Suggested follow-up:</strong> if the donor was a real supporter, reply to the donor email asking if they'd like to retry. Paystack failures are often card-network issues or insufficient funds — easily resolvable on a second attempt.
+  </div>
+
+  <div class="button-row">
+    <a href="{{ dashboard_url }}" class="button">Open in dashboard</a>
+  </div>
+{% endblock %}

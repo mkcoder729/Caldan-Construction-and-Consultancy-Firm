@@ -1,0 +1,40 @@
+{% extends "email/_base.html" %}
+{% load humanize %}
+
+{% block badge %}<span class="badge badge-warning" style="margin-top: 14px;">DONATION STARTED</span>{% endblock %}
+
+{% block content %}
+  <h1>A new donation is in progress</h1>
+  <p class="subtitle">Donor has started checkout — awaiting Paystack confirmation</p>
+
+  <p>A donor has initiated a gift to Caldan Compassionate Ministry. Paystack is processing the charge now. You'll get a separate alert when payment confirms.</p>
+
+  <div class="meta-card">
+    <dl>
+      <dt>Donor</dt>
+      <dd><strong>{{ donor_name }}</strong> ({{ donor_email }})</dd>
+      {% if donor_phone %}
+      <dt>Phone</dt>
+      <dd>{{ donor_phone }}</dd>
+      {% endif %}
+      <dt>Amount</dt>
+      <dd><strong>KES {{ amount|intcomma }}</strong></dd>
+      <dt>Designation</dt>
+      <dd>{{ purpose }}</dd>
+      <dt>Reference</dt>
+      <dd><code>{{ reference }}</code></dd>
+      {% if note %}
+      <dt>Donor note</dt>
+      <dd>{{ note }}</dd>
+      {% endif %}
+    </dl>
+  </div>
+
+  <div class="callout callout-info">
+    <strong>Heads-up:</strong> if Paystack doesn't confirm within a few minutes (webhook delayed, or the donor closed the tab), the donation will stay PENDING. You can chase it from the dashboard.
+  </div>
+
+  <div class="button-row">
+    <a href="{{ dashboard_url }}" class="button">Open in dashboard</a>
+  </div>
+{% endblock %}

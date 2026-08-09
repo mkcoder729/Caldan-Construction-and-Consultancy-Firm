@@ -43,6 +43,9 @@ def robots_txt(request):
     sitemap_url = f"{site_url.rstrip('/')}/sitemap.xml"
 
     # Disallow rules — public crawler should never see these.
+    # NOTE: query-string prefix rules like `/?page=` confuse Google's
+    # robots.txt parser — they can over-match and block legitimate
+    # URLs like /services/. Keep these to path-prefix disallows only.
     blocked_paths = [
         "/admin/",
         "/dashboard/",
@@ -50,9 +53,6 @@ def robots_txt(request):
         "/setup/",
         "/api/",
         "/media/private/",
-        "/?s=",            # search result URLs
-        "/?search=",
-        "/?page=",         # paginated variants are still in the sitemap
     ]
 
     lines = [
@@ -63,12 +63,14 @@ def robots_txt(request):
         "",
         "# === Default rules: friendly crawlers ===",
         "User-Agent: *",
-        "Allow: /$",
-        "Allow: /static/",
-        "Allow: /media/",
+        "Allow: /",
+        "Disallow: /admin/",
+        "Disallow: /dashboard/",
+        "Disallow: /accounts/",
+        "Disallow: /setup/",
+        "Disallow: /api/",
+        "Disallow: /media/private/",
     ]
-    for path in blocked_paths:
-        lines.append(f"Disallow: {path}")
 
     lines += [
         "",
@@ -146,7 +148,6 @@ urlpatterns = [
 
     # Health Check
     path('health/', health_check, name='health_check'),
-
     # =================================================================
     # LEGACY /dashboard/<app>/… aliases (see _legacy_dashboard_redirect)
     # =================================================================
@@ -255,6 +256,16 @@ urlpatterns = [
     ),
     path('robots.txt', robots_txt, name='robots_txt'),
 ]
+
+# ---------------------------------------------------------------------
+# Custom error handlers.
+#
+# Django renders templates/404.html and templates/500.html when DEBUG=False
+# and these handlers are declared. The templates extend website/base.html
+# so they pick up the brand favicon, nav, and footer for free.
+# ---------------------------------------------------------------------
+handler404 = 'django.views.defaults.page_not_found'
+handler500 = 'django.views.defaults.server_error'
 
 # Static & Media files (Development only)
 if settings.DEBUG:
