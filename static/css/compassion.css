@@ -1698,212 +1698,225 @@
 }
 
 /* ================================================================
-   THANK YOU PAGE
-   Single-column funnel: hero celebration → receipt card → next
-   steps row → continue grid. No sidebar, no dead space, no
-   sticky alignment that's wasted on shorter pages.
+   THANK YOU PAGE (v2)
+   Editorial, single-document layout. A centred masthead + one
+   dense "boarding pass" receipt that contains the amount, the
+   reference, the actions, AND the routing path. No sidebar, no
+   stacked continue grid — everything lives inside the receipt.
    ================================================================ */
 
-/* ───── Hero banner with animated checkmark ───── */
-
-.thanks-hero {
-    position: relative;
-    overflow: hidden;
-    padding: 80px 0 64px;
-    background:
-        radial-gradient(900px 360px at 12% 18%, rgba(39, 174, 96, 0.18), transparent 60%),
-        radial-gradient(700px 320px at 88% 80%, rgba(212, 175, 55, 0.18), transparent 65%),
-        var(--bg-primary);
-    text-align: center;
-    isolation: isolate;
-}
-.thanks-hero__bg {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-}
-.thanks-hero__pulse {
-    position: absolute;
-    border-radius: 50%;
-    opacity: 0.18;
-    filter: blur(40px);
-}
-.thanks-hero__pulse--1 {
-    width: 280px;
-    height: 280px;
-    background: var(--compassion-green);
-    top: 12%;
-    left: -80px;
-    animation: thanksPulse 9s ease-in-out infinite;
-}
-.thanks-hero__pulse--2 {
-    width: 220px;
-    height: 220px;
-    background: var(--compassion-gold);
-    bottom: 0;
-    right: -60px;
-    animation: thanksPulse 11s ease-in-out infinite reverse;
-}
-@keyframes thanksPulse {
-    0%, 100% { transform: scale(1) translate(0, 0); }
-    50% { transform: scale(1.18) translate(20px, -10px); }
-}
-
-.thanks-hero__inner {
-    max-width: 720px;
+.thanks2 {
+    max-width: 760px;
     margin: 0 auto;
+    padding: 64px 24px 72px;
+    color: var(--text-primary);
+    font-family: 'Montserrat', system-ui, sans-serif;
 }
-.thanks-hero__check {
-    width: 84px;
-    height: 84px;
-    margin: 0 auto 20px;
-    border-radius: 50%;
-    background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 65%),
-        linear-gradient(135deg, var(--compassion-green) 0%, #1F8B4E 100%);
-    box-shadow:
-        0 12px 32px rgba(39, 174, 96, 0.32),
-        inset 0 1px 0 rgba(255,255,255,0.18);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-}
-.thanks-hero__check-svg {
-    width: 48px;
-    height: 48px;
-}
-.thanks-hero__check-circle {
-    stroke: rgba(255, 255, 255, 0.95);
-    stroke-width: 2.5;
-    stroke-linecap: round;
-    stroke-dasharray: 166;
-    stroke-dashoffset: 166;
-    animation: thanksCircle 0.7s cubic-bezier(0.65, 0, 0.45, 1) 0.1s forwards;
-}
-.thanks-hero__check-tick {
-    stroke: #ffffff;
-    stroke-width: 4.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-dasharray: 50;
-    stroke-dashoffset: 50;
-    animation: thanksTick 0.5s cubic-bezier(0.65, 0, 0.45, 1) 0.7s forwards;
-}
-@keyframes thanksCircle { to { stroke-dashoffset: 0; } }
-@keyframes thanksTick { to { stroke-dashoffset: 0; } }
 
-.thanks-hero__eyebrow {
+/* ───── Masthead ───── */
+
+.thanks2__masthead {
+    text-align: center;
+    margin-bottom: 36px;
+}
+.thanks2__eyebrow {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin: 0 0 14px;
-    padding: 6px 16px;
-    background: rgba(39, 174, 96, 0.14);
-    border: 1px solid rgba(39, 174, 96, 0.32);
+    padding: 5px 14px 5px 12px;
+    margin-bottom: 18px;
+    background: rgba(39, 174, 96, 0.08);
+    border: 1px solid rgba(39, 174, 96, 0.22);
     border-radius: 999px;
     color: var(--compassion-green);
-    font-size: 0.78rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+}
+.thanks2__eyebrow-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--compassion-green);
+    box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.18);
+    animation: thanks2Pulse 2s ease-in-out infinite;
+}
+@keyframes thanks2Pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.55; transform: scale(0.86); }
+}
+.thanks2__headline {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2rem, 4.4vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.6px;
+    margin: 0 0 14px;
+    color: var(--text-primary);
+}
+.thanks2__lede {
+    margin: 0 auto;
+    max-width: 560px;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.65;
+}
+.thanks2__lede strong {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+/* ───── Boarding-pass receipt ───── */
+
+.thanks2__pass {
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: 20px;
+    box-shadow:
+        0 2px 8px rgba(13, 43, 54, 0.04),
+        0 18px 44px rgba(13, 43, 54, 0.08);
+    overflow: hidden;
+    position: relative;
+    isolation: isolate;
+}
+.thanks2__pass::before {
+    /* Gold accent strip across the very top. */
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(
+        90deg,
+        var(--compassion-gold) 0%,
+        #E8C84A 50%,
+        var(--compassion-green) 100%
+    );
+    z-index: 2;
+}
+
+.thanks2__pass-body {
+    padding: 32px 32px 28px;
+}
+
+/* Top row inside the pass — designation + status pill. */
+.thanks2__pass-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+.thanks2__pass-row--top { margin-bottom: 22px; }
+.thanks2__pass-row--loading { margin-bottom: 14px; }
+.thanks2__pass-designation {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+.thanks2__pass-label {
+    display: block;
+    font-size: 0.66rem;
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
+    color: var(--text-secondary);
 }
-.thanks-hero__title {
+.thanks2__pass-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgba(212, 175, 55, 0.10);
+    color: var(--compassion-gold-deep);
+    font-size: 0.84rem;
+    font-weight: 600;
+    width: max-content;
+    max-width: 100%;
+}
+.thanks2__pass-pill i { font-size: 0.72rem; }
+
+.thanks2__status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.thanks2__status-chip--ok {
+    background: rgba(39, 174, 96, 0.12);
+    color: var(--compassion-green);
+}
+.thanks2__status-chip--pending {
+    background: rgba(243, 156, 18, 0.14);
+    color: var(--compassion-orange, #c97a14);
+}
+.thanks2__status-chip--neutral {
+    background: rgba(107, 114, 128, 0.12);
+    color: var(--text-secondary);
+}
+
+/* Amount — the visual centerpiece. */
+.thanks2__amount {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 24px;
+    padding: 20px 22px;
+    border: 1px solid var(--border-primary);
+    border-radius: 14px;
+    background:
+        linear-gradient(135deg,
+            rgba(39, 174, 96, 0.05) 0%,
+            rgba(212, 175, 55, 0.05) 100%);
+}
+.thanks2__amount-currency {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 0.6px;
+}
+.thanks2__amount-number {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(1.9rem, 3.6vw, 2.7rem);
-    line-height: 1.15;
+    font-size: clamp(2.2rem, 5vw, 3rem);
     font-weight: 800;
-    color: var(--text-primary);
-    margin: 0 0 14px;
-    letter-spacing: -0.5px;
-}
-.thanks-hero__name {
-    background: linear-gradient(135deg, var(--compassion-gold) 0%, #E8C84A 60%, #F4DC8A 100%);
+    line-height: 1;
+    letter-spacing: -1px;
+    background: linear-gradient(
+        135deg,
+        var(--compassion-green) 0%,
+        var(--compassion-gold-deep) 100%
+    );
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
 }
-.thanks-hero__subtitle {
+.thanks2__amount--loading .thanks2__amount-number {
+    background: none;
+    -webkit-text-fill-color: var(--text-secondary);
     color: var(--text-secondary);
-    font-size: 1.04rem;
-    line-height: 1.6;
-    max-width: 580px;
-    margin: 0 auto;
+    opacity: 0.6;
+    font-size: clamp(1.6rem, 4vw, 2.1rem);
+    letter-spacing: 4px;
 }
-.thanks-hero__subtitle strong { color: var(--text-primary); font-weight: 700; }
-
-/* ───── Receipt section — single column, max 720px ───── */
-
-.thanks-receipt-section {
-    padding: 0 0 56px;
-    background: var(--bg-secondary);
-}
-.thanks-receipt-section__inner {
-    max-width: 720px;
-    margin: 0 auto;
-}
-
-/* Receipt card */
-.thanks-receipt {
-    background: var(--bg-card);
-    border: 1px solid var(--border-primary);
-    border-radius: 18px;
-    padding: 32px 32px;
-    box-shadow: 0 6px 24px rgba(13, 43, 54, 0.06);
-    position: relative;
-    overflow: hidden;
-}
-.thanks-receipt::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--compassion-green) 0%, var(--compassion-gold) 100%);
-}
-
-/* Top row: brand + status pill */
-.thanks-receipt__top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 24px;
-}
-.thanks-receipt__brand {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-.thanks-receipt__brand-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: rgba(212, 175, 55, 0.14);
-    color: var(--compassion-gold-deep);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    flex-shrink: 0;
-}
-.thanks-receipt__brand-title {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 1.2rem;
-    color: var(--text-primary);
-    margin: 0 0 2px;
-    font-weight: 800;
-    line-height: 1.2;
-}
-.thanks-receipt__brand-sub {
+.thanks2__loading-note {
+    margin: 0 0 22px;
     color: var(--text-secondary);
-    font-size: 0.84rem;
-    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
 }
 
-/* Action toolbar — Download PDF · Copy · Print */
-.thanks-receipt__toolbar {
+/* Action toolbar — Download PDF · Copy · Print. */
+.thanks2__actions {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
@@ -1911,8 +1924,7 @@
     margin-bottom: 22px;
     border-bottom: 1px dashed var(--border-primary);
 }
-
-.thanks-receipt__action {
+.thanks2__action {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -1921,6 +1933,7 @@
     border: 1px solid var(--border-primary);
     background: var(--bg-primary);
     color: var(--text-primary);
+    font-family: inherit;
     font-size: 0.85rem;
     font-weight: 600;
     text-decoration: none;
@@ -1929,562 +1942,273 @@
         border-color 0.18s ease,
         background 0.18s ease,
         color 0.18s ease,
-        transform 0.12s ease;
+        transform 0.12s ease,
+        box-shadow 0.18s ease;
 }
-.thanks-receipt__action i {
+.thanks2__action i {
     color: var(--text-secondary);
     transition: color 0.18s ease;
     font-size: 0.85rem;
 }
-.thanks-receipt__action:hover {
+.thanks2__action:hover {
     border-color: var(--compassion-green);
     color: var(--compassion-green);
     background: rgba(39, 174, 96, 0.06);
 }
-.thanks-receipt__action:hover i {
-    color: var(--compassion-green);
-}
-.thanks-receipt__action:active {
-    transform: translateY(1px);
-}
-.thanks-receipt__action:focus-visible {
+.thanks2__action:hover i { color: var(--compassion-green); }
+.thanks2__action:active { transform: translateY(1px); }
+.thanks2__action:focus-visible {
     outline: 2px solid var(--compassion-green);
     outline-offset: 2px;
 }
-.thanks-receipt__action--primary {
+.thanks2__action--primary {
     background: linear-gradient(135deg, var(--compassion-green) 0%, #2ECC71 100%);
     border-color: transparent;
     color: #fff;
     box-shadow: 0 4px 12px rgba(39, 174, 96, 0.22);
 }
-.thanks-receipt__action--primary i { color: #fff; }
-.thanks-receipt__action--primary:hover {
+.thanks2__action--primary i { color: #fff; }
+.thanks2__action--primary:hover {
     color: #fff;
     background: linear-gradient(135deg, #2ECC71 0%, var(--compassion-green) 100%);
     box-shadow: 0 6px 16px rgba(39, 174, 96, 0.30);
 }
-.thanks-receipt__action--primary:hover i { color: #fff; }
+.thanks2__action--primary:hover i { color: #fff; }
 
-/* Transient success state on the copy button — lasts 1.5s after a
-   successful copy so the donor sees feedback. */
-.thanks-receipt__action--copied {
+/* Transient success state on the copy button. */
+.thanks2__action--copied {
     border-color: var(--compassion-green);
     color: var(--compassion-green);
     background: rgba(39, 174, 96, 0.10);
 }
-.thanks-receipt__action--copied i { color: var(--compassion-green); }
+.thanks2__action--copied i { color: var(--compassion-green); }
 
-/* Status pill (top-right of receipt card) */
-.thanks-receipt__status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 12px;
-    border-radius: 999px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-.thanks-receipt__status--ok {
-    background: rgba(39, 174, 96, 0.12);
-    color: var(--compassion-green);
-}
-.thanks-receipt__status--pending {
-    background: rgba(243, 156, 18, 0.14);
-    color: var(--compassion-orange);
-}
-.thanks-receipt__status--neutral {
-    background: rgba(107, 114, 128, 0.12);
-    color: var(--text-secondary);
-}
-
-/* Hero amount block — the visual centerpiece */
-.thanks-receipt__amount-block {
-    background:
-        linear-gradient(135deg, rgba(39, 174, 96, 0.06) 0%, rgba(212, 175, 55, 0.06) 100%);
-    border: 1px solid var(--border-primary);
-    border-radius: 14px;
-    padding: 20px 24px;
-    margin-bottom: 22px;
-    text-align: center;
-}
-.thanks-receipt__amount-label {
-    display: block;
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 6px;
-}
-.thanks-receipt__amount {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(2rem, 4vw, 2.6rem);
-    font-weight: 800;
-    line-height: 1;
-    display: inline-flex;
-    align-items: baseline;
-    gap: 8px;
-    background: linear-gradient(135deg, var(--compassion-green) 0%, #1F8B4E 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-}
-.thanks-receipt__currency {
-    font-size: 0.78rem;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
-    color: var(--text-secondary);
-    letter-spacing: 0.4px;
-    -webkit-text-fill-color: var(--text-secondary);
-}
-
-/* Metadata grid — 2 columns on desktop, 1 on mobile */
-.thanks-receipt__grid {
-    margin: 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px 28px;
-}
-.thanks-receipt__cell {
-    margin: 0;
-    padding: 0;
-}
-.thanks-receipt__cell--wide {
-    grid-column: 1 / -1;
-}
-.thanks-receipt__cell dt {
-    color: var(--text-secondary);
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
+/* Metadata grid — 3 columns on desktop, denser than the old design. */
+.thanks2__meta {
     margin: 0 0 4px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px 26px;
 }
-.thanks-receipt__cell dd {
-    color: var(--text-primary);
-    font-size: 0.95rem;
+.thanks2__meta > div { margin: 0; padding: 0; min-width: 0; }
+.thanks2__meta dt {
+    margin: 0 0 4px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+.thanks2__meta dd {
     margin: 0;
+    color: var(--text-primary);
+    font-size: 0.93rem;
     word-break: break-word;
-    display: flex;
-    align-items: center;
-    gap: 6px;
 }
-.thanks-receipt__cell code {
+.thanks2__meta code {
     background: var(--compassion-navy);
     color: var(--compassion-gold);
-    padding: 5px 10px;
+    padding: 4px 9px;
     border-radius: 6px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.84rem;
+    font-family: 'Courier New', ui-monospace, monospace;
+    font-size: 0.8rem;
     letter-spacing: 0.4px;
     display: inline-block;
     word-break: break-all;
 }
-.thanks-receipt__pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 5px 12px;
-    background: rgba(212, 175, 55, 0.12);
-    color: var(--compassion-gold-deep);
-    border-radius: 999px;
-    font-size: 0.82rem;
-    font-weight: 600;
-}
-.thanks-receipt__pill i { font-size: 0.7rem; }
 
-/* Donor note */
-.thanks-receipt__note {
+/* Donor note — pinned to the bottom of the receipt body. */
+.thanks2__note {
     margin-top: 22px;
-    padding: 18px 20px;
+    padding: 16px 20px;
     background: var(--bg-secondary);
     border-left: 3px solid var(--compassion-gold);
-    border-radius: 8px;
+    border-radius: 0 8px 8px 0;
 }
-.thanks-receipt__note-label {
+.thanks2__note-label {
     display: block;
-    font-size: 0.72rem;
+    font-size: 0.66rem;
     font-weight: 700;
-    color: var(--text-secondary);
+    letter-spacing: 0.9px;
     text-transform: uppercase;
-    letter-spacing: 0.6px;
+    color: var(--text-secondary);
     margin-bottom: 6px;
 }
-.thanks-receipt__note blockquote {
+.thanks2__note blockquote {
     margin: 0;
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 0.98rem;
+    font-size: 0.95rem;
     color: var(--text-primary);
     line-height: 1.55;
     font-style: italic;
 }
 
-/* ───── Next steps section — single horizontal strip ───── */
-
-.thanks-next-section {
-    padding: 0 0 56px;
-    background: var(--bg-secondary);
+/* Routing path — a single horizontal rule with three circles. Lives
+   INSIDE the receipt pass, separated from the meta grid by a dashed
+   line, so the "what happens next" reads as part of the document. */
+.thanks2__path {
+    position: relative;
+    padding: 22px 32px 26px;
+    background:
+        linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+    border-top: 1px dashed var(--border-primary);
 }
-.thanks-next {
-    max-width: 880px;
-    margin: 0 auto;
-    background: var(--bg-card);
-    border: 1px solid var(--border-primary);
-    border-radius: 18px;
-    padding: 32px 32px;
-    box-shadow: 0 6px 24px rgba(13, 43, 54, 0.06);
-}
-.thanks-next__title {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 1.15rem;
-    color: var(--text-primary);
-    margin: 0 0 22px;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 800;
-}
-.thanks-next__title i { color: var(--compassion-gold); }
-.thanks-next__steps {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 24px;
-    display: flex;
-    align-items: stretch;
-    gap: 14px;
-}
-.thanks-next__step {
-    display: flex;
-    gap: 14px;
-    padding: 8px 4px;
-    flex: 1;
-    min-width: 0;
-}
-.thanks-next__step-num {
-    flex-shrink: 0;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--compassion-gold) 0%, #E8C84A 100%);
-    color: var(--compassion-navy);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 0.92rem;
-    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.28);
-}
-.thanks-next__step-text {
-    min-width: 0;
-}
-.thanks-next__step-text strong {
+.thanks2__path-label {
     display: block;
-    color: var(--text-primary);
-    font-size: 0.94rem;
-    margin-bottom: 3px;
+    font-size: 0.66rem;
     font-weight: 700;
-}
-.thanks-next__step-text p {
+    letter-spacing: 1.1px;
+    text-transform: uppercase;
     color: var(--text-secondary);
-    font-size: 0.84rem;
-    line-height: 1.5;
+    margin-bottom: 18px;
+}
+.thanks2__path-track {
+    list-style: none;
     margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    position: relative;
+    gap: 0;
 }
-.thanks-next__chevron {
+/* The horizontal connector line. */
+.thanks2__path-track::before {
+    content: "";
+    position: absolute;
+    top: 9px;
+    left: calc(100% / 6);
+    right: calc(100% / 6);
+    height: 1px;
+    background:
+        linear-gradient(90deg,
+            var(--compassion-green) 0%,
+            var(--compassion-green) 33%,
+            var(--border-primary) 33%,
+            var(--border-primary) 100%);
+    z-index: 0;
+}
+.thanks2__path-step {
+    position: relative;
+    z-index: 1;
     display: flex;
-    align-items: center;
-    color: var(--text-secondary);
-    opacity: 0.4;
-    flex-shrink: 0;
-    font-size: 0.8rem;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
 }
-.thanks-next__chevron i { font-size: 0.8rem; }
-
-.thanks-next__quote {
-    padding: 18px 22px;
-    background: var(--bg-secondary);
-    border-radius: 12px;
+.thanks2__path-dot {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid var(--border-primary);
+    margin-top: 1px;
     position: relative;
 }
-.thanks-next__quote > i {
-    color: var(--compassion-gold);
-    font-size: 0.95rem;
-    opacity: 0.6;
-    margin-bottom: 6px;
-    display: block;
+.thanks2__path-step.is-active .thanks2__path-dot {
+    border-color: var(--compassion-green);
+    background: var(--compassion-green);
+    box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.18);
 }
-.thanks-next__quote p {
-    font-family: 'Playfair Display', Georgia, serif;
+.thanks2__path-step.is-active .thanks2__path-dot::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: #fff;
+}
+.thanks2__path-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.thanks2__path-text strong {
     color: var(--text-primary);
+    font-size: 0.88rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+.thanks2__path-text small {
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    line-height: 1.45;
+}
+
+/* ───── Footer note (scripture + back link) ───── */
+
+.thanks2__foot {
+    margin-top: 36px;
+    text-align: center;
+}
+.thanks2__quote {
+    margin: 0 auto 22px;
+    max-width: 520px;
+    border: 0;
+    padding: 0;
+}
+.thanks2__quote p {
+    margin: 0 0 4px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    color: var(--text-secondary);
     font-size: 0.92rem;
     line-height: 1.55;
-    font-style: italic;
-    margin: 0 0 6px;
 }
-.thanks-next__quote small {
+.thanks2__quote cite {
+    display: block;
+    font-style: normal;
     color: var(--text-secondary);
     font-size: 0.78rem;
     font-weight: 600;
+    letter-spacing: 0.3px;
+    opacity: 0.7;
 }
-
-/* ───── Continue your impact ───── */
-
-.thanks-continue {
-    padding: 56px 0 64px;
-    background: var(--bg-primary);
-    text-align: center;
-}
-.thanks-continue__head {
-    max-width: 620px;
-    margin: 0 auto 36px;
-}
-.thanks-continue__head h2 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(1.5rem, 2.8vw, 2rem);
-    color: var(--text-primary);
-    margin: 0 0 8px;
-    font-weight: 800;
-    letter-spacing: -0.4px;
-}
-.thanks-continue__head p {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    margin: 0;
-    line-height: 1.55;
-}
-
-.thanks-continue__grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-    margin-bottom: 28px;
-}
-.thanks-continue__card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-primary);
-    border-radius: 16px;
-    padding: 24px 22px;
-    text-align: left;
-    text-decoration: none;
-    color: var(--text-primary);
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    cursor: pointer;
-    font-family: inherit;
-}
-.thanks-continue__card:hover {
-    color: var(--text-primary);
-    transform: translateY(-3px);
-    border-color: rgba(212, 175, 55, 0.4);
-    box-shadow: 0 12px 28px rgba(13, 43, 54, 0.10);
-}
-.thanks-continue__card-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-}
-.thanks-continue__card-icon--gold {
-    background: rgba(212, 175, 55, 0.14);
-    color: var(--compassion-gold-deep);
-}
-.thanks-continue__card-icon--blue {
-    background: rgba(11, 102, 195, 0.14);
-    color: var(--compassion-blue);
-}
-.thanks-continue__card-icon--green {
-    background: rgba(39, 174, 96, 0.14);
-    color: var(--compassion-green);
-}
-.thanks-continue__card h3 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 1.12rem;
-    color: var(--text-primary);
-    margin: 0;
-    font-weight: 700;
-}
-.thanks-continue__card p {
-    color: var(--text-secondary);
-    font-size: 0.88rem;
-    line-height: 1.5;
-    margin: 0;
-    flex: 1;
-}
-.thanks-continue__card-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--compassion-gold-deep);
-    font-weight: 700;
-    font-size: 0.82rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: gap 0.25s ease;
-}
-.thanks-continue__card:hover .thanks-continue__card-cta { gap: 12px; }
-
-.thanks-continue__back { margin-top: 12px; }
-.btn-ghost-back {
+.thanks2__back {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     font-weight: 500;
-    padding: 10px 18px;
+    padding: 8px 16px;
     border-radius: 999px;
-    transition: color 0.25s ease, background 0.25s ease;
+    transition: color 0.2s ease, background 0.2s ease;
 }
-.btn-ghost-back:hover {
+.thanks2__back:hover {
     color: var(--compassion-gold-deep);
     background: var(--bg-secondary);
 }
-
-/* ───── Verifying card (PENDING state) ─────
-   Shown while the donation row hasn't been confirmed yet. Replaced
-   by the full receipt card once Paystack's webhook fires. */
-
-.thanks-verifying {
-    max-width: 560px;
-    margin: 0 auto;
-    padding: 48px 32px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-primary);
-    border-radius: 18px;
-    box-shadow: 0 6px 24px rgba(13, 43, 54, 0.06);
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    transition: opacity 0.35s ease, transform 0.35s ease;
+.thanks2__back:focus-visible {
+    outline: 2px solid var(--compassion-gold-deep);
+    outline-offset: 2px;
 }
-.thanks-verifying::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--compassion-gold) 0%, var(--compassion-green) 100%);
-}
-.thanks-verifying__pulse {
-    width: 72px;
-    height: 72px;
-    margin: 0 auto 18px;
-    border-radius: 50%;
-    background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6), transparent 65%),
-        linear-gradient(135deg, var(--compassion-gold) 0%, var(--compassion-gold-deep) 100%);
-    color: #fff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8rem;
-    box-shadow: 0 12px 32px rgba(212, 175, 55, 0.32);
-    animation: thanksVerifyingPulse 1.6s ease-in-out infinite;
-}
-@keyframes thanksVerifyingPulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 12px 32px rgba(212, 175, 55, 0.32); }
-    50% { transform: scale(1.05); box-shadow: 0 14px 36px rgba(212, 175, 55, 0.40); }
-}
-.thanks-verifying__title {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    margin: 0 0 8px;
-}
-.thanks-verifying__sub {
-    color: var(--text-secondary);
-    font-size: 0.92rem;
-    line-height: 1.55;
-    margin: 0 0 22px;
-}
-.thanks-verifying__meta {
-    display: inline-flex;
-    margin: 0 auto;
-    padding: 10px 18px;
-    border-radius: 999px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-}
-.thanks-verifying__meta div {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0;
-}
-.thanks-verifying__meta dt {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text-secondary);
-    font-weight: 600;
-    margin: 0;
-}
-.thanks-verifying__meta dd { margin: 0; }
-.thanks-verifying__meta code {
-    background: var(--compassion-navy);
-    color: var(--compassion-gold);
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.82rem;
-    letter-spacing: 0.4px;
-}
-
-/* When polling resolves, JS toggles .is-resolving on .thanks-verifying
-   to fade it out, then unhides #thanksReceipt. */
-.thanks-verifying.is-resolving {
-    opacity: 0;
-    transform: translateY(-12px);
-    pointer-events: none;
-}
-
-.thanks-verifying__refresh {
-    color: var(--compassion-green);
-    font-weight: 600;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    margin-left: 6px;
-}
-.thanks-verifying__refresh:hover { color: #1F8B4E; }
 
 /* ───── Responsive ───── */
 
-@media (max-width: 768px) {
-    .thanks-hero { padding: 64px 0 48px; }
-    .thanks-hero__check { width: 72px; height: 72px; }
-    .thanks-hero__check-svg { width: 40px; height: 40px; }
-    .thanks-receipt-section { padding: 0 0 40px; }
-    .thanks-receipt { padding: 26px 22px; }
-    .thanks-receipt__top { flex-direction: column; align-items: flex-start; }
-    .thanks-receipt__grid { grid-template-columns: 1fr; gap: 16px; }
-    .thanks-receipt__amount-block { padding: 18px 18px; }
-    .thanks-next-section { padding: 0 0 40px; }
-    .thanks-next { padding: 26px 22px; }
-    .thanks-next__steps { flex-direction: column; gap: 8px; }
-    .thanks-next__chevron { transform: rotate(90deg); }
-    .thanks-next__step { padding: 12px 0; border-bottom: 1px dashed var(--border-primary); }
-    .thanks-next__step:last-child { border-bottom: none; }
-    .thanks-continue { padding: 44px 0 48px; }
-    .thanks-continue__grid { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
-}
-@media (max-width: 480px) {
-    .thanks-hero { padding: 56px 0 40px; }
-    .thanks-receipt__toolbar {
+@media (max-width: 720px) {
+    .thanks2 { padding: 48px 18px 56px; }
+    .thanks2__pass-body { padding: 26px 22px 22px; }
+    .thanks2__path      { padding: 20px 22px 22px; }
+    .thanks2__meta      { grid-template-columns: repeat(2, 1fr); }
+    .thanks2__actions {
         flex-direction: column;
         align-items: stretch;
     }
-    .thanks-receipt__action { justify-content: center; }
-    .thanks-verifying { padding: 36px 22px; }
-    .thanks-verifying__title { font-size: 1.25rem; }
+    .thanks2__action {
+        justify-content: center;
+    }
+    .thanks2__pass-row--top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+@media (max-width: 480px) {
+    .thanks2__headline { font-size: 1.85rem; }
+    .thanks2__meta     { grid-template-columns: 1fr; }
+    .thanks2__amount-number { font-size: 2rem; }
 }
 
 /* ================================================================

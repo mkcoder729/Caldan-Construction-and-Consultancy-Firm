@@ -29,7 +29,7 @@ logos = [
     ('static/images/logo.png', 'caldan/logo.png'),
     ('static/images/logo_light.png', 'caldan/logo_light.png'),
     ('static/images/logo_dark.png', 'caldan/logo_dark.png'),
-    ('static/images/favicon.png', 'caldan/favicon.png'),
+    ('static/images/favicon-v2.png', 'caldan/favicon.png'),
     ('static/images/og-image.png', 'caldan/og-image.png'),
 ]
 

@@ -128,7 +128,7 @@ class ScheduleService:
                         user=admin,
                         title=title,
                         message=message,
-                        notification_type="SYSTEM",
+                        notification_type="COMPASSION_CALL",
                         priority="MEDIUM",
                         icon="fa-phone",
                         action_url=f"/dashboard/compassion/calls/{call.id}/",

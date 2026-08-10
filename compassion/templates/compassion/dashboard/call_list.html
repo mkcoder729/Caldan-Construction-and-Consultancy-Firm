@@ -1,35 +1,132 @@
 {% extends "dashboard/base_dashboard.html" %}
+{% load static %}
 
 {% block title %}Schedule Calls — Caldan Dashboard{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/compassion_dashboard.css' %}">
+{% endblock %}
+
 {% block dashboard_content %}
-<div class="compassion-list">
-    <div class="page-header"><div><h1 class="page-header__title"><span class="icon-bubble"><i class="fas fa-phone"></i></span> Schedule Calls</h1><p class="page-header__sub">Inbound call requests for large gifts and partnerships</p></div></div>
+<div class="compassion-dashboard">
+
+    <div class="page-header">
+        <div class="page-header__main">
+            <div class="page-header__icon"><i class="fas fa-phone"></i></div>
+            <div>
+                <h1 class="page-header__title">Schedule Calls</h1>
+                <p class="page-header__sub">Inbound call requests for large gifts and partnerships</p>
+            </div>
+        </div>
+    </div>
+
     <form class="filter-bar" method="get">
-        <div class="field" style="flex: 3;"><label class="field-label">Search</label><input type="search" name="search" value="{{ search }}" placeholder="Name, email, message…"></div>
-        <div class="field"><label class="field-label">Status</label><select name="status"><option value="">All</option>{% for v,l in status_choices %}<option value="{{ v }}" {% if status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
-        <div class="field"><label class="field-label">Topic</label><select name="topic"><option value="">All</option>{% for v,l in topic_choices %}<option value="{{ v }}" {% if topic == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
-        <div class="actions"><button class="btn-apply" type="submit"><i class="fas fa-filter"></i> Apply</button><a class="btn-reset" href="{% url 'compassion_dashboard:call_list' %}">Clear</a></div>
+        <div class="field" style="flex: 3;">
+            <label class="field-label">Search</label>
+            <input type="search" name="search" value="{{ search }}" placeholder="Name, email, message…">
+        </div>
+        <div class="field">
+            <label class="field-label">Status</label>
+            <select name="status">
+                <option value="">All</option>
+                {% for v,l in status_choices %}
+                    <option value="{{ v }}" {% if status == v %}selected{% endif %}>{{ l }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label class="field-label">Topic</label>
+            <select name="topic">
+                <option value="">All</option>
+                {% for v,l in topic_choices %}
+                    <option value="{{ v }}" {% if topic == v %}selected{% endif %}>{{ l }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="actions">
+            <button class="btn-apply" type="submit"><i class="fas fa-filter"></i> Apply</button>
+            <a class="btn-reset" href="{% url 'compassion_dashboard:call_list' %}">Clear</a>
+        </div>
     </form>
+
     <div class="panel">
-        <div class="panel__header"><h3><i class="fas fa-list"></i> Calls</h3><span class="panel__count">{{ calls.paginator.count }} total</span></div>
-        {% if calls %}
-        <table class="msg-table">
-            <thead><tr><th>Requester</th><th>Topic</th><th>Preferred time</th><th>Status</th><th>Date</th><th></th></tr></thead>
-            <tbody>
-            {% for c in calls %}
-                <tr>
-                    <td><strong>{{ c.name }}</strong><br><small class="text-muted">{{ c.email }} &middot; {{ c.phone }}</small></td>
-                    <td>{{ c.get_topic_display }}</td>
-                    <td>{{ c.preferred_time }}</td>
-                    <td>{{ c.get_status_display }}</td>
-                    <td>{{ c.created_at|date:"M d, Y" }}</td>
-                    <td><a href="{% url 'compassion_dashboard:call_detail' c.id %}" class="btn-icon"><i class="fas fa-eye"></i></a></td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        {% else %}<div class="empty-state"><i class="fas fa-inbox"></i><h4>No calls match</h4><p>Try clearing your filters.</p></div>{% endif %}
+        <div class="panel__header">
+            <h3><i class="fas fa-list"></i> Calls</h3>
+            <span class="panel__count">{{ calls.paginator.count }} total</span>
+        </div>
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Requester</th>
+                        <th>Topic</th>
+                        <th>Preferred time</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for c in calls %}
+                    <tr>
+                        <td>
+                            <strong>{{ c.name }}</strong><br>
+                            <span class="text-muted-inline">{{ c.email }} · {{ c.phone }}</span>
+                        </td>
+                        <td>{{ c.get_topic_display }}</td>
+                        <td>{{ c.preferred_time|truncatechars:30 }}</td>
+                        <td>
+                            <span class="status-badge
+                                {% if c.status == 'COMPLETED' %}success
+                                {% elif c.status == 'CONTACTED' %}pending
+                                {% elif c.status == 'CANCELLED' %}cancelled
+                                {% else %}info{% endif %}">
+                                {{ c.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ c.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="{% url 'compassion_dashboard:call_detail' c.id %}" class="list-action list-action--gold" title="Open">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h4>No calls match</h4>
+                            <p>Try clearing your filters.</p>
+                        </div>
+                    </td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if calls.has_other_pages %}
+        <div class="pagination-bar">
+            <div>Showing {{ calls.start_index }}–{{ calls.end_index }} of {{ calls.paginator.count }}</div>
+            <ul class="pagination">
+                {% if calls.has_previous %}
+                    <li><a href="?page={{ calls.previous_page_number }}"><i class="fas fa-chevron-left"></i></a></li>
+                {% else %}
+                    <li><span class="disabled"><i class="fas fa-chevron-left"></i></span></li>
+                {% endif %}
+                {% for n in calls.paginator.page_range %}
+                    {% if n == calls.number %}
+                        <li><span class="current">{{ n }}</span></li>
+                    {% else %}
+                        <li><a href="?page={{ n }}">{{ n }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                {% if calls.has_next %}
+                    <li><a href="?page={{ calls.next_page_number }}"><i class="fas fa-chevron-right"></i></a></li>
+                {% else %}
+                    <li><span class="disabled"><i class="fas fa-chevron-right"></i></span></li>
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

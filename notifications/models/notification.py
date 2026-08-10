@@ -22,6 +22,11 @@ class Notification(models.Model):
         SYSTEM = 'SYSTEM', 'System'
         REMINDER = 'REMINDER', 'Reminder'
         AUDIT = 'AUDIT', 'Audit Report'
+        # Compassionate Ministry — added 2026-08-10 so bell notifications
+        # are filterable by their compassion source event.
+        COMPASSION_DONATION = 'COMPASSION_DONATION', 'Compassion Donation'
+        COMPASSION_INKIND = 'COMPASSION_INKIND', 'Compassion In-Kind Pledge'
+        COMPASSION_CALL = 'COMPASSION_CALL', 'Compassion Call Request'
 
     # Recipient
     user = models.ForeignKey(

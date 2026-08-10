@@ -1,30 +1,88 @@
 {% extends "dashboard/base_dashboard.html" %}
+{% load static %}
 
-{% block title %}{% if story.id %}Edit story{% else %}New story{% endif %}{% endblock %}
+{% block title %}{% if story.id %}Edit story{% else %}New story{% endif %} — Caldan Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/compassion_dashboard.css' %}">
+{% endblock %}
 
 {% block dashboard_content %}
-<div class="compassion-detail">
-    <div class="page-header"><div><h1 class="page-header__title"><span class="icon-bubble"><i class="fas fa-newspaper"></i></span> {% if story.id %}Edit story{% else %}New story{% endif %}</h1></div>
-        <div class="page-header__actions"><a href="{% url 'compassion_dashboard:story_list' %}" class="btn-pill"><i class="fas fa-arrow-left"></i> Back</a></div></div>
-    <div class="panel">
-        <div style="padding: 22px;">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="row g-3">
-                    <div class="col-md-8"><label class="form-label">Title</label><input name="title" class="form-control" required value="{{ story.title|default:'' }}"></div>
-                    <div class="col-md-4"><label class="form-label">Category</label><select name="category" class="form-select">{% for v,l in categories %}<option value="{{ v }}" {% if story.category == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
-                    <div class="col-12"><label class="form-label">Summary</label><textarea name="summary" class="form-control" rows="3">{{ story.summary|default:'' }}</textarea></div>
-                    <div class="col-12"><label class="form-label">Body</label><textarea name="body" class="form-control" rows="6">{{ story.body|default:'' }}</textarea></div>
-                    <div class="col-md-6"><label class="form-label">Location</label><input name="location" class="form-control" value="{{ story.location|default:'' }}"></div>
-                    <div class="col-md-3"><label class="form-label">Event date</label><input type="date" name="event_date" class="form-control" value="{{ story.event_date|date:'Y-m-d'|default:'' }}"></div>
-                    <div class="col-md-3"><label class="form-label">People served</label><input type="number" name="people_served" class="form-control" min="0" value="{{ story.people_served|default:0 }}"></div>
-                    <div class="col-md-3"><label class="form-label">Display order</label><input type="number" name="display_order" class="form-control" value="{{ story.display_order|default:0 }}"></div>
-                    <div class="col-md-6"><label class="form-label">Cover image</label><input type="file" name="cover_image" class="form-control" accept="image/*"></div>
-                    <div class="col-md-3"><div class="form-check" style="margin-top: 32px;"><input class="form-check-input" type="checkbox" name="is_published" id="is_published" {% if story.is_published %}checked{% endif %}><label class="form-check-label" for="is_published">Published</label></div></div>
-                    <div class="col-12"><button class="btn-apply" type="submit"><i class="fas fa-save"></i> Save</button></div>
-                </div>
-            </form>
+<div class="compassion-dashboard">
+
+    <div class="page-header">
+        <div class="page-header__main">
+            <div class="page-header__icon"><i class="fas fa-newspaper"></i></div>
+            <div>
+                <h1 class="page-header__title">{% if story.id %}Edit story{% else %}New story{% endif %}</h1>
+                <p class="page-header__sub">{% if story.id %}{{ story.title }}{% else %}Compose a field story{% endif %}</p>
+            </div>
         </div>
+        <div class="page-header__actions">
+            <a href="{% url 'compassion_dashboard:story_list' %}" class="pill">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="form-panel">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="col-span-8">
+                    <label class="form-label">Title</label>
+                    <input name="title" class="form-control" required value="{{ story.title|default:'' }}">
+                </div>
+                <div class="col-span-4">
+                    <label class="form-label">Category</label>
+                    <select name="category" class="form-select">
+                        {% for v,l in categories %}
+                            <option value="{{ v }}" {% if story.category == v %}selected{% endif %}>{{ l }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-span-12">
+                    <label class="form-label">Summary</label>
+                    <textarea name="summary" class="form-control" rows="3">{{ story.summary|default:'' }}</textarea>
+                </div>
+                <div class="col-span-12">
+                    <label class="form-label">Body</label>
+                    <textarea name="body" class="form-control" rows="6">{{ story.body|default:'' }}</textarea>
+                </div>
+                <div class="col-span-6">
+                    <label class="form-label">Location</label>
+                    <input name="location" class="form-control" value="{{ story.location|default:'' }}">
+                </div>
+                <div class="col-span-3">
+                    <label class="form-label">Event date</label>
+                    <input type="date" name="event_date" class="form-control" value="{{ story.event_date|date:'Y-m-d'|default:'' }}">
+                </div>
+                <div class="col-span-3">
+                    <label class="form-label">People served</label>
+                    <input type="number" name="people_served" class="form-control" min="0" value="{{ story.people_served|default:0 }}">
+                </div>
+                <div class="col-span-3">
+                    <label class="form-label">Display order</label>
+                    <input type="number" name="display_order" class="form-control" value="{{ story.display_order|default:0 }}">
+                </div>
+                <div class="col-span-6">
+                    <label class="form-label">Cover image</label>
+                    <input type="file" name="cover_image" class="form-control" accept="image/*">
+                </div>
+                <div class="col-span-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="is_published" id="is_published" {% if story.is_published %}checked{% endif %}>
+                        <label class="form-check-label" for="is_published">Published</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-save btn-save--gold" type="submit">
+                    <i class="fas fa-save"></i> Save story
+                </button>
+                <a href="{% url 'compassion_dashboard:story_list' %}" class="btn-reset">Cancel</a>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}

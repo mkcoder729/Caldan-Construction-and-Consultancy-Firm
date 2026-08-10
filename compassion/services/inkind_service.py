@@ -142,7 +142,7 @@ class InKindService:
                         user=admin,
                         title=title,
                         message=message,
-                        notification_type="SYSTEM",
+                        notification_type="COMPASSION_INKIND",
                         priority="MEDIUM",
                         icon="fa-box-open",
                         action_url=f"/dashboard/compassion/inkind/{pledge.id}/",

@@ -1,5 +1,6 @@
-{% comment %}Admin alert when a new shop order is placed. Fires from shop signals. Uses ADMIN_EMAIL.{% endcomment %}
 {% extends "email/_base.html" %}
+{% comment %}Admin alert when a new shop order is placed. Fires from shop signals. Uses ADMIN_EMAIL.{% endcomment %}
+
 {% load humanize %}
 
 {% block badge %}<span class="badge badge-error" style="margin-top: 14px;">NEW ORDER</span>{% endblock %}

@@ -530,22 +530,26 @@
         const checked = form.querySelector('input[name="topic_radio"]:checked');
         if (checked) hiddenTopic.value = checked.value;
 
+        // Single source of truth: radios drive the hidden field, never
+        // the other way around. Earlier versions used a MutationObserver
+        // watching `value` — that created a feedback loop where the
+        // observer would re-check a radio the user had just clicked,
+        // stealing focus and (per user feedback) hanging the modal.
         form.addEventListener('change', function (e) {
             if (e.target && e.target.name === 'topic_radio' && e.target.checked) {
                 hiddenTopic.value = e.target.value;
             }
         });
 
-        const setFromValue = function (value) {
+        // Programmatic trigger (e.g. donation-modal's "Schedule a Call"
+        // CTA wants to preset the topic before opening this modal).
+        window.CaldanSetCallTopic = function (value) {
             const radio = form.querySelector('input[name="topic_radio"][value="' + value + '"]');
-            if (radio) radio.checked = true;
-            hiddenTopic.value = value;
+            if (radio) {
+                radio.checked = true;
+                hiddenTopic.value = value;
+            }
         };
-
-        const observer = new MutationObserver(function () {
-            setFromValue(hiddenTopic.value);
-        });
-        observer.observe(hiddenTopic, { attributes: true, attributeFilter: ['value'] });
     }
 
     let itiInstance = null;
@@ -645,7 +649,7 @@
     // ───── Thank-you page ─────
 
     function initThanksActions() {
-        const toolbar = document.querySelector('.thanks-receipt__toolbar');
+        const toolbar = document.querySelector('.thanks2__actions');
         if (!toolbar) return;
 
         toolbar.addEventListener('click', function (e) {
@@ -694,10 +698,10 @@
 
     function flashCopied(btn) {
         const originalHtml = btn.innerHTML;
-        btn.classList.add('thanks-receipt__action--copied');
+        btn.classList.add('thanks2__action--copied');
         btn.innerHTML = '<i class="fas fa-circle-check"></i><span>Copied</span>';
         setTimeout(function () {
-            btn.classList.remove('thanks-receipt__action--copied');
+            btn.classList.remove('thanks2__action--copied');
             btn.innerHTML = originalHtml;
         }, 1500);
     }
@@ -757,13 +761,20 @@
     }
 
     function showPollingError(card, title, sub) {
-        const titleEl = card.querySelector('.thanks-verifying__title');
-        const subEl = card.querySelector('.thanks-verifying__sub');
+        // The verifying card now lives inside .thanks2__pass-body and uses
+        // generic prose elements rather than the old .thanks-verifying
+        // hooks. We target the inline text + loading note directly.
+        const titleEl = card.querySelector('[data-thanks-verify-title]') ||
+                        card.querySelector('h2') ||
+                        card.querySelector('p');
+        const subEl = card.querySelector('[data-thanks-verify-sub]') ||
+                      card.querySelectorAll('p')[1] ||
+                      card.querySelector('p');
         if (titleEl) titleEl.textContent = title;
-        if (subEl) {
+        if (subEl && subEl.tagName === 'P') {
             subEl.innerHTML =
                 sub +
-                ' <a href="" class="thanks-verifying__refresh" onclick="event.preventDefault(); window.location.reload();">Refresh</a>';
+                ' <a href="" class="thanks2__back" style="margin-left:8px" onclick="event.preventDefault(); window.location.reload();"><i class="fas fa-rotate-right"></i> Refresh</a>';
         }
     }
 })();

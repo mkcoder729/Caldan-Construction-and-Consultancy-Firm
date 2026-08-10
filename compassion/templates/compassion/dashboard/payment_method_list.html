@@ -1,31 +1,87 @@
 {% extends "dashboard/base_dashboard.html" %}
+{% load static %}
 
 {% block title %}Payment Methods — Caldan Dashboard{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/compassion_dashboard.css' %}">
+{% endblock %}
+
 {% block dashboard_content %}
-<div class="compassion-list">
-    <div class="page-header"><div><h1 class="page-header__title"><span class="icon-bubble"><i class="fas fa-wallet"></i></span> Payment Methods</h1><p class="page-header__sub">Dynamic, admin-editable — no hardcoded paybill numbers</p></div>
-        <div class="page-header__actions"><a href="{% url 'compassion_dashboard:payment_method_create' %}" class="btn-pill"><i class="fas fa-plus"></i> New method</a></div></div>
+<div class="compassion-dashboard">
+
+    <div class="page-header">
+        <div class="page-header__main">
+            <div class="page-header__icon"><i class="fas fa-wallet"></i></div>
+            <div>
+                <h1 class="page-header__title">Payment Methods</h1>
+                <p class="page-header__sub">Dynamic, admin-editable — no hardcoded paybill numbers</p>
+            </div>
+        </div>
+        <div class="page-header__actions">
+            <a href="{% url 'compassion_dashboard:payment_method_create' %}" class="pill pill--gold">
+                <i class="fas fa-plus"></i> New method
+            </a>
+        </div>
+    </div>
+
     <div class="panel">
-        <div class="panel__header"><h3><i class="fas fa-list"></i> Methods</h3></div>
-        <table class="msg-table">
-            <thead><tr><th>Label</th><th>Method</th><th>Account</th><th>Bank</th><th>Active</th><th></th></tr></thead>
-            <tbody>
-            {% for m in methods %}
-                <tr>
-                    <td><strong>{{ m.label }}</strong></td>
-                    <td>{{ m.get_method_display }}</td>
-                    <td><code>{{ m.account_number }}</code></td>
-                    <td>{{ m.bank_name|default:"—" }}</td>
-                    <td>{% if m.is_active %}<span class="status-pill replied">Active</span>{% else %}<span class="status-pill unreplied">Inactive</span>{% endif %}</td>
-                    <td>
-                        <a href="{% url 'compassion_dashboard:payment_method_edit' m.id %}" class="btn-icon"><i class="fas fa-edit"></i></a>
-                        <form method="post" action="{% url 'compassion_dashboard:payment_method_toggle' m.id %}" style="display:inline;">{% csrf_token %}<button class="btn-icon" type="submit"><i class="fas fa-power-off"></i></button></form>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        <div class="panel__header">
+            <h3><i class="fas fa-list"></i> Methods</h3>
+            <span class="panel__count">{{ methods|length }} configured</span>
+        </div>
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Label</th>
+                        <th>Method</th>
+                        <th>Account</th>
+                        <th>Bank</th>
+                        <th>Active</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for m in methods %}
+                    <tr>
+                        <td><strong>{{ m.label }}</strong></td>
+                        <td>{{ m.get_method_display }}</td>
+                        <td><code>{{ m.account_number }}</code></td>
+                        <td>{{ m.bank_name|default:"—" }}</td>
+                        <td>
+                            {% if m.is_active %}
+                                <span class="status-badge success">Active</span>
+                            {% else %}
+                                <span class="status-badge inactive">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="list-action-row">
+                                <a href="{% url 'compassion_dashboard:payment_method_edit' m.id %}" class="list-action list-action--gold" title="Edit">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <form method="post" action="{% url 'compassion_dashboard:payment_method_toggle' m.id %}">
+                                    {% csrf_token %}
+                                    <button class="list-action" type="submit" title="Toggle active">
+                                        <i class="fas fa-power-off"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h4>No methods yet</h4>
+                            <p>Click "New method" to add one.</p>
+                        </div>
+                    </td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

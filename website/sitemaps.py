@@ -34,6 +34,10 @@ class WebsiteSitemap(Sitemap):
             # Blog and contact sit at the bottom of the nav.
             ("website:blog", "daily", 0.8),
             ("website:contact", "monthly", 0.7),
+            # Get a Quote — bottom-of-funnel page. Added 2026-08-10 so it
+            # gets crawled and ranked; sits below contact in priority
+            # since contact is the more general entry point.
+            ("website:quote_request", "monthly", 0.6),
         ]
 
         return static_pages

@@ -74,6 +74,7 @@ class DonationService:
             request=request,
         )
         cls._send_admin_initiated_alert(donation)
+        cls._notify_admins_initiated(donation)
         logger.info("Donation %s created (pending).", donation.reference)
         return donation
 
@@ -163,7 +164,7 @@ class DonationService:
                         user=admin,
                         title=title,
                         message=message,
-                        notification_type="SYSTEM",
+                        notification_type="COMPASSION_DONATION",
                         priority="MEDIUM",
                         icon="fa-hand-holding-heart",
                         action_url=f"/dashboard/compassion/donations/{donation.id}/",
@@ -179,6 +180,105 @@ class DonationService:
                     logger.exception("NotificationRouter failed for admin %s", admin)
         except Exception as exc:
             logger.warning("Donation admin notification fan-out failed: %s", exc)
+
+    @classmethod
+    def _notify_admins_initiated(cls, donation) -> None:
+        """Bell-only: someone just started a checkout.
+
+        Distinct from `_notify_admins` (which fires on payment success) so we
+        can tell the admin 'donor started' vs 'donor paid'. Low priority so
+        it doesn't crowd out genuine high-value alerts.
+        """
+        try:
+            from accounts.models.user import User
+            from notifications.services.router_service import NotificationRouter
+
+            admins = (
+                User.objects.filter(is_active=True, is_chief=True)
+                | User.objects.filter(is_active=True, is_superuser=True)
+            )
+            admins = list(admins.distinct())
+            if not admins:
+                admins = list(
+                    User.objects.filter(is_active=True, role=User.Role.PLATFORM_ADMIN)
+                )
+
+            title = f"🟡 Donation started — KES {donation.amount_ksh}"
+            message = (
+                f"{donation.donor_name} ({donation.donor_email}) started a "
+                f"KES {donation.amount_ksh} donation for "
+                f"{donation.get_purpose_display()}."
+            )
+            for admin in admins:
+                try:
+                    NotificationRouter.route(
+                        user=admin,
+                        title=title,
+                        message=message,
+                        notification_type="COMPASSION_DONATION",
+                        priority="LOW",
+                        icon="fa-hourglass-half",
+                        action_url=f"/dashboard/compassion/donations/{donation.id}/",
+                        send_email=False,
+                        send_sms=False,
+                        metadata={
+                            "donation_id": donation.id,
+                            "amount": str(donation.amount_ksh),
+                            "reference": donation.reference,
+                            "stage": "INITIATED",
+                        },
+                    )
+                except Exception:
+                    logger.exception("NotificationRouter failed for admin %s", admin)
+        except Exception as exc:
+            logger.warning("Donation initiated notification fan-out failed: %s", exc)
+
+    @classmethod
+    def _notify_admins_failed(cls, donation, reason: str = "") -> None:
+        """Bell-only: a donation checkout failed."""
+        try:
+            from accounts.models.user import User
+            from notifications.services.router_service import NotificationRouter
+
+            admins = (
+                User.objects.filter(is_active=True, is_chief=True)
+                | User.objects.filter(is_active=True, is_superuser=True)
+            )
+            admins = list(admins.distinct())
+            if not admins:
+                admins = list(
+                    User.objects.filter(is_active=True, role=User.Role.PLATFORM_ADMIN)
+                )
+
+            title = f"🔴 Donation failed — KES {donation.amount_ksh}"
+            message = (
+                f"{donation.donor_name}'s KES {donation.amount_ksh} donation "
+                f"failed{(f': {reason}' if reason else '')}."
+            )
+            for admin in admins:
+                try:
+                    NotificationRouter.route(
+                        user=admin,
+                        title=title,
+                        message=message,
+                        notification_type="COMPASSION_DONATION",
+                        priority="MEDIUM",
+                        icon="fa-times-circle",
+                        action_url=f"/dashboard/compassion/donations/{donation.id}/",
+                        send_email=False,
+                        send_sms=False,
+                        metadata={
+                            "donation_id": donation.id,
+                            "amount": str(donation.amount_ksh),
+                            "reference": donation.reference,
+                            "stage": "FAILED",
+                            "reason": reason or "",
+                        },
+                    )
+                except Exception:
+                    logger.exception("NotificationRouter failed for admin %s", admin)
+        except Exception as exc:
+            logger.warning("Donation failed notification fan-out failed: %s", exc)
 
     # ───── Admin queries ─────
 
@@ -245,6 +345,7 @@ class DonationService:
             request=request,
         )
         cls._send_admin_failed_alert(donation, reason)
+        cls._notify_admins_failed(donation, reason)
 
     @classmethod
     def _send_admin_failed_alert(cls, donation, reason: str = "") -> None:

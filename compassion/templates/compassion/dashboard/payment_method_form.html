@@ -1,26 +1,80 @@
 {% extends "dashboard/base_dashboard.html" %}
+{% load static %}
 
-{% block title %}{% if method.id %}Edit{% else %}New{% endif %} payment method{% endblock %}
+{% block title %}{% if method.id %}Edit{% else %}New{% endif %} payment method — Caldan Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/compassion_dashboard.css' %}">
+{% endblock %}
 
 {% block dashboard_content %}
-<div class="compassion-detail">
-    <div class="page-header"><div><h1 class="page-header__title"><span class="icon-bubble"><i class="fas fa-wallet"></i></span> {% if method.id %}Edit{% else %}New{% endif %} payment method</h1></div>
-        <div class="page-header__actions"><a href="{% url 'compassion_dashboard:payment_method_list' %}" class="btn-pill"><i class="fas fa-arrow-left"></i> Back</a></div></div>
-    <div class="panel"><div style="padding: 22px;">
+<div class="compassion-dashboard">
+
+    <div class="page-header">
+        <div class="page-header__main">
+            <div class="page-header__icon"><i class="fas fa-wallet"></i></div>
+            <div>
+                <h1 class="page-header__title">{% if method.id %}Edit{% else %}New{% endif %} payment method</h1>
+                <p class="page-header__sub">{% if method.id %}{{ method.label }}{% else %}Add a new way to give{% endif %}</p>
+            </div>
+        </div>
+        <div class="page-header__actions">
+            <a href="{% url 'compassion_dashboard:payment_method_list' %}" class="pill">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="form-panel">
         <form method="post">
             {% csrf_token %}
-            <div class="row g-3">
-                <div class="col-md-4"><label class="form-label">Method</label><select name="method" class="form-select">{% for v,l in method_choices %}<option value="{{ v }}" {% if method.method == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
-                <div class="col-md-8"><label class="form-label">Label</label><input name="label" class="form-control" required value="{{ method.label|default:'' }}"></div>
-                <div class="col-md-6"><label class="form-label">Account number</label><input name="account_number" class="form-control" value="{{ method.account_number|default:'' }}"></div>
-                <div class="col-md-6"><label class="form-label">Account name</label><input name="account_name" class="form-control" value="{{ method.account_name|default:'' }}"></div>
-                <div class="col-md-6"><label class="form-label">Bank name</label><input name="bank_name" class="form-control" value="{{ method.bank_name|default:'' }}"></div>
-                <div class="col-md-3"><label class="form-label">Display order</label><input type="number" name="display_order" class="form-control" value="{{ method.display_order|default:0 }}"></div>
-                <div class="col-md-3"><div class="form-check" style="margin-top: 32px;"><input class="form-check-input" type="checkbox" name="is_active" id="is_active" {% if method.is_active %}checked{% endif %}><label class="form-check-label" for="is_active">Active</label></div></div>
-                <div class="col-12"><label class="form-label">Instructions</label><textarea name="instructions" class="form-control" rows="4">{{ method.instructions|default:'' }}</textarea></div>
-                <div class="col-12"><button class="btn-apply" type="submit"><i class="fas fa-save"></i> Save</button></div>
+            <div class="form-grid">
+                <div class="col-span-4">
+                    <label class="form-label">Method</label>
+                    <select name="method" class="form-select">
+                        {% for v,l in method_choices %}
+                            <option value="{{ v }}" {% if method.method == v %}selected{% endif %}>{{ l }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-span-8">
+                    <label class="form-label">Label</label>
+                    <input name="label" class="form-control" required value="{{ method.label|default:'' }}">
+                </div>
+                <div class="col-span-6">
+                    <label class="form-label">Account number</label>
+                    <input name="account_number" class="form-control" value="{{ method.account_number|default:'' }}">
+                </div>
+                <div class="col-span-6">
+                    <label class="form-label">Account name</label>
+                    <input name="account_name" class="form-control" value="{{ method.account_name|default:'' }}">
+                </div>
+                <div class="col-span-6">
+                    <label class="form-label">Bank name</label>
+                    <input name="bank_name" class="form-control" value="{{ method.bank_name|default:'' }}">
+                </div>
+                <div class="col-span-3">
+                    <label class="form-label">Display order</label>
+                    <input type="number" name="display_order" class="form-control" value="{{ method.display_order|default:0 }}">
+                </div>
+                <div class="col-span-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="is_active" id="is_active" {% if method.is_active %}checked{% endif %}>
+                        <label class="form-check-label" for="is_active">Active</label>
+                    </div>
+                </div>
+                <div class="col-span-12">
+                    <label class="form-label">Instructions</label>
+                    <textarea name="instructions" class="form-control" rows="4">{{ method.instructions|default:'' }}</textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-save btn-save--gold" type="submit">
+                    <i class="fas fa-save"></i> Save method
+                </button>
+                <a href="{% url 'compassion_dashboard:payment_method_list' %}" class="btn-reset">Cancel</a>
             </div>
         </form>
-    </div></div>
+    </div>
 </div>
 {% endblock %}
