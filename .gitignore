@@ -58,6 +58,11 @@ test_audit.pdf
 
 # Local-only runtime output
 previews/
+media/             # all uploaded + generated files (receipt PDFs, project
+                   # backups, cover images). The DB is the source of truth;
+                   # PDFs are regenerable. In production this folder is
+                   # bypassed entirely — see DEFAULT_FILE_STORAGE in
+                   # calsite/settings.py (Cloudinary when creds are set).
 media/backups/
 tmp/
 
