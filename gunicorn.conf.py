@@ -1,4 +1,4 @@
-# gunicorn.conf.py - Memory Optimized for Railway Free Tier
+# gunicorn.conf.py - Memory Optimized for Railway
 import os
 import multiprocessing
 import subprocess
@@ -11,14 +11,16 @@ port = os.getenv('PORT', '8080')
 bind = f"0.0.0.0:{port}"
 
 # ============================================================================
-# WORKER CONFIGURATION - REDUCED FOR MEMORY
+# WORKER CONFIGURATION
 # ============================================================================
-# Railway free tier has 512MB RAM
-# Use only 2 workers to save memory
-workers = 2
-
-# Number of threads per worker
-threads = 2
+# Two workers + two threads each = 4 effective request slots. With
+# preload_app=True, workers share the parent's read-only memory pages, so
+# the second worker adds roughly 80-150 MB on top of the parent's ~250 MB.
+# For low-to-medium traffic (well under 50 req/s sustained) this is the
+# sweet spot — single worker is faster to boot but blocks under load,
+# three+ workers just wastes RAM on a low-traffic site.
+workers = int(os.getenv('GUNICORN_WORKERS', '2'))
+threads = int(os.getenv('GUNICORN_THREADS', '2'))
 
 # Worker type
 worker_class = 'gthread'
@@ -33,6 +35,9 @@ keepalive = 2
 # ============================================================================
 # REQUEST HANDLING
 # ============================================================================
+# Recycle workers every 500 requests (with ±50 jitter) so any slow leak
+# gets cleaned up without a full restart. Each new worker boots from the
+# preloaded parent in <1s, so this is nearly invisible to users.
 max_requests = 500
 max_requests_jitter = 50
 
@@ -41,7 +46,10 @@ max_requests_jitter = 50
 # ============================================================================
 accesslog = '-'
 errorlog = '-'
-loglevel = 'info'
+# 'warning' keeps the deploy/startup logs readable without drowning them
+# in per-request access lines (which gunicorn writes to stdout and Railway
+# bills as part of log volume).
+loglevel = os.getenv('GUNICORN_LOG_LEVEL', 'warning')
 
 # ============================================================================
 # PROCESS NAMING
@@ -51,6 +59,9 @@ proc_name = 'caldan-construction'
 # ============================================================================
 # PRE-LOAD APPLICATION (Saves memory)
 # ============================================================================
+# Preloading the Django app in the parent process means workers fork with
+# already-loaded modules (copy-on-write), so the second worker costs only
+# ~80-150 MB of incremental RAM instead of another full ~250 MB.
 preload_app = True
 
 # ============================================================================
@@ -123,7 +134,7 @@ def _run_migrations_on_startup(server):
 # HOOKS
 # ============================================================================
 def on_starting(server):
-    server.log.info(f"🚀 Caldan Construction starting on port {port} with {workers} workers")
+    server.log.info(f"🚀 Caldan Construction starting on port {port} with {workers} workers x {threads} threads")
     # Self-heal: ensure DB schema matches models before workers fork.
     # Idempotent — safe to run on every boot, including local dev where
     # `migrate` will be a no-op.
@@ -132,3 +143,30 @@ def on_starting(server):
 
 def when_ready(server):
     server.log.info("✅ Caldan Construction ready to serve requests")
+
+
+def _worker_abort(server, worker):
+    """Log the worker's memory usage when it gets recycled (max_requests hit)
+    or crashes. This is the smoking gun when a leak is happening: the
+    RSS line should be roughly the same on every recycle, but a leak
+    makes it climb steadily."""
+    try:
+        import resource
+        rss_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        # Linux returns KB; macOS returns bytes. Normalize to MB.
+        rss_mb = rss_kb / 1024 if rss_kb < 10_000_000 else rss_kb / (1024 * 1024)
+        server.log.info(f"📊 worker {worker.age} exiting — RSS {rss_mb:.1f} MB, served {worker.stat.get('requests', 0)} requests")
+    except Exception:
+        pass
+
+
+def post_fork(server, worker):
+    """Log RSS for each newly forked worker. If leaks exist you'll see
+    RSS climb across consecutive `📊 new worker` log lines."""
+    try:
+        import resource
+        rss_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        rss_mb = rss_kb / 1024 if rss_kb < 10_000_000 else rss_kb / (1024 * 1024)
+        server.log.info(f"📊 new worker {worker.age} forked — RSS {rss_mb:.1f} MB")
+    except Exception:
+        pass

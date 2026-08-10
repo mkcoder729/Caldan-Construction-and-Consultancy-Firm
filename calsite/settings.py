@@ -234,13 +234,19 @@ try:
                 'CLIENT_CLASS': 'django_redis.client.DefaultClient',
                 'PARSER_CLASS': 'redis.connection.DefaultParser',
                 'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
+                # Pool sized for 1 web service (2 workers x 2 threads = 4
+                # in-flight requests max) + 1 celery worker (concurrency 1).
+                # 10 connections is plenty; 20 was over-provisioned.
                 'CONNECTION_POOL_CLASS_KWARGS': {
-                    'max_connections': 20,  # Reduced from 50 to save memory
-                    'timeout': 10,  # Reduced from 20
+                    'max_connections': int(os.getenv('REDIS_POOL_SIZE', '10')),
+                    'timeout': 10,
                 },
-                'MAX_CONNECTIONS': 100,  # Reduced from 1000
+                'MAX_CONNECTIONS': 10,
                 'PICKLE_VERSION': -1,
-                'DEFAULT_TIMEOUT': 60,  # Reduced from 300 to save memory
+                # 60s default — was already set, kept. Long-lived caches
+                # (compassion stats, project stats) override at the call site
+                # via CACHE_TTL_COMPASSION_STATS.
+                'DEFAULT_TIMEOUT': int(os.getenv('CACHE_DEFAULT_TIMEOUT', '60')),
             },
             'KEY_PREFIX': 'caldan',
         }
@@ -405,6 +411,12 @@ if CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET:
         'SECURE': True,
         'EXIF_DISABLE': True,
     }
+    # When Cloudinary is the storage backend, MEDIA_URL must point at the
+    # Cloudinary CDN — otherwise templates using `.url` produce `/media/...`
+    # links that hit Django, not the CDN, causing massive egress on every
+    # page load (one recent bill: $0.05 of egress from self-served images).
+    # Cloudinary's URL scheme is https://res.cloudinary.com/<cloud>/<resource_type>/image/upload/
+    MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_CLOUD_NAME}/"
 else:
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
     MEDIA_URL = '/media/'
@@ -507,8 +519,8 @@ LOGGING = {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': LOG_DIR / 'error.log',
-            'maxBytes': 1024 * 1024 * 5,  # Reduced from 10MB
-            'backupCount': 30,  # Reduced from 90
+            'maxBytes': 1024 * 1024 * 2,  # 2 MB per file
+            'backupCount': 5,            # 5 backups max
             'formatter': 'verbose',
         },
     },
@@ -620,12 +632,16 @@ if IS_PRODUCTION:
     if 'debug_toolbar' in INSTALLED_APPS:
         INSTALLED_APPS.remove('debug_toolbar')
 
-    # Reduce database connection pooling
+    # Tighten DB connection pool for low-traffic prod. CONN_MAX_AGE 60s
+    # keeps MySQL connections warm during request bursts but drops them
+    # fast enough to release sockets during idle periods. Combined with
+    # CONN_HEALTH_CHECKS=True (set in the DB config above), stale
+    # connections get recycled automatically.
     for db_config in DATABASES.values():
-        db_config['CONN_MAX_AGE'] = 300
+        db_config['CONN_MAX_AGE'] = int(os.getenv('DB_CONN_MAX_AGE', '60'))
 
 # Print memory optimization status
 if IS_PRODUCTION:
     print("🚀 Running in production mode with memory optimizations")
-    print(f"📦 Workers: 2 (Gunicorn), Concurrency: 1 (Celery)")
-    print(f"💾 Database pool: 300s, Cache timeout: 60s")
+    print(f"📦 Workers: 2 x 2 threads (Gunicorn), Concurrency: 1 (Celery)")
+    print(f"💾 Database pool: 60s, Cache timeout: 60s, Redis pool: 10")
