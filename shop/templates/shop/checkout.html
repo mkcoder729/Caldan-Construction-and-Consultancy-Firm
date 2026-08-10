@@ -222,3 +222,14 @@
 </style>
 
 {% endblock %}
+
+{% block extra_js %}
+{# Paystack Popup V2 — opens payment inline over our site (blur transparent
+   iframe), no white hosted-page redirect. On success the JS redirects to
+   the existing /shop/order/{order_number}/ confirmation page. #}
+<script src="https://js.paystack.co/v2/inline.js"></script>
+<script>
+  window.CALDAN_PAYSTACK_PUBLIC_KEY = "{{ paystack_public_key|escapejs }}";
+</script>
+<script src="{% static 'js/shop-checkout.js' %}"></script>
+{% endblock %}

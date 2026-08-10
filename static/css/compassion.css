@@ -28,7 +28,7 @@
         radial-gradient(700px 320px at 0% 100%, rgba(39, 174, 96, 0.16), transparent 65%),
         linear-gradient(135deg, var(--compassion-navy) 0%, #103845 100%);
     color: #fff;
-    padding: 80px 0 90px;
+    padding: 64px 0 70px;
     overflow: hidden;
 }
 /* The hero is intentionally brand-locked (navy + gold) in BOTH themes
@@ -59,17 +59,17 @@
 }
 .compassion-hero__title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-size: clamp(1.85rem, 3.4vw, 2.6rem);
     line-height: 1.15;
     font-weight: 800;
-    margin: 0 0 18px;
+    margin: 0 0 16px;
     letter-spacing: -0.5px;
 }
 .compassion-hero__subtitle {
-    font-size: clamp(1rem, 1.4vw, 1.15rem);
+    font-size: clamp(0.95rem, 1.3vw, 1.05rem);
     color: rgba(255,255,255,0.85);
-    line-height: 1.6;
-    margin-bottom: 32px;
+    line-height: 1.55;
+    margin-bottom: 28px;
     max-width: 620px;
 }
 .compassion-hero__cta {
@@ -143,34 +143,35 @@
 
 .section-heading {
     text-align: center;
-    margin-bottom: 42px;
+    margin-bottom: 32px;
 }
 .section-heading__eyebrow {
     display: inline-flex; align-items: center; gap: 8px;
     color: var(--compassion-gold-deep);
-    font-size: 0.78rem; font-weight: 700;
+    font-size: 0.74rem; font-weight: 700;
     text-transform: uppercase; letter-spacing: 1px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 .section-heading__title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+    font-size: clamp(1.4rem, 2vw, 1.75rem);
     color: var(--compassion-navy);  /* brand navy — looks right on both themes */
-    margin: 0 0 12px;
+    margin: 0 0 8px;
     font-weight: 800;
     letter-spacing: -0.4px;
+    line-height: 1.2;
 }
 .section-heading__sub {
     color: var(--text-secondary);
-    font-size: 1rem; max-width: 640px;
+    font-size: 0.92rem; max-width: 640px;
     margin: 0 auto;
-    line-height: 1.6;
+    line-height: 1.55;
 }
 
 /* ───── Carousel ───── */
 
 .compassion-carousel {
-    padding: 80px 0;
+    padding: 56px 0;
     background: var(--bg-secondary);  /* follows theme */
 }
 .compassion-carousel__swiper {
@@ -304,7 +305,7 @@
 
 /* ───── Giving cards ───── */
 
-.compassion-giving { padding: 80px 0; background: var(--bg-primary); }
+.compassion-giving { padding: 56px 0; background: var(--bg-primary); }
 .compassion-giving__grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -378,7 +379,7 @@
 /* ───── Stats grid ───── */
 
 .compassion-stats {
-    padding: 80px 0;
+    padding: 56px 0;
     background:
         radial-gradient(700px 280px at 0% 100%, rgba(39,174,96,0.10), transparent 65%),
         radial-gradient(700px 280px at 100% 0%, rgba(212,175,55,0.10), transparent 65%),
@@ -432,7 +433,7 @@
 /* ───── Payment methods ───── */
 
 .compassion-paymethods {
-    padding: 80px 0;
+    padding: 56px 0;
     background: var(--bg-primary);
 }
 .compassion-paymethods__grid {
@@ -500,7 +501,7 @@
 /* ───── Mission CTA ───── */
 
 .compassion-mission {
-    padding: 80px 0;
+    padding: 56px 0;
     background:
         radial-gradient(700px 280px at 50% 50%, rgba(212,175,55,0.10), transparent 70%),
         var(--bg-secondary);
@@ -2503,6 +2504,26 @@
 
 .compassion-modal__step .form-grid--2 {
     grid-template-columns: 1fr 1fr;
+}
+
+/* In-kind pledge modal is field-heavy — tighten the step heads and
+   grid gap so it reads at the same visual density as the donate / call
+   modals rather than scrolling forever. */
+.compassion-modal--items .compassion-modal__step-head {
+    margin-bottom: 10px;
+}
+.compassion-modal--items .compassion-modal__step-title {
+    font-size: 1.05rem;
+    margin: 6px 0 2px;
+}
+.compassion-modal--items .compassion-modal__step-sub {
+    font-size: 0.8rem;
+}
+.compassion-modal--items .compassion-modal__step .form-grid {
+    gap: 10px;
+}
+.compassion-modal--items .compassion-modal__wizard-foot {
+    margin-top: 12px;
 }
 
 /* ───── Slide transition (forward + back) ───── */

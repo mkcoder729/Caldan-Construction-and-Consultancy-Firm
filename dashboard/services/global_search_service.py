@@ -88,6 +88,17 @@ STATIC_PAGES = [
     ('Security Settings', 'fa-shield-alt', 'dashboard:security_settings'),
     ('Notification Settings', 'fa-bell', 'dashboard:notification_settings'),
     ('Appearance', 'fa-palette', 'dashboard:appearance_settings'),
+
+    # ─── Compassion Ministry (admin links into the donor pipeline) ───
+    ('Compassion Dashboard', 'fa-hand-holding-heart', 'compassion_dashboard:overview'),
+    ('Donations', 'fa-hand-holding-usd', 'compassion_dashboard:donation_list'),
+    ('In-Kind Pledges', 'fa-box-open', 'compassion_dashboard:inkind_list'),
+    ('Schedule Calls', 'fa-phone', 'compassion_dashboard:call_list'),
+    ('Outreach Stories', 'fa-newspaper', 'compassion_dashboard:story_list'),
+    ('New Outreach Story', 'fa-pen-fancy', 'compassion_dashboard:story_create'),
+    ('Payment Methods', 'fa-wallet', 'compassion_dashboard:payment_method_list'),
+    ('New Payment Method', 'fa-plus-circle', 'compassion_dashboard:payment_method_create'),
+    ('Ministry Settings', 'fa-sliders-h', 'compassion_dashboard:ministry_settings_edit'),
 ]
 
 
@@ -309,6 +320,29 @@ SEARCH_FIELDS = {
     'BlogPost': [
         'title', 'slug', 'excerpt', 'content',
     ],
+    # ─── Compassion Ministry (the donor pipeline) ───
+    'Donation': [
+        'reference', 'paystack_reference',
+        'donor_name', 'donor_email', 'donor_phone',
+        'note', 'purpose', 'status',
+    ],
+    'InKindDonation': [
+        'donor_name', 'donor_email', 'donor_phone',
+        'item_type', 'item_description', 'quantity_estimate',
+        'delivery_mode', 'address', 'notes', 'status',
+    ],
+    'ScheduleCall': [
+        'name', 'email', 'phone',
+        'topic', 'preferred_time', 'message', 'status',
+    ],
+    'OutreachStory': [
+        'title', 'slug', 'summary', 'body', 'location',
+        'category',
+    ],
+    'PaymentMethod': [
+        'label', 'account_name', 'account_number',
+        'bank_name', 'instructions', 'method',
+    ],
 }
 
 
@@ -370,6 +404,47 @@ MODEL_RENDERERS = {
         lambda b: b.title,
         lambda b: 'Blog post',
     ),
+    # ─── Compassion Ministry renderers ───
+    'Donation': (
+        'fa-hand-holding-usd', 'compassion_dashboard:donation_detail', 'donation_id',
+        lambda d: f'Donation {d.reference}',
+        lambda d: (
+            f'KES {d.amount_ksh} - {d.get_status_display() if hasattr(d, "get_status_display") else d.status}'
+            f' - {d.donor_name or "Donor"}'
+        ).strip(' -'),
+    ),
+    'InKindDonation': (
+        'fa-box-open', 'compassion_dashboard:inkind_detail', 'pledge_id',
+        lambda p: f'{p.item_type or "In-kind"} #{p.id}',
+        lambda p: (
+            f'{p.get_status_display() if hasattr(p, "get_status_display") else p.status}'
+            f' - {p.donor_name or "Donor"}'
+        ).strip(' -'),
+    ),
+    'ScheduleCall': (
+        'fa-phone', 'compassion_dashboard:call_detail', 'call_id',
+        lambda c: f'{c.topic or "Call"} #{c.id}',
+        lambda c: (
+            f'{c.get_status_display() if hasattr(c, "get_status_display") else c.status}'
+            f' - {c.name or "Caller"}'
+        ).strip(' -'),
+    ),
+    'OutreachStory': (
+        'fa-newspaper', 'compassion_dashboard:story_edit', 'story_id',
+        lambda s: s.title,
+        lambda s: (
+            f'{s.get_category_display() if hasattr(s, "get_category_display") else s.category}'
+            f' - {s.location or "Outreach story"}'
+        ).strip(' -'),
+    ),
+    'PaymentMethod': (
+        'fa-wallet', 'compassion_dashboard:payment_method_list', None,
+        lambda m: m.label,
+        lambda m: (
+            f'{m.get_method_display() if hasattr(m, "get_method_display") else m.method}'
+            f' - {m.account_number or ""}'
+        ).strip(' -'),
+    ),
 }
 
 
@@ -385,6 +460,12 @@ def _category_label(model_name):
         'Payment': 'Payments',
         'Expense': 'Expenses',
         'BlogPost': 'Blog',
+        # ─── Compassion labels ───
+        'Donation': 'Compassion donations',
+        'InKindDonation': 'In-kind pledges',
+        'ScheduleCall': 'Schedule calls',
+        'OutreachStory': 'Outreach stories',
+        'PaymentMethod': 'Payment methods',
     }.get(model_name, model_name)
 
 
@@ -407,6 +488,12 @@ def _search_one_model(model_name, tokens, limit=10):
             'Payment': 'finances.models.Payment',
             'Expense': 'finances.models.Expense',
             'BlogPost': 'blog.models.BlogPost',
+            # ─── Compassion Ministry ───
+            'Donation': 'compassion.models.Donation',
+            'InKindDonation': 'compassion.models.InKindDonation',
+            'ScheduleCall': 'compassion.models.ScheduleCall',
+            'OutreachStory': 'compassion.models.OutreachStory',
+            'PaymentMethod': 'compassion.models.PaymentMethod',
         }[model_name]
         module_path, class_name = module_name.rsplit('.', 1)
         import importlib
@@ -484,12 +571,15 @@ def _search_one_model(model_name, tokens, limit=10):
 
     items = []
     for score, row in scored[:limit]:
+        # Some renderers (e.g. PaymentMethod) intentionally omit pk_field
+        # because the admin link is to a list page, not a detail page.
+        link_kwargs = {pk_field: row.id} if pk_field else None
         items.append({
             'id': f'{model_name.lower()}:{row.id}',
             'title': title_fn(row),
             'subtitle': subtitle_fn(row),
             'icon': icon,
-            'url': _safe_reverse(url_name, kwargs={pk_field: row.id}),
+            'url': _safe_reverse(url_name, kwargs=link_kwargs),
             '_score': score,
         })
     return items
@@ -520,6 +610,9 @@ def search_models(query, limit_per_model=8):
         'Project', 'Service', 'Client', 'TeamMember',
         'Material', 'Supplier', 'Order',
         'Payment', 'Expense', 'BlogPost',
+        # Compassion Ministry — admin-facing search sees the full donor pipeline
+        'Donation', 'InKindDonation', 'ScheduleCall',
+        'OutreachStory', 'PaymentMethod',
     ]:
         try:
             items = _search_one_model(model_name, tokens, limit=limit_per_model)

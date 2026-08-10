@@ -77,11 +77,19 @@ def compassion_index(request):
 
 def donate_page(request):
     """Dedicated full-page donate flow — used when the inline modal isn't available."""
+    from django.conf import settings as dj_settings  # local import keeps the
+    # module-import surface unchanged and matches the pattern in `index()`.
     settings = MinistryService.get_solo()
     donation_form = DonationForm(initial={"amount": 1000})
+    # Mirror the index view's context so the Paystack inline V2 popup
+    # can boot on this page too. Without this, the JS handler falls
+    # back to a top-level redirect (browser → Paystack → callback),
+    # bypassing the celebration modal.
+    paystack_public_key = getattr(dj_settings, "PAYSTACK_PUBLIC_KEY", "") or ""
     context = {
         "ministry": settings,
         "donation_form": donation_form,
+        "paystack_public_key": paystack_public_key,
         "page_title": "Donate — Caldan Compassionate Ministry",
     }
     return render(request, "compassion/donate.html", context)
@@ -173,6 +181,13 @@ def inkind_submit(request):
         {
             "success": True,
             "pledge_id": pledge.id,
+            "donor_name": pledge.donor_name,
+            "donor_email": pledge.donor_email,
+            "item_type": pledge.get_item_type_display(),
+            "item_description": pledge.item_description,
+            "quantity_estimate": pledge.quantity_estimate or "",
+            "delivery_mode": pledge.get_delivery_mode_display() if pledge.delivery_mode else "",
+            "purpose": pledge.get_item_type_display(),
             "message": "Thanks — we'll be in touch to coordinate pickup or delivery.",
         }
     )
@@ -210,93 +225,11 @@ def schedule_call_submit(request):
         {
             "success": True,
             "call_id": call.id,
+            "donor_name": call.name,
+            "donor_email": call.email,
+            "topic": call.get_topic_display(),
+            "preferred_time": call.preferred_time,
             "message": "Thanks — we'll be in touch within one business day.",
-        }
-    )
-
-
-def donation_thank_you(request):
-    """Landing page after a successful Paystack charge.
-
-    The actual verification + mark_paid happens via the verify URL or
-    webhook. This page is the donor-facing "we got it" screen:
-    when the ref resolves to a real Donation we show the full gift
-    summary (amount, designation, donor name, paystack reference).
-    Otherwise we fall back to a graceful "thank you" that doesn't
-    promise more than we know.
-    """
-    from compassion.models import Donation  # local import: avoid circular
-
-    ref = request.GET.get("ref", "").strip()
-    donation = None
-    if ref:
-        donation = (
-            Donation.objects.filter(reference=ref)
-            .select_related()
-            .first()
-        )
-
-    return render(
-        request,
-        "compassion/thank_you.html",
-        {
-            "reference": ref,
-            "donation": donation,
-            "page_title": "Thank you",
-            "meta_description": "Thank you for supporting Caldan Compassionate Ministry.",
-        },
-    )
-
-
-@require_http_methods(["GET"])
-def donation_status_json(request):
-    """JSON status endpoint used by the thank-you page's verifying card.
-
-    Returns minimal fields so the donor sees the receipt "land" without a
-    full page reload while Paystack's webhook is still settling.
-
-    Response shape:
-        {"status": "PENDING|SUCCESS|FAILED|ABANDONED",
-         "donor_name": str,
-         "amount_ksh": str,
-         "purpose": str,
-         "purpose_display": str,
-         "reference": str,
-         "paystack_reference": str | null,
-         "verified_at": iso8601 | null,
-         "resolved": bool}
-    """
-    from compassion.models import Donation  # local import: avoid circular
-
-    ref = request.GET.get("ref", "").strip()
-    if not ref:
-        return JsonResponse({"success": False, "error": "missing ref"}, status=400)
-
-    donation = Donation.objects.filter(reference=ref).first()
-    if donation is None:
-        # The Paystack webhook hasn't created/updated the row yet — tell
-        # the client to keep polling.
-        return JsonResponse(
-            {
-                "success": True,
-                "resolved": False,
-                "status": "PENDING",
-                "reference": ref,
-            }
-        )
-
-    return JsonResponse(
-        {
-            "success": True,
-            "resolved": True,
-            "status": donation.status,
-            "donor_name": donation.donor_name,
-            "amount_ksh": str(donation.amount_ksh),
-            "purpose": donation.purpose,
-            "purpose_display": donation.get_purpose_display(),
-            "reference": donation.reference,
-            "paystack_reference": donation.paystack_reference or "",
-            "verified_at": donation.verified_at.isoformat() if donation.verified_at else "",
         }
     )
 
@@ -340,6 +273,75 @@ def donation_receipt_pdf(request):
     response = HttpResponse(pdf_bytes, content_type="application/pdf")
     response["Content-Disposition"] = (
         f'attachment; filename="Caldan-Receipt-{donation.reference}.pdf"'
+    )
+    response["Content-Length"] = str(len(pdf_bytes))
+    return response
+
+
+@require_http_methods(["GET"])
+def inkind_receipt_pdf(request):
+    """Stream the donor-facing PDF receipt for an in-kind pledge.
+
+    The ``ref`` query param is the InKindDonation primary key (the model
+    has no separate reference string). Always available — there's no
+    payment pending state to gate on.
+    """
+    from compassion.models import InKindDonation
+    from reports.services.pdf_service import PDFService
+
+    ref = request.GET.get("ref", "").strip()
+    if not ref.isdigit():
+        return JsonResponse({"success": False, "error": "invalid ref"}, status=400)
+    pledge = InKindDonation.objects.filter(id=int(ref)).first()
+    if not pledge:
+        return JsonResponse({"success": False, "error": "pledge not found"}, status=404)
+
+    try:
+        pdf_path = PDFService.generate_compassion_inkind_receipt(pledge)
+    except Exception as exc:
+        logger.exception("InKind PDF gen failed for %s: %s", pledge.id, exc)
+        return JsonResponse(
+            {"success": False, "error": "could not generate your receipt right now"},
+            status=500,
+        )
+
+    with open(pdf_path, "rb") as fh:
+        pdf_bytes = fh.read()
+    response = HttpResponse(pdf_bytes, content_type="application/pdf")
+    response["Content-Disposition"] = (
+        f'attachment; filename="Caldan-InKind-Pledge-{pledge.id}.pdf"'
+    )
+    response["Content-Length"] = str(len(pdf_bytes))
+    return response
+
+
+@require_http_methods(["GET"])
+def call_receipt_pdf(request):
+    """Stream the donor-facing PDF receipt for a schedule-call request."""
+    from compassion.models import ScheduleCall
+    from reports.services.pdf_service import PDFService
+
+    ref = request.GET.get("ref", "").strip()
+    if not ref.isdigit():
+        return JsonResponse({"success": False, "error": "invalid ref"}, status=400)
+    call = ScheduleCall.objects.filter(id=int(ref)).first()
+    if not call:
+        return JsonResponse({"success": False, "error": "call request not found"}, status=404)
+
+    try:
+        pdf_path = PDFService.generate_compassion_call_receipt(call)
+    except Exception as exc:
+        logger.exception("Call PDF gen failed for %s: %s", call.id, exc)
+        return JsonResponse(
+            {"success": False, "error": "could not generate your receipt right now"},
+            status=500,
+        )
+
+    with open(pdf_path, "rb") as fh:
+        pdf_bytes = fh.read()
+    response = HttpResponse(pdf_bytes, content_type="application/pdf")
+    response["Content-Disposition"] = (
+        f'attachment; filename="Caldan-Call-Request-{call.id}.pdf"'
     )
     response["Content-Length"] = str(len(pdf_bytes))
     return response

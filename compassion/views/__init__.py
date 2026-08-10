@@ -13,9 +13,9 @@ from compassion.views.public import (
     donate_initiate,
     inkind_submit,
     schedule_call_submit,
-    donation_thank_you,
-    donation_status_json,
     donation_receipt_pdf,
+    inkind_receipt_pdf,
+    call_receipt_pdf,
     story_detail,
 )
 from compassion.views.donations import (
@@ -49,9 +49,9 @@ __all__ = [
     "donate_initiate",
     "inkind_submit",
     "schedule_call_submit",
-    "donation_thank_you",
-    "donation_status_json",
     "donation_receipt_pdf",
+    "inkind_receipt_pdf",
+    "call_receipt_pdf",
     "story_detail",
     "donation_verify",
     "paystack_webhook",

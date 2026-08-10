@@ -14,6 +14,7 @@
 
     <!-- Open Graph -->
     <meta property="og:title" content="Caldan Construction and Consultancy Firm — Building Kenya's Future">
+    <meta property="og:site_name" content="Caldan Construction and Consultancy Firm">
     <meta property="og:description" content="Trusted construction company in Kenya. Design, build, renovate, and more.">
     <meta property="og:image" content="{% static 'images/og-image.png' %}">
     <meta property="og:url" content="https://caldanconstruction.com">
@@ -24,6 +25,46 @@
     <meta name="twitter:title" content="Caldan Construction and Consultancy Firm — Building Kenya's Future">
     <meta name="twitter:description" content="Trusted construction company in Kenya.">
     <meta name="twitter:image" content="{% static 'images/og-image.png' %}">
+
+    <!-- ============================================================ -->
+    <!-- SCHEMA MARKUP: Site Name for Google Search Results              -->
+    <!-- ============================================================ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Caldan Construction and Consultancy Firm",
+      "url": "https://caldanconstruction.com",
+      "description": "Building Kenya's Future, One Project at a Time.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Caldan Construction and Consultancy Firm"
+      }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Caldan Construction and Consultancy Firm",
+      "alternateName": "Caldan Construction",
+      "description": "Building Kenya's Future, One Project at a Time.",
+      "url": "https://caldanconstruction.com",
+      "logo": "https://caldanconstruction.com/static/images/logo.png",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+254703653010",
+        "contactType": "sales",
+        "availableLanguage": ["English"]
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Nakuru",
+        "addressCountry": "KE"
+      }
+    }
+    </script>
 
     <!-- ============================================================ -->
     <!-- FAVICON (v2 — renamed 2026-08-10 so Google re-fetches fresh) -->

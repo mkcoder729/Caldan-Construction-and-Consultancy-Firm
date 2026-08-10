@@ -23,6 +23,13 @@ from shop.views._public_views import get_shop_sidebar_context
 logger = logging.getLogger('caldan.shop')
 
 
+def _is_ajax(request):
+    """AJAX detection — same view can serve both the legacy full-redirect
+    flow (Paystack-hosted page) and the inline V2 popup flow (blur
+    transparent iframe over /shop/checkout/)."""
+    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+
 def checkout_view(request):
     """
     Display the checkout page.
@@ -71,7 +78,20 @@ def checkout_view(request):
                     # Store order ID in session for verification
                     request.session['pending_order_id'] = order.id
 
-                    # ✅ ACTUALLY REDIRECT TO PAYSTACK
+                    # Inline V2 popup flow — return JSON so the JS handler
+                    # can open the blur transparent Paystack iframe over
+                    # /shop/checkout/ (no white hosted-page redirect).
+                    if _is_ajax(request):
+                        return JsonResponse({
+                            'success': True,
+                            'order_id': order.id,
+                            'order_number': order.order_number,
+                            'reference': payment_result.get('reference', ''),
+                            'access_code': payment_result.get('access_code', ''),
+                            'authorization_url': payment_result.get('authorization_url', ''),
+                        })
+
+                    # Legacy browser-redirect flow.
                     print(f"✅ Redirecting to: {payment_result['authorization_url']}")
                     return redirect(payment_result['authorization_url'])
 
@@ -103,6 +123,10 @@ def checkout_view(request):
     # ✅ IMPORTANT: Get cart items for the template
     cart_items = list(cart_data.get("items", []))
 
+    # Paystack public key for the inline V2 popup. JS guards the empty
+    # case and falls back to the legacy redirect.
+    paystack_public_key = getattr(settings, 'PAYSTACK_PUBLIC_KEY', '') or ''
+
     context = {
         **get_shop_sidebar_context(request),
         'form': form,
@@ -114,6 +138,7 @@ def checkout_view(request):
         'subtotal': subtotal,
         'delivery_fee': delivery_fee,
         'total': total,
+        'paystack_public_key': paystack_public_key,
         'page_title': 'Checkout - Caldan Construction',
     }
 
@@ -181,6 +206,13 @@ def place_order(request):
 def payment_verify(request):
     """
     Verify payment after Paystack redirect.
+
+    When called by the inline V2 popup (X-Requested-With: XMLHttpRequest)
+    we verify the charge synchronously and return JSON so the popup's
+    onSuccess handler can mark the order paid before the user lands on
+    the order_confirmation page. Without this, the user may click
+    "Download PDF" before the Paystack webhook fires and hit a
+    "not paid yet" warning.
     """
     reference = request.GET.get('reference')
     order_id = request.GET.get('order_id')
@@ -188,6 +220,11 @@ def payment_verify(request):
     print(f"🔍 Payment verify - Reference: {reference}, Order ID: {order_id}")
 
     if not reference:
+        if _is_ajax(request):
+            return JsonResponse(
+                {'success': False, 'error': 'Invalid payment reference.'},
+                status=400,
+            )
         messages.error(request, 'Invalid payment reference.')
         return redirect('shop:shop_home')
 
@@ -203,25 +240,40 @@ def payment_verify(request):
         if result['success']:
             order = result.get('order')
             if order:
+                if 'pending_order_id' in request.session:
+                    del request.session['pending_order_id']
+
+                if _is_ajax(request):
+                    return JsonResponse({
+                        'success': True,
+                        'order_id': order.id,
+                        'order_number': order.order_number,
+                    })
+
                 messages.success(
                     request,
                     f'Payment confirmed! Order #{order.order_number} has been placed successfully.'
                 )
-
-                # Clear pending order from session
-                if 'pending_order_id' in request.session:
-                    del request.session['pending_order_id']
-
                 return redirect('shop:order_confirmation', order_number=order.order_number)
             else:
+                if _is_ajax(request):
+                    return JsonResponse({'success': True, 'pending': True})
                 messages.success(request, 'Payment verified successfully!')
                 return redirect('shop:shop_home')
         else:
-            messages.error(request, result.get('error', 'Payment verification failed. Please contact support.'))
+            error_msg = result.get('error', 'Payment verification failed. Please contact support.')
+            if _is_ajax(request):
+                return JsonResponse({'success': False, 'error': error_msg}, status=502)
+            messages.error(request, error_msg)
 
     except Exception as e:
         print(f"❌ Payment verification error: {str(e)}")
         logger.error(f"Payment verification failed: {str(e)}")
+        if _is_ajax(request):
+            return JsonResponse(
+                {'success': False, 'error': 'Payment verification failed. Please contact support.'},
+                status=500,
+            )
         messages.error(request, 'Payment verification failed. Please contact support.')
 
     return redirect('shop:shop_home')

@@ -54,7 +54,7 @@ def order_confirmation(request, order_number):
     return render(request, 'shop/order_confirmation.html', context)
 
 
-def order_tracking(request):
+def order_tracking(request, order_number=None):
     """
     Order tracking — three states:
 
@@ -66,6 +66,9 @@ def order_tracking(request):
       3. POST (verification_code=…) → verify the code; on success show
          the tracking result, on failure re-render the verify step
          with the code attempt state preserved.
+
+    `order_number` may be passed via URL path (the
+    /order/track/<order_number>/ shortcut) or via ?order_number=… query.
     """
     order = None
     found = False
@@ -74,11 +77,11 @@ def order_tracking(request):
     form = OrderTrackingForm()
     code_verified = False
     show_verification = False
-    order_number = None
     email = None
 
-    # Read the in-flight state from either GET or POST
-    order_number = request.GET.get('order_number') or request.POST.get('order_number')
+    # Read the in-flight state from either URL kwarg, GET or POST.
+    # The /order/track/<order_number>/ URL passes it as a kwarg.
+    order_number = order_number or request.GET.get('order_number') or request.POST.get('order_number')
     email = request.GET.get('email') or request.POST.get('email')
     verification_code = request.POST.get('verification_code')
 

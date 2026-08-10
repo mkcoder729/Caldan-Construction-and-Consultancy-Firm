@@ -334,8 +334,11 @@ def download_receipt(request, order_number):
         # Only allow download for paid orders
         if order.status == 'PENDING':
             print(f"⚠️ [DOWNLOAD] Order is PENDING, not paid")
-            messages.warning(request, 'This order has not been paid yet. Receipt will be available after payment.')
-            return redirect('shop:order_tracking_with_number', order_number=order_number)
+            messages.warning(
+                request,
+                'Your payment is still being confirmed. The receipt will be available once payment is verified — usually a few seconds.'
+            )
+            return redirect('shop:order_confirmation', order_number=order_number)
 
         if order.status == 'CANCELLED':
             print(f"⚠️ [DOWNLOAD] Order is CANCELLED")
@@ -369,6 +372,6 @@ def download_receipt(request, order_number):
         traceback.print_exc()
         logger.error(f"Public PDF download failed for order {order_number}: {str(e)}")
         messages.error(request, 'Unable to generate receipt. Please contact support.')
-        return redirect('shop:order_tracking')
+        return redirect('shop:order_tracking_with_number', order_number=order_number)
 
 

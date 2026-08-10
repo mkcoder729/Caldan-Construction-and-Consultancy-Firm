@@ -1,0 +1,96 @@
+{% comment %}
+Celebration Modal — opens after donation / in-kind / call submit.
+
+Donor-facing. NEVER mentions or links to the dashboard surface.
+Admin emails + bell notifications keep their /dashboard/... links
+(admin-only — recipients are staff). Donor flow is one-way.
+
+Driven by `data-mode` set by CaldanCelebration.open(payload).
+{% endcomment %}
+<div class="modal fade celebration-modal"
+     id="celebrationModal"
+     tabindex="-1"
+     aria-hidden="true"
+     aria-labelledby="celebrationTitle"
+     data-mode=""
+     data-ref="">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content celebration-modal__card">
+      <span class="celebration-modal__stripe" aria-hidden="true"></span>
+      <button type="button" class="celebration-modal__close" data-bs-dismiss="modal" aria-label="Close">
+        <i class="fas fa-xmark"></i>
+      </button>
+
+      <div class="celebration-modal__check" aria-hidden="true">
+        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="32" r="30" class="celebration-modal__check-ring"/>
+          <path d="M18 33 L28 43 L46 23" class="celebration-modal__check-mark"/>
+        </svg>
+      </div>
+
+      <span class="celebration-modal__eyebrow" data-celebration-eyebrow>GIFT RECEIVED</span>
+      <h2 class="celebration-modal__title" id="celebrationTitle" data-celebration-title>Thank you.</h2>
+      <p class="celebration-modal__subtitle" data-celebration-subtitle>Your gift is on its way.</p>
+
+      <div class="celebration-modal__receipt">
+        <dl class="celebration-modal__receipt-grid">
+          <dt>Reference</dt>
+          <dd class="celebration-modal__receipt-ref">
+            <code data-celebration-ref></code>
+            <button type="button"
+                    class="celebration-modal__copy"
+                    data-celebration-copy
+                    aria-label="Copy reference">
+              <i class="fas fa-copy"></i>
+            </button>
+          </dd>
+
+          <dt class="celebration-modal__row-donation">Amount</dt>
+          <dd class="celebration-modal__row-donation">
+            <span class="celebration-modal__amount" data-celebration-amount></span>
+          </dd>
+
+          <dt class="celebration-modal__row-inkind">Item</dt>
+          <dd class="celebration-modal__row-inkind">
+            <span data-celebration-item></span>
+          </dd>
+
+          <dt class="celebration-modal__row-call">Preferred window</dt>
+          <dd class="celebration-modal__row-call">
+            <span data-celebration-window></span>
+          </dd>
+
+          <dt>Designation</dt>
+          <dd><span data-celebration-purpose></span></dd>
+
+          <dt>Date</dt>
+          <dd><span data-celebration-date></span></dd>
+        </dl>
+      </div>
+
+      <p class="celebration-modal__next">
+        A receipt PDF is on its way to <span data-celebration-email></span>.
+      </p>
+
+      <div class="celebration-modal__actions">
+        <a class="celebration-modal__btn celebration-modal__btn--primary celebration-modal__btn--download"
+           data-celebration-download
+           href="#"
+           download>
+          <span class="celebration-modal__btn-icon" data-celebration-download-icon>
+            <i class="fas fa-download"></i>
+          </span>
+          <span class="celebration-modal__btn-label" data-celebration-download-label>Download PDF</span>
+          <span class="celebration-modal__btn-spinner" aria-hidden="true">
+            <i class="fas fa-spinner"></i>
+          </span>
+        </a>
+        <button type="button"
+                class="celebration-modal__btn celebration-modal__btn--ghost"
+                data-bs-dismiss="modal">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

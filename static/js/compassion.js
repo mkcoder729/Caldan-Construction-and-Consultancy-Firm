@@ -5,7 +5,7 @@
    - Multi-step wizard controller for the 3 modals
    - AJAX form submit + Paystack popup
    - intl-tel-input for the Schedule a Call modal (lazy-loaded)
-   - Thank-you page: receipt actions + polling verifying card
+   - Celebration modal controller (donation / in-kind / call)
    ================================================================ */
 
 (function () {
@@ -70,9 +70,17 @@
         const accessCode = respData.access_code;
         const reference = respData.reference;
         const publicKey = window.CALDAN_PAYSTACK_PUBLIC_KEY;
-        const thankYouUrl = '/compassion/donate/thank-you/?ref=' + encodeURIComponent(reference);
 
+        // The donate modal lives on the /compassion/ index page.
+        // On the dedicated /compassion/donate/ page there's no modal —
+        // the redirect overlay is attached to the form card instead
+        // so the donor sees feedback during the popup.
         const donateModal = document.getElementById('donationModal');
+        const overlayHost = donateModal ||
+            document.querySelector('.compassion-donate-page__card') ||
+            document.body;
+        const overlayLabel = donateModal ? 'Opening secure payment' : 'Opening secure payment';
+
         if (donateModal) stripOverlay(donateModal);
 
         if (!publicKey) {
@@ -82,24 +90,109 @@
             return;
         }
 
+        // Show an overlay while the popup is opening — works on
+        // both the modal-mounted index page and the standalone
+        // donate page.
+        showRedirectOverlay(overlayHost, overlayLabel);
+
         try {
             const popup = new window.PaystackPop();
             popup.resumeTransaction(accessCode, {
                 onSuccess: function () {
-                    window.location.href = thankYouUrl;
+                    stripOverlay(overlayHost);
+                    // Paystack succeeded — verify server-side, then open
+                    // the celebration modal inline (no navigation).
+                    fetch(
+                        '/compassion/donate/verify/?reference=' + encodeURIComponent(reference),
+                        {
+                            credentials: 'same-origin',
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        }
+                    )
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        // Close the donate modal if present. On the
+                        // donate page there's no modal — we just leave
+                        // the page as-is so the celebration modal pops
+                        // over it.
+                        if (donateModal && window.bootstrap) {
+                            const m = window.bootstrap.Modal.getInstance(donateModal);
+                            if (m) m.hide();
+                        }
+                        // Feedback element: prefer the in-modal one, fall
+                        // back to the donate-page feedback element.
+                        const feedbackEl = document.getElementById('donationFeedback') ||
+                            document.getElementById('donationPageFeedback');
+                        if (data && data.success) {
+                            if (data.pending) {
+                                showFeedback(
+                                    feedbackEl,
+                                    'success',
+                                    data.message || 'Your gift is being confirmed. Receipt will arrive by email.'
+                                );
+                                return;
+                            }
+                            window.CaldanCelebration.open({
+                                mode: 'donation',
+                                ref: data.reference || reference,
+                                donor_name: data.donor_name,
+                                donor_email: data.donor_email,
+                                amount_ksh: data.amount_ksh,
+                                purpose: data.purpose,
+                                verified_at: data.verified_at,
+                            });
+                        } else {
+                            showFeedback(
+                                feedbackEl,
+                                'error',
+                                (data && data.error) || 'Could not verify your payment. Please contact us if you were charged.'
+                            );
+                        }
+                    })
+                    .catch(function () {
+                        const feedbackEl = document.getElementById('donationFeedback') ||
+                            document.getElementById('donationPageFeedback');
+                        showFeedback(
+                            feedbackEl,
+                            'error',
+                            'Network error while confirming your gift.'
+                        );
+                    });
                 },
                 onCancel: function () {
+                    stripOverlay(overlayHost);
+                    // Reset the page's submit button (only relevant on
+                    // the standalone donate page, which has no modal
+                    // to close).
+                    const cancelBtn = document.querySelector(
+                        '#donationPageForm button[type="submit"]'
+                    );
+                    if (cancelBtn) {
+                        cancelBtn.disabled = false;
+                        cancelBtn.innerHTML =
+                            '<i class="fas fa-lock"></i> Continue to Paystack';
+                    }
                     if (donateModal && window.bootstrap) {
                         const m = window.bootstrap.Modal.getInstance(donateModal);
                         if (m) m.show();
                     }
                 },
                 onError: function (err) {
+                    stripOverlay(overlayHost);
+                    const cancelBtn = document.querySelector(
+                        '#donationPageForm button[type="submit"]'
+                    );
+                    if (cancelBtn) {
+                        cancelBtn.disabled = false;
+                        cancelBtn.innerHTML =
+                            '<i class="fas fa-lock"></i> Continue to Paystack';
+                    }
                     if (donateModal && window.bootstrap) {
                         const m = window.bootstrap.Modal.getInstance(donateModal);
                         if (m) m.show();
                     }
-                    const feedbackEl = document.getElementById('donationFeedback');
+                    const feedbackEl = document.getElementById('donationFeedback') ||
+                        document.getElementById('donationPageFeedback');
                     showFeedback(
                         feedbackEl,
                         'error',
@@ -108,6 +201,7 @@
                 },
             });
         } catch (exc) {
+            stripOverlay(overlayHost);
             if (respData.authorization_url) {
                 window.location.href = respData.authorization_url;
             }
@@ -193,7 +287,16 @@
         const stepsRoot = form.querySelector('.compassion-modal__steps');
         const track = form.querySelector('.compassion-modal__steps-track');
         const stepEls = form.querySelectorAll('.compassion-modal__step');
-        const dots = form.closest('.modal').querySelectorAll('.compassion-modal__progress-item');
+        // The standalone /compassion/donate/ page is NOT wrapped in a
+        // .modal — `form.closest('.modal')` returns null there. The
+        // wizard (which lives in modals on /compassion/) is irrelevant
+        // for the donate page, so we null-guard dots and let the
+        // stepsRoot/track/stepEls early-return below skip the whole
+        // wizard setup. Without this guard the donate page would throw
+        // on initWizard and never reach bindForm, falling back to a
+        // native form submit (raw JSON response in the browser).
+        const modalHost = form.closest('.modal');
+        const dots = modalHost ? modalHost.querySelectorAll('.compassion-modal__progress-item') : [];
         const backBtn = form.querySelector('[data-wizard-back]');
         const nextBtn = form.querySelector('[data-wizard-next]');
         const submitBtn = form.querySelector('[data-wizard-submit]');
@@ -462,6 +565,33 @@
                         }, 350);
                         return;
                     }
+
+                    // In-kind pledge → open the celebration modal.
+                    if (resp.data.pledge_id) {
+                        redirecting = true;
+                        if (modalEl && window.bootstrap) {
+                            const m = window.bootstrap.Modal.getInstance(modalEl);
+                            if (m) m.hide();
+                        }
+                        window.CaldanCelebration.open(
+                            Object.assign({ mode: 'inkind', ref: String(resp.data.pledge_id) }, resp.data)
+                        );
+                        return;
+                    }
+
+                    // Schedule-call request → open the celebration modal.
+                    if (resp.data.call_id) {
+                        redirecting = true;
+                        if (modalEl && window.bootstrap) {
+                            const m = window.bootstrap.Modal.getInstance(modalEl);
+                            if (m) m.hide();
+                        }
+                        window.CaldanCelebration.open(
+                            Object.assign({ mode: 'call', ref: String(resp.data.call_id) }, resp.data)
+                        );
+                        return;
+                    }
+
                     showFeedback(feedbackEl, 'success', resp.data.message || successMessage);
                     form.reset();
                     setTimeout(function () {
@@ -627,8 +757,6 @@
         initPurposeTriggers();
         initTopicChips();
         initSchedulePhone();
-        initThanksActions();
-        initThanksPolling();
 
         // Wire each form: wizard controller + live validation + AJAX submit.
         const forms = [
@@ -646,27 +774,7 @@
         });
     });
 
-    // ───── Thank-you page ─────
-
-    function initThanksActions() {
-        const toolbar = document.querySelector('.thanks2__actions');
-        if (!toolbar) return;
-
-        toolbar.addEventListener('click', function (e) {
-            const btn = e.target.closest('[data-thanks-action]');
-            if (!btn) return;
-
-            const action = btn.getAttribute('data-thanks-action');
-            if (action === 'copy') {
-                const value = btn.getAttribute('data-copy-value') || '';
-                copyToClipboard(value).then(function (ok) {
-                    if (ok) flashCopied(btn);
-                });
-            } else if (action === 'print') {
-                window.print();
-            }
-        });
-    }
+    // ───── Clipboard helpers (reused by celebration modal) ─────
 
     function copyToClipboard(text) {
         if (!text) return Promise.resolve(false);
@@ -696,85 +804,192 @@
         }
     }
 
-    function flashCopied(btn) {
+    function flashCopiedRef(btn) {
         const originalHtml = btn.innerHTML;
-        btn.classList.add('thanks2__action--copied');
-        btn.innerHTML = '<i class="fas fa-circle-check"></i><span>Copied</span>';
+        btn.classList.add('celebration-modal__copy--copied');
+        btn.innerHTML = '<i class="fas fa-check"></i>';
         setTimeout(function () {
-            btn.classList.remove('thanks2__action--copied');
+            btn.classList.remove('celebration-modal__copy--copied');
             btn.innerHTML = originalHtml;
         }, 1500);
     }
 
-    function initThanksPolling() {
-        const card = document.getElementById('thanksVerifying');
-        const receipt = document.getElementById('thanksReceipt') ||
-                        document.getElementById('thanksReceiptGrid');
-        if (!card) return;
+    // ───── Download PDF button — loading state ─────
+    //
+    // The native <a download href="…"> does its job in the background,
+    // but to the donor the click feels like nothing happened. We
+    // intercept, flip the button into a spinner state for a couple of
+    // seconds, then let the browser navigate to the PDF.
 
-        const ref = card.getAttribute('data-ref');
-        if (!ref) return;
-
-        const POLL_INTERVAL_MS = 4000;
-        const MAX_ATTEMPTS = 15;
-        let attempts = 0;
-
-        const url = '/compassion/donate/status/?ref=' + encodeURIComponent(ref);
-
-        function poll() {
-            attempts += 1;
-
-            fetch(url, { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(function (r) { return r.json(); })
-                .then(function (data) {
-                    if (data && data.resolved && data.status === 'SUCCESS') {
-                        card.classList.add('is-resolving');
-                        setTimeout(function () { window.location.reload(); }, 380);
-                        return;
-                    }
-                    if (data && data.resolved && data.status === 'FAILED') {
-                        showPollingError(card,
-                            'The payment didn\'t complete.',
-                            'No money was taken. You can try again from the donate page.');
-                        return;
-                    }
-                    if (attempts >= MAX_ATTEMPTS) {
-                        showPollingError(card,
-                            'Still waiting for Paystack.',
-                            'This is taking longer than usual. Tap refresh — your receipt will be ready.');
-                        return;
-                    }
-                    setTimeout(poll, POLL_INTERVAL_MS);
-                })
-                .catch(function () {
-                    if (attempts >= MAX_ATTEMPTS) {
-                        showPollingError(card,
-                            'We\'re having trouble reaching Paystack.',
-                            'Check your connection or tap refresh.');
-                        return;
-                    }
-                    setTimeout(poll, POLL_INTERVAL_MS);
+    function bindDownloadLoading(btn) {
+        if (!btn) return;
+        const labelEl = btn.querySelector('[data-celebration-download-label]');
+        const originalLabel = labelEl ? labelEl.textContent : '';
+        btn.classList.remove('is-loading');
+        btn.removeAttribute('aria-busy');
+        btn.onclick = function (e) {
+            if (btn.classList.contains('is-loading')) {
+                e.preventDefault();
+                return;
+            }
+            e.preventDefault();
+            if (labelEl) labelEl.textContent = 'Downloading…';
+            btn.classList.add('is-loading');
+            btn.setAttribute('aria-busy', 'true');
+            // Two frames so the spinner renders before the browser
+            // yanks focus to the download. ~32 ms is enough.
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    const url = btn.getAttribute('href') || '';
+                    // Trigger the actual download. Same-origin so the
+                    // browser handles it natively (no popup blocker).
+                    window.location.href = url;
                 });
-        }
-
-        setTimeout(poll, 1500);
+            });
+            // Reset state after a generous window — by then either
+            // the download dialog has appeared or the page has
+            // already shifted focus. A stale spinner would be worse
+            // than a self-recovering one.
+            setTimeout(function () {
+                btn.classList.remove('is-loading');
+                btn.removeAttribute('aria-busy');
+                if (labelEl) labelEl.textContent = originalLabel;
+            }, 2400);
+        };
     }
 
-    function showPollingError(card, title, sub) {
-        // The verifying card now lives inside .thanks2__pass-body and uses
-        // generic prose elements rather than the old .thanks-verifying
-        // hooks. We target the inline text + loading note directly.
-        const titleEl = card.querySelector('[data-thanks-verify-title]') ||
-                        card.querySelector('h2') ||
-                        card.querySelector('p');
-        const subEl = card.querySelector('[data-thanks-verify-sub]') ||
-                      card.querySelectorAll('p')[1] ||
-                      card.querySelector('p');
-        if (titleEl) titleEl.textContent = title;
-        if (subEl && subEl.tagName === 'P') {
-            subEl.innerHTML =
-                sub +
-                ' <a href="" class="thanks2__back" style="margin-left:8px" onclick="event.preventDefault(); window.location.reload();"><i class="fas fa-rotate-right"></i> Refresh</a>';
-        }
-    }
+    // ───── Celebration modal controller ─────
+    //
+    // Opens the inline celebration modal after donation / in-kind / call
+    // submit. No navigation, no URL change, no full-page refresh — the
+    // donor stays exactly where they were.
+    //
+    // mode: "donation" | "inkind" | "call"
+    // payload: see each branch for the keys it reads.
+
+    const CaldanCelebration = {
+        open: function (payload) {
+            const modalEl = document.getElementById('celebrationModal');
+            if (!modalEl || !window.bootstrap) return;
+
+            const mode = payload && payload.mode ? payload.mode : 'donation';
+            const ref = (payload && payload.ref) ? String(payload.ref) : '';
+
+            // Drive the mode-specific rows via a data attribute — CSS
+            // hides/show them; JS only writes the values.
+            modalEl.setAttribute('data-mode', mode);
+            modalEl.setAttribute('data-ref', ref);
+
+            // Mode-aware eyebrow / title / subtitle.
+            const eyebrowEl = modalEl.querySelector('[data-celebration-eyebrow]');
+            const titleEl = modalEl.querySelector('[data-celebration-title]');
+            const subtitleEl = modalEl.querySelector('[data-celebration-subtitle]');
+
+            const donorName = (payload && payload.donor_name) || 'friend';
+            const modeText = {
+                donation: {
+                    eyebrow: 'GIFT RECEIVED',
+                    title: 'Thank you, ' + donorName + '.',
+                    subtitle: 'Your gift of KES ' + (payload && payload.amount_ksh ? payload.amount_ksh : (payload && payload.amount ? payload.amount : '')) +
+                              ' to ' + (payload && payload.purpose ? payload.purpose : 'our ministry') +
+                              ' is on its way.',
+                },
+                inkind: {
+                    eyebrow: 'PLEDGE LOGGED',
+                    title: 'Thank you, ' + donorName + '.',
+                    subtitle: 'We will coordinate pickup or delivery within one business day.',
+                },
+                call: {
+                    eyebrow: "WE'LL CALL YOU",
+                    title: 'Got it, ' + donorName + '.',
+                    subtitle: 'A team member will reach out during ' +
+                              ((payload && payload.preferred_time) ? payload.preferred_time : 'your preferred window') + '.',
+                },
+            };
+            const m = modeText[mode] || modeText.donation;
+            if (eyebrowEl) eyebrowEl.textContent = m.eyebrow;
+            if (titleEl) titleEl.textContent = m.title;
+            if (subtitleEl) subtitleEl.textContent = m.subtitle;
+
+            // Common receipt fields.
+            const refEl = modalEl.querySelector('[data-celebration-ref]');
+            if (refEl) refEl.textContent = ref;
+
+            const purposeEl = modalEl.querySelector('[data-celebration-purpose]');
+            if (purposeEl) {
+                purposeEl.textContent =
+                    (payload && payload.purpose) ? payload.purpose : '—';
+            }
+
+            const dateEl = modalEl.querySelector('[data-celebration-date]');
+            if (dateEl) {
+                const iso = payload && payload.verified_at;
+                if (iso) {
+                    try { dateEl.textContent = new Date(iso).toLocaleDateString(); }
+                    catch (e) { dateEl.textContent = new Date().toLocaleDateString(); }
+                } else {
+                    dateEl.textContent = new Date().toLocaleDateString();
+                }
+            }
+
+            const emailEl = modalEl.querySelector('[data-celebration-email]');
+            if (emailEl) {
+                emailEl.textContent = (payload && payload.donor_email) ? payload.donor_email : 'your inbox';
+            }
+
+            // Mode-specific values.
+            const amountEl = modalEl.querySelector('[data-celebration-amount]');
+            if (amountEl) {
+                const amt = payload && (payload.amount_ksh || payload.amount);
+                amountEl.textContent = amt ? 'KES ' + amt : '';
+            }
+            const itemEl = modalEl.querySelector('[data-celebration-item]');
+            if (itemEl) {
+                const parts = [];
+                if (payload && payload.item_type) parts.push(payload.item_type);
+                if (payload && payload.item_description) parts.push(payload.item_description);
+                itemEl.textContent = parts.join(' — ');
+            }
+            const windowEl = modalEl.querySelector('[data-celebration-window]');
+            if (windowEl) {
+                windowEl.textContent = (payload && payload.preferred_time) ? payload.preferred_time : '';
+            }
+
+            // Download PDF link — points at the appropriate receipt
+            // endpoint. Mode is determined server-side by the URL.
+            const dl = modalEl.querySelector('[data-celebration-download]');
+            if (dl) {
+                const urlByMode = {
+                    donation: '/compassion/donate/receipt/',
+                    inkind: '/compassion/inkind/receipt/',
+                    call: '/compassion/call/receipt/',
+                };
+                const base = urlByMode[mode] || urlByMode.donation;
+                dl.setAttribute('href', base + '?ref=' + encodeURIComponent(ref));
+                // Re-bind click so the loading state fires each open
+                // (the spinner resets when the modal closes again).
+                bindDownloadLoading(dl);
+            }
+
+            // Copy-reference button. Each show re-binds so a stale handler
+            // from a prior open doesn't fire with the wrong ref.
+            const copyBtn = modalEl.querySelector('[data-celebration-copy]');
+            if (copyBtn) {
+                copyBtn.onclick = function () {
+                    copyToClipboard(ref).then(function (ok) {
+                        if (ok) flashCopiedRef(copyBtn);
+                    });
+                };
+            }
+
+            const bsModal = window.bootstrap.Modal.getOrCreateInstance(modalEl, {
+                backdrop: 'static',
+                keyboard: true,
+            });
+            bsModal.show();
+        },
+    };
+
+    // Expose for any inline handlers / debugging.
+    window.CaldanCelebration = CaldanCelebration;
 })();
