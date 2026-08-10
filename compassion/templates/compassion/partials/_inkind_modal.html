@@ -57,7 +57,7 @@ In-kind pledge modal — blue-accent variant of the unified premium system.
                   <h4 class="compassion-modal__step-title">What are you giving?</h4>
                   <p class="compassion-modal__step-sub">Type, brief description, and rough quantity.</p>
                 </div>
-                <div class="form-grid">
+                <div class="form-grid form-grid--2">
                   <div>
                     <label class="form-label" for="inkind-type">Type of item</label>
                     <select id="inkind-type" name="item_type" class="form-select" required>
@@ -68,12 +68,12 @@ In-kind pledge modal — blue-accent variant of the unified premium system.
                     </select>
                   </div>
                   <div>
-                    <label class="form-label" for="inkind-description">Description</label>
-                    <input type="text" id="inkind-description" name="item_description" class="form-control" required placeholder="e.g. maize flour, baby clothes, bandages">
-                  </div>
-                  <div>
                     <label class="form-label" for="inkind-quantity">Quantity <span class="text-muted">(approximate)</span></label>
                     <input type="text" id="inkind-quantity" name="quantity_estimate" class="form-control" placeholder="e.g. 20kg, 50 items, 2 bags">
+                  </div>
+                  <div style="grid-column: 1 / -1;">
+                    <label class="form-label" for="inkind-description">Description</label>
+                    <input type="text" id="inkind-description" name="item_description" class="form-control" required placeholder="e.g. maize flour, baby clothes, bandages">
                   </div>
                 </div>
               </section>
@@ -85,7 +85,7 @@ In-kind pledge modal — blue-accent variant of the unified premium system.
                   <h4 class="compassion-modal__step-title">How should we get it?</h4>
                   <p class="compassion-modal__step-sub">Pickup, drop-off, or arrange together.</p>
                 </div>
-                <div class="form-grid">
+                <div class="form-grid form-grid--2">
                   <div>
                     <label class="form-label" for="inkind-delivery">Delivery / pickup</label>
                     <select id="inkind-delivery" name="delivery_mode" class="form-select">
@@ -98,7 +98,7 @@ In-kind pledge modal — blue-accent variant of the unified premium system.
                     <label class="form-label" for="inkind-date">Preferred date <span class="text-muted">(optional)</span></label>
                     <input type="date" id="inkind-date" name="preferred_date" class="form-control">
                   </div>
-                  <div>
+                  <div style="grid-column: 1 / -1;">
                     <label class="form-label" for="inkind-address">Address <span class="text-muted">(if applicable)</span></label>
                     <textarea id="inkind-address" name="address" class="form-control" rows="2"></textarea>
                   </div>
@@ -122,8 +122,8 @@ In-kind pledge modal — blue-accent variant of the unified premium system.
                     <input type="email" id="inkind-email" name="email" class="form-control" required autocomplete="email">
                   </div>
                   <div style="grid-column: 1 / -1;">
-                    <label class="form-label" for="inkind-phone">Phone</label>
-                    <input type="tel" id="inkind-phone" name="phone" class="form-control" required maxlength="15" placeholder="" autocomplete="tel">
+                    <label class="form-label" for="inkind-phone">Phone <span class="text-muted">(include country code, e.g. +254 712 345 678)</span></label>
+                    <input type="tel" id="inkind-phone" name="phone" class="form-control" required maxlength="20" placeholder="+254 712 345 678" autocomplete="tel">
                   </div>
                   <div style="grid-column: 1 / -1;">
                     <label class="form-label" for="inkind-notes">Notes <span class="text-muted">(optional)</span></label>
