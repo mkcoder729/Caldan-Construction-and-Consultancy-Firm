@@ -2635,3 +2635,364 @@
         padding: 10px 12px;
     }
 }
+
+/* ================================================================
+   CELEBRATION MODAL — opens after donation / in-kind / call submit.
+   Donor-facing. Driven by data-mode set in compassion.js.
+   ================================================================ */
+
+.celebration-modal .modal-content {
+    border: none;
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--bg-card);
+    box-shadow:
+        0 32px 80px rgba(13, 43, 54, 0.28),
+        0 4px 12px rgba(13, 43, 54, 0.12);
+    position: relative;
+    padding: 0;
+}
+
+.celebration-modal .modal-dialog {
+    max-width: 480px;
+}
+
+.celebration-modal__card {
+    /* nothing extra — .modal-content already gives us the rounded card */
+}
+
+.celebration-modal__stripe {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg,
+        var(--compassion-gold) 0%,
+        var(--compassion-green) 100%);
+}
+
+.celebration-modal__close {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 32px; height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    z-index: 2;
+}
+.celebration-modal__close:hover {
+    background: rgba(13, 43, 54, 0.06);
+    color: var(--text-primary);
+    transform: rotate(90deg);
+}
+.celebration-modal__close:focus-visible {
+    outline: 2px solid var(--accent-secondary);
+    outline-offset: 2px;
+}
+
+/* ───── Check icon ───── */
+
+.celebration-modal__check {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0 14px;
+}
+.celebration-modal__check svg {
+    width: 80px;
+    height: 80px;
+    overflow: visible;
+}
+.celebration-modal__check-ring {
+    fill: none;
+    stroke: var(--compassion-green);
+    stroke-width: 2;
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: celebDrawRing 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+}
+.celebration-modal__check-mark {
+    fill: none;
+    stroke: var(--compassion-green);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 50;
+    stroke-dashoffset: 50;
+    animation: celebDrawMark 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.55s forwards;
+}
+@keyframes celebDrawRing {
+    to { stroke-dashoffset: 0; }
+}
+@keyframes celebDrawMark {
+    to { stroke-dashoffset: 0; }
+}
+
+/* ───── Text ───── */
+
+.celebration-modal__eyebrow {
+    display: block;
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--compassion-gold-deep);
+    margin: 0 0 8px;
+}
+
+.celebration-modal__title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.5rem, 3vw, 1.9rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: center;
+    margin: 0 0 8px;
+    line-height: 1.2;
+    letter-spacing: -0.3px;
+}
+
+.celebration-modal__subtitle {
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0 28px 20px;
+}
+
+/* ───── Receipt card ───── */
+
+.celebration-modal__receipt {
+    margin: 0 24px 18px;
+    padding: 16px 18px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: 16px;
+}
+
+.celebration-modal__receipt-grid {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: 16px;
+    row-gap: 10px;
+    margin: 0;
+    font-size: 0.88rem;
+}
+.celebration-modal__receipt-grid dt {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+.celebration-modal__receipt-grid dd {
+    color: var(--text-primary);
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+    word-break: break-word;
+}
+
+/* Reference row — code + copy button */
+.celebration-modal__receipt-ref {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+}
+.celebration-modal__receipt-ref code {
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+    font-size: 0.82rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    padding: 3px 8px;
+    border-radius: 6px;
+    color: var(--text-primary);
+}
+.celebration-modal__copy {
+    background: transparent;
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.celebration-modal__copy:hover {
+    background: var(--accent-secondary);
+    color: #0D2B36;
+    border-color: var(--accent-secondary);
+}
+.celebration-modal__copy:focus-visible {
+    outline: 2px solid var(--accent-secondary);
+    outline-offset: 2px;
+}
+.celebration-modal__copy--copied {
+    background: var(--compassion-green);
+    color: #FFFFFF;
+    border-color: var(--compassion-green);
+}
+
+/* ───── Mode-specific rows (hidden by default, shown by [data-mode="..."]) ───── */
+
+.celebration-modal .celebration-modal__row-donation,
+.celebration-modal .celebration-modal__row-inkind,
+.celebration-modal .celebration-modal__row-call {
+    display: none;
+}
+.celebration-modal[data-mode="donation"] .celebration-modal__row-donation {
+    display: revert;
+}
+.celebration-modal[data-mode="inkind"] .celebration-modal__row-inkind {
+    display: revert;
+}
+.celebration-modal[data-mode="call"] .celebration-modal__row-call {
+    display: revert;
+}
+
+.celebration-modal__amount {
+    color: var(--compassion-gold-deep);
+    font-weight: 700;
+}
+
+/* ───── Email line ───── */
+
+.celebration-modal__next {
+    text-align: center;
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    margin: 0 28px 18px;
+    line-height: 1.5;
+}
+.celebration-modal__next span[data-celebration-email] {
+    color: var(--text-primary);
+    font-weight: 600;
+    word-break: break-word;
+}
+
+/* ───── Actions ───── */
+
+.celebration-modal__actions {
+    display: flex;
+    gap: 10px;
+    padding: 0 24px 28px;
+    justify-content: center;
+}
+
+.celebration-modal__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    font-family: inherit;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    text-decoration: none;
+    line-height: 1.2;
+    min-width: 0;
+}
+.celebration-modal__btn:focus-visible {
+    outline: 2px solid var(--accent-secondary);
+    outline-offset: 2px;
+}
+.celebration-modal__btn--primary {
+    background: var(--accent-secondary);
+    color: #0D2B36;
+    box-shadow: 0 6px 18px rgba(212, 175, 55, 0.32);
+    flex: 1;
+}
+.celebration-modal__btn--primary:hover {
+    background: var(--accent-secondary-hover, #E2BF4D);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.42);
+    color: #0D2B36;
+}
+.celebration-modal__btn--ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: var(--border-primary);
+}
+.celebration-modal__btn--ghost:hover {
+    color: var(--text-primary);
+    background: rgba(13, 43, 54, 0.04);
+}
+
+/* Spinner state on download button (toggled by bindDownloadLoading) */
+.celebration-modal__btn--download.is-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+.celebration-modal__btn--download.is-loading .celebration-modal__btn-icon {
+    display: none;
+}
+.celebration-modal__btn--download.is-loading .celebration-modal__btn-spinner {
+    display: inline-flex;
+}
+.celebration-modal__btn-spinner {
+    display: none;
+    animation: celebSpin 0.8s linear infinite;
+}
+.celebration-modal__btn-spinner i {
+    animation: celebSpin 0.8s linear infinite;
+}
+@keyframes celebSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* ───── Backdrop blur (matches the compassion theme) ───── */
+
+.celebration-modal.modal.show .modal-dialog {
+    animation: celebPopIn 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes celebPopIn {
+    from { transform: translateY(16px) scale(0.96); opacity: 0; }
+    to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+.modal-backdrop.show {
+    opacity: 0.55;
+}
+
+/* ───── Responsive ───── */
+
+@media (max-width: 720px) {
+    .celebration-modal .modal-dialog {
+        max-width: 100%;
+        margin: 0 12px;
+    }
+    .celebration-modal__title {
+        font-size: 1.35rem;
+    }
+    .celebration-modal__subtitle {
+        font-size: 0.9rem;
+        margin: 0 18px 16px;
+    }
+    .celebration-modal__receipt,
+    .celebration-modal__next {
+        margin-left: 18px;
+        margin-right: 18px;
+    }
+    .celebration-modal__actions {
+        padding: 0 18px 22px;
+        flex-direction: column;
+    }
+    .celebration-modal__btn {
+        width: 100%;
+    }
+    .celebration-modal__check {
+        margin: 22px 0 10px;
+    }
+    .celebration-modal__check svg {
+        width: 64px;
+        height: 64px;
+    }
+}
