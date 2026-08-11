@@ -1,23 +1,24 @@
 # ============================================================================
 # CALDAN CONSTRUCTION - DOCKERFILE FOR RAILWAY
 # Django 4.2.19 LTS - MySQL - Production
-# "Building Kenya's Future, One Project at a Time."
+# Building Kenya's Future, One Project at a Time.
 # ============================================================================
 
-# Use official Python image with Debian Bookworm
 FROM python:3.11-slim-bookworm
 
 # ============================================================================
-# INSTALL SYSTEM DEPENDENCIES FOR MYSQLCLIENT
+# INSTALL SYSTEM DEPENDENCIES
 # ============================================================================
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # MySQL client development headers (required for mysqlclient)
     default-libmysqlclient-dev \
-    # Build tools for compiling Python packages
     build-essential \
-    # pkg-config for finding libraries
     pkg-config \
-    # Clean up to reduce image size
+    libnss3 \
+    libatk-bridge2.0-0 \
+    libdrm2 \
+    libxkbcommon0 \
+    libgbm1 \
+    libasound2 \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================================================
@@ -26,23 +27,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     DJANGO_SETTINGS_MODULE=calsite.settings \
-    PORT=8080
+    PORT=8080 \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 # ============================================================================
 # APPLICATION SETUP
 # ============================================================================
 WORKDIR /app
 
-# Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
+# Install Playwright browsers
+RUN playwright install chromium
+RUN playwright install-deps
+
 COPY . .
 
-# Make entrypoint executable
 RUN chmod +x entrypoint.sh
 
 # ============================================================================
