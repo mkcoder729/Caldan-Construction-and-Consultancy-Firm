@@ -431,12 +431,18 @@ def newsletter_subscribe(request: HttpRequest) -> HttpResponse:
 
     # Fallback (non-AJAX): redirect back to the page they came from.
     referer = request.META.get("HTTP_REFERER", "/")
-    return redirect(referer)
+    response = redirect(referer)
+    response["X-Robots-Tag"] = "noindex, nofollow"
+    return response
 
 
 def newsletter_unsubscribe(request: HttpRequest, email: str) -> HttpResponse:
     """
     Handle newsletter unsubscription.
+
+    The unsubscribe URL embeds the subscriber's email in plaintext — these
+    pages must NEVER be indexed. We send the noindex directive on the
+    rendered response itself (no template dependency).
     """
     try:
         subscriber = get_object_or_404(NewsletterSubscriber, email=email, is_active=True)
@@ -462,4 +468,6 @@ def newsletter_unsubscribe(request: HttpRequest, email: str) -> HttpResponse:
         logger.error(f"Newsletter unsubscribe failed for {email}: {str(e)}")
         messages.error(request, "Something went wrong. Please try again.")
 
-    return render(request, "website/newsletter_unsubscribe.html", {"email": email})
+    response = render(request, "website/newsletter_unsubscribe.html", {"email": email})
+    response["X-Robots-Tag"] = "noindex, nofollow"
+    return response

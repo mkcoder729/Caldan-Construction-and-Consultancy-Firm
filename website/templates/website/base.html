@@ -1,45 +1,74 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-ke">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}Caldan Construction and Consultancy Firm — Building Kenya's Future{% endblock %}</title>
-    {% block meta_description %}
-    <meta name="description" content="Caldan Construction and Consultancy Firm is a leading construction company in Kenya. We offer design, construction, renovations, interior design, and industrial solutions.">
+    {# ============================================================ #}
+    {# Canonical URL — every indexable page must declare itself.    #}
+    {# Child templates override to strip pagination/filter params.  #}
+    {# Default uses request.path (drops query string).              #}
+    {# ============================================================ #}
+    {% block canonical %}
+    <link rel="canonical" href="https://caldanconstruction.com{{ request.path }}">
     {% endblock %}
-    {% block robots %}{% endblock %}
-    <meta name="keywords" content="construction Kenya, building contractor, renovations Nairobi, interior design, industrial flooring, concrete products">
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="Caldan Construction and Consultancy Firm — Building Kenya's Future">
+    <title>{% block title %}Caldan Construction — Building Kenya's Future{% endblock %}</title>
+
+    {# Meta description — child templates override per-page. #}
+    {% block meta_description %}
+    <meta name="description" content="Caldan Construction and Consultancy Firm is a leading construction company in Kenya. Design, build, renovate, interior design, industrial flooring, and more.">
+    {% endblock %}
+
+    {# Robots directive — child templates override with noindex where needed. #}
+    {% block robots %}
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+    {% endblock %}
+
+    <meta name="keywords" content="{% block keywords %}construction Kenya, building contractor, renovations Nairobi, interior design, industrial flooring, concrete products, Caldan Construction{% endblock %}">
+
+    {# ============================================================ #}
+    {# Open Graph — single source of truth.                         #}
+    {# Each child template overrides og_title / og_description /   #}
+    {# og_image / og_url with its own values. base.html provides    #}
+    {# brand-wide defaults so a page that forgets to override      #}
+    {# still renders valid OG/Twitter cards.                       #}
+    {# ============================================================ #}
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
     <meta property="og:site_name" content="Caldan Construction and Consultancy Firm">
-    <meta property="og:description" content="Trusted construction company in Kenya. Design, build, renovate, and more.">
-    <meta property="og:image" content="{% static 'images/og-image.png' %}">
-    <meta property="og:url" content="https://caldanconstruction.com">
-    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% block og_title %}Caldan Construction — Building Kenya's Future{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Caldan Construction is a leading construction company in Kenya. Design, build, renovate, interior design, industrial flooring, and more.{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}https://caldanconstruction.com{{ request.path }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}https://caldanconstruction.com/static/images/og-image.png{% endblock %}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_KE">
 
-    <!-- Twitter Card -->
+    {# Twitter Card #}
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Caldan Construction and Consultancy Firm — Building Kenya's Future">
-    <meta name="twitter:description" content="Trusted construction company in Kenya.">
-    <meta name="twitter:image" content="{% static 'images/og-image.png' %}">
+    <meta name="twitter:title" content="{% block twitter_title %}Caldan Construction — Building Kenya's Future{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Caldan Construction is a leading construction company in Kenya. Design, build, renovate, interior design, industrial flooring, and more.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}https://caldanconstruction.com/static/images/og-image.png{% endblock %}">
 
-    <!-- ============================================================ -->
-    <!-- SCHEMA MARKUP: Site Name for Google Search Results              -->
-    <!-- ============================================================ -->
+    {# ============================================================ #}
+    {# SCHEMA MARKUP — Organization + WebSite on every page.        #}
+    {# Organization is the canonical @id other schemas link to.     #}
+    {# WebSite + Organization carry the brand "Caldan Construction" #}
+    {# as the primary knowledge-graph entity.                       #}
+    {# ============================================================ #}
+    {% block schema %}
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "name": "Caldan Construction and Consultancy Firm",
-      "url": "https://caldanconstruction.com",
-      "description": "Building Kenya's Future, One Project at a Time.",
-      "publisher": {
-        "@type": "Organization",
-        "name": "Caldan Construction and Consultancy Firm"
-      }
+      "@id": "https://caldanconstruction.com/#website",
+      "name": "Caldan Construction",
+      "alternateName": "Caldan Construction and Consultancy Firm",
+      "url": "https://caldanconstruction.com/",
+      "description": "Caldan Construction is a leading construction company in Kenya. Design, build, renovate, interior design, industrial flooring, waterproofing, and more.",
+      "publisher": {"@id": "https://caldanconstruction.com/#organization"},
+      "inLanguage": "en-KE"
     }
     </script>
 
@@ -47,46 +76,69 @@
     {
       "@context": "https://schema.org",
       "@type": "Organization",
-      "name": "Caldan Construction and Consultancy Firm",
-      "alternateName": "Caldan Construction",
-      "description": "Building Kenya's Future, One Project at a Time.",
-      "url": "https://caldanconstruction.com",
-      "logo": "https://caldanconstruction.com/static/images/logo.png",
+      "@id": "https://caldanconstruction.com/#organization",
+      "name": "Caldan Construction",
+      "alternateName": "Caldan Construction and Consultancy Firm",
+      "description": "Leading construction company in Kenya — design, build, renovate, and supply across all 47 counties.",
+      "url": "https://caldanconstruction.com/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://caldanconstruction.com/static/images/logo.png",
+        "width": 512,
+        "height": 512
+      },
       "contactPoint": {
         "@type": "ContactPoint",
-        "telephone": "+254703653010",
+        "telephone": "+254-703-653-010",
         "contactType": "sales",
-        "availableLanguage": ["English"]
+        "areaServed": "KE",
+        "availableLanguage": ["English", "Swahili"]
       },
       "address": {
         "@type": "PostalAddress",
+        "streetAddress": "Odera Street, Kaloka Building, Opp. Nildeep",
         "addressLocality": "Nakuru",
+        "addressRegion": "Nakuru County",
+        "postalCode": "20100",
         "addressCountry": "KE"
-      }
+      },
+      "sameAs": [
+        "https://www.facebook.com/caldanconstruction",
+        "https://www.linkedin.com/company/caldan-construction",
+        "https://www.instagram.com/caldanconstruction"
+      ],
+      "areaServed": {"@type": "Country", "name": "Kenya"},
+      "foundingDate": "2008"
     }
     </script>
+    {% endblock %}
 
-    <!-- ============================================================ -->
-    <!-- FAVICON (v2 — renamed 2026-08-10 so Google re-fetches fresh) -->
-    <!-- ============================================================ -->
-    <link rel="icon" type="image/png" href="{% static 'images/favicon-96x96-v2.png' %}?v=20260810" sizes="96x96" />
+    {# ============================================================ #}
+    {# FAVICON — v2 cache-buster forces Google to re-fetch.         #}
+    {# 32×32 PNG referenced for legacy browser tabs.                #}
+    {# Theme-color matches web manifest for mobile Chrome.          #}
+    {# ============================================================ #}
+    <meta name="theme-color" content="#0D2B36">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-v2.png' %}?v=20260810" />
+    <link rel="icon" type="image/png" sizes="96x96" href="{% static 'images/favicon-96x96-v2.png' %}?v=20260810" />
     <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon-v2.svg' %}?v=20260810" />
     <link rel="shortcut icon" href="{% static 'images/favicon-v2.ico' %}?v=20260810" />
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/apple-touch-icon-v2.png' %}?v=20260810" />
     <link rel="manifest" href="{% static 'images/site.webmanifest' %}?v=20260810" />
 
-    <!-- Fonts: Montserrat + Playfair Display -->
+    {# Fonts: Montserrat + Playfair Display #}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Font Awesome 6 (Free) -->
+    {# Font Awesome 6 (Free) #}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <!-- AOS (Animate On Scroll) -->
+    {# AOS (Animate On Scroll) #}
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
 
-    <!-- Main CSS -->
+    {# Main CSS #}
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
 
@@ -94,40 +146,40 @@
 </head>
 <body>
 
-    <!-- ============================================================ -->
-    <!-- PRELOADER -->
-    <!-- ============================================================ -->
+    {# ============================================================ #}
+    {# PRELOADER                                                  #}
+    {# ============================================================ #}
     {% include "preloader.html" %}
 
-    <!-- ============================================================ -->
-    <!-- NAVBAR (Wrapper for scroll behavior) -->
-    <!-- ============================================================ -->
+    {# ============================================================ #}
+    {# NAVBAR (Wrapper for scroll behavior)                        #}
+    {# ============================================================ #}
     <header id="mainHeader">
         {% include "website/partials/_navbar.html" %}
     </header>
 
-    <!-- ============================================================ -->
-    <!-- MAIN CONTENT -->
-    <!-- ============================================================ -->
+    {# ============================================================ #}
+    {# MAIN CONTENT                                                #}
+    {# ============================================================ #}
     <main>
         {% block content %}{% endblock %}
     </main>
 
-    <!-- ============================================================ -->
-    <!-- FOOTER & PARTIALS -->
-    <!-- ============================================================ -->
+    {# ============================================================ #}
+    {# FOOTER & PARTIALS                                          #}
+    {# ============================================================ #}
     {% include "website/partials/_footer.html" %}
     {% include "website/partials/_whatsapp_button.html" %}
     {% include "website/partials/_cookie_consent.html" %}
     {% include "website/partials/_newsletter_popup.html" %}
 
-    <!-- Toast Container -->
+    {# Toast Container #}
     <div id="toastContainer" style="position: fixed; bottom: 90px; right: 24px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;"></div>
 
-    <!-- AOS JS -->
+    {# AOS JS #}
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-    <!-- Main JS -->
+    {# Main JS #}
     <script src="{% static 'js/main.js' %}"></script>
 
     <script>

@@ -1,22 +1,30 @@
 {
   "name": "Caldan Construction and Consultancy Firm",
-  "short_name": "Caldan",
+  "short_name": "Caldan Construction",
+  "description": "Leading construction company in Kenya — design, build, renovate, and supply across all 47 counties.",
   "icons": [
     {
-      "src": "/static/images/web-app-manifest-192x192-v2.png?v=20260810",
-      "sizes": "192x192",
+      "src": "/static/images/favicon-96x96-v2.png?v=20260810",
+      "sizes": "96x96",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any"
     },
     {
-      "src": "/static/images/web-app-manifest-512x512-v2.png?v=20260810",
-      "sizes": "512x512",
+      "src": "/static/images/apple-touch-icon-v2.png?v=20260810",
+      "sizes": "180x180",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/static/images/favicon-v2.svg?v=20260810",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ],
   "theme_color": "#0D2B36",
   "background_color": "#0D2B36",
   "display": "standalone",
-  "start_url": "/"
+  "start_url": "/",
+  "scope": "/"
 }

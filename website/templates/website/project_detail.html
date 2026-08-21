@@ -2,14 +2,17 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}{{ project.name }} — Caldan Construction and Consultancy Firm{% endblock %}
+{% block title %}{{ project.name }} — Caldan Construction Project in {{ project.town }}{% endblock %}
 
 {% block meta_description %}
 <meta name="description" content="{{ project.description|truncatewords:20 }}">
-<meta property="og:title" content="{{ project.name }} — Caldan Construction and Consultancy Firm">
-<meta property="og:description" content="{{ project.description|truncatewords:20 }}">
-{% if project.cover_photo %}<meta property="og:image" content="{{ project.cover_photo.url }}">{% endif %}
 {% endblock %}
+
+{% block og_description %}{{ project.description|truncatewords:20 }}{% endblock %}
+
+{% block og_image %}{% if project.cover_photo %}{{ project.cover_photo.url }}{% else %}https://caldanconstruction.com/static/images/og-image.png{% endif %}{% endblock %}
+
+{% block og_type %}article{% endblock %}
 
 {% block content %}
 

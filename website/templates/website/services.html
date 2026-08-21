@@ -1,17 +1,15 @@
 {% extends "website/base.html" %}
 {% load static %}
 
-{% block title %}Our Services — Caldan Construction and Consultancy Firm{% endblock %}
+{% block title %}Construction Services in Kenya — Caldan Construction{% endblock %}
 
 {% block meta_description %}
-<meta name="description" content="Caldan Construction and Consultancy Firm offers {{ services|length }} comprehensive construction services across Kenya: design & build, renovations, interior design, welding, concrete products, industrial flooring, waterproofing, roads & stormwater, and construction chemicals.">
-<meta name="keywords" content="construction Kenya, building contractor, renovations Nairobi, interior design Kenya, industrial flooring, concrete products, waterproofing, welding fabrication, roads construction, construction chemicals">
-<link rel="canonical" href="https://caldanconstruction.com/services/">
-<meta property="og:title" content="Our Services — Caldan Construction and Consultancy Firm">
-<meta property="og:description" content="{{ services|length }} service areas. One team. Design, build, renovate, waterproof, supply — across all 47 counties in Kenya.">
-<meta property="og:url" content="https://caldanconstruction.com/services/">
-<meta property="og:type" content="website">
+<meta name="description" content="Caldan Construction offers {{ services|length }} comprehensive construction services across Kenya: design & build, renovations, interior design, welding, concrete products, industrial flooring, waterproofing, roads, and construction chemicals.">
 {% endblock %}
+
+{% block keywords %}construction Kenya, building contractor, renovations Nairobi, interior design Kenya, industrial flooring, concrete products, waterproofing, welding fabrication, roads construction, construction chemicals{% endblock %}
+
+{% block og_description %}{{ services|length }} service areas. One team. Design, build, renovate, waterproof, supply — across all 47 counties in Kenya.{% endblock %}
 
 {% block content %}
 

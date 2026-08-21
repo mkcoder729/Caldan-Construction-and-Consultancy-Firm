@@ -1,14 +1,17 @@
 {% extends "website/base.html" %}
 {% load static %}
 
-{% block title %}{{ service.name }} — Caldan Construction and Consultancy Firm{% endblock %}
+{% block title %}{{ service.name }} — Caldan Construction Kenya{% endblock %}
 
 {% block meta_description %}
 <meta name="description" content="{{ service.description|truncatewords:20 }}">
-<meta property="og:title" content="{{ service.name }} — Caldan Construction and Consultancy Firm">
-<meta property="og:description" content="{{ service.description|truncatewords:20 }}">
-{% if service.image %}<meta property="og:image" content="{{ service.image.url }}">{% endif %}
 {% endblock %}
+
+{% block og_description %}{{ service.description|truncatewords:20 }}{% endblock %}
+
+{% block og_image %}{% if service.image %}{{ service.image.url }}{% else %}https://caldanconstruction.com/static/images/og-image.png{% endif %}{% endblock %}
+
+{% block og_type %}article{% endblock %}
 
 {% block content %}
 

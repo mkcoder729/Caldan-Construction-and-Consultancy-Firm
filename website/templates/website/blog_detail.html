@@ -1,16 +1,18 @@
 {% extends "website/base.html" %}
 {% load static %}
 
-{% block title %}{{ post.title }} — Caldan Construction and Consultancy Firm{% endblock %}
+{% block title %}{{ post.title }} — Caldan Construction Blog{% endblock %}
 
 {% block meta_description %}
 <meta name="description" content="{{ post.excerpt|default:post.title }}">
-<meta property="og:title" content="{{ post.title }}">
-<meta property="og:description" content="{{ post.excerpt|default:post.title }}">
-{% if post.image %}<meta property="og:image" content="{{ post.image.url }}">{% endif %}
-<meta property="og:url" content="{{ request.build_absolute_uri }}">
-<meta name="twitter:card" content="summary_large_image">
 {% endblock %}
+
+{% block og_title %}{{ post.title }} — Caldan Construction{% endblock %}
+{% block og_description %}{{ post.excerpt|default:post.title }}{% endblock %}
+
+{% block og_image %}{% if post.image %}{{ post.image.url }}{% else %}https://caldanconstruction.com/static/images/og-image.png{% endif %}{% endblock %}
+
+{% block og_type %}article{% endblock %}
 
 {% block content %}
 

@@ -15,13 +15,20 @@ from website.sitemaps import WebsiteSitemap
 
 
 def health_check(request):
-    """Health check endpoint for monitoring."""
+    """Health check endpoint for monitoring.
+
+    Returns a noindex JSON response so monitoring endpoints never appear in
+    SERPs. The X-Robots-Tag header is set on the response itself since
+    robots.txt cannot disallow a request path that already returns 200.
+    """
     status = {
         'status': 'healthy',
         'timestamp': timezone.now().isoformat(),
         'version': '1.0.0',
     }
-    return JsonResponse(status)
+    response = JsonResponse(status)
+    response['X-Robots-Tag'] = 'noindex, nofollow'
+    return response
 
 
 @require_GET
@@ -65,10 +72,25 @@ def robots_txt(request):
         "User-Agent: *",
         "Allow: /",
         "Disallow: /admin/",
+        "Disallow: /admin-services/",
+        "Disallow: /admin-projects/",
         "Disallow: /dashboard/",
         "Disallow: /accounts/",
         "Disallow: /setup/",
         "Disallow: /api/",
+        "Disallow: /blog/dashboard/",
+        "Disallow: /inventory/",
+        "Disallow: /finances/",
+        "Disallow: /clients/",
+        "Disallow: /team/",
+        "Disallow: /reports/",
+        "Disallow: /notifications/",
+        "Disallow: /shop/admin/",
+        "Disallow: /shop/checkout/",
+        "Disallow: /shop/payment/",
+        "Disallow: /newsletter/",
+        "Disallow: /health/",
+        "Disallow: /thank-you/",
         "Disallow: /media/private/",
     ]
 
@@ -85,10 +107,26 @@ def robots_txt(request):
         "User-Agent: Googlebot",
         "Allow: /",
         "Disallow: /admin/",
+        "Disallow: /admin-services/",
+        "Disallow: /admin-projects/",
         "Disallow: /dashboard/",
         "Disallow: /accounts/",
         "Disallow: /setup/",
         "Disallow: /api/",
+        "Disallow: /blog/dashboard/",
+        "Disallow: /inventory/",
+        "Disallow: /finances/",
+        "Disallow: /clients/",
+        "Disallow: /team/",
+        "Disallow: /reports/",
+        "Disallow: /notifications/",
+        "Disallow: /shop/admin/",
+        "Disallow: /shop/checkout/",
+        "Disallow: /shop/payment/",
+        "Disallow: /newsletter/",
+        "Disallow: /health/",
+        "Disallow: /thank-you/",
+        "Disallow: /media/private/",
         "Crawl-delay: 1",
         "",
     ]
@@ -99,10 +137,26 @@ def robots_txt(request):
         "User-Agent: Bingbot",
         "Allow: /",
         "Disallow: /admin/",
+        "Disallow: /admin-services/",
+        "Disallow: /admin-projects/",
         "Disallow: /dashboard/",
         "Disallow: /accounts/",
         "Disallow: /setup/",
         "Disallow: /api/",
+        "Disallow: /blog/dashboard/",
+        "Disallow: /inventory/",
+        "Disallow: /finances/",
+        "Disallow: /clients/",
+        "Disallow: /team/",
+        "Disallow: /reports/",
+        "Disallow: /notifications/",
+        "Disallow: /shop/admin/",
+        "Disallow: /shop/checkout/",
+        "Disallow: /shop/payment/",
+        "Disallow: /newsletter/",
+        "Disallow: /health/",
+        "Disallow: /thank-you/",
+        "Disallow: /media/private/",
         "Crawl-delay: 1",
         "",
     ]
@@ -251,7 +305,7 @@ urlpatterns = [
     path(
         'sitemap.xml',
         sitemap,
-        {'sitemaps': {'website': WebsiteSitemap}},
+        {'sitemaps': WebsiteSitemap},
         name='django.contrib.sitemaps.views.sitemap',
     ),
     path('robots.txt', robots_txt, name='robots_txt'),
