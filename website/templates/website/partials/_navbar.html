@@ -65,6 +65,7 @@
         height: 72px;
         display: flex;
         align-items: center;
+        z-index: 1000;
     }
     .navbar-container {
         display: flex;
@@ -78,7 +79,7 @@
         align-items: center;
         gap: 10px;
         text-decoration: none;
-        z-index: 1100; /* Higher than the menu */
+        z-index: 1100;
     }
     #main-logo {
         height: 48px;
@@ -176,6 +177,11 @@
         color: var(--accent-secondary);
     }
 
+    /* DEFAULT: Hide toggle on desktop */
+    .navbar-toggle {
+        display: none;
+    }
+
     @media (max-width: 992px) {
         .navbar-toggle {
             display: flex !important;
@@ -191,7 +197,7 @@
             font-size: 1.2rem;
         }
         .navbar-menu {
-            display: none; /* Hidden by default */
+            display: none;
             position: fixed;
             top: 72px;
             left: 0;
@@ -205,7 +211,6 @@
             max-height: calc(100vh - 72px);
             overflow-y: auto;
             z-index: 1000;
-            transition: all 0.3s ease;
         }
         .navbar-menu.active {
             display: flex !important;
