@@ -1,121 +1,119 @@
 {% load static %}
 
-<nav class="navbar" role="navigation" aria-label="Main navigation" style="position: relative; padding: 0 24px; height: 72px; display: flex; align-items: center;">
-    <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0;">
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container navbar-container">
 
         <!-- Logo -->
-        <a href="{% url 'website:index' %}" class="navbar-brand" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
-            <img src="{% static 'images/logo.png' %}" alt="Caldan Construction and Consultancy Firm" id="main-logo" style="height: 48px; width: auto; transition: all 0.3s ease;">
-            <span style="font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--text-primary); display: none; letter-spacing: -0.01em;">Caldan Construction</span>
+        <a href="{% url 'website:index' %}" class="navbar-brand">
+            <img src="{% static 'images/logo.png' %}" alt="Caldan Construction and Consultancy Firm" id="main-logo">
+            <span class="brand-text">Caldan Construction</span>
         </a>
 
         <!-- Navbar Toggle (Mobile) -->
-        <button id="navbarToggle" class="navbar-toggle" aria-expanded="false" style="display: none; background: none; border: none; font-size: 1.4rem; color: var(--text-primary); cursor: pointer; padding: 8px;" aria-label="Toggle navigation menu">
+        <button id="navbarToggle" class="navbar-toggle" aria-expanded="false" aria-label="Toggle navigation menu">
             <i class="fas fa-bars"></i>
         </button>
 
         <!-- Navbar Menu -->
-        <ul id="navbarMenu" class="navbar-menu" style="display: flex; align-items: center; gap: 4px; list-style: none; margin: 0; padding: 0;">
-
-            <!-- Home -->
-            <li>
-                <a href="{% url 'website:index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">
-                    Home
-                </a>
+        <ul id="navbarMenu" class="navbar-menu">
+            <li class="nav-item">
+                <a href="{% url 'website:index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">Home</a>
             </li>
-
-            <!-- About -->
-            <li>
-                <a href="{% url 'website:about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">
-                    About
-                </a>
+            <li class="nav-item">
+                <a href="{% url 'website:about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">About</a>
             </li>
-
-            <!-- Services -->
-            <li>
-                <a href="{% url 'website:services' %}" class="nav-link {% if request.resolver_match.url_name == 'services' %}active{% endif %}" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">
-                    Services
-                </a>
+            <li class="nav-item">
+                <a href="{% url 'website:services' %}" class="nav-link {% if request.resolver_match.url_name == 'services' %}active{% endif %}">Services</a>
             </li>
-
-            <!-- Projects -->
-            <li>
-                <a href="{% url 'website:projects' %}" class="nav-link {% if request.resolver_match.url_name == 'projects' %}active{% endif %}" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">
-                    Projects
-                </a>
+            <li class="nav-item">
+                <a href="{% url 'website:projects' %}" class="nav-link {% if request.resolver_match.url_name == 'projects' %}active{% endif %}">Projects</a>
             </li>
-
-            <!-- Blog -->
-            <li>
-                <a href="{% url 'website:blog' %}" class="nav-link {% if request.resolver_match.url_name == 'blog' %}active{% endif %}" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">
-                    Blog
-                </a>
+            <li class="nav-item">
+                <a href="{% url 'website:blog' %}" class="nav-link {% if request.resolver_match.url_name == 'blog' %}active{% endif %}">Blog</a>
             </li>
-
-            <!-- Compassion -->
-            <li>
-                <a href="{% url 'compassion:index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' and request.resolver_match.namespace == 'compassion' %}active{% endif %}" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">
-                    Compassion
-                </a>
+            <li class="nav-item">
+                <a href="{% url 'compassion:index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' and request.resolver_match.namespace == 'compassion' %}active{% endif %}">Compassion</a>
             </li>
-
-            <!-- Shop -->
-            <li>
-                <a href="{% url 'shop:index' %}" class="nav-link {% if request.resolver_match.namespace == 'shop' %}active{% endif %}" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">
-                    Shop
-                </a>
+            <li class="nav-item">
+                <a href="{% url 'shop:index' %}" class="nav-link {% if request.resolver_match.namespace == 'shop' %}active{% endif %}">Shop</a>
             </li>
-
-            <!-- Cart -->
-            <li>
-                <a href="{% url 'shop:cart_view' %}" aria-label="View cart" id="globalCartLink" style="position: relative; display: inline-flex; align-items: center; justify-content: center; padding: 9px 12px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-size: 1.05rem; transition: all 0.25s ease;">
+            <li class="nav-item">
+                <a href="{% url 'shop:cart_view' %}" aria-label="View cart" id="globalCartLink">
                     <i class="fas fa-shopping-cart"></i>
-                    <span id="globalCartBadge" class="cart-badge {% if not cart_count %}empty{% endif %}" style="position: absolute; top: 2px; right: 0; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent-secondary); color: #0D2B36; font-size: 0.65rem; font-weight: 700; display: flex; align-items: center; justify-content: center; line-height: 1;">
-                        {{ cart_count|default:0 }}
-                    </span>
+                    <span id="globalCartBadge" class="cart-badge {% if not cart_count %}empty{% endif %}">{{ cart_count|default:0 }}</span>
                 </a>
             </li>
-
-            <!-- Contact -->
-            <li>
-                <a href="{% url 'website:contact' %}" class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" style="padding: 9px 16px; border-radius: var(--radius-md); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.25s ease; font-family: 'Montserrat', sans-serif;">
-                    Contact
-                </a>
+            <li class="nav-item">
+                <a href="{% url 'website:contact' %}" class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">Contact</a>
             </li>
-
-            <!-- Get a Quote Button -->
-            <li>
-                <a href="{% url 'website:quote_request' %}" class="btn btn-gold btn-sm" style="margin-left: 6px; padding: 7px 14px; font-size: 0.82rem; font-family: 'Montserrat', sans-serif; font-weight: 600;">
-                    Get a Quote
-                </a>
+            <li class="nav-item">
+                <a href="{% url 'website:quote_request' %}" class="btn btn-gold btn-sm">Get a Quote</a>
             </li>
-
-            <!-- Theme Toggle -->
-            <li>
-                <button id="themeToggle" aria-label="Toggle theme" style="background: none; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; padding: 9px 14px; border-radius: var(--radius-md); transition: all 0.25s ease; display: flex; align-items: center; font-family: 'Montserrat', sans-serif;">
+            <li class="nav-item">
+                <button id="themeToggle" aria-label="Toggle theme">
                     <i class="fas fa-moon" id="themeIcon"></i>
                 </button>
             </li>
-
         </ul>
-
     </div>
 </nav>
 
 <style>
-    /* Theme Toggle */
-    #themeToggle:hover {
-        background: var(--bg-secondary);
-        color: var(--accent-secondary);
-    }
-    #themeToggle:active {
-        transform: scale(0.9);
-    }
-
-    /* Nav Links */
-    .nav-link {
+    .navbar {
         position: relative;
+        padding: 0 24px;
+        height: 72px;
+        display: flex;
+        align-items: center;
+    }
+    .navbar-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 0;
+    }
+    .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        z-index: 1001;
+    }
+    #main-logo {
+        height: 48px;
+        width: auto;
+        transition: all 0.3s ease;
+    }
+    .brand-text {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 1.15rem;
+        color: var(--text-primary);
+        display: none;
+        letter-spacing: -0.01em;
+    }
+    .navbar-menu {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    .nav-item {
+        display: flex;
+        align-items: center;
+    }
+    .nav-link {
+        padding: 9px 16px;
+        border-radius: var(--radius-md);
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem;
         transition: all 0.25s ease;
+        font-family: 'Montserrat', sans-serif;
     }
     .nav-link:hover {
         color: var(--accent-secondary) !important;
@@ -136,33 +134,74 @@
         background: var(--accent-secondary);
         border-radius: 2px;
     }
-
-    /* Global cart icon in main navbar */
+    #globalCartLink {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 9px 12px;
+        border-radius: var(--radius-md);
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 1.05rem;
+        transition: all 0.25s ease;
+    }
     #globalCartLink:hover {
         color: var(--accent-secondary);
         background: var(--bg-secondary);
     }
-    #globalCartLink:hover .cart-badge:not(.empty) {
-        transform: scale(1.08);
+    .cart-badge {
+        position: absolute;
+        top: 2px;
+        right: 0;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 9px;
+        background: var(--accent-secondary);
+        color: #0D2B36;
+        font-size: 0.65rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
     }
-    #globalCartBadge {
-        transition: transform 0.2s ease;
-    }
-    #globalCartBadge.empty {
+    .cart-badge.empty {
         display: none;
     }
+    #themeToggle {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 9px 14px;
+        border-radius: var(--radius-md);
+        transition: all 0.25s ease;
+        display: flex;
+        align-items: center;
+    }
+    #themeToggle:hover {
+        background: var(--bg-secondary);
+        color: var(--accent-secondary);
+    }
 
-    /* ================================================================
-       MOBILE RESPONSIVE
-    ================================================================ */
-
-    /* Tablet and below */
     @media (max-width: 992px) {
         .navbar-toggle {
-            display: block !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: 1px solid var(--border-primary);
+            border-radius: var(--radius-md);
+            padding: 8px 12px;
+            cursor: pointer;
+            color: var(--text-primary);
+            z-index: 1001;
         }
         .navbar-menu {
-            display: none !important;
+            display: none;
             position: fixed;
             top: 72px;
             left: 0;
@@ -180,16 +219,14 @@
         .navbar-menu.active {
             display: flex !important;
         }
-        .navbar-menu li {
+        .nav-item {
             width: 100%;
         }
-        .navbar-menu li a {
+        .nav-link, #globalCartLink, #themeToggle {
             display: block;
             padding: 12px 16px !important;
             width: 100%;
-        }
-        .navbar-menu li a.nav-link.active::after {
-            display: none;
+            text-align: center;
         }
         .navbar-menu .btn-gold {
             text-align: center;
@@ -198,43 +235,23 @@
             width: 100%;
             justify-content: center;
         }
-        #themeToggle {
-            padding: 12px 16px !important;
-            width: 100%;
-            justify-content: center;
-        }
-    }
-
-    /* Mobile */
-    @media (max-width: 480px) {
-        .navbar {
-            padding: 0 16px !important;
-        }
-        .navbar-brand img {
-            height: 40px !important;
-        }
-        .navbar-menu .btn-gold {
-            width: 100%;
-            justify-content: center;
-        }
     }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Mobile menu toggle
     var toggleBtn = document.getElementById('navbarToggle');
     var menu = document.getElementById('navbarMenu');
 
     if (toggleBtn && menu) {
-        toggleBtn.addEventListener('click', function() {
+        toggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
             var isOpen = menu.classList.toggle('active');
             this.setAttribute('aria-expanded', isOpen);
         });
 
-        // Close menu when clicking outside
         document.addEventListener('click', function(e) {
-            if (window.innerWidth <= 992) {
+            if (window.innerWidth <= 992 && menu.classList.contains('active')) {
                 if (!menu.contains(e.target) && !toggleBtn.contains(e.target)) {
                     menu.classList.remove('active');
                     toggleBtn.setAttribute('aria-expanded', 'false');
@@ -242,15 +259,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Close menu on Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && menu.classList.contains('active')) {
-                menu.classList.remove('active');
-                toggleBtn.setAttribute('aria-expanded', 'false');
-            }
-        });
-
-        // Close menu when a link is clicked (mobile)
         menu.querySelectorAll('a').forEach(function(link) {
             link.addEventListener('click', function() {
                 if (window.innerWidth <= 992) {
