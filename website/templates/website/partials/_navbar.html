@@ -65,7 +65,7 @@
         height: 72px;
         display: flex;
         align-items: center;
-        z-index: 1000;
+        z-index: 2000; /* Increased to be absolutely top */
     }
     .navbar-container {
         display: flex;
@@ -79,7 +79,7 @@
         align-items: center;
         gap: 10px;
         text-decoration: none;
-        z-index: 1100;
+        z-index: 2100;
     }
     #main-logo {
         height: 48px;
@@ -193,8 +193,9 @@
             padding: 8px 12px;
             cursor: pointer;
             color: var(--text-primary);
-            z-index: 1100;
+            z-index: 2100 !important; /* MUST be above everything */
             font-size: 1.2rem;
+            pointer-events: auto !important;
         }
         .navbar-menu {
             display: none;
@@ -210,7 +211,7 @@
             gap: 12px !important;
             max-height: calc(100vh - 72px);
             overflow-y: auto;
-            z-index: 1000;
+            z-index: 2000;
         }
         .navbar-menu.active {
             display: flex !important;
@@ -246,6 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation();
             var isOpen = menu.classList.toggle('active');
             this.setAttribute('aria-expanded', isOpen);
+            console.log('Navbar toggle clicked. Menu active:', isOpen);
         });
 
         document.addEventListener('click', function(e) {
