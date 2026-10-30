@@ -1,0 +1,7 @@
+PAYSTACK_SECRET_KEY=sk_live_08610ad6efa394f4bc388021ff8794f9eb0c9df5
+PAYSTACK_PUBLIC_KEY=pk_live_819db70e87f08f25e80e33a043af2a1048d7e35e
+PAYSTACK_LIVE=True
+PAYSTACK_CALLBACK_URL=https://caldanconstruction.com/shop/payment/verify/
+PAYSTACK_WEBHOOK_URL=https://caldanconstruction.com/shop/payment/webhook/
+CALDAN_COMPASSION_PAYSTACK_CALLBACK_URL=https://caldanconstruction.com/compassion/donate/verify/
+CALDAN_COMPASSION_PAYSTACK_WEBHOOK_URL=https://caldanconstruction.com/compassion/paystack/webhook/
