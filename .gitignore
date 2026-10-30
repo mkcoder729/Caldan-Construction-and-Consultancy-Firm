@@ -48,14 +48,21 @@ verify_email_modernisation.py
 verify_newsletter_bugfix.py
 verify_pdf_modernisation.py
 __diag__.py
-generate_tree.py
 render_email_previews.py
+# generate_tree.py is kept explicitly as requested
+
 
 # Generated docs / artifacts
+payment_demand_letter.txt
+SEO_AUDIT.txt
+SEO_IMPLEMENTATION_REPORT.txt
+variables.txt
+*.bak
 promt.txt
 project_directory.txt
 project_directory_structure.md
 test_audit.pdf
+
 
 # Local-only runtime output
 previews/
