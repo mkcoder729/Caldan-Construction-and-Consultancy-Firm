@@ -47,3 +47,5 @@ urlpatterns = [
     path("newsletter/subscribe/", newsletter_subscribe, name="newsletter_subscribe"),
     path("newsletter/unsubscribe/<str:email>/", newsletter_unsubscribe, name="newsletter_unsubscribe"),
 ]
+
+
