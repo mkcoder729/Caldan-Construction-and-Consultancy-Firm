@@ -195,7 +195,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const navbarMenu = document.getElementById('navbarMenu');
 
     if (navbarToggle && navbarMenu) {
-        navbarToggle.addEventListener('click', function() {
+        navbarToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             const expanded = this.getAttribute('aria-expanded') === 'true' || false;
             this.setAttribute('aria-expanded', !expanded);
             navbarMenu.classList.toggle('active');
@@ -210,6 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
 
     /* Navbar elevated state on scroll */
     const navbarEl = document.querySelector('.navbar');
