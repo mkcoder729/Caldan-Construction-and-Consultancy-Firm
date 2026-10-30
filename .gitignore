@@ -73,6 +73,8 @@ media/             # all uploaded + generated files (receipt PDFs, project
                    # calsite/settings.py (Cloudinary when creds are set).
 media/backups/
 tmp/
+# Force sync cleanup
+cleanup_timestamp: 2026-10-30
 
 # Railway build artifacts
 .railwayignore.bak
